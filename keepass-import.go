@@ -16,6 +16,7 @@ import (
 	Fields to export:
 
 		Group Tree
+		Group
 		Title
 		User Name
 		Password
@@ -27,11 +28,9 @@ import (
 
 	Convert to utf-8
 	Replace \" with ""
-
-	Replace group tree-less entries with General
 */
 
-func importStuff() {
+func keepassImport() {
 	result := parseGenericCsv("keepass2.csv")
 
 	foldersJustCreated := map[string]string{}
@@ -49,28 +48,32 @@ func importStuff() {
 			continue
 		}
 
-		if res["Group Tree"] == "" {
-			// log.Printf("res = %v", res)
-			log.Fatal("need group tree")
+		groupPath := res["Group"]
+		if res["Group Tree"] != "" {
+			groupPath = res["Group Tree"] + "\\" + res["Group"]
 		}
 
-		folder := folderByName(res["Group Tree"])
+		if groupPath == "" {
+			log.Fatal("need group path")
+		}
+
+		folder := folderByName(groupPath)
 
 		folderId := ""
 		if folder != nil {
 			folderId = folder.Id
-		} else if _, has := foldersJustCreated[res["Group Tree"]]; has {
-			folderId = foldersJustCreated[res["Group Tree"]]
+		} else if _, has := foldersJustCreated[groupPath]; has {
+			folderId = foldersJustCreated[groupPath]
 		} else {
 			folderId = cryptorandombytes.Hex(4)
 
 			events = append(events, FolderCreated{
 				Id:       folderId,
 				ParentId: "root",
-				Name:     res["Group Tree"],
+				Name:     groupPath,
 			})
 
-			foldersJustCreated[res["Group Tree"]] = folderId
+			foldersJustCreated[groupPath] = folderId
 		}
 
 		secretId := cryptorandombytes.Hex(4)
