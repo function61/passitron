@@ -166,9 +166,7 @@ function invokeCommand(cmd, opts) {
 				url: '/command/' + cmd,
 				data: JSON.stringify(values),
 				success: function(data) {
-					alert('success - reloading');
-
-					document.location.reload();
+					softReload();
 				},
 				contentType: "application/json"
 			});

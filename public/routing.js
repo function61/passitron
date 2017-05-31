@@ -22,6 +22,10 @@ function renderPage(components) {
 	routes[page].call(this, components);
 }
 
+function softReload() {
+	hashChanged();
+}
+
 function hashChanged() {
 	if (!document.location.hash) {
 		navigateTo([ 'index' ]);
@@ -30,7 +34,6 @@ function hashChanged() {
 
 	// '#index' => 'index'
 	renderPage(document.location.hash.substr(1).split('/'));
-	
 }
 
 $(document).ready(function (){
