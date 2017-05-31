@@ -34,8 +34,20 @@ routes.credview = function (args) {
 			.attr('data-clipboard-target', '#pwd')
 			.text('📋');
 
+		var tfaTr = detailsTable.tr();
+		detailsTable.td(tfaTr).text('TFA proof');
+		var tfaProofTd = detailsTable.td(tfaTr).attr('id', 'tfaproof');
+		detailsTable.td(tfaTr).attr('data-clipboard-target', '#tfaproof').text('📋');
+
+		tfaTr.hide();
+
 		exposedCred(cred.Id).then(function (exposeResult){
 			pwdTd.text(exposeResult.Password);
+
+			if (exposeResult.OtpProof !== "") {
+				tfaProofTd.text(exposeResult.OtpProof);
+				tfaTr.show();
+			}
 		});
 
 		var descriptionTr = detailsTable.tr();
@@ -75,5 +87,9 @@ routes.credview = function (args) {
 			prefill: {
 				Id: id
 			} });
+
+		$('<a class="btn btn-default">Attach OTP token</a>')
+			.attr('href', linkTo([ 'importotptoken', id ]))
+			.appendTo(cc());
 	});
 }

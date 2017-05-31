@@ -26,6 +26,12 @@ var commands = {
 			Password: {}
 		}
 	},
+	'SetOtpTokenRequest': {
+		fields: {
+			Id: {},
+			OtpProvisioningUrl: {}
+		}
+	},
 	'WriteKeepassRequest': {
 		fields: { }
 	},
@@ -140,13 +146,10 @@ function createFormForCommand(cmdSpec, opts) {
   */
 }
 
-function invokeCommandFromClickEvent() {
-	var node = this;
+function invokeCommand(cmd, opts) {
+	opts = opts || {};
 
-	var cmd = node.getAttribute('data-cmd');
 	var cmdSpec = commands[ cmd ];
-	var opts = JSON.parse(node.getAttribute('data-cmd-opts') || '{}');
-
 	var formCommand = createFormForCommand(cmdSpec, opts);
 
 	var dlg = inputDialog({
@@ -173,6 +176,15 @@ function invokeCommandFromClickEvent() {
 	});
 
 	formCommand.appendTo(dlg.body);
+}
+
+function invokeCommandFromClickEvent() {
+	var node = this;
+
+	var cmd = node.getAttribute('data-cmd');
+	var opts = JSON.parse(node.getAttribute('data-cmd-opts') || '{}');
+
+	invokeCommand(cmd, opts);
 }
 
 function initCommandArchitecture() {

@@ -10,6 +10,8 @@ func ApplyOneEvent(event interface{}) bool {
 		e.Apply()
 	case FolderCreated:
 		e.Apply()
+	case OtpTokenSet:
+		e.Apply()
 	case PasswordChanged:
 		e.Apply()
 	case SecretCreated:

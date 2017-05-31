@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/tobischo/gokeepasslib"
-	"os"
 	"log"
+	"os"
 )
 
 func exportRecursive(id string) gokeepasslib.Group {
