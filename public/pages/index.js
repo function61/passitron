@@ -1,9 +1,13 @@
 
-function credsWidget(matches) {
+function credsWidget(matches, search) {
 	var credsTable = createTable();
 
-	credsTable.th().text('Title');
+	var sw = searchWidget(search);
+
+	var titleTh = credsTable.th().text('Title');
 	credsTable.th().text('Username');
+
+	titleTh.append([ document.createElement('br'), sw ]);
 
 	for (var i = 0; i < matches.length; ++i) {
 		var tr = credsTable.tr();
@@ -23,10 +27,7 @@ function credsWidget(matches) {
 routes.index = function(args) {
 	var folderId = args[1] || 'root';
 
-
 	byFolder(folderId).then(function (resp) {
-		searchWidget(null).appendTo(cc());
-
 		var bcItems = resp.ParentFolders.reverse().map(function (item){
 			return {
 				href: linkTo([ 'index', item.Id ]),
@@ -53,7 +54,7 @@ routes.index = function(args) {
 				.appendTo(cc());
 		}
 
-		credsWidget(resp.Secrets).appendTo(cc());
+		credsWidget(resp.Secrets, null).appendTo(cc());
 
 		var secretCreateBtn = $('<button class="btn btn-default"></button>')
 			.text('+ Secret')

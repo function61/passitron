@@ -52,7 +52,7 @@ function breadcrumbWidget(items) {
 }
 
 function searchWidget(search) {
-	return $('<input type="text" class="form-control" placeholder="Search .." />')
+	return $('<input type="text" style="width: 250px;" class="form-control" placeholder="Search .." />')
 		.val(search || '')
 		.on('change', function (){
 			if (this.value) {
