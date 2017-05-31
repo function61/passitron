@@ -107,28 +107,40 @@ type FolderResponse struct {
 	Secrets       []Secret
 }
 
-func restFolder(w http.ResponseWriter, r *http.Request) {
-	folder := folderById(mux.Vars(r)["folderId"])
-
-	secrets := []Secret{}
+func subfoldersById(id string) []Folder {
 	subFolders := []Folder{}
-	parentFolders := []Folder{}
+
+	for _, f := range state.Folders {
+		if f.ParentId != id {
+			continue
+		}
+
+		subFolders = append(subFolders, f)
+	}
+
+	return subFolders
+}
+
+func secretsByFolder(id string) []Secret {
+	secrets := []Secret{}
 
 	for _, s := range state.Secrets {
-		if s.FolderId != folder.Id {
+		if s.FolderId != id {
 			continue
 		}
 
 		secrets = append(secrets, s.ToSecureSecret())
 	}
 
-	for _, f := range state.Folders {
-		if f.ParentId != folder.Id {
-			continue
-		}
+	return secrets
+}
 
-		subFolders = append(subFolders, f)
-	}
+func restFolder(w http.ResponseWriter, r *http.Request) {
+	folder := folderById(mux.Vars(r)["folderId"])
+
+	secrets := secretsByFolder(folder.Id)
+	subFolders := subfoldersById(folder.Id)
+	parentFolders := []Folder{}
 
 	parentId := folder.ParentId
 	for parentId != "" {

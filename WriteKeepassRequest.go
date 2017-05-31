@@ -15,10 +15,7 @@ func HandleWriteKeepassRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeKee("foobar")
-
-	// FIXME: this just temporarily here
-	state.Save()
+	keepassExport("supersecret")
 
 	w.Write([]byte("OK"))
 }

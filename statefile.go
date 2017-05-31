@@ -52,6 +52,17 @@ func (i *InsecureSecret) ToSecureSecret() Secret {
 	}
 }
 
+func (s *Secret) ToInsecureSecret() InsecureSecret {
+	return InsecureSecret{
+		Id:          s.Id,
+		FolderId:    s.FolderId,
+		Title:       s.Title,
+		Username:    s.Username,
+		Password:    s.password,
+		Description: s.Description,
+	}
+}
+
 type Folder struct {
 	Id       string
 	ParentId string
