@@ -16,24 +16,26 @@ routes.credview = function (args) {
 
 		var detailsTable = createTable();
 
-		var tr;
+		var usernameTr = detailsTable.tr();
+		detailsTable.td(usernameTr).text('Username');
+		detailsTable.td(usernameTr).attr('id', 'username').text(cred.Username);
+		detailsTable.td(usernameTr).attr('data-clipboard-target', '#username').text('📋');
 
-		tr = detailsTable.tr();
-		detailsTable.td(tr).text('Username');
-		detailsTable.td(tr).attr('id', 'username').text(cred.Username);
-		detailsTable.td(tr).attr('data-clipboard-target', '#username').text('📋');
-
-		var statusTr = detailsTable.tr();
-		detailsTable.td(statusTr).text('Password');
-		detailsTable.td(statusTr).text('.. requesting authorization ..');
+		var pwdTr = detailsTable.tr();
+		detailsTable
+			.td(pwdTr)
+			.text('Password');
+		var pwdTd = detailsTable
+			.td(pwdTr)
+			.attr('id', 'pwd')
+			.text('.. requesting authorization ..');
+		detailsTable
+			.td(pwdTr)
+			.attr('data-clipboard-target', '#pwd')
+			.text('📋');
 
 		exposedCred(cred.Id).then(function (exposeResult){
-			statusTr.remove();
-
-			tr = detailsTable.tr();
-			detailsTable.td(tr).text('Password');
-			detailsTable.td(tr).attr('id', 'pwd').text(exposeResult.Password);
-			detailsTable.td(tr).attr('data-clipboard-target', '#pwd').text('📋');
+			pwdTd.text(exposeResult.Password);
 		});
 
 		var descriptionTr = detailsTable.tr();
