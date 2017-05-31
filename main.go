@@ -76,7 +76,7 @@ func expose(w http.ResponseWriter, r *http.Request) {
 }
 
 func getSecrets(w http.ResponseWriter, r *http.Request) {
-	search := r.URL.Query().Get("search")
+	search := strings.ToLower(r.URL.Query().Get("search"))
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -89,7 +89,7 @@ func getSecrets(w http.ResponseWriter, r *http.Request) {
 		matches := []Secret{}
 
 		for _, s := range state.Secrets {
-			if !strings.Contains(s.Title, search) {
+			if !strings.Contains(strings.ToLower(s.Title), search) {
 				continue
 			}
 
