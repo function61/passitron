@@ -90,5 +90,16 @@ routes.index = function(args) {
 				Id: resp.Folder.Id,
 				Name: resp.Folder.Name
 			} });
+
+		var folderRenameBtn = $('<button class="btn btn-default"></button>')
+			.text('Move folder')
+			.appendTo(cc());
+
+		attachCommand(folderRenameBtn, {
+			cmd: 'MoveFolderRequest',
+			prefill: {
+				Id: resp.Folder.Id,
+				ParentId: resp.Folder.ParentId
+			} });
 	});
 }

@@ -46,6 +46,12 @@ var commands = {
 			Name: {}
 		}
 	},
+	'MoveFolderRequest': {
+		fields: {
+			Id: {},
+			ParentId: {}
+		}
+	},
 	'ChangeDescriptionRequest': {
 		fields: {
 			Id: {},
