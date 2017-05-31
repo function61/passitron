@@ -37,15 +37,31 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
+	secretId := cryptorandombytes.Hex(4)
+
+	events := []interface{}{
 		SecretCreated{
-			Id:       cryptorandombytes.Hex(4),
+			Id:       secretId,
 			FolderId: req.FolderId,
 			Title:    req.Title,
-			Username: req.Username,
-			Password: req.Password,
 		},
-	})
+	}
+
+	if req.Username != "" {
+		events = append(events, UsernameChanged{
+			Id:       secretId,
+			Username: req.Username,
+		})
+	}
+
+	if req.Password != "" {
+		events = append(events, PasswordChanged{
+			Id:       secretId,
+			Password: req.Password,
+		})
+	}
+
+	ApplyEvents(events)
 
 	w.Write([]byte("OK"))
 }

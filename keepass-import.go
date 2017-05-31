@@ -82,9 +82,21 @@ func keepassImport() {
 			Id:       secretId,
 			FolderId: folderId,
 			Title:    res["Account"],
-			Username: res["Login Name"],
-			Password: res["Password"],
 		})
+
+		if res["Login Name"] != "" {
+			events = append(events, UsernameChanged{
+				Id:       secretId,
+				Username: res["Login Name"],
+			})
+		}
+
+		if res["Password"] != "" {
+			events = append(events, PasswordChanged{
+				Id:       secretId,
+				Password: res["Password"],
+			})
+		}
 
 		if res["Comments"] != "" {
 			events = append(events, DescriptionChanged{

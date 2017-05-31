@@ -17,12 +17,19 @@ routes.credview = function (args) {
 		var detailsTable = createTable();
 
 		var usernameTr = detailsTable.tr();
-		detailsTable.td(usernameTr).text('Username');
+		var usernameHeading = detailsTable.td(usernameTr).text('Username');
 		detailsTable.td(usernameTr).attr('id', 'username').text(cred.Username);
 		detailsTable.td(usernameTr).attr('data-clipboard-target', '#username').text('📋');
 
+		attachCommand(usernameHeading, {
+			cmd: 'ChangeUsernameRequest',
+			prefill: {
+				Id: id,
+				Username: cred.Username
+			} });
+
 		var pwdTr = detailsTable.tr();
-		detailsTable
+		var pwdHeading = detailsTable
 			.td(pwdTr)
 			.text('Password');
 		var pwdTd = detailsTable
@@ -33,6 +40,12 @@ routes.credview = function (args) {
 			.td(pwdTr)
 			.attr('data-clipboard-target', '#pwd')
 			.text('📋');
+
+		attachCommand(pwdHeading, {
+			cmd: 'ChangePasswordRequest',
+			prefill: {
+				Id: id
+			} });
 
 		var tfaTr = detailsTable.tr();
 		detailsTable.td(tfaTr).text('TFA proof');
@@ -74,16 +87,6 @@ routes.credview = function (args) {
 
 		attachCommand(secretDeleteBtn, {
 			cmd: 'DeleteSecretRequest',
-			prefill: {
-				Id: id
-			} });
-
-		var changePasswordBtn = $('<button class="btn btn-default"></button>')
-			.text('Change pwd')
-			.appendTo(cc());
-
-		attachCommand(changePasswordBtn, {
-			cmd: 'ChangePasswordRequest',
 			prefill: {
 				Id: id
 			} });

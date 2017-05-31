@@ -20,6 +20,12 @@ var commands = {
 			Title: {}
 		}
 	},
+	'ChangeUsernameRequest': {
+		fields: {
+			Id: {},
+			Username: {}
+		}
+	},
 	'ChangePasswordRequest': {
 		fields: {
 			Id: {},

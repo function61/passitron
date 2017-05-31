@@ -24,6 +24,8 @@ func ApplyOneEvent(event interface{}) bool {
 		e.Apply()
 	case SecretRenamed:
 		e.Apply()
+	case UsernameChanged:
+		e.Apply()
 	}
 
 	return true

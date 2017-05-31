@@ -7,6 +7,7 @@ import "net/http"
 var commandHandlers = map[string]func(w http.ResponseWriter, r *http.Request){
 	"ChangeDescriptionRequest": HandleChangeDescriptionRequest,
 	"ChangePasswordRequest":    HandleChangePasswordRequest,
+	"ChangeUsernameRequest":    HandleChangeUsernameRequest,
 	"DeleteSecretRequest":      HandleDeleteSecretRequest,
 	"FolderCreateRequest":      HandleFolderCreateRequest,
 	"MoveFolderRequest":        HandleMoveFolderRequest,
