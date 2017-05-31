@@ -79,5 +79,16 @@ routes.index = function(args) {
 			prefill: {
 				ParentId: folderId
 			} });
+
+		var folderRenameBtn = $('<button class="btn btn-default"></button>')
+			.text('Rename folder')
+			.appendTo(cc());
+
+		attachCommand(folderRenameBtn, {
+			cmd: 'RenameFolderRequest',
+			prefill: {
+				Id: resp.Folder.Id,
+				Name: resp.Folder.Name
+			} });
 	});
 }

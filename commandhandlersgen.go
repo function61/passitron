@@ -9,6 +9,7 @@ var commandHandlers = map[string]func(w http.ResponseWriter, r *http.Request){
 	"ChangePasswordRequest":    HandleChangePasswordRequest,
 	"DeleteSecretRequest":      HandleDeleteSecretRequest,
 	"FolderCreateRequest":      HandleFolderCreateRequest,
+	"RenameFolderRequest":      HandleRenameFolderRequest,
 	"RenameSecretRequest":      HandleRenameSecretRequest,
 	"SecretCreateRequest":      HandleSecretCreateRequest,
 	"SetOtpTokenRequest":       HandleSetOtpTokenRequest,
