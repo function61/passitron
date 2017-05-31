@@ -1,5 +1,5 @@
 
-function credsWidget(matches, search) {
+function credsWidget(folders, entries, search) {
 	var credsTable = createTable();
 
 	var sw = searchWidget(search);
@@ -9,16 +9,32 @@ function credsWidget(matches, search) {
 
 	titleTh.append([ document.createElement('br'), sw ]);
 
-	for (var i = 0; i < matches.length; ++i) {
+	for (var i = 0; i < folders.length; ++i) {
+		var sub = folders[i];
+
+		var tr = credsTable.tr();
+		var folderTitleTd = credsTable.td(tr);
+
+		var folderIcon = $('<span class="glyphicon glyphicon-folder-open"></span>');
+
+		$('<a></a>')
+			.attr('href', linkTo([ 'index', sub.Id ]))
+			.append([ folderIcon, ' &nbsp;', sub.Name ])
+			.appendTo(folderTitleTd);
+
+		credsTable.td(tr);
+	}
+
+	for (var i = 0; i < entries.length; ++i) {
 		var tr = credsTable.tr();
 
 		var titleTd = credsTable.td(tr);
 		$('<a></a>')
-			.attr('href', linkTo([ 'credview', matches[i].Id ]))
-			.text(matches[i].Title)
+			.attr('href', linkTo([ 'credview', entries[i].Id ]))
+			.text(entries[i].Title)
 			.appendTo(titleTd);
 
-		credsTable.td(tr).text(matches[i].Username);
+		credsTable.td(tr).text(entries[i].Username);
 	}
 
 	return credsTable.table;
@@ -27,7 +43,7 @@ function credsWidget(matches, search) {
 routes.index = function(args) {
 	var folderId = args[1] || 'root';
 
-	byFolder(folderId).then(function (resp) {
+	rest_byFolder(folderId).then(function (resp) {
 		var bcItems = resp.ParentFolders.reverse().map(function (item){
 			return {
 				href: linkTo([ 'index', item.Id ]),
@@ -42,19 +58,7 @@ routes.index = function(args) {
 
 		breadcrumbWidget(bcItems).appendTo(cc());
 
-		for (var i = 0; i < resp.SubFolders.length; ++i) {
-			var sub = resp.SubFolders[i];
-
-			var folderIcon = $('<span class="glyphicon glyphicon-folder-open"></span>');
-
-			$('<a class="btn btn-default"></a>')
-				.attr('href', linkTo([ 'index', sub.Id ]))
-				.append([ folderIcon, ' &nbsp;', sub.Name ])
-				// .text(sub.Name)
-				.appendTo(cc());
-		}
-
-		credsWidget(resp.Secrets, null).appendTo(cc());
+		credsWidget(resp.SubFolders, resp.Secrets, null).appendTo(cc());
 
 		var secretCreateBtn = $('<button class="btn btn-default"></button>')
 			.text('+ Secret')

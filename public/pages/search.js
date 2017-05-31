@@ -2,12 +2,10 @@
 routes.search = function(args) {
 	var search = args[1];
 
-	allCreds(search).then(function(allCredentials){
-		// $('<h1>loq</h1>').appendTo(document.body);
+	rest_search(search).then(function(entries){
+		breadcrumbWidget([ { label: 'Search', href: '' }]).appendTo(cc());
 
-		var matches = allCredentials;
-
-		credsWidget(matches, search).appendTo(cc());
+		credsWidget([], entries, search).appendTo(cc());
 	});
 }
 
