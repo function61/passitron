@@ -40,7 +40,11 @@ routes.credview = function (args) {
 
 		var descriptionTr = detailsTable.tr();
 		var descriptionHeadingTd = detailsTable.td(descriptionTr).text('Description');
-		detailsTable.td(descriptionTr).text(cred.Description);
+		detailsTable
+			.td(descriptionTr)
+			.css('font-family', 'monospace')
+			.css('white-space', 'pre')
+			.text(cred.Description);
 
 		attachCommand(descriptionHeadingTd, {
 			cmd: 'ChangeDescriptionRequest',
