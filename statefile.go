@@ -5,6 +5,8 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"io/ioutil"
+	"log"
+	"os"
 	"time"
 )
 
@@ -109,8 +111,29 @@ func (s *Statefile) Save() {
 	}
 }
 
+func writeBlankStatefile() {
+	rootFolder := Folder{
+		Id:       "root",
+		ParentId: "",
+		Name:     "root",
+	}
+
+	state = &Statefile{
+		Secrets: []InsecureSecret{},
+		Folders: []Folder{rootFolder},
+	}
+
+	state.Save()
+}
+
 func ReadStatefile() (*Statefile, error) {
 	var s Statefile
+
+	if _, err := os.Stat(statefilePath); os.IsNotExist(err) {
+		log.Printf("Statefile does not exist. Initializing %s", statefilePath)
+
+		writeBlankStatefile()
+	}
 
 	jsonBytes, err := ioutil.ReadFile(statefilePath)
 	if err != nil {
