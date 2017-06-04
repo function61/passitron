@@ -1,4 +1,4 @@
-package main
+package state
 
 import (
 	"encoding/json"
@@ -118,12 +118,18 @@ func writeBlankStatefile() {
 		Name:     "root",
 	}
 
-	state = &Statefile{
+	Data = &Statefile{
 		Secrets: []InsecureSecret{},
 		Folders: []Folder{rootFolder},
 	}
 
-	state.Save()
+	Data.Save()
+}
+
+var Data *Statefile
+
+func Initialize() {
+	Data, _ = ReadStatefile()
 }
 
 func ReadStatefile() (*Statefile, error) {

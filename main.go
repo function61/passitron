@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/state"
 	"github.com/gorilla/mux"
 	_ "github.com/wader/disable_sendfile_vbox_linux"
 	"log"
@@ -12,10 +13,8 @@ import (
 
 //go:generate go run gen/main.go
 
-var state *Statefile
-
-func secretById(id string) *Secret {
-	for _, s := range state.Secrets {
+func secretById(id string) *state.Secret {
+	for _, s := range state.Data.Secrets {
 		if s.Id == id {
 			secret := s.ToSecureSecret()
 			return &secret
@@ -25,9 +24,19 @@ func secretById(id string) *Secret {
 	return nil
 }
 
-func folderById(id string) *Folder {
-	for _, f := range state.Folders {
+func folderById(id string) *state.Folder {
+	for _, f := range state.Data.Folders {
 		if f.Id == id {
+			return &f
+		}
+	}
+
+	return nil
+}
+
+func folderByName(name string) *state.Folder {
+	for _, f := range state.Data.Folders {
+		if f.Name == name {
 			return &f
 		}
 	}
@@ -84,11 +93,11 @@ func getSecrets(w http.ResponseWriter, r *http.Request) {
 	if search == "" {
 		// w.WriteHeader(http.StatusOK)
 		// w.Write([]byte("hello world"))
-		json.NewEncoder(w).Encode(state.Secrets)
+		json.NewEncoder(w).Encode(state.Data.Secrets)
 	} else {
-		matches := []Secret{}
+		matches := []state.Secret{}
 
-		for _, s := range state.Secrets {
+		for _, s := range state.Data.Secrets {
 			if !strings.Contains(strings.ToLower(s.Title), search) {
 				continue
 			}
@@ -101,16 +110,16 @@ func getSecrets(w http.ResponseWriter, r *http.Request) {
 }
 
 type FolderResponse struct {
-	Folder        *Folder
-	SubFolders    []Folder
-	ParentFolders []Folder
-	Secrets       []Secret
+	Folder        *state.Folder
+	SubFolders    []state.Folder
+	ParentFolders []state.Folder
+	Secrets       []state.Secret
 }
 
-func subfoldersById(id string) []Folder {
-	subFolders := []Folder{}
+func subfoldersById(id string) []state.Folder {
+	subFolders := []state.Folder{}
 
-	for _, f := range state.Folders {
+	for _, f := range state.Data.Folders {
 		if f.ParentId != id {
 			continue
 		}
@@ -121,10 +130,10 @@ func subfoldersById(id string) []Folder {
 	return subFolders
 }
 
-func secretsByFolder(id string) []Secret {
-	secrets := []Secret{}
+func secretsByFolder(id string) []state.Secret {
+	secrets := []state.Secret{}
 
-	for _, s := range state.Secrets {
+	for _, s := range state.Data.Secrets {
 		if s.FolderId != id {
 			continue
 		}
@@ -140,7 +149,7 @@ func restFolder(w http.ResponseWriter, r *http.Request) {
 
 	secrets := secretsByFolder(folder.Id)
 	subFolders := subfoldersById(folder.Id)
-	parentFolders := []Folder{}
+	parentFolders := []state.Folder{}
 
 	parentId := folder.ParentId
 	for parentId != "" {
@@ -158,7 +167,7 @@ func restFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	state, _ = ReadStatefile()
+	state.Initialize()
 
 	router := mux.NewRouter()
 

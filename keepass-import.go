@@ -3,6 +3,7 @@ package main
 import (
 	"./util/cryptorandombytes" // FIXME
 	"encoding/csv"
+	"github.com/function61/pi-security-module/state"
 	"log"
 	"os"
 )
@@ -110,19 +111,9 @@ func keepassImport() {
 
 	log.Printf("%d event(s) applied", len(events))
 
-	state.Save()
+	state.Data.Save()
 
 	log.Printf("State saved")
-}
-
-func folderByName(name string) *Folder {
-	for _, f := range state.Folders {
-		if f.Name == name {
-			return &f
-		}
-	}
-
-	return nil
 }
 
 func parseGenericCsv(filename string) []map[string]string {

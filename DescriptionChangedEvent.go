@@ -1,15 +1,19 @@
 package main
 
+import (
+	"github.com/function61/pi-security-module/state"
+)
+
 type DescriptionChanged struct {
 	Id          string
 	Description string
 }
 
 func (e *DescriptionChanged) Apply() {
-	for idx, s := range state.Secrets {
+	for idx, s := range state.Data.Secrets {
 		if s.Id == e.Id {
 			s.Description = e.Description
-			state.Secrets[idx] = s
+			state.Data.Secrets[idx] = s
 			return
 		}
 	}

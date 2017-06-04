@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/function61/pi-security-module/state"
+)
+
 type SecretCreated struct {
 	Id       string
 	FolderId string
@@ -7,11 +11,11 @@ type SecretCreated struct {
 }
 
 func (e *SecretCreated) Apply() {
-	secret := InsecureSecret{
+	secret := state.InsecureSecret{
 		Id:       e.Id,
 		FolderId: e.FolderId,
 		Title:    e.Title,
 	}
 
-	state.Secrets = append(state.Secrets, secret)
+	state.Data.Secrets = append(state.Data.Secrets, secret)
 }

@@ -1,15 +1,19 @@
 package main
 
+import (
+	"github.com/function61/pi-security-module/state"
+)
+
 type FolderRenamed struct {
 	Id   string
 	Name string
 }
 
 func (e *FolderRenamed) Apply() {
-	for idx, s := range state.Folders {
+	for idx, s := range state.Data.Folders {
 		if s.Id == e.Id {
 			s.Name = e.Name
-			state.Folders[idx] = s
+			state.Data.Folders[idx] = s
 			return
 		}
 	}

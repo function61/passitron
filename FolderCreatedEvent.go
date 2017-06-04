@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/function61/pi-security-module/state"
+)
+
 type FolderCreated struct {
 	Id       string
 	ParentId string
@@ -7,11 +11,11 @@ type FolderCreated struct {
 }
 
 func (e *FolderCreated) Apply() {
-	newFolder := Folder{
+	newFolder := state.Folder{
 		Id:       e.Id,
 		ParentId: e.ParentId,
 		Name:     e.Name,
 	}
 
-	state.Folders = append(state.Folders, newFolder)
+	state.Data.Folders = append(state.Data.Folders, newFolder)
 }
