@@ -14,6 +14,34 @@ const (
 	statefilePath = "state.json"
 )
 
+func SubfoldersById(id string) []Folder {
+	subFolders := []Folder{}
+
+	for _, f := range Data.Folders {
+		if f.ParentId != id {
+			continue
+		}
+
+		subFolders = append(subFolders, f)
+	}
+
+	return subFolders
+}
+
+func SecretsByFolder(id string) []Secret {
+	secrets := []Secret{}
+
+	for _, s := range Data.Secrets {
+		if s.FolderId != id {
+			continue
+		}
+
+		secrets = append(secrets, s.ToSecureSecret())
+	}
+
+	return secrets
+}
+
 func SecretById(id string) *Secret {
 	for _, s := range Data.Secrets {
 		if s.Id == id {

@@ -13,7 +13,7 @@ func exportRecursive(id string) gokeepasslib.Group {
 	group := gokeepasslib.NewGroup()
 	group.Name = folder.Name
 
-	secrets := secretsByFolder(folder.Id)
+	secrets := state.SecretsByFolder(folder.Id)
 
 	for _, secret := range secrets {
 		entry := gokeepasslib.NewEntry()
@@ -26,7 +26,7 @@ func exportRecursive(id string) gokeepasslib.Group {
 		group.Entries = append(group.Entries, entry)
 	}
 
-	subFolders := subfoldersById(folder.Id)
+	subFolders := state.SubfoldersById(folder.Id)
 
 	for _, subFolder := range subFolders {
 		group.Groups = append(group.Groups, exportRecursive(subFolder.Id))
