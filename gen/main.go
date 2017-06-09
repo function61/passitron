@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-
 func main() {
 	genCommandHandlerMap()
 	genEventHandlerMap()
@@ -56,7 +55,7 @@ func genEventHandlerMap() {
 		// "SecretCreated"
 		eventName := match[1]
 
-		fileLines = append(fileLines, "		case " + eventName + ":")
+		fileLines = append(fileLines, "		case "+eventName+":")
 		fileLines = append(fileLines, "			e.Apply()")
 	}
 
@@ -66,7 +65,6 @@ func genEventHandlerMap() {
 		"	return true",
 		"}")
 
-
 	fileLinesSerialized := strings.Join(fileLines, "\n")
 
 	if err := ioutil.WriteFile("eventhandlersmap.go", []byte(fileLinesSerialized), 0644); err != nil {
@@ -74,7 +72,7 @@ func genEventHandlerMap() {
 	}
 }
 
-func genCommandHandlerMap() {	
+func genCommandHandlerMap() {
 	files, err := ioutil.ReadDir(".")
 	if err != nil {
 		panic(err)

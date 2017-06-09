@@ -1,12 +1,12 @@
 package command
 
 import (
-	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"encoding/json"
 	"errors"
-	"net/http"
 	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/cryptorandombytes"
+	"net/http"
 )
 
 type SecretCreateRequest struct {

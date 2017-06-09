@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/folder/event"
-	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util"
 	"net/http"
 )
 

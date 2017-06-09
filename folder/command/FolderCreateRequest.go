@@ -1,11 +1,11 @@
 package command
 
 import (
-	"github.com/function61/pi-security-module/util/cryptorandombytes"
-	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/folder/event"
 	"encoding/json"
 	"errors"
+	"github.com/function61/pi-security-module/folder/event"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"net/http"
 )
 
