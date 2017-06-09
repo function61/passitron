@@ -1,9 +1,12 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/state"
 )
 
 type ChangeUsernameRequest struct {
@@ -15,7 +18,7 @@ func (f *ChangeUsernameRequest) Validate() error {
 	if f.Id == "" {
 		return errors.New("Id missing")
 	}
-	if secretById(f.Id) == nil {
+	if state.SecretById(f.Id) == nil {
 		return errors.New("Secret by Id not found")
 	}
 
@@ -34,8 +37,8 @@ func HandleChangeUsernameRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		UsernameChanged{
+	util.ApplyEvents([]interface{}{
+		event.UsernameChanged{
 			Id:       req.Id,
 			Username: req.Username,
 		},

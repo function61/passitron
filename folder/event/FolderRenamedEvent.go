@@ -1,18 +1,18 @@
-package main
+package event
 
 import (
 	"github.com/function61/pi-security-module/state"
 )
 
-type FolderMoved struct {
-	Id       string
-	ParentId string
+type FolderRenamed struct {
+	Id   string
+	Name string
 }
 
-func (e *FolderMoved) Apply() {
+func (e *FolderRenamed) Apply() {
 	for idx, s := range state.Data.Folders {
 		if s.Id == e.Id {
-			s.ParentId = e.ParentId
+			s.Name = e.Name
 			state.Data.Folders[idx] = s
 			return
 		}

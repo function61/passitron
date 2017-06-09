@@ -1,9 +1,11 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
 )
 
 type ChangePasswordRequest struct {
@@ -34,8 +36,8 @@ func HandleChangePasswordRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		PasswordChanged{
+	util.ApplyEvents([]interface{}{
+		event.PasswordChanged{
 			Id:       req.Id,
 			Password: req.Password,
 		},

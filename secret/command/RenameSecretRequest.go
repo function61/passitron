@@ -1,9 +1,11 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
 )
 
 type RenameSecretRequest struct {
@@ -34,8 +36,8 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		SecretRenamed{
+	util.ApplyEvents([]interface{}{
+		event.SecretRenamed{
 			Id:    req.Id,
 			Title: req.Title,
 		},

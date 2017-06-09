@@ -1,7 +1,9 @@
-package main
+package command
 
 import (
-	"./util/cryptorandombytes" // FIXME
+	"github.com/function61/pi-security-module/util/cryptorandombytes"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/folder/event"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -35,8 +37,8 @@ func HandleFolderCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		FolderCreated{
+	util.ApplyEvents([]interface{}{
+		event.FolderCreated{
 			Id:       cryptorandombytes.Hex(4),
 			ParentId: req.ParentId,
 			Name:     req.Name,

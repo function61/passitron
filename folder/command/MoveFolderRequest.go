@@ -1,7 +1,10 @@
-package main
+package command
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/folder/event"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/state"
 	"errors"
 	"net/http"
 )
@@ -18,10 +21,10 @@ func (f *MoveFolderRequest) Validate() error {
 	if f.ParentId == "" {
 		return errors.New("ParentId missing")
 	}
-	if folderById(f.Id) == nil {
+	if state.FolderById(f.Id) == nil {
 		return errors.New("Folder by Id not found")
 	}
-	if folderById(f.ParentId) == nil {
+	if state.FolderById(f.ParentId) == nil {
 		return errors.New("Folder by ParentId not found")
 	}
 
@@ -40,8 +43,8 @@ func HandleMoveFolderRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		FolderMoved{
+	util.ApplyEvents([]interface{}{
+		event.FolderMoved{
 			Id:       req.Id,
 			ParentId: req.ParentId,
 		},

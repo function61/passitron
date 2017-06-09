@@ -1,9 +1,12 @@
 package main
 
 import (
-	"./util/cryptorandombytes" // FIXME
 	"encoding/csv"
+	folderevent "github.com/function61/pi-security-module/folder/event"
+	secretevent "github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"log"
 	"os"
 )
@@ -58,7 +61,7 @@ func keepassImport() {
 			log.Fatal("need group path")
 		}
 
-		folder := folderByName(groupPath)
+		folder := state.FolderByName(groupPath)
 
 		folderId := ""
 		if folder != nil {
@@ -68,7 +71,7 @@ func keepassImport() {
 		} else {
 			folderId = cryptorandombytes.Hex(4)
 
-			events = append(events, FolderCreated{
+			events = append(events, folderevent.FolderCreated{
 				Id:       folderId,
 				ParentId: "root",
 				Name:     groupPath,
@@ -79,35 +82,35 @@ func keepassImport() {
 
 		secretId := cryptorandombytes.Hex(4)
 
-		events = append(events, SecretCreated{
+		events = append(events, secretevent.SecretCreated{
 			Id:       secretId,
 			FolderId: folderId,
 			Title:    res["Account"],
 		})
 
 		if res["Login Name"] != "" {
-			events = append(events, UsernameChanged{
+			events = append(events, secretevent.UsernameChanged{
 				Id:       secretId,
 				Username: res["Login Name"],
 			})
 		}
 
 		if res["Password"] != "" {
-			events = append(events, PasswordChanged{
+			events = append(events, secretevent.PasswordChanged{
 				Id:       secretId,
 				Password: res["Password"],
 			})
 		}
 
 		if res["Comments"] != "" {
-			events = append(events, DescriptionChanged{
+			events = append(events, secretevent.DescriptionChanged{
 				Id:          secretId,
 				Description: res["Comments"],
 			})
 		}
 	}
 
-	ApplyEvents(events)
+	util.ApplyEvents(events)
 
 	log.Printf("%d event(s) applied", len(events))
 

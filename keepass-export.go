@@ -1,13 +1,14 @@
 package main
 
 import (
+	"github.com/function61/pi-security-module/state"
 	"github.com/tobischo/gokeepasslib"
 	"log"
 	"os"
 )
 
 func exportRecursive(id string) gokeepasslib.Group {
-	folder := folderById(id)
+	folder := state.FolderById(id)
 
 	group := gokeepasslib.NewGroup()
 	group.Name = folder.Name

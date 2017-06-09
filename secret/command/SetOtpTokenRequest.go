@@ -1,9 +1,11 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
 )
 
 type SetOtpTokenRequest struct {
@@ -34,8 +36,8 @@ func HandleSetOtpTokenRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		OtpTokenSet{
+	util.ApplyEvents([]interface{}{
+		event.OtpTokenSet{
 			Id:                 req.Id,
 			OtpProvisioningUrl: req.OtpProvisioningUrl,
 		},

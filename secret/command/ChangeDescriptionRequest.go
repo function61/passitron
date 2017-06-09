@@ -1,8 +1,11 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/state"
 )
 
 type ChangeDescriptionRequest struct {
@@ -17,13 +20,13 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if secretById(req.Id) == nil {
+	if state.SecretById(req.Id) == nil {
 		http.Error(w, "Invalid secret Id", http.StatusBadRequest)
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		DescriptionChanged{
+	util.ApplyEvents([]interface{}{
+		event.DescriptionChanged{
 			Id:          req.Id,
 			Description: req.Description,
 		},

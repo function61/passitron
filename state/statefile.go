@@ -14,6 +14,37 @@ const (
 	statefilePath = "state.json"
 )
 
+func SecretById(id string) *Secret {
+	for _, s := range Data.Secrets {
+		if s.Id == id {
+			secret := s.ToSecureSecret()
+			return &secret
+		}
+	}
+
+	return nil
+}
+
+func FolderById(id string) *Folder {
+	for _, f := range Data.Folders {
+		if f.Id == id {
+			return &f
+		}
+	}
+
+	return nil
+}
+
+func FolderByName(name string) *Folder {
+	for _, f := range Data.Folders {
+		if f.Name == name {
+			return &f
+		}
+	}
+
+	return nil
+}
+
 func (s *Secret) GetPassword() *ExposedPassword {
 	otpProof := ""
 

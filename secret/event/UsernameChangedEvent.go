@@ -1,18 +1,18 @@
-package main
+package event
 
 import (
 	"github.com/function61/pi-security-module/state"
 )
 
-type PasswordChanged struct {
+type UsernameChanged struct {
 	Id       string
-	Password string
+	Username string
 }
 
-func (e *PasswordChanged) Apply() {
+func (e *UsernameChanged) Apply() {
 	for idx, s := range state.Data.Secrets {
 		if s.Id == e.Id {
-			s.Password = e.Password
+			s.Username = e.Username
 			state.Data.Secrets[idx] = s
 			return
 		}

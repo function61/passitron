@@ -1,10 +1,12 @@
-package main
+package command
 
 import (
-	"./util/cryptorandombytes" // FIXME
+	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"encoding/json"
 	"errors"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
 )
 
 type SecretCreateRequest struct {
@@ -40,7 +42,7 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 	secretId := cryptorandombytes.Hex(4)
 
 	events := []interface{}{
-		SecretCreated{
+		event.SecretCreated{
 			Id:       secretId,
 			FolderId: req.FolderId,
 			Title:    req.Title,
@@ -48,20 +50,20 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Username != "" {
-		events = append(events, UsernameChanged{
+		events = append(events, event.UsernameChanged{
 			Id:       secretId,
 			Username: req.Username,
 		})
 	}
 
 	if req.Password != "" {
-		events = append(events, PasswordChanged{
+		events = append(events, event.PasswordChanged{
 			Id:       secretId,
 			Password: req.Password,
 		})
 	}
 
-	ApplyEvents(events)
+	util.ApplyEvents(events)
 
 	w.Write([]byte("OK"))
 }

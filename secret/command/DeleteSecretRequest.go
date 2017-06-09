@@ -1,9 +1,11 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/util"
 )
 
 type DeleteSecretRequest struct {
@@ -30,8 +32,8 @@ func HandleDeleteSecretRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		SecretDeleted{
+	util.ApplyEvents([]interface{}{
+		event.SecretDeleted{
 			Id: req.Id,
 		},
 	})

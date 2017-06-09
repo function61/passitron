@@ -13,37 +13,6 @@ import (
 
 //go:generate go run gen/main.go
 
-func secretById(id string) *state.Secret {
-	for _, s := range state.Data.Secrets {
-		if s.Id == id {
-			secret := s.ToSecureSecret()
-			return &secret
-		}
-	}
-
-	return nil
-}
-
-func folderById(id string) *state.Folder {
-	for _, f := range state.Data.Folders {
-		if f.Id == id {
-			return &f
-		}
-	}
-
-	return nil
-}
-
-func folderByName(name string) *state.Folder {
-	for _, f := range state.Data.Folders {
-		if f.Name == name {
-			return &f
-		}
-	}
-
-	return nil
-}
-
 func askAuthorization() (bool, error) {
 	time.Sleep(2 * time.Second)
 
@@ -51,7 +20,7 @@ func askAuthorization() (bool, error) {
 }
 
 func oneSecret(w http.ResponseWriter, r *http.Request) {
-	secret := secretById(mux.Vars(r)["secretId"])
+	secret := state.SecretById(mux.Vars(r)["secretId"])
 
 	if secret == nil {
 		http.Error(w, "Secret not found", http.StatusNotFound)
@@ -73,7 +42,7 @@ func expose(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secret := secretById(mux.Vars(r)["secretId"])
+	secret := state.SecretById(mux.Vars(r)["secretId"])
 
 	if secret == nil {
 		http.Error(w, "Secret not found", http.StatusNotFound)
@@ -145,7 +114,7 @@ func secretsByFolder(id string) []state.Secret {
 }
 
 func restFolder(w http.ResponseWriter, r *http.Request) {
-	folder := folderById(mux.Vars(r)["folderId"])
+	folder := state.FolderById(mux.Vars(r)["folderId"])
 
 	secrets := secretsByFolder(folder.Id)
 	subFolders := subfoldersById(folder.Id)
@@ -153,7 +122,7 @@ func restFolder(w http.ResponseWriter, r *http.Request) {
 
 	parentId := folder.ParentId
 	for parentId != "" {
-		parent := folderById(parentId)
+		parent := state.FolderById(parentId)
 
 		parentFolders = append(parentFolders, *parent)
 
@@ -193,12 +162,4 @@ func main() {
 	log.Println("Starting in port 80")
 
 	log.Fatal(http.ListenAndServe(":80", router))
-}
-
-func ApplyEvents(events []interface{}) {
-	for _, e := range events {
-		if !ApplyOneEvent(e) {
-			panic("Unknown event")
-		}
-	}
 }

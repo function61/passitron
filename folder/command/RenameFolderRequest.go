@@ -1,8 +1,11 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"errors"
+	"github.com/function61/pi-security-module/folder/event"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/state"
 	"net/http"
 )
 
@@ -18,7 +21,7 @@ func (f *RenameFolderRequest) Validate() error {
 	if f.Name == "" {
 		return errors.New("Name missing")
 	}
-	if folderById(f.Id) == nil {
+	if state.FolderById(f.Id) == nil {
 		return errors.New("Folder by Id not found")
 	}
 
@@ -37,8 +40,8 @@ func HandleRenameFolderRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ApplyEvents([]interface{}{
-		FolderRenamed{
+	util.ApplyEvents([]interface{}{
+		event.FolderRenamed{
 			Id:   req.Id,
 			Name: req.Name,
 		},

@@ -1,18 +1,18 @@
-package main
+package event
 
 import (
 	"github.com/function61/pi-security-module/state"
 )
 
-type OtpTokenSet struct {
-	Id                 string
-	OtpProvisioningUrl string
+type SecretRenamed struct {
+	Id    string
+	Title string
 }
 
-func (e *OtpTokenSet) Apply() {
+func (e *SecretRenamed) Apply() {
 	for idx, s := range state.Data.Secrets {
 		if s.Id == e.Id {
-			s.OtpProvisioningUrl = e.OtpProvisioningUrl
+			s.Title = e.Title
 			state.Data.Secrets[idx] = s
 			return
 		}

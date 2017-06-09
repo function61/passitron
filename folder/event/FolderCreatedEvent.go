@@ -1,4 +1,4 @@
-package main
+package event
 
 import (
 	"github.com/function61/pi-security-module/state"
