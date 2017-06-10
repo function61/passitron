@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/util/crypto"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,7 +18,7 @@ func (s *Statefile) Save(password string) {
 		panic(errJson)
 	}
 
-	encryptedBytes, err := encrypt(jsonBytes, password)
+	encryptedBytes, err := crypto.Encrypt(jsonBytes, password)
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +88,7 @@ func ReadStatefile(password string) (*Statefile, error) {
 		return nil, err
 	}
 
-	jsonBytes, err := decrypt(encryptedBytes, password)
+	jsonBytes, err := crypto.Decrypt(encryptedBytes, password)
 	if err != nil {
 		return nil, err
 	}

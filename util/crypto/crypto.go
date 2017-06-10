@@ -1,4 +1,4 @@
-package state
+package crypto
 
 import (
 	"crypto/rand"
@@ -17,6 +17,7 @@ func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
 	// 1.4sec @ 100k on Raspberry Pi 2
 	// https://github.com/borgbackup/borg/issues/77#issuecomment-130459726
 	iterationCount := 100 * 1000
+
 	encryptionKey := pbkdf2.Key(
 		[]byte(pwd),
 		salt,
@@ -36,7 +37,8 @@ func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
 	return ret
 }
 
-func encrypt(plaintext []byte, password string) ([]byte, error) {
+// envelope = <24 bytes of nonce> <ciphertext>
+func Encrypt(plaintext []byte, password string) ([]byte, error) {
 	// You must use a different nonce for each message you encrypt with the
 	// same key. Since the nonce here is 192 bits long, a random value
 	// provides a sufficiently small probability of repeats.
@@ -54,7 +56,7 @@ func encrypt(plaintext []byte, password string) ([]byte, error) {
 	return nonceAndCiphertextEnvelope, nil
 }
 
-func decrypt(nonceAndCiphertextEnvelope []byte, password string) ([]byte, error) {
+func Decrypt(nonceAndCiphertextEnvelope []byte, password string) ([]byte, error) {
 	// When you decrypt, you must use the same nonce and key you used to
 	// encrypt the message. One way to achieve this is to store the nonce
 	// alongside the encrypted message. Above, we stored the nonce in the first
