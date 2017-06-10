@@ -26,9 +26,23 @@ type FolderResponse struct {
 	Secrets       []state.Secret
 }
 
+func errorIfUnsealed(w http.ResponseWriter, r *http.Request) bool {
+	if !state.Inst.IsUnsealed() {
+		http.Error(w, "State is sealed. Issue Unseal command first!", http.StatusForbidden)
+		return true
+	}
+
+	return false
+}
+
 func defineApi(router *mux.Router) {
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
+
+		// only command able to be invoked unsealed is the Unseal command
+		if commandName != "UnsealRequest" && errorIfUnsealed(w, r) {
+			return
+		}
 
 		// commandHandlers is generated
 		if handler, ok := commandHandlers[commandName]; ok {
@@ -39,6 +53,10 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if errorIfUnsealed(w, r) {
+			return
+		}
+
 		folder := state.FolderById(mux.Vars(r)["folderId"])
 
 		secrets := state.SecretsByFolder(folder.Id)
@@ -61,6 +79,10 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if errorIfUnsealed(w, r) {
+			return
+		}
+
 		search := strings.ToLower(r.URL.Query().Get("search"))
 
 		w.Header().Set("Content-Type", "application/json")
@@ -69,11 +91,11 @@ func defineApi(router *mux.Router) {
 		if search == "" {
 			// w.WriteHeader(http.StatusOK)
 			// w.Write([]byte("hello world"))
-			json.NewEncoder(w).Encode(state.Data.Secrets)
+			json.NewEncoder(w).Encode(state.Inst.State.Secrets)
 		} else {
 			matches := []state.Secret{}
 
-			for _, s := range state.Data.Secrets {
+			for _, s := range state.Inst.State.Secrets {
 				if !strings.Contains(strings.ToLower(s.Title), search) {
 					continue
 				}
@@ -86,6 +108,10 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/secrets/{secretId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if errorIfUnsealed(w, r) {
+			return
+		}
+
 		secret := state.SecretById(mux.Vars(r)["secretId"])
 
 		if secret == nil {
@@ -98,6 +124,10 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/secrets/{secretId}/expose", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if errorIfUnsealed(w, r) {
+			return
+		}
+
 		authorized, err := askAuthorization()
 		if err != nil { // technical error in the authorization process
 			panic(err)

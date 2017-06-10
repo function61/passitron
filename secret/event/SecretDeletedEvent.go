@@ -9,10 +9,12 @@ type SecretDeleted struct {
 }
 
 func (e *SecretDeleted) Apply() {
-	for idx, s := range state.Data.Secrets {
+	for idx, s := range state.Inst.State.Secrets {
 		if s.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			state.Data.Secrets = append(state.Data.Secrets[:idx], state.Data.Secrets[idx+1:]...)
+			state.Inst.State.Secrets = append(
+				state.Inst.State.Secrets[:idx],
+				state.Inst.State.Secrets[idx+1:]...)
 			return
 		}
 	}

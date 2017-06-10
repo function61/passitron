@@ -17,5 +17,5 @@ func (e *SecretCreated) Apply() {
 		Title:    e.Title,
 	}
 
-	state.Data.Secrets = append(state.Data.Secrets, secret)
+	state.Inst.State.Secrets = append(state.Inst.State.Secrets, secret)
 }

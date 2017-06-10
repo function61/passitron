@@ -58,6 +58,11 @@ var commands = {
 			ParentId: {}
 		}
 	},
+	'UnsealRequest': {
+		fields: {
+			MasterPassword: {}
+		}
+	},
 	'ChangeDescriptionRequest': {
 		fields: {
 			Id: {},

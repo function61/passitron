@@ -10,10 +10,10 @@ type UsernameChanged struct {
 }
 
 func (e *UsernameChanged) Apply() {
-	for idx, s := range state.Data.Secrets {
+	for idx, s := range state.Inst.State.Secrets {
 		if s.Id == e.Id {
 			s.Username = e.Username
-			state.Data.Secrets[idx] = s
+			state.Inst.State.Secrets[idx] = s
 			return
 		}
 	}

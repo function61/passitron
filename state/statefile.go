@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/nacl/secretbox"
@@ -22,7 +23,7 @@ const (
 func SubfoldersById(id string) []Folder {
 	subFolders := []Folder{}
 
-	for _, f := range Data.Folders {
+	for _, f := range Inst.State.Folders {
 		if f.ParentId != id {
 			continue
 		}
@@ -36,7 +37,7 @@ func SubfoldersById(id string) []Folder {
 func SecretsByFolder(id string) []Secret {
 	secrets := []Secret{}
 
-	for _, s := range Data.Secrets {
+	for _, s := range Inst.State.Secrets {
 		if s.FolderId != id {
 			continue
 		}
@@ -48,7 +49,7 @@ func SecretsByFolder(id string) []Secret {
 }
 
 func SecretById(id string) *Secret {
-	for _, s := range Data.Secrets {
+	for _, s := range Inst.State.Secrets {
 		if s.Id == id {
 			secret := s.ToSecureSecret()
 			return &secret
@@ -59,7 +60,7 @@ func SecretById(id string) *Secret {
 }
 
 func FolderById(id string) *Folder {
-	for _, f := range Data.Folders {
+	for _, f := range Inst.State.Folders {
 		if f.Id == id {
 			return &f
 		}
@@ -69,7 +70,7 @@ func FolderById(id string) *Folder {
 }
 
 func FolderByName(name string) *Folder {
-	for _, f := range Data.Folders {
+	for _, f := range Inst.State.Folders {
 		if f.Name == name {
 			return &f
 		}
@@ -157,6 +158,11 @@ type Folder struct {
 	Name     string
 }
 
+type State struct {
+	Password string
+	State    *Statefile
+}
+
 type Statefile struct {
 	Secrets []InsecureSecret
 	Folders []Folder
@@ -187,7 +193,7 @@ func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
 	return ret
 }
 
-func (s *Statefile) Save() {
+func (s *Statefile) Save(password string) {
 	jsonBytes, errJson := json.MarshalIndent(s, "", "    ")
 	if errJson != nil {
 		panic(errJson)
@@ -202,7 +208,7 @@ func (s *Statefile) Save() {
 	}
 
 	// using Seal() nonce as PBKDF2 salt
-	encryptionKey := passwordTo256BitEncryptionKey("hunter2", nonce[:])
+	encryptionKey := passwordTo256BitEncryptionKey(password, nonce[:])
 
 	encryptedBytes := []byte{}
 	encryptedBytes = secretbox.Seal(nonce[:], jsonBytes, &nonce, &encryptionKey)
@@ -212,39 +218,64 @@ func (s *Statefile) Save() {
 	}
 }
 
-func writeBlankStatefile() {
+func writeBlankStatefile(password string) {
 	rootFolder := Folder{
 		Id:       "root",
 		ParentId: "",
 		Name:     "root",
 	}
 
-	Data = &Statefile{
+	Inst.State = &Statefile{
 		Secrets: []InsecureSecret{},
 		Folders: []Folder{rootFolder},
 	}
 
-	Data.Save()
+	Inst.State.Save(password)
 }
 
-var Data *Statefile
+var Inst *State
 
 func Initialize() {
-	Data, _ = ReadStatefile()
+	Inst = &State{
+		Password: "",
+		State:    nil,
+	}
 }
 
-func ReadStatefile() (*Statefile, error) {
+func (s *State) Unseal(password string) error {
+	state, err := ReadStatefile(password)
+	if err != nil {
+		return err
+	}
+
+	s.Password = password
+	s.State = state
+
+	return nil
+}
+
+func (s *State) Save() error {
+	s.State.Save(s.Password)
+
+	return nil
+}
+
+func (s *State) IsUnsealed() bool {
+	return s.State != nil
+}
+
+func ReadStatefile(password string) (*Statefile, error) {
 	var s Statefile
 
 	if _, err := os.Stat(statefilePath); os.IsNotExist(err) {
 		log.Printf("Statefile does not exist. Initializing %s", statefilePath)
 
-		writeBlankStatefile()
+		writeBlankStatefile(password)
 	}
 
 	encryptedBytes, err := ioutil.ReadFile(statefilePath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// When you decrypt, you must use the same nonce and key you used to
@@ -256,15 +287,15 @@ func ReadStatefile() (*Statefile, error) {
 	copy(decryptNonce[:], encryptedBytes[:24])
 
 	// using Seal() nonce as PBKDF2 salt
-	secretKeyBytes := passwordTo256BitEncryptionKey("hunter2", decryptNonce[:])
+	secretKeyBytes := passwordTo256BitEncryptionKey(password, decryptNonce[:])
 
 	jsonBytes, ok := secretbox.Open(nil, encryptedBytes[24:], &decryptNonce, &secretKeyBytes)
 	if !ok {
-		panic("decryption error. wrong password?")
+		return nil, errors.New("decryption error. wrong password?")
 	}
 
 	if err := json.Unmarshal(jsonBytes, &s); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &s, nil

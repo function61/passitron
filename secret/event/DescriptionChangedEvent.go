@@ -10,10 +10,10 @@ type DescriptionChanged struct {
 }
 
 func (e *DescriptionChanged) Apply() {
-	for idx, s := range state.Data.Secrets {
+	for idx, s := range state.Inst.State.Secrets {
 		if s.Id == e.Id {
 			s.Description = e.Description
-			state.Data.Secrets[idx] = s
+			state.Inst.State.Secrets[idx] = s
 			return
 		}
 	}

@@ -114,7 +114,7 @@ func keepassImport() {
 
 	log.Printf("%d event(s) applied", len(events))
 
-	state.Data.Save()
+	state.Inst.Save()
 
 	log.Printf("State saved")
 }

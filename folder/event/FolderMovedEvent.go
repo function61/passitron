@@ -10,10 +10,10 @@ type FolderMoved struct {
 }
 
 func (e *FolderMoved) Apply() {
-	for idx, s := range state.Data.Folders {
+	for idx, s := range state.Inst.State.Folders {
 		if s.Id == e.Id {
 			s.ParentId = e.ParentId
-			state.Data.Folders[idx] = s
+			state.Inst.State.Folders[idx] = s
 			return
 		}
 	}

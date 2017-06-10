@@ -10,10 +10,10 @@ type SecretRenamed struct {
 }
 
 func (e *SecretRenamed) Apply() {
-	for idx, s := range state.Data.Secrets {
+	for idx, s := range state.Inst.State.Secrets {
 		if s.Id == e.Id {
 			s.Title = e.Title
-			state.Data.Secrets[idx] = s
+			state.Inst.State.Secrets[idx] = s
 			return
 		}
 	}

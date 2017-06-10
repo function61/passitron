@@ -5,6 +5,7 @@ package main
 import (
 	foldercommand "github.com/function61/pi-security-module/folder/command"
 	secretcommand "github.com/function61/pi-security-module/secret/command"
+	sessioncommand "github.com/function61/pi-security-module/session/command"
 	"net/http"
 )
 
@@ -20,4 +21,5 @@ var commandHandlers = map[string]func(w http.ResponseWriter, r *http.Request){
 	"SecretCreateRequest":      secretcommand.HandleSecretCreateRequest,
 	"SetOtpTokenRequest":       secretcommand.HandleSetOtpTokenRequest,
 	"WriteKeepassRequest":      HandleWriteKeepassRequest,
+	"UnsealRequest":            sessioncommand.HandleUnsealRequest,
 }

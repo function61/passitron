@@ -10,10 +10,10 @@ type FolderRenamed struct {
 }
 
 func (e *FolderRenamed) Apply() {
-	for idx, s := range state.Data.Folders {
+	for idx, s := range state.Inst.State.Folders {
 		if s.Id == e.Id {
 			s.Name = e.Name
-			state.Data.Folders[idx] = s
+			state.Inst.State.Folders[idx] = s
 			return
 		}
 	}

@@ -17,5 +17,5 @@ func (e *FolderCreated) Apply() {
 		Name:     e.Name,
 	}
 
-	state.Data.Folders = append(state.Data.Folders, newFolder)
+	state.Inst.State.Folders = append(state.Inst.State.Folders, newFolder)
 }

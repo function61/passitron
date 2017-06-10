@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/state"
 	"net/http"
 )
 
@@ -16,6 +17,8 @@ func HandleWriteKeepassRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keepassExport("supersecret")
+
+	state.Inst.Save()
 
 	w.Write([]byte("OK"))
 }
