@@ -2,8 +2,8 @@ package command
 
 import (
 	"encoding/json"
-	"github.com/function61/pi-security-module/state"
 	"errors"
+	"github.com/function61/pi-security-module/state"
 	"net/http"
 )
 
