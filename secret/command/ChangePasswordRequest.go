@@ -9,8 +9,9 @@ import (
 )
 
 type ChangePasswordRequest struct {
-	Id       string
-	Password string
+	Id             string
+	Password       string
+	PasswordRepeat string
 }
 
 func (f *ChangePasswordRequest) Validate() error {
@@ -19,6 +20,9 @@ func (f *ChangePasswordRequest) Validate() error {
 	}
 	if f.Password == "" {
 		return errors.New("Password missing")
+	}
+	if f.Password != f.PasswordRepeat {
+		return errors.New("PasswordRepeat different than Password")
 	}
 
 	return nil

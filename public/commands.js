@@ -29,7 +29,8 @@ var commands = {
 	'ChangePasswordRequest': {
 		fields: {
 			Id: {},
-			Password: {}
+			Password: {},
+			PasswordRepeat: {}
 		}
 	},
 	'SetOtpTokenRequest': {
