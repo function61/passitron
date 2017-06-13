@@ -18,7 +18,11 @@ Supported secrets
 
 - Passwords
 - OTP tokens (Google Authenticator)
-- SSH keys (TODO: either via smartcard protocol or SSH agent protocol)
+
+Roadmap:
+
+- SSH keys
+	- either via smartcard protocol or SSH agent protocol
 
 
 Recommended hardware
@@ -29,6 +33,13 @@ with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zer
 and a [capacitive pushbutton](http://www.ebay.com/sch/?_nkw=ttp223).
 
 
+Features
+--------
+
+- Create, view and list secrets in a folder hierarchy.
+- Export database to Keepass format (for viewing in mobile devices when traveling etc.)
+
+
 Building
 --------
 
@@ -36,3 +47,15 @@ Building
 $ go generate
 $ go build
 ```
+
+(generate step is currently unused)
+
+Releasing: take a look at `bin/release.sh`
+
+
+TODO
+----
+
+- Tags to .JS command definitions
+- Enter to confirm command dialog
+- Data types for command fields (password)
