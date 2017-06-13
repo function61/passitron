@@ -151,6 +151,8 @@ func defineApi(router *mux.Router) {
 }
 
 func main() {
+	extractPublicFiles()
+
 	state.Initialize()
 
 	router := mux.NewRouter()
