@@ -89,16 +89,18 @@ function inputDialog(opts) {
 
 	var footer = $('<div class="modal-footer">').appendTo(content);
 
-	$('<button type="button" class="btn btn-primary">Save</button>').appendTo(footer).click(function (){
+	function close() {
 		// TODO: totally remove from DOM
 		$(modal).modal('hide');
 
 		opts.ok(modal);
-	});
+	}
 
-	$(modal).modal('show')
+	$('<button type="button" class="btn btn-primary">Save</button>').appendTo(footer).click(close);
 
-	return { body: body };
+	$(modal).modal('show');
+
+	return { body: body, close: close };
 }
 
 var runningId = 0;
@@ -178,6 +180,12 @@ function invokeCommand(cmd, opts) {
 				contentType: "application/json"
 			});
 		}
+	});
+
+	formCommand.on('submit', function (){
+		dlg.close();
+
+		return false; // abort
 	});
 
 	formCommand.appendTo(dlg.body);
