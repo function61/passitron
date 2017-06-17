@@ -64,6 +64,12 @@ func (s *State) Unseal(password string) error {
 	return nil
 }
 
+func (s *State) ChangePassword(newPassword string) error {
+	s.Password = newPassword
+
+	return s.Save()
+}
+
 func (s *State) Save() error {
 	s.State.Save(s.Password)
 

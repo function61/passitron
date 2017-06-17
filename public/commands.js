@@ -64,6 +64,12 @@ var commands = {
 			MasterPassword: {}
 		}
 	},
+	'ChangeMasterPasswordRequest': {
+		fields: {
+			NewMasterPassword: {},
+			NewMasterPasswordRepeat: {}
+		}
+	},
 	'ChangeDescriptionRequest': {
 		fields: {
 			Id: {},

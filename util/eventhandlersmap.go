@@ -3,6 +3,7 @@ package util
 import (
 	folderevent "github.com/function61/pi-security-module/folder/event"
 	secretevent "github.com/function61/pi-security-module/secret/event"
+	sessionevent "github.com/function61/pi-security-module/session/event"
 )
 
 // WARNING: GENERATED FILE
@@ -32,6 +33,8 @@ func ApplyOneEvent(event interface{}) bool {
 	case secretevent.SecretRenamed:
 		e.Apply()
 	case secretevent.UsernameChanged:
+		e.Apply()
+	case sessionevent.MasterPasswordChanged:
 		e.Apply()
 	}
 

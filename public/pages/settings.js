@@ -8,6 +8,12 @@ routes.settings = function () {
 
 	attachCommand(unsealBtn, { cmd: 'UnsealRequest' } );
 
+	var changeMasterPwdBtn = $('<button class="btn btn-default"></button>')
+		.text('Change master password')
+		.appendTo(cc());
+
+	attachCommand(changeMasterPwdBtn, { cmd: 'ChangeMasterPasswordRequest' } );
+
 	$('<h3>Export / import</h3>').appendTo(cc());
 
 	var writeKeepassBtn = $('<button class="btn btn-default"></button>')
