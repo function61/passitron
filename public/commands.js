@@ -172,6 +172,9 @@ function invokeCommand(cmd, opts) {
 				success: function(data) {
 					softReload();
 				},
+				error: function (xhr) {
+					alert('xhr error: ' + xhr.responseText);
+				},
 				contentType: "application/json"
 			});
 		}
