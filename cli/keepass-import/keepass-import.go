@@ -34,7 +34,16 @@ import (
 	Replace \" with ""
 */
 
-func keepassImport() {
+func main() {
+	state.Initialize()
+
+	// TODO: expecting hardcoded password here in initialization phase.
+	// this is not a catastropic security concern as after import we can
+	// change master pwd.
+	if err := state.Inst.Unseal("defaultpwd"); err != nil {
+		panic(err)
+	}
+
 	result := parseGenericCsv("keepass2.csv")
 
 	foldersJustCreated := map[string]string{}
