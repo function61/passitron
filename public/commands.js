@@ -36,7 +36,9 @@ var commands = {
 	'SetSshKeyRequest': {
 		fields: {
 			Id: {},
-			SshPrivateKey: {}
+			SshPrivateKey: {
+				type: 'textarea'
+			}
 		}
 	},
 	'SetOtpTokenRequest': {
@@ -137,21 +139,26 @@ function createFormForCommand(cmdSpec, opts) {
 			.attr('for', id)
 			.text(field).appendTo(formGroup);
 
-		var type = 'text';
+		var type = fieldSpec.type || 'text';
 
+		var input;
 		if (type === 'text') {
-			var input = $('<input type="text" class="form-control" />')
+			input = $('<input type="text" class="form-control" />')
 				.attr('name', field)
 				.attr('id', id);
-
-			if (opts.prefill && (field in opts.prefill)) {
-				input.val(opts.prefill[ field ]);
-			}
-
-			input.appendTo(formGroup);
+		} else if (type === 'textarea') {
+			input = $('<textarea rows="7" class="form-control" />')
+				.attr('name', field)
+				.attr('id', id);
 		} else {
 			throw new Error('Unknown type: ' + type);
 		}
+
+		if (opts.prefill && (field in opts.prefill)) {
+			input.val(opts.prefill[ field ]);
+		}
+
+		input.appendTo(formGroup);
 	}
 
 	return form;
