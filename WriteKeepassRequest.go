@@ -16,9 +16,7 @@ func HandleWriteKeepassRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keepassExport("supersecret")
-
-	state.Inst.Save()
+	keepassExport(state.Inst.GetMasterPassword())
 
 	w.Write([]byte("OK"))
 }

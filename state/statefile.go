@@ -70,6 +70,11 @@ func (s *State) ChangePassword(newPassword string) error {
 	return s.Save()
 }
 
+// for Keepass export
+func (s *State) GetMasterPassword() string {
+	return s.Password
+}
+
 func (s *State) Save() error {
 	s.State.Save(s.Password)
 
