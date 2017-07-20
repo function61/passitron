@@ -11,7 +11,9 @@ var commands = {
 			FolderId: {},
 			Title: {},
 			Username: {},
-			Password: {}
+			Password: {
+				type: 'password'
+			}
 		}
 	},
 	'RenameSecretRequest': {
@@ -29,8 +31,12 @@ var commands = {
 	'ChangePasswordRequest': {
 		fields: {
 			Id: {},
-			Password: {},
-			PasswordRepeat: {}
+			Password: {
+				type: 'password'
+			},
+			PasswordRepeat: {
+				type: 'password'
+			}
 		}
 	},
 	'SetSshKeyRequest': {
@@ -69,13 +75,19 @@ var commands = {
 	},
 	'UnsealRequest': {
 		fields: {
-			MasterPassword: {}
+			MasterPassword: {
+				type: 'password'
+			}
 		}
 	},
 	'ChangeMasterPasswordRequest': {
 		fields: {
-			NewMasterPassword: {},
-			NewMasterPasswordRepeat: {}
+			NewMasterPassword: {
+				type: 'password'
+			},
+			NewMasterPasswordRepeat: {
+				type: 'password'
+			}
 		}
 	},
 	'ChangeDescriptionRequest': {
@@ -144,6 +156,10 @@ function createFormForCommand(cmdSpec, opts) {
 		var input;
 		if (type === 'text') {
 			input = $('<input type="text" class="form-control" />')
+				.attr('name', field)
+				.attr('id', id);
+		} else if (type === 'password') {
+			input = $('<input type="password" class="form-control" />')
 				.attr('name', field)
 				.attr('id', id);
 		} else if (type === 'textarea') {
