@@ -19,6 +19,7 @@ var commandHandlers = map[string]func(w http.ResponseWriter, r *http.Request){
 	"RenameFolderRequest":         foldercommand.HandleRenameFolderRequest,
 	"RenameSecretRequest":         secretcommand.HandleRenameSecretRequest,
 	"SecretCreateRequest":         secretcommand.HandleSecretCreateRequest,
+	"SetSshKeyRequest":            secretcommand.HandleSetSshKeyRequest,
 	"SetOtpTokenRequest":          secretcommand.HandleSetOtpTokenRequest,
 	"WriteKeepassRequest":         HandleWriteKeepassRequest,
 	"UnsealRequest":               sessioncommand.HandleUnsealRequest,

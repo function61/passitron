@@ -33,6 +33,12 @@ var commands = {
 			PasswordRepeat: {}
 		}
 	},
+	'SetSshKeyRequest': {
+		fields: {
+			Id: {},
+			SshPrivateKey: {}
+		}
+	},
 	'SetOtpTokenRequest': {
 		fields: {
 			Id: {},

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/gorilla/mux"
 	_ "github.com/wader/disable_sendfile_vbox_linux"
@@ -84,17 +85,25 @@ func defineApi(router *mux.Router) {
 		}
 
 		search := strings.ToLower(r.URL.Query().Get("search"))
+		sshkey := strings.ToLower(r.URL.Query().Get("sshkey"))
 
 		w.Header().Set("Content-Type", "application/json")
 
-		// no filter
-		if search == "" {
-			// w.WriteHeader(http.StatusOK)
-			// w.Write([]byte("hello world"))
-			json.NewEncoder(w).Encode(state.Inst.State.Secrets)
-		} else {
-			matches := []state.Secret{}
+		matches := []state.Secret{}
 
+		if sshkey == "y" {
+			for _, s := range state.Inst.State.Secrets {
+				if s.SshPublicKeyAuthorized == "" {
+					continue
+				}
+
+				matches = append(matches, s.ToSecureSecret())
+			}
+		} else if search == "" { // no filter => return all
+			for _, s := range state.Inst.State.Secrets {
+				matches = append(matches, s.ToSecureSecret())
+			}
+		} else { // search filter
 			for _, s := range state.Inst.State.Secrets {
 				if !strings.Contains(strings.ToLower(s.Title), search) {
 					continue
@@ -102,9 +111,9 @@ func defineApi(router *mux.Router) {
 
 				matches = append(matches, s.ToSecureSecret())
 			}
-
-			json.NewEncoder(w).Encode(matches)
 		}
+
+		json.NewEncoder(w).Encode(matches)
 	}))
 
 	router.HandleFunc("/secrets/{secretId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -154,6 +163,8 @@ func main() {
 	extractPublicFiles()
 
 	state.Initialize()
+
+	go sshagent.Start()
 
 	router := mux.NewRouter()
 

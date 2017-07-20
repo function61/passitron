@@ -26,6 +26,8 @@ func ApplyOneEvent(event interface{}) bool {
 		e.Apply()
 	case secretevent.PasswordChanged:
 		e.Apply()
+	case secretevent.SshKeySet:
+		e.Apply()
 	case secretevent.SecretCreated:
 		e.Apply()
 	case secretevent.SecretDeleted:

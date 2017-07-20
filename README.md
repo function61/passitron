@@ -18,11 +18,7 @@ Supported secrets
 
 - Passwords
 - OTP tokens (Google Authenticator)
-
-Roadmap:
-
-- SSH keys
-	- either via smartcard protocol or SSH agent protocol
+- SSH keys (via SSH agent protocol)
 
 
 Recommended hardware

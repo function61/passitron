@@ -87,6 +87,7 @@ function layoutInit() {
 	}
 
 	menuItem(linkTo([ 'index' ]), 'Home');
+	menuItem(linkTo([ 'sshkeys' ]), 'SSH keys');
 	menuItem(linkTo([ 'settings' ]), 'Settings');
 
 	var h3 = $('<h3 class="text-muted"></h3>').appendTo(header);

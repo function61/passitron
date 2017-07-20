@@ -63,6 +63,16 @@ routes.credview = function (args) {
 			}
 		});
 
+		var sshKeyTr = detailsTable.tr();
+		var sshKeyTh = detailsTable.td(sshKeyTr).text('SSH key');
+		detailsTable.td(sshKeyTr).text(cred.SshPublicKeyAuthorized);
+
+		attachCommand(sshKeyTh, {
+			cmd: 'SetSshKeyRequest',
+			prefill: {
+				Id: id
+			} });
+
 		var descriptionTr = detailsTable.tr();
 		var descriptionHeadingTd = detailsTable.td(descriptionTr).text('Description');
 		detailsTable

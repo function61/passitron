@@ -1,52 +1,60 @@
 package state
 
-// "secure secret": contains all fields from InsecureSecret *except* password
-// is unexported
+// "secure secret": marshals all fields to JSON from InsecureSecret *except*
+// sensitive fields
 type Secret struct {
-	Id                 string
-	FolderId           string
-	Title              string
-	Username           string
-	password           string
-	otpProvisioningUrl string
-	Description        string
+	Id                     string
+	FolderId               string
+	Title                  string
+	Username               string
+	password               string
+	sshPrivateKey          string
+	SshPublicKeyAuthorized string
+	otpProvisioningUrl     string
+	Description            string
 	// created
 	// password last changed
 }
 
 type InsecureSecret struct {
-	Id                 string
-	FolderId           string
-	Title              string
-	Username           string
-	Password           string
-	OtpProvisioningUrl string
-	Description        string
+	Id                     string
+	FolderId               string
+	Title                  string
+	Username               string
+	Password               string
+	SshPrivateKey          string
+	SshPublicKeyAuthorized string
+	OtpProvisioningUrl     string
+	Description            string
 	// created
 	// password last changed
 }
 
 func (i *InsecureSecret) ToSecureSecret() Secret {
 	return Secret{
-		Id:                 i.Id,
-		FolderId:           i.FolderId,
-		Title:              i.Title,
-		Username:           i.Username,
-		password:           i.Password,
-		otpProvisioningUrl: i.OtpProvisioningUrl,
-		Description:        i.Description,
+		Id:                     i.Id,
+		FolderId:               i.FolderId,
+		Title:                  i.Title,
+		Username:               i.Username,
+		password:               i.Password,
+		sshPrivateKey:          i.SshPrivateKey,
+		SshPublicKeyAuthorized: i.SshPublicKeyAuthorized,
+		otpProvisioningUrl:     i.OtpProvisioningUrl,
+		Description:            i.Description,
 	}
 }
 
 func (s *Secret) ToInsecureSecret() InsecureSecret {
 	return InsecureSecret{
-		Id:                 s.Id,
-		FolderId:           s.FolderId,
-		Title:              s.Title,
-		Username:           s.Username,
-		Password:           s.password,
-		OtpProvisioningUrl: s.otpProvisioningUrl,
-		Description:        s.Description,
+		Id:                     s.Id,
+		FolderId:               s.FolderId,
+		Title:                  s.Title,
+		Username:               s.Username,
+		Password:               s.password,
+		SshPrivateKey:          s.sshPrivateKey,
+		SshPublicKeyAuthorized: s.SshPublicKeyAuthorized,
+		OtpProvisioningUrl:     s.otpProvisioningUrl,
+		Description:            s.Description,
 	}
 }
 
