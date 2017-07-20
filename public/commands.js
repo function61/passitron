@@ -99,7 +99,7 @@ var commands = {
 };
 
 function inputDialog(opts) {
-	var modal = $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog">');
+	var modal = $('<div class="modal fade" tabindex="-1" role="dialog">');
 
 	var dialog = $('<div class="modal-dialog" role="document">').appendTo(modal);
 
@@ -126,7 +126,7 @@ function inputDialog(opts) {
 
 	$(modal).modal('show');
 
-	return { body: body, close: close };
+	return { body: body, close: close, modal: modal };
 }
 
 var runningId = 0;
@@ -224,6 +224,15 @@ function invokeCommand(cmd, opts) {
 	});
 
 	formCommand.appendTo(dlg.body);
+
+	// https://stackoverflow.com/a/11634933
+	dlg.modal.on('shown.bs.modal', function (){
+		var firstInput = formCommand.find(':input')[0];
+
+		if (firstInput) {
+			firstInput.select();
+		}
+	});
 }
 
 function invokeCommandFromClickEvent() {
