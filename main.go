@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -152,6 +155,14 @@ func defineApi(router *mux.Router) {
 			http.Error(w, "Secret not found", http.StatusNotFound)
 			return
 		}
+
+		util.ApplyEvents([]interface{}{
+			event.SecretUsed{
+				Event:  eventbase.NewEvent(),
+				Secret: secret.Id,
+				Type:   event.SecretUsedTypePasswordExposed,
+			},
+		})
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(secret.GetPassword())

@@ -36,6 +36,8 @@ func ApplyOneEvent(event interface{}) bool {
 		e.Apply()
 	case secretevent.UsernameChanged:
 		e.Apply()
+	case secretevent.SecretUsed:
+		e.Apply()
 	case sessionevent.MasterPasswordChanged:
 		e.Apply()
 	}

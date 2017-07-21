@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"crypto/rand"
 	"errors"
+	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"log"
@@ -106,6 +109,14 @@ func (a AgentProxy) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error)
 			log.Printf("SshAgentServer: Sign() error: %s", err.Error())
 			return nil, err
 		}
+
+		util.ApplyEvents([]interface{}{
+			event.SecretUsed{
+				Event:  eventbase.NewEvent(),
+				Secret: secret.Id,
+				Type:   event.SecretUsedTypeSshSigning,
+			},
+		})
 
 		return sig, nil
 	}
