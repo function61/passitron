@@ -5,7 +5,6 @@ import (
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/gorilla/mux"
-	_ "github.com/wader/disable_sendfile_vbox_linux"
 	"log"
 	"net/http"
 	"strings"
