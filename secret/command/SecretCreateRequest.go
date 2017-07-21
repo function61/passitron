@@ -44,6 +44,7 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 
 	events := []interface{}{
 		event.SecretCreated{
+			Event:    eventbase.NewEvent(),
 			Id:       secretId,
 			FolderId: req.FolderId,
 			Title:    req.Title,
