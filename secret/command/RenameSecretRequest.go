@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
 
@@ -38,6 +39,7 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 
 	util.ApplyEvents([]interface{}{
 		event.SecretRenamed{
+			Event: eventbase.NewEvent(),
 			Id:    req.Id,
 			Title: req.Title,
 		},

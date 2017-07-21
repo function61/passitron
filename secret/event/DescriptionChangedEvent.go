@@ -2,9 +2,11 @@ package event
 
 import (
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util/eventbase"
 )
 
 type DescriptionChanged struct {
+	eventbase.Event
 	Id          string
 	Description string
 }

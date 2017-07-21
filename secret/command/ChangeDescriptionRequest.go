@@ -5,6 +5,7 @@ import (
 	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
 
@@ -27,6 +28,7 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 
 	util.ApplyEvents([]interface{}{
 		event.DescriptionChanged{
+			Event:       eventbase.NewEvent(),
 			Id:          req.Id,
 			Description: req.Description,
 		},

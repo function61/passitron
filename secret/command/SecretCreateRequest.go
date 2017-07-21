@@ -6,6 +6,7 @@ import (
 	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/cryptorandombytes"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
 
@@ -51,6 +52,7 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 
 	if req.Username != "" {
 		events = append(events, event.UsernameChanged{
+			Event:    eventbase.NewEvent(),
 			Id:       secretId,
 			Username: req.Username,
 		})
@@ -58,6 +60,7 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 
 	if req.Password != "" {
 		events = append(events, event.PasswordChanged{
+			Event:    eventbase.NewEvent(),
 			Id:       secretId,
 			Password: req.Password,
 		})

@@ -6,6 +6,7 @@ import (
 	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
 
@@ -39,6 +40,7 @@ func HandleChangeUsernameRequest(w http.ResponseWriter, r *http.Request) {
 
 	util.ApplyEvents([]interface{}{
 		event.UsernameChanged{
+			Event:    eventbase.NewEvent(),
 			Id:       req.Id,
 			Username: req.Username,
 		},

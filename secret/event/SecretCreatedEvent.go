@@ -2,9 +2,11 @@ package event
 
 import (
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util/eventbase"
 )
 
 type SecretCreated struct {
+	eventbase.Event
 	Id       string
 	FolderId string
 	Title    string

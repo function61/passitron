@@ -7,6 +7,7 @@ import (
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/cryptorandombytes"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"log"
 	"os"
 )
@@ -81,6 +82,7 @@ func main() {
 			folderId = cryptorandombytes.Hex(4)
 
 			events = append(events, folderevent.FolderCreated{
+				Event:    eventbase.NewEvent(),
 				Id:       folderId,
 				ParentId: "root",
 				Name:     groupPath,
@@ -92,6 +94,7 @@ func main() {
 		secretId := cryptorandombytes.Hex(4)
 
 		events = append(events, secretevent.SecretCreated{
+			Event:    eventbase.NewEvent(),
 			Id:       secretId,
 			FolderId: folderId,
 			Title:    res["Account"],
@@ -99,6 +102,7 @@ func main() {
 
 		if res["Login Name"] != "" {
 			events = append(events, secretevent.UsernameChanged{
+				Event:    eventbase.NewEvent(),
 				Id:       secretId,
 				Username: res["Login Name"],
 			})
@@ -106,6 +110,7 @@ func main() {
 
 		if res["Password"] != "" {
 			events = append(events, secretevent.PasswordChanged{
+				Event:    eventbase.NewEvent(),
 				Id:       secretId,
 				Password: res["Password"],
 			})
@@ -113,6 +118,7 @@ func main() {
 
 		if res["Comments"] != "" {
 			events = append(events, secretevent.DescriptionChanged{
+				Event:       eventbase.NewEvent(),
 				Id:          secretId,
 				Description: res["Comments"],
 			})

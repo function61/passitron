@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"golang.org/x/crypto/ssh"
 	"net/http"
 )
@@ -77,6 +78,7 @@ func HandleSetSshKeyRequest(w http.ResponseWriter, r *http.Request) {
 
 	util.ApplyEvents([]interface{}{
 		event.SshKeySet{
+			Event:                  eventbase.NewEvent(),
 			Id:                     req.Id,
 			SshPrivateKey:          req.SshPrivateKey,
 			SshPublicKeyAuthorized: req.sshPublicKeyAuthorized,
