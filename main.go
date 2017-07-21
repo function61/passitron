@@ -28,7 +28,7 @@ type FolderResponse struct {
 
 func errorIfUnsealed(w http.ResponseWriter, r *http.Request) bool {
 	if !state.Inst.IsUnsealed() {
-		http.Error(w, "State is sealed. Issue Unseal command first!", http.StatusForbidden)
+		http.Error(w, "{\"error_code\": \"database_is_sealed\"}", http.StatusForbidden)
 		return true
 	}
 

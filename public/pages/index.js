@@ -101,5 +101,5 @@ routes.index = function(args) {
 				Id: resp.Folder.Id,
 				ParentId: resp.Folder.ParentId
 			} });
-	});
+	}, restDefaultErrorHandler);
 }

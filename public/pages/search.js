@@ -6,6 +6,6 @@ routes.search = function(args) {
 		breadcrumbWidget([ { label: 'Search', href: '' }]).appendTo(cc());
 
 		credsWidget([], entries, search).appendTo(cc());
-	});
+	}, restDefaultErrorHandler);
 }
 

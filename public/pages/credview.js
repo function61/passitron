@@ -2,7 +2,7 @@
 routes.credview = function (args) {
 	var id = args[1];
 
-	credentialById(id).then(function (cred){
+	rest_credentialById(id).then(function (cred){
 		var titleHeading = $('<h1></h1>')
 			.text(cred.Title)
 			.attr('title', 'created: ' + cred.Created)
@@ -56,14 +56,14 @@ routes.credview = function (args) {
 
 		tfaTr.hide();
 
-		exposedCred(cred.Id).then(function (exposeResult){
+		rest_exposedCred(cred.Id).then(function (exposeResult){
 			pwdTd.text(exposeResult.Password);
 
 			if (exposeResult.OtpProof !== "") {
 				tfaProofTd.text(exposeResult.OtpProof);
 				tfaTr.show();
 			}
-		});
+		}, restDefaultErrorHandler);
 
 		var sshKeyTr = detailsTable.tr();
 		var sshKeyTh = detailsTable.td(sshKeyTr).text('SSH key');
@@ -106,5 +106,5 @@ routes.credview = function (args) {
 		$('<a class="btn btn-default">Attach OTP token</a>')
 			.attr('href', linkTo([ 'importotptoken', id ]))
 			.appendTo(cc());
-	});
+	}, restDefaultErrorHandler);
 }

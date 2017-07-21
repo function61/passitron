@@ -19,5 +19,5 @@ routes.sshkeys = function(args) {
 		}
 
 		tbl.table.appendTo(cc());
-	});
+	}, restDefaultErrorHandler);
 }
