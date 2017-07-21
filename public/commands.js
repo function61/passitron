@@ -93,7 +93,9 @@ var commands = {
 	'ChangeDescriptionRequest': {
 		fields: {
 			Id: {},
-			Description: {}
+			Description: {
+				type: 'textarea'
+			}
 		}
 	}
 };
