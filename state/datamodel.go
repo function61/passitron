@@ -1,5 +1,9 @@
 package state
 
+import (
+	"time"
+)
+
 // "secure secret": marshals all fields to JSON from InsecureSecret *except*
 // sensitive fields
 type Secret struct {
@@ -12,8 +16,8 @@ type Secret struct {
 	SshPublicKeyAuthorized string
 	otpProvisioningUrl     string
 	Description            string
-	// created
-	// password last changed
+	Created                time.Time
+	PasswordLastChanged    time.Time
 }
 
 type InsecureSecret struct {
@@ -26,8 +30,8 @@ type InsecureSecret struct {
 	SshPublicKeyAuthorized string
 	OtpProvisioningUrl     string
 	Description            string
-	// created
-	// password last changed
+	Created                time.Time
+	PasswordLastChanged    time.Time
 }
 
 func (i *InsecureSecret) ToSecureSecret() Secret {
@@ -41,6 +45,8 @@ func (i *InsecureSecret) ToSecureSecret() Secret {
 		SshPublicKeyAuthorized: i.SshPublicKeyAuthorized,
 		otpProvisioningUrl:     i.OtpProvisioningUrl,
 		Description:            i.Description,
+		Created:                i.Created,
+		PasswordLastChanged:    i.PasswordLastChanged,
 	}
 }
 
@@ -55,6 +61,8 @@ func (s *Secret) ToInsecureSecret() InsecureSecret {
 		SshPublicKeyAuthorized: s.SshPublicKeyAuthorized,
 		OtpProvisioningUrl:     s.otpProvisioningUrl,
 		Description:            s.Description,
+		Created:                s.Created,
+		PasswordLastChanged:    s.PasswordLastChanged,
 	}
 }
 

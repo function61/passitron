@@ -15,6 +15,7 @@ func (e *PasswordChanged) Apply() {
 	for idx, s := range state.Inst.State.Secrets {
 		if s.Id == e.Id {
 			s.Password = e.Password
+			s.PasswordLastChanged = e.Timestamp
 			state.Inst.State.Secrets[idx] = s
 			return
 		}

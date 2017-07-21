@@ -17,6 +17,7 @@ func (e *SecretCreated) Apply() {
 		Id:       e.Id,
 		FolderId: e.FolderId,
 		Title:    e.Title,
+		Created:  e.Timestamp,
 	}
 
 	state.Inst.State.Secrets = append(state.Inst.State.Secrets, secret)

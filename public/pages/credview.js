@@ -5,6 +5,7 @@ routes.credview = function (args) {
 	credentialById(id).then(function (cred){
 		var titleHeading = $('<h1></h1>')
 			.text(cred.Title)
+			.attr('title', 'created: ' + cred.Created)
 			.appendTo(cc());
 
 		attachCommand(titleHeading, {
@@ -35,6 +36,7 @@ routes.credview = function (args) {
 		var pwdTd = detailsTable
 			.td(pwdTr)
 			.attr('id', 'pwd')
+			.attr('title', 'last changed: ' + cred.PasswordLastChanged)
 			.text('.. requesting authorization ..');
 		detailsTable
 			.td(pwdTr)
