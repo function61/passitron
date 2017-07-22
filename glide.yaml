@@ -1,0 +1,17 @@
+package: github.com/function61/pi-security-module
+import:
+- package: github.com/gorilla/mux
+- package: github.com/pquerna/otp
+  subpackages:
+  - totp
+- package: github.com/tobischo/gokeepasslib
+- package: golang.org/x/crypto
+  subpackages:
+  - nacl/secretbox
+  - pbkdf2
+  - ssh
+  - ssh/agent
+testImport:
+- package: github.com/function61/eventhorizon
+  subpackages:
+  - util/ass

@@ -1,0 +1,36 @@
+hash: 9d3c655d38d8aabc6f2b3adb87e841798a1921e2d839197412b92aa871bcb7d4
+updated: 2017-07-22T10:55:14.11951026Z
+imports:
+- name: github.com/boombuler/barcode
+  version: 56ef0af91246fb5279df4f87bc3daf1bf7cb9e89
+  subpackages:
+  - qr
+  - utils
+- name: github.com/gorilla/context
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/gorilla/mux
+  version: ac112f7d75a0714af1bd86ab17749b31f7809640
+- name: github.com/pquerna/otp
+  version: 9e1935374bc73ffe011187dafed51a412b90fe43
+  subpackages:
+  - hotp
+  - totp
+- name: github.com/tobischo/gokeepasslib
+  version: 2c5c862670c1c5117739022c7b4ff231b3915bef
+- name: golang.org/x/crypto
+  version: 6914964337150723782436d56b3f21610a74ce7b
+  subpackages:
+  - curve25519
+  - ed25519
+  - ed25519/internal/edwards25519
+  - nacl/secretbox
+  - pbkdf2
+  - poly1305
+  - salsa20/salsa
+  - ssh
+  - ssh/agent
+testImports:
+- name: github.com/function61/eventhorizon
+  version: 80d6429f334b3fb0040bfd07633e473c8adbde21
+  subpackages:
+  - util/ass
