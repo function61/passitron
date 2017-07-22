@@ -117,18 +117,18 @@ function inputDialog(opts) {
 
 	var footer = $('<div class="modal-footer">').appendTo(content);
 
-	function close() {
+	function closeAndSubmit() {
 		// TODO: totally remove from DOM
 		$(modal).modal('hide');
 
 		opts.ok(modal);
 	}
 
-	$('<button type="button" class="btn btn-primary">Save</button>').appendTo(footer).click(close);
+	$('<button type="button" class="btn btn-primary">Save</button>').appendTo(footer).click(closeAndSubmit);
 
 	$(modal).modal('show');
 
-	return { body: body, close: close, modal: modal };
+	return { body: body, closeAndSubmit: closeAndSubmit, modal: modal };
 }
 
 var runningId = 0;
@@ -219,10 +219,12 @@ function invokeCommand(cmd, opts) {
 		}
 	});
 
-	formCommand.on('submit', function (){
-		dlg.close();
-
-		return false; // abort
+	// enter to submit
+	formCommand.on('keypress', 'input', function (e){
+		if ([10, 13].indexOf(e.which) !== -1) {
+			dlg.closeAndSubmit();
+			return false;
+		}
 	});
 
 	formCommand.appendTo(dlg.body);
