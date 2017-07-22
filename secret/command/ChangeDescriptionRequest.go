@@ -22,7 +22,7 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if state.SecretById(req.Id) == nil {
-		http.Error(w, "Invalid secret Id", http.StatusBadRequest)
+		util.CommandCustomError(w, r, "invalid_secret_id", nil, http.StatusNotFound)
 		return
 	}
 
@@ -34,5 +34,5 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 
-	w.Write([]byte("OK"))
+	util.CommandGenericSuccess(w, r)
 }

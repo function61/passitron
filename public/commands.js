@@ -208,12 +208,11 @@ function invokeCommand(cmd, opts) {
 				type: 'POST',
 				url: '/command/' + cmd,
 				data: JSON.stringify(values),
+				dataType: 'json',
 				success: function(data) {
 					softReload();
 				},
-				error: function (xhr) {
-					alert('xhr error: ' + xhr.responseText);
-				},
+				error: restDefaultErrorHandler,
 				contentType: "application/json"
 			});
 		}

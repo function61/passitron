@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util"
 	"net/http"
 )
 
@@ -18,5 +19,5 @@ func HandleWriteKeepassRequest(w http.ResponseWriter, r *http.Request) {
 
 	keepassExport(state.Inst.GetMasterPassword())
 
-	w.Write([]byte("OK"))
+	util.CommandGenericSuccess(w, r)
 }

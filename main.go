@@ -31,7 +31,7 @@ type FolderResponse struct {
 
 func errorIfUnsealed(w http.ResponseWriter, r *http.Request) bool {
 	if !state.Inst.IsUnsealed() {
-		http.Error(w, "{\"error_code\": \"database_is_sealed\"}", http.StatusForbidden)
+		util.CommandCustomError(w, r, "database_is_sealed", nil, http.StatusForbidden)
 		return true
 	}
 
@@ -51,7 +51,7 @@ func defineApi(router *mux.Router) {
 		if handler, ok := commandHandlers[commandName]; ok {
 			handler(w, r)
 		} else {
-			http.Error(w, "Unsupported command: "+commandName, http.StatusBadRequest)
+			util.CommandCustomError(w, r, "unsupported_command", nil, http.StatusBadRequest)
 		}
 	}))
 
@@ -126,7 +126,7 @@ func defineApi(router *mux.Router) {
 		secret := state.SecretById(mux.Vars(r)["secretId"])
 
 		if secret == nil {
-			http.Error(w, "Secret not found", http.StatusNotFound)
+			util.CommandCustomError(w, r, "secret_not_found", nil, http.StatusNotFound)
 			return
 		}
 
@@ -139,20 +139,21 @@ func defineApi(router *mux.Router) {
 			return
 		}
 
-		authorized, err := askAuthorization()
-		if err != nil { // technical error in the authorization process
-			panic(err)
-		}
-
-		if !authorized {
-			http.Error(w, "Did not receive authorization", http.StatusForbidden)
-			return
-		}
-
 		secret := state.SecretById(mux.Vars(r)["secretId"])
 
 		if secret == nil {
-			http.Error(w, "Secret not found", http.StatusNotFound)
+			util.CommandCustomError(w, r, "secret_not_found", nil, http.StatusNotFound)
+			return
+		}
+
+		authorized, err := askAuthorization()
+		if err != nil {
+			util.CommandCustomError(w, r, "technical_error_in_physical_authorization", err, http.StatusInternalServerError)
+			return
+		}
+
+		if !authorized {
+			util.CommandCustomError(w, r, "did_not_receive_physical_authorization", nil, http.StatusForbidden)
 			return
 		}
 

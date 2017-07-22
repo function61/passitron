@@ -33,7 +33,7 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := req.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.CommandValidationError(w, r, err)
 		return
 	}
 
@@ -45,5 +45,5 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 
-	w.Write([]byte("OK"))
+	util.CommandGenericSuccess(w, r)
 }

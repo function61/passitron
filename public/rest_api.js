@@ -19,16 +19,21 @@ function rest_credentialById(id) {
 	return $.getJSON('/secrets/' + id);
 }
 
-function restDefaultErrorHandler(err) {
-	if (err.responseJSON && err.responseJSON.error_code === 'database_is_sealed') {
-		if (confirm('Error: you need to unseal the database first. Do that?')) {
-			invokeCommand('UnsealRequest');
+function restDefaultErrorHandler(xhr) {
+	if (xhr.responseJSON && xhr.responseJSON.error_code) {
+		if (xhr.responseJSON.error_code === 'database_is_sealed') {
+			if (confirm('Error: you need to unseal the database first. Do that?')) {
+				invokeCommand('UnsealRequest');
+			}
+		} else {
+			alert(xhr.responseJSON.error_code + ': ' + xhr.responseJSON.error_description);
 		}
+
 		return;
 	}
 
-	alert('rest error, logged in console');
+	alert('Unknown REST error, logged in console');
 
-	console.error(err);
+	console.error(xhr);
 }
 

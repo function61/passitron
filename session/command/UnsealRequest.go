@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/util"
 	"net/http"
 )
 
@@ -27,14 +28,14 @@ func HandleUnsealRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := req.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.CommandValidationError(w, r, err)
 		return
 	}
 
 	if err := state.Inst.Unseal(req.MasterPassword); err != nil {
-		http.Error(w, err.Error(), http.StatusForbidden)
+		util.CommandCustomError(w, r, "error", err, http.StatusForbidden)
 		return
 	}
 
-	w.Write([]byte("OK"))
+	util.CommandGenericSuccess(w, r)
 }

@@ -33,12 +33,12 @@ func HandleChangeMasterPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := req.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.CommandValidationError(w, r, err)
 		return
 	}
 
 	if err := state.Inst.ChangePassword(req.NewMasterPassword); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		util.CommandCustomError(w, r, "error", err, http.StatusInternalServerError)
 		return
 	}
 
@@ -46,5 +46,5 @@ func HandleChangeMasterPassword(w http.ResponseWriter, r *http.Request) {
 		event.MasterPasswordChanged{},
 	})
 
-	w.Write([]byte("OK"))
+	util.CommandGenericSuccess(w, r)
 }
