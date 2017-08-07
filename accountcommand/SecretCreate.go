@@ -1,11 +1,10 @@
-package command
+package accountcommand
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -40,29 +39,30 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secretId := cryptorandombytes.Hex(4)
+	accountId := eventbase.RandomId()
 
 	events := []interface{}{
-		event.SecretCreated{
+		accountevent.AccountCreated{
 			Event:    eventbase.NewEvent(),
-			Id:       secretId,
+			Id:       accountId,
 			FolderId: req.FolderId,
 			Title:    req.Title,
 		},
 	}
 
 	if req.Username != "" {
-		events = append(events, event.UsernameChanged{
+		events = append(events, accountevent.UsernameChanged{
 			Event:    eventbase.NewEvent(),
-			Id:       secretId,
+			Id:       accountId,
 			Username: req.Username,
 		})
 	}
 
 	if req.Password != "" {
-		events = append(events, event.PasswordChanged{
+		events = append(events, accountevent.PasswordAdded{
 			Event:    eventbase.NewEvent(),
-			Id:       secretId,
+			Account:  accountId,
+			Id:       eventbase.RandomId(),
 			Password: req.Password,
 		})
 	}

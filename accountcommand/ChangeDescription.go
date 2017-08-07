@@ -1,8 +1,8 @@
-package command
+package accountcommand
 
 import (
 	"encoding/json"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
@@ -21,13 +21,13 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if state.SecretById(req.Id) == nil {
+	if state.AccountById(req.Id) == nil {
 		util.CommandCustomError(w, r, "invalid_secret_id", nil, http.StatusNotFound)
 		return
 	}
 
 	util.ApplyEvents([]interface{}{
-		event.DescriptionChanged{
+		accountevent.DescriptionChanged{
 			Event:       eventbase.NewEvent(),
 			Id:          req.Id,
 			Description: req.Description,

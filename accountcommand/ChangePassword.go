@@ -1,9 +1,9 @@
-package command
+package accountcommand
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
@@ -16,6 +16,8 @@ type ChangePasswordRequest struct {
 }
 
 func (f *ChangePasswordRequest) Validate() error {
+	// FIXME: validate account presence
+
 	if f.Id == "" {
 		return errors.New("Id missing")
 	}
@@ -42,9 +44,10 @@ func HandleChangePasswordRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.ApplyEvents([]interface{}{
-		event.PasswordChanged{
+		accountevent.PasswordAdded{
 			Event:    eventbase.NewEvent(),
-			Id:       req.Id,
+			Account:  req.Id,
+			Id:       eventbase.RandomId(),
 			Password: req.Password,
 		},
 	})

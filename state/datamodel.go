@@ -4,65 +4,64 @@ import (
 	"time"
 )
 
-// "secure secret": marshals all fields to JSON from InsecureSecret *except*
-// sensitive fields
+const (
+	SecretKindPassword = "password"
+	SecretKindOtpToken = "otp_token"
+	SecretKindSshKey   = "ssh_key"
+)
+
 type Secret struct {
 	Id                     string
-	FolderId               string
-	Title                  string
-	Username               string
-	password               string
-	sshPrivateKey          string
-	SshPublicKeyAuthorized string
-	otpProvisioningUrl     string
-	Description            string
+	Kind                   string
 	Created                time.Time
-	PasswordLastChanged    time.Time
-}
-
-type InsecureSecret struct {
-	Id                     string
-	FolderId               string
-	Title                  string
-	Username               string
 	Password               string
 	SshPrivateKey          string
 	SshPublicKeyAuthorized string
 	OtpProvisioningUrl     string
-	Description            string
-	Created                time.Time
-	PasswordLastChanged    time.Time
 }
 
-func (i *InsecureSecret) ToSecureSecret() Secret {
-	return Secret{
-		Id:                     i.Id,
-		FolderId:               i.FolderId,
-		Title:                  i.Title,
-		Username:               i.Username,
-		password:               i.Password,
-		sshPrivateKey:          i.SshPrivateKey,
-		SshPublicKeyAuthorized: i.SshPublicKeyAuthorized,
-		otpProvisioningUrl:     i.OtpProvisioningUrl,
-		Description:            i.Description,
-		Created:                i.Created,
-		PasswordLastChanged:    i.PasswordLastChanged,
+// secure account = insecure account + secrets
+type SecureAccount struct {
+	Id          string
+	FolderId    string
+	Title       string
+	Username    string
+	Description string
+	Created     time.Time
+	secrets     []Secret
+}
+
+type InsecureAccount struct {
+	Id          string
+	FolderId    string
+	Title       string
+	Username    string
+	Description string
+	Created     time.Time
+	Secrets     []Secret
+}
+
+func (i *InsecureAccount) ToSecureAccount() SecureAccount {
+	return SecureAccount{
+		Id:          i.Id,
+		FolderId:    i.FolderId,
+		Title:       i.Title,
+		Username:    i.Username,
+		Description: i.Description,
+		Created:     i.Created,
+		secrets:     i.Secrets,
 	}
 }
 
-func (s *Secret) ToInsecureSecret() InsecureSecret {
-	return InsecureSecret{
-		Id:                     s.Id,
-		FolderId:               s.FolderId,
-		Title:                  s.Title,
-		Username:               s.Username,
-		Password:               s.password,
-		SshPrivateKey:          s.sshPrivateKey,
-		SshPublicKeyAuthorized: s.SshPublicKeyAuthorized,
-		OtpProvisioningUrl:     s.otpProvisioningUrl,
-		Description:            s.Description,
-		Created:                s.Created,
-		PasswordLastChanged:    s.PasswordLastChanged,
+func (s *SecureAccount) ToInsecureAccount() InsecureAccount {
+	return InsecureAccount{
+		Id:          s.Id,
+		FolderId:    s.FolderId,
+		Title:       s.Title,
+		Username:    s.Username,
+		Description: s.Description,
+		Created:     s.Created,
+		Secrets:     s.secrets,
 	}
 }
 
@@ -78,6 +77,6 @@ type State struct {
 }
 
 type Statefile struct {
-	Secrets []InsecureSecret
-	Folders []Folder
+	Accounts []InsecureAccount
+	Folders  []Folder
 }

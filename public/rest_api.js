@@ -1,10 +1,10 @@
 
 function rest_search(search) {
-	return $.getJSON('/secrets?search=' + encodeURIComponent(search));
+	return $.getJSON('/accounts?search=' + encodeURIComponent(search));
 }
 
 function rest_sshkeys(search) {
-	return $.getJSON('/secrets?sshkey=y');
+	return $.getJSON('/accounts?sshkey=y');
 }
 
 function rest_byFolder(id) {
@@ -12,11 +12,11 @@ function rest_byFolder(id) {
 }
 
 function rest_exposedCred(id) {
-	return $.getJSON('/secrets/' + id + '/expose');
+	return $.getJSON('/accounts/' + id + '/secrets');
 }
 
 function rest_credentialById(id) {
-	return $.getJSON('/secrets/' + id);
+	return $.getJSON('/accounts/' + id);
 }
 
 function restDefaultErrorHandler(xhr) {

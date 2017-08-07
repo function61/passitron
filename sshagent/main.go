@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"errors"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
@@ -45,27 +45,29 @@ func (a AgentProxy) List() ([]*agent.Key, error) {
 		return knownKeys, nil
 	}
 
-	for _, secret := range state.Inst.State.Secrets {
-		if secret.SshPrivateKey == "" {
-			continue
+	for _, account := range state.Inst.State.Accounts {
+		for _, secret := range account.Secrets {
+			if secret.SshPrivateKey == "" {
+				continue
+			}
+
+			log.Printf("SshAgentServer: List() candidate %s", account.Title)
+
+			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
+			if err != nil {
+				panic(err)
+			}
+
+			publicKey := signer.PublicKey()
+
+			knownKey := &agent.Key{
+				Format:  publicKey.Type(),
+				Blob:    publicKey.Marshal(),
+				Comment: account.Title,
+			}
+
+			knownKeys = append(knownKeys, knownKey)
 		}
-
-		log.Printf("SshAgentServer: List() candidate %s", secret.Title)
-
-		signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
-		if err != nil {
-			panic(err)
-		}
-
-		publicKey := signer.PublicKey()
-
-		knownKey := &agent.Key{
-			Format:  publicKey.Type(),
-			Blob:    publicKey.Marshal(),
-			Comment: secret.Title,
-		}
-
-		knownKeys = append(knownKeys, knownKey)
 	}
 
 	return knownKeys, nil
@@ -82,43 +84,45 @@ func (a AgentProxy) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error)
 
 	keyMarshaled := key.Marshal()
 
-	for _, secret := range state.Inst.State.Secrets {
-		if secret.SshPrivateKey == "" {
-			continue
+	for _, account := range state.Inst.State.Accounts {
+		for _, secret := range account.Secrets {
+			if secret.SshPrivateKey == "" {
+				continue
+			}
+
+			log.Printf("SshAgentServer: Sign() candidate %s", account.Title)
+
+			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
+			if err != nil {
+				panic(err)
+			}
+
+			publicKey := signer.PublicKey()
+
+			// TODO: is there better way to compare than marshal result?
+			if !bytes.Equal(keyMarshaled, publicKey.Marshal()) {
+				log.Printf("SshAgentServer: Sign(): skipping candidate")
+				continue
+			}
+
+			// found it
+
+			sig, err := signer.Sign(rand.Reader, data)
+			if err != nil {
+				log.Printf("SshAgentServer: Sign() error: %s", err.Error())
+				return nil, err
+			}
+
+			util.ApplyEvents([]interface{}{
+				accountevent.SecretUsed{
+					Event:   eventbase.NewEvent(),
+					Account: account.Id,
+					Type:    accountevent.SecretUsedTypeSshSigning,
+				},
+			})
+
+			return sig, nil
 		}
-
-		log.Printf("SshAgentServer: Sign() candidate %s", secret.Title)
-
-		signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
-		if err != nil {
-			panic(err)
-		}
-
-		publicKey := signer.PublicKey()
-
-		// TODO: is there better way to compare than marshal result?
-		if !bytes.Equal(keyMarshaled, publicKey.Marshal()) {
-			log.Printf("SshAgentServer: Sign(): skipping candidate")
-			continue
-		}
-
-		// found it
-
-		sig, err := signer.Sign(rand.Reader, data)
-		if err != nil {
-			log.Printf("SshAgentServer: Sign() error: %s", err.Error())
-			return nil, err
-		}
-
-		util.ApplyEvents([]interface{}{
-			event.SecretUsed{
-				Event:  eventbase.NewEvent(),
-				Secret: secret.Id,
-				Type:   event.SecretUsedTypeSshSigning,
-			},
-		})
-
-		return sig, nil
 	}
 
 	notFoundErr := errors.New("privkey not found by pubkey")

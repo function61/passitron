@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
@@ -26,7 +26,7 @@ type FolderResponse struct {
 	Folder        *state.Folder
 	SubFolders    []state.Folder
 	ParentFolders []state.Folder
-	Secrets       []state.Secret
+	Accounts      []state.SecureAccount
 }
 
 func errorIfUnsealed(w http.ResponseWriter, r *http.Request) bool {
@@ -62,7 +62,7 @@ func defineApi(router *mux.Router) {
 
 		folder := state.FolderById(mux.Vars(r)["folderId"])
 
-		secrets := state.SecretsByFolder(folder.Id)
+		accounts := state.AccountsByFolder(folder.Id)
 		subFolders := state.SubfoldersById(folder.Id)
 		parentFolders := []state.Folder{}
 
@@ -75,13 +75,13 @@ func defineApi(router *mux.Router) {
 			parentId = parent.ParentId
 		}
 
-		resp := FolderResponse{folder, subFolders, parentFolders, secrets}
+		resp := FolderResponse{folder, subFolders, parentFolders, accounts}
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
 	}))
 
-	router.HandleFunc("/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfUnsealed(w, r) {
 			return
 		}
@@ -91,58 +91,60 @@ func defineApi(router *mux.Router) {
 
 		w.Header().Set("Content-Type", "application/json")
 
-		matches := []state.Secret{}
+		matches := []state.SecureAccount{}
 
 		if sshkey == "y" {
-			for _, s := range state.Inst.State.Secrets {
-				if s.SshPublicKeyAuthorized == "" {
-					continue
-				}
+			for _, account := range state.Inst.State.Accounts {
+				for _, secret := range account.Secrets {
+					if secret.SshPublicKeyAuthorized == "" {
+						continue
+					}
 
-				matches = append(matches, s.ToSecureSecret())
+					matches = append(matches, account.ToSecureAccount())
+				}
 			}
 		} else if search == "" { // no filter => return all
-			for _, s := range state.Inst.State.Secrets {
-				matches = append(matches, s.ToSecureSecret())
+			for _, s := range state.Inst.State.Accounts {
+				matches = append(matches, s.ToSecureAccount())
 			}
 		} else { // search filter
-			for _, s := range state.Inst.State.Secrets {
+			for _, s := range state.Inst.State.Accounts {
 				if !strings.Contains(strings.ToLower(s.Title), search) {
 					continue
 				}
 
-				matches = append(matches, s.ToSecureSecret())
+				matches = append(matches, s.ToSecureAccount())
 			}
 		}
 
 		json.NewEncoder(w).Encode(matches)
 	}))
 
-	router.HandleFunc("/secrets/{secretId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfUnsealed(w, r) {
 			return
 		}
 
-		secret := state.SecretById(mux.Vars(r)["secretId"])
+		account := state.AccountById(mux.Vars(r)["accountId"])
 
-		if secret == nil {
-			util.CommandCustomError(w, r, "secret_not_found", nil, http.StatusNotFound)
+		if account == nil {
+			util.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(secret)
+		json.NewEncoder(w).Encode(account)
 	}))
 
-	router.HandleFunc("/secrets/{secretId}/expose", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfUnsealed(w, r) {
 			return
 		}
 
-		secret := state.SecretById(mux.Vars(r)["secretId"])
+		account := state.AccountById(mux.Vars(r)["accountId"])
 
-		if secret == nil {
-			util.CommandCustomError(w, r, "secret_not_found", nil, http.StatusNotFound)
+		if account == nil {
+			util.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
 			return
 		}
 
@@ -158,15 +160,15 @@ func defineApi(router *mux.Router) {
 		}
 
 		util.ApplyEvents([]interface{}{
-			event.SecretUsed{
-				Event:  eventbase.NewEvent(),
-				Secret: secret.Id,
-				Type:   event.SecretUsedTypePasswordExposed,
+			accountevent.SecretUsed{
+				Event:   eventbase.NewEvent(),
+				Account: account.Id,
+				Type:    accountevent.SecretUsedTypePasswordExposed,
 			},
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(secret.GetPassword())
+		json.NewEncoder(w).Encode(account.GetSecrets())
 	}))
 }
 

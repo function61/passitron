@@ -1,32 +1,28 @@
-package command
+package accountcommand
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
 
-type RenameSecretRequest struct {
-	Id    string
-	Title string
+type DeleteAccountRequest struct {
+	Id string
 }
 
-func (f *RenameSecretRequest) Validate() error {
+func (f *DeleteAccountRequest) Validate() error {
 	if f.Id == "" {
 		return errors.New("Id missing")
-	}
-	if f.Title == "" {
-		return errors.New("Title missing")
 	}
 
 	return nil
 }
 
-func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
-	var req RenameSecretRequest
+func HandleDeleteAccountRequest(w http.ResponseWriter, r *http.Request) {
+	var req DeleteAccountRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -38,10 +34,9 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.ApplyEvents([]interface{}{
-		event.SecretRenamed{
+		accountevent.AccountDeleted{
 			Event: eventbase.NewEvent(),
 			Id:    req.Id,
-			Title: req.Title,
 		},
 	})
 

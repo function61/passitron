@@ -2,11 +2,10 @@ package main
 
 import (
 	"encoding/csv"
+	"github.com/function61/pi-security-module/accountevent"
 	folderevent "github.com/function61/pi-security-module/folder/event"
-	secretevent "github.com/function61/pi-security-module/secret/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"log"
 	"os"
@@ -79,7 +78,7 @@ func main() {
 		} else if _, has := foldersJustCreated[groupPath]; has {
 			folderId = foldersJustCreated[groupPath]
 		} else {
-			folderId = cryptorandombytes.Hex(4)
+			folderId = eventbase.RandomId()
 
 			events = append(events, folderevent.FolderCreated{
 				Event:    eventbase.NewEvent(),
@@ -91,35 +90,36 @@ func main() {
 			foldersJustCreated[groupPath] = folderId
 		}
 
-		secretId := cryptorandombytes.Hex(4)
+		accountId := eventbase.RandomId()
 
-		events = append(events, secretevent.SecretCreated{
+		events = append(events, accountevent.AccountCreated{
 			Event:    eventbase.NewEvent(),
-			Id:       secretId,
+			Id:       accountId,
 			FolderId: folderId,
 			Title:    res["Account"],
 		})
 
 		if res["Login Name"] != "" {
-			events = append(events, secretevent.UsernameChanged{
+			events = append(events, accountevent.UsernameChanged{
 				Event:    eventbase.NewEvent(),
-				Id:       secretId,
+				Id:       accountId,
 				Username: res["Login Name"],
 			})
 		}
 
 		if res["Password"] != "" {
-			events = append(events, secretevent.PasswordChanged{
+			events = append(events, accountevent.PasswordAdded{
 				Event:    eventbase.NewEvent(),
-				Id:       secretId,
+				Account:  accountId,
+				Id:       eventbase.RandomId(),
 				Password: res["Password"],
 			})
 		}
 
 		if res["Comments"] != "" {
-			events = append(events, secretevent.DescriptionChanged{
+			events = append(events, accountevent.DescriptionChanged{
 				Event:       eventbase.NewEvent(),
-				Id:          secretId,
+				Id:          accountId,
 				Description: res["Comments"],
 			})
 		}

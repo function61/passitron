@@ -20,25 +20,25 @@ func SubfoldersById(id string) []Folder {
 	return subFolders
 }
 
-func SecretsByFolder(id string) []Secret {
-	secrets := []Secret{}
+func AccountsByFolder(id string) []SecureAccount {
+	accounts := []SecureAccount{}
 
-	for _, s := range Inst.State.Secrets {
+	for _, s := range Inst.State.Accounts {
 		if s.FolderId != id {
 			continue
 		}
 
-		secrets = append(secrets, s.ToSecureSecret())
+		accounts = append(accounts, s.ToSecureAccount())
 	}
 
-	return secrets
+	return accounts
 }
 
-func SecretById(id string) *Secret {
-	for _, s := range Inst.State.Secrets {
+func AccountById(id string) *SecureAccount {
+	for _, s := range Inst.State.Accounts {
 		if s.Id == id {
-			secret := s.ToSecureSecret()
-			return &secret
+			account := s.ToSecureAccount()
+			return &account
 		}
 	}
 
@@ -65,25 +65,42 @@ func FolderByName(name string) *Folder {
 	return nil
 }
 
-func (s *Secret) GetPassword() *ExposedPassword {
-	otpProof := ""
+func (s *SecureAccount) GetSecrets() []ExposedSecret {
+	secrets := []ExposedSecret{}
 
-	if s.otpProvisioningUrl != "" {
-		key, err := otp.NewKeyFromURL(s.otpProvisioningUrl)
-		if err != nil {
-			panic(err)
+	for _, secret := range s.secrets {
+		otpProof := ""
+
+		if secret.OtpProvisioningUrl != "" {
+			key, err := otp.NewKeyFromURL(secret.OtpProvisioningUrl)
+			if err != nil {
+				panic(err)
+			}
+
+			otpProof, err = totp.GenerateCode(key.Secret(), time.Now())
+			if err != nil {
+				panic(err)
+			}
 		}
 
-		otpProof, err = totp.GenerateCode(key.Secret(), time.Now())
-		if err != nil {
-			panic(err)
-		}
+		secrets = append(secrets, ExposedSecret{
+			Id:                     secret.Id,
+			Kind:                   secret.Kind,
+			Created:                secret.Created,
+			Password:               secret.Password,
+			OtpProof:               otpProof,
+			SshPublicKeyAuthorized: secret.SshPublicKeyAuthorized,
+		})
 	}
 
-	return &ExposedPassword{s.password, otpProof}
+	return secrets
 }
 
-type ExposedPassword struct {
-	Password string
-	OtpProof string
+type ExposedSecret struct {
+	Id                     string
+	Kind                   string
+	Created                time.Time
+	Password               string
+	OtpProof               string
+	SshPublicKeyAuthorized string
 }

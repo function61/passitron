@@ -58,10 +58,10 @@ routes.index = function(args) {
 
 		breadcrumbWidget(bcItems).appendTo(cc());
 
-		credsWidget(resp.SubFolders, resp.Secrets, null).appendTo(cc());
+		credsWidget(resp.SubFolders, resp.Accounts, null).appendTo(cc());
 
 		var secretCreateBtn = $('<button class="btn btn-default"></button>')
-			.text('+ Secret')
+			.text('+ Account')
 			.appendTo(cc());
 
 		attachCommand(secretCreateBtn, {

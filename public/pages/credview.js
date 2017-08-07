@@ -1,8 +1,14 @@
 
-routes.credview = function (args) {
-	var id = args[1];
+var _randomDomId_counter = 0;
 
-	rest_credentialById(id).then(function (cred){
+function randomDomId(prefix) {
+	return prefix + (++_randomDomId_counter);
+}
+
+routes.credview = function (args) {
+	var accountId = args[1];
+
+	rest_credentialById(accountId).then(function (cred){
 		var titleHeading = $('<h1></h1>')
 			.text(cred.Title)
 			.attr('title', 'created: ' + cred.Created)
@@ -11,7 +17,7 @@ routes.credview = function (args) {
 		attachCommand(titleHeading, {
 			cmd: 'RenameSecretRequest',
 			prefill: {
-				Id: id,
+				Id: accountId,
 				Title: cred.Title
 			} });
 
@@ -25,60 +31,112 @@ routes.credview = function (args) {
 		attachCommand(usernameHeading, {
 			cmd: 'ChangeUsernameRequest',
 			prefill: {
-				Id: id,
+				Id: accountId,
 				Username: cred.Username
 			} });
 
-		var pwdTr = detailsTable.tr();
-		var pwdHeading = detailsTable
-			.td(pwdTr)
-			.text('Password');
-		var pwdTd = detailsTable
-			.td(pwdTr)
-			.attr('id', 'pwd')
-			.attr('title', 'last changed: ' + cred.PasswordLastChanged)
-			.text('.. requesting authorization ..');
-		detailsTable
-			.td(pwdTr)
-			.attr('data-clipboard-target', '#pwd')
-			.text('📋');
+		var secretsTr = detailsTable.tr();
+		var secretsHeading = detailsTable
+			.td(secretsTr)
+			.text('Secrets');
 
-		attachCommand(pwdHeading, {
-			cmd: 'ChangePasswordRequest',
-			prefill: {
-				Id: id
-			} });
+		var secretsTd = detailsTable
+			.td(secretsTr)
+			.attr('colspan', 2);
 
-		var tfaTr = detailsTable.tr();
-		detailsTable.td(tfaTr).text('TFA proof');
-		var tfaProofTd = detailsTable.td(tfaTr).attr('id', 'tfaproof');
-		detailsTable.td(tfaTr).attr('data-clipboard-target', '#tfaproof').text('📋');
+		var secretsTable = createTable();
+		secretsTable.table.appendTo(secretsTd);
 
-		tfaTr.hide();
+		rest_exposedCred(cred.Id).then(function (secrets){
+			for (var i = 0; i < secrets.length; ++i) {
+				var secret = secrets[i];
 
-		rest_exposedCred(cred.Id).then(function (exposeResult){
-			pwdTd.text(exposeResult.Password);
+				// for clipboard.js references
+				var secretDomId = randomDomId('secret');
 
-			if (exposeResult.OtpProof !== "") {
-				tfaProofTd.text(exposeResult.OtpProof);
-				tfaTr.show();
+				var secretTr = secretsTable.tr();
+				var secretHeadingTd;
+
+				if (secret.Kind === 'password') {
+					secretHeadingTd = secretsTable
+						.td(secretTr)
+						.text('Password');
+					secretsTable
+						.td(secretTr)
+						.attr('id', secretDomId)
+						.attr('title', 'last changed: ' + secret.Created)
+						.text(secret.Password);
+					secretsTable
+						.td(secretTr)
+						.attr('data-clipboard-target', '#' + secretDomId)
+						.text('📋');
+
+				} else if (secret.Kind === 'otp_token') {
+					secretHeadingTd = secretsTable
+						.td(secretTr)
+						.text('OTP');
+
+					secretsTable
+						.td(secretTr)
+						.attr('id', secretDomId)
+						.attr('title', 'last changed: ' + secret.Created)
+						.text(secret.OtpProof);
+					secretsTable
+						.td(secretTr)
+						.attr('data-clipboard-target', '#' + secretDomId)
+						.text('📋');
+				} else if (secret.Kind === 'ssh_key') {
+					secretHeadingTd = secretsTable
+						.td(secretTr)
+						.text('SSH key');
+
+					secretsTable
+						.td(secretTr)
+						.attr('colspan', 2)
+						.attr('title', 'last changed: ' + secret.Created)
+						.text(secret.SshPublicKeyAuthorized);
+				} else {
+					throw new Error("Unknown secret kind: " + secret.Kind);
+				}
+
+				attachCommand(secretHeadingTd, {
+					cmd: 'DeleteSecretRequest',
+					prefill: {
+						Account: accountId,
+						Secret: secret.Id
+					} });
 			}
 		}, restDefaultErrorHandler);
 
-		var sshKeyTr = detailsTable.tr();
-		var sshKeyTh = detailsTable.td(sshKeyTr).text('SSH key');
-		detailsTable.td(sshKeyTr).text(cred.SshPublicKeyAuthorized);
+		var addSshKeyBtn = $('<button class="btn btn-default"></button>')
+			.text('+ SSH key')
+			.appendTo(secretsTd);
 
-		attachCommand(sshKeyTh, {
+		attachCommand(addSshKeyBtn, {
 			cmd: 'SetSshKeyRequest',
 			prefill: {
-				Id: id
+				Id: accountId
 			} });
+
+		var addPasswordBtn = $('<button class="btn btn-default"></button>')
+			.text('+ Password')
+			.appendTo(secretsTd);
+
+		attachCommand(addPasswordBtn, {
+			cmd: 'ChangePasswordRequest',
+			prefill: {
+				Id: accountId
+			} });
+
+		$('<a class="btn btn-default">+ OTP token</a>')
+			.attr('href', linkTo([ 'importotptoken', accountId ]))
+			.appendTo(secretsTd);
 
 		var descriptionTr = detailsTable.tr();
 		var descriptionHeadingTd = detailsTable.td(descriptionTr).text('Description');
 		detailsTable
 			.td(descriptionTr)
+			.attr('colspan', 2)
 			.css('font-family', 'monospace')
 			.css('white-space', 'pre')
 			.text(cred.Description);
@@ -86,7 +144,7 @@ routes.credview = function (args) {
 		attachCommand(descriptionHeadingTd, {
 			cmd: 'ChangeDescriptionRequest',
 			prefill: {
-				Id: id,
+				Id: accountId,
 				Description: cred.Description
 			} });
 
@@ -98,13 +156,9 @@ routes.credview = function (args) {
 			.appendTo(cc());
 
 		attachCommand(secretDeleteBtn, {
-			cmd: 'DeleteSecretRequest',
+			cmd: 'DeleteAccountRequest',
 			prefill: {
-				Id: id
+				Id: accountId
 			} });
-
-		$('<a class="btn btn-default">Attach OTP token</a>')
-			.attr('href', linkTo([ 'importotptoken', id ]))
-			.appendTo(cc());
 	}, restDefaultErrorHandler);
 }

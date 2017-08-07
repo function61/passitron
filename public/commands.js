@@ -39,6 +39,12 @@ var commands = {
 			}
 		}
 	},
+	'DeleteSecretRequest': {
+		fields: {
+			Account: {},
+			Secret: {}
+		}
+	},
 	'SetSshKeyRequest': {
 		fields: {
 			Id: {},
@@ -56,7 +62,7 @@ var commands = {
 	'WriteKeepassRequest': {
 		fields: { }
 	},
-	'DeleteSecretRequest': {
+	'DeleteAccountRequest': {
 		fields: {
 			Id: {}
 		}

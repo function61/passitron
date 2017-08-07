@@ -1,4 +1,4 @@
-package event
+package accountevent
 
 import (
 	"github.com/function61/pi-security-module/state"
@@ -12,10 +12,10 @@ type UsernameChanged struct {
 }
 
 func (e *UsernameChanged) Apply() {
-	for idx, s := range state.Inst.State.Secrets {
+	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {
 			s.Username = e.Username
-			state.Inst.State.Secrets[idx] = s
+			state.Inst.State.Accounts[idx] = s
 			return
 		}
 	}

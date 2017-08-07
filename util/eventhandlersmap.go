@@ -1,8 +1,8 @@
 package util
 
 import (
+	"github.com/function61/pi-security-module/accountevent"
 	folderevent "github.com/function61/pi-security-module/folder/event"
-	secretevent "github.com/function61/pi-security-module/secret/event"
 	sessionevent "github.com/function61/pi-security-module/session/event"
 )
 
@@ -14,7 +14,7 @@ func ApplyOneEvent(event interface{}) bool {
 	switch e := event.(type) {
 	default:
 		return false
-	case secretevent.DescriptionChanged:
+	case accountevent.DescriptionChanged:
 		e.Apply()
 	case folderevent.FolderCreated:
 		e.Apply()
@@ -22,21 +22,23 @@ func ApplyOneEvent(event interface{}) bool {
 		e.Apply()
 	case folderevent.FolderRenamed:
 		e.Apply()
-	case secretevent.OtpTokenSet:
+	case accountevent.OtpTokenAdded:
 		e.Apply()
-	case secretevent.PasswordChanged:
+	case accountevent.PasswordAdded:
 		e.Apply()
-	case secretevent.SshKeySet:
+	case accountevent.SshKeyAdded:
 		e.Apply()
-	case secretevent.SecretCreated:
+	case accountevent.AccountCreated:
 		e.Apply()
-	case secretevent.SecretDeleted:
+	case accountevent.SecretDeleted:
 		e.Apply()
-	case secretevent.SecretRenamed:
+	case accountevent.AccountDeleted:
 		e.Apply()
-	case secretevent.UsernameChanged:
+	case accountevent.AccountRenamed:
 		e.Apply()
-	case secretevent.SecretUsed:
+	case accountevent.UsernameChanged:
+		e.Apply()
+	case accountevent.SecretUsed:
 		e.Apply()
 	case sessionevent.MasterPasswordChanged:
 		e.Apply()

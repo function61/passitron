@@ -1,4 +1,4 @@
-package event
+package accountevent
 
 import (
 	"github.com/function61/pi-security-module/util/eventbase"
@@ -12,10 +12,10 @@ const (
 
 type SecretUsed struct {
 	eventbase.Event
-	Secret string
-	Type   string
+	Account string
+	Type    string
 }
 
 func (e *SecretUsed) Apply() {
-	log.Printf("Secret %s was used, type = %s", e.Secret, e.Type)
+	log.Printf("Account %s was used, type = %s", e.Account, e.Type)
 }

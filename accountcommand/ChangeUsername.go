@@ -1,9 +1,9 @@
-package command
+package accountcommand
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
@@ -19,7 +19,7 @@ func (f *ChangeUsernameRequest) Validate() error {
 	if f.Id == "" {
 		return errors.New("Id missing")
 	}
-	if state.SecretById(f.Id) == nil {
+	if state.AccountById(f.Id) == nil {
 		return errors.New("Secret by Id not found")
 	}
 
@@ -39,7 +39,7 @@ func HandleChangeUsernameRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.ApplyEvents([]interface{}{
-		event.UsernameChanged{
+		accountevent.UsernameChanged{
 			Event:    eventbase.NewEvent(),
 			Id:       req.Id,
 			Username: req.Username,

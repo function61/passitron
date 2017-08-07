@@ -10,6 +10,7 @@ import (
 	"github.com/tobischo/gokeepasslib"
 	"log"
 	"os"
+	"strconv"
 )
 
 func xmlEscape(value string) string {
@@ -51,37 +52,56 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) gokeepasslib.Group 
 	group := gokeepasslib.NewGroup()
 	group.Name = folder.Name
 
-	secrets := state.SecretsByFolder(folder.Id)
+	accounts := state.AccountsByFolder(folder.Id)
 
-	for _, secret := range secrets {
-		insecureSecret := secret.ToInsecureSecret()
+	for _, secureAccount := range accounts {
+		account := secureAccount.ToInsecureAccount()
 
-		entry := gokeepasslib.NewEntry()
-		entry.Values = append(entry.Values, mkValue("Title", secret.Title))
-		entry.Values = append(entry.Values, mkValue("UserName", secret.Username))
-		entry.Values = append(entry.Values, mkProtectedValue("Password", insecureSecret.Password))
+		for idx, secret := range account.Secrets {
+			title := account.Title
 
-		if insecureSecret.SshPrivateKey != "" {
-			filename := secret.Id + ".id_rsa"
-
-			plaintextSshBlock, rest := pem.Decode([]byte(insecureSecret.SshPrivateKey))
-			if len(rest) > 0 {
-				panic("Extra data included in PEM content")
+			if idx > 0 { // append index, if many secrets in account
+				title = title + " " + strconv.Itoa(idx)
 			}
 
-			encryptedSshKey := encryptPemBlock(
-				plaintextSshBlock,
-				[]byte(state.Inst.GetMasterPassword()))
+			entry := gokeepasslib.NewEntry()
+			entry.Values = append(entry.Values, mkValue("Title", title))
+			entry.Values = append(entry.Values, mkValue("UserName", account.Username))
 
-			binary := meta.Binaries.Add(pem.EncodeToMemory(encryptedSshKey))
-			binaryReference := binary.CreateReference(filename)
+			// TODO: export description
 
-			entry.Binaries = append(entry.Binaries, binaryReference)
+			switch secret.Kind {
+			default:
+				panic("invalid secret kind: " + secret.Kind)
+			case state.SecretKindPassword:
+				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Password))
+
+			case state.SecretKindSshKey:
+				filename := account.Id + ".id_rsa"
+
+				plaintextSshBlock, rest := pem.Decode([]byte(secret.SshPrivateKey))
+				if len(rest) > 0 {
+					panic("Extra data included in PEM content")
+				}
+
+				encryptedSshKey := encryptPemBlock(
+					plaintextSshBlock,
+					[]byte(state.Inst.GetMasterPassword()))
+
+				binary := meta.Binaries.Add(pem.EncodeToMemory(encryptedSshKey))
+				binaryReference := binary.CreateReference(filename)
+
+				entry.Binaries = append(entry.Binaries, binaryReference)
+
+			case state.SecretKindOtpToken:
+				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))
+
+			}
+
+			log.Printf("Appending account %s", account.Title)
+
+			group.Entries = append(group.Entries, entry)
 		}
-
-		log.Printf("Appending secret %s", secret.Title)
-
-		group.Entries = append(group.Entries, entry)
 	}
 
 	subFolders := state.SubfoldersById(folder.Id)

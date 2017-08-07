@@ -1,11 +1,11 @@
-package command
+package accountcommand
 
 import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
-	"github.com/function61/pi-security-module/secret/event"
+	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"golang.org/x/crypto/ssh"
@@ -77,9 +77,10 @@ func HandleSetSshKeyRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.ApplyEvents([]interface{}{
-		event.SshKeySet{
+		accountevent.SshKeyAdded{
 			Event:                  eventbase.NewEvent(),
-			Id:                     req.Id,
+			Account:                req.Id,
+			Id:                     eventbase.RandomId(),
 			SshPrivateKey:          req.SshPrivateKey,
 			SshPublicKeyAuthorized: req.sshPublicKeyAuthorized,
 		},

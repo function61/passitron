@@ -36,8 +36,8 @@ func writeBlankStatefile(password string) {
 	}
 
 	Inst.State = &Statefile{
-		Secrets: []InsecureSecret{},
-		Folders: []Folder{rootFolder},
+		Accounts: []InsecureAccount{},
+		Folders:  []Folder{rootFolder},
 	}
 
 	Inst.State.Save(password)

@@ -1,4 +1,4 @@
-package command
+package accountcommand
 
 import (
 	"github.com/function61/eventhorizon/util/ass"
