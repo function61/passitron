@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
-	"encoding/xml"
 	"github.com/function61/pi-security-module/state"
 	"github.com/tobischo/gokeepasslib"
 	"log"
@@ -13,22 +11,12 @@ import (
 	"strconv"
 )
 
-func xmlEscape(value string) string {
-	escaped := &bytes.Buffer{}
-
-	if err := xml.EscapeText(escaped, []byte(value)); err != nil {
-		panic(err)
-	}
-
-	return escaped.String()
-}
-
 func mkValue(key string, value string) gokeepasslib.ValueData {
-	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: xmlEscape(value)}}
+	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value}}
 }
 
 func mkProtectedValue(key string, value string) gokeepasslib.ValueData {
-	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: xmlEscape(value), Protected: true}}
+	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value, Protected: true}}
 }
 
 func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
