@@ -13,6 +13,10 @@ func NewEvent() Event {
 	return Event{time.Now()}
 }
 
+func NewEventWithTimestamp(timestamp time.Time) Event {
+	return Event{timestamp}
+}
+
 type Event struct {
 	Timestamp time.Time
 }

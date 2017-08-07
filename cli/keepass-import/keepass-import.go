@@ -9,6 +9,7 @@ import (
 	"github.com/function61/pi-security-module/util/eventbase"
 	"log"
 	"os"
+	"time"
 )
 
 /*	Steps to make this work
@@ -92,8 +93,18 @@ func main() {
 
 		accountId := eventbase.RandomId()
 
+		creationTime, err := time.Parse("2006-01-02T15:04:05", res["Creation Time"])
+		if err != nil {
+			panic(err)
+		}
+
+		modificationTime, err := time.Parse("2006-01-02T15:04:05", res["Last Modification"])
+		if err != nil {
+			panic(err)
+		}
+
 		events = append(events, accountevent.AccountCreated{
-			Event:    eventbase.NewEvent(),
+			Event:    eventbase.NewEventWithTimestamp(creationTime),
 			Id:       accountId,
 			FolderId: folderId,
 			Title:    res["Account"],
@@ -109,7 +120,7 @@ func main() {
 
 		if res["Password"] != "" {
 			events = append(events, accountevent.PasswordAdded{
-				Event:    eventbase.NewEvent(),
+				Event:    eventbase.NewEventWithTimestamp(modificationTime),
 				Account:  accountId,
 				Id:       eventbase.RandomId(),
 				Password: res["Password"],
