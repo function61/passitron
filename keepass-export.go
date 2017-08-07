@@ -55,8 +55,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) gokeepasslib.Group 
 			entry := gokeepasslib.NewEntry()
 			entry.Values = append(entry.Values, mkValue("Title", title))
 			entry.Values = append(entry.Values, mkValue("UserName", account.Username))
-
-			// TODO: export description
+			entry.Values = append(entry.Values, mkValue("Notes", account.Description))
 
 			switch secret.Kind {
 			default:
