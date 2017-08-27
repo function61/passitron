@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/folder/event"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -41,7 +40,7 @@ func HandleFolderCreateRequest(w http.ResponseWriter, r *http.Request) {
 	util.ApplyEvents([]interface{}{
 		event.FolderCreated{
 			Event:    eventbase.NewEvent(),
-			Id:       cryptorandombytes.Hex(4),
+			Id:       eventbase.RandomId(),
 			ParentId: req.ParentId,
 			Name:     req.Name,
 		},
