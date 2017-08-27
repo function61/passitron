@@ -68,6 +68,8 @@ func FolderByName(name string) *Folder {
 func (s *SecureAccount) GetSecrets() []ExposedSecret {
 	secrets := []ExposedSecret{}
 
+	otpProofTime := time.Now()
+
 	for _, secret := range s.secrets {
 		otpProof := ""
 
@@ -77,7 +79,7 @@ func (s *SecureAccount) GetSecrets() []ExposedSecret {
 				panic(err)
 			}
 
-			otpProof, err = totp.GenerateCode(key.Secret(), time.Now())
+			otpProof, err = totp.GenerateCode(key.Secret(), otpProofTime)
 			if err != nil {
 				panic(err)
 			}
@@ -89,6 +91,7 @@ func (s *SecureAccount) GetSecrets() []ExposedSecret {
 			Created:                secret.Created,
 			Password:               secret.Password,
 			OtpProof:               otpProof,
+			OtpProofTime:           otpProofTime,
 			SshPublicKeyAuthorized: secret.SshPublicKeyAuthorized,
 		})
 	}
@@ -102,5 +105,6 @@ type ExposedSecret struct {
 	Created                time.Time
 	Password               string
 	OtpProof               string
+	OtpProofTime           time.Time
 	SshPublicKeyAuthorized string
 }
