@@ -71,11 +71,6 @@ type Folder struct {
 	Name     string
 }
 
-type State struct {
-	Password string
-	State    *Statefile
-}
-
 type Statefile struct {
 	Accounts []InsecureAccount
 	Folders  []Folder

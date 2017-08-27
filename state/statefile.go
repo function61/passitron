@@ -12,6 +12,11 @@ const (
 	statefilePath = "state.json"
 )
 
+type State struct {
+	Password string
+	State    *Statefile
+}
+
 func (s *Statefile) Save(password string) {
 	jsonBytes, errJson := json.MarshalIndent(s, "", "    ")
 	if errJson != nil {
