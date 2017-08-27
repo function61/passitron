@@ -20,7 +20,7 @@ type Secret struct {
 	OtpProvisioningUrl     string
 }
 
-// secure account = insecure account + secrets
+// insecure account = secure account + secrets as public
 type SecureAccount struct {
 	Id          string
 	FolderId    string
