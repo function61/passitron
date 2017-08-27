@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -43,7 +44,7 @@ func HandleChangePasswordRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(accountevent.PasswordAdded{
+	eventapplicator.ApplyEvent(accountevent.PasswordAdded{
 		Event:    eventbase.NewEvent(),
 		Account:  req.Id,
 		Id:       eventbase.RandomId(),

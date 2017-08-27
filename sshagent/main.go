@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -113,7 +113,7 @@ func (a AgentProxy) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error)
 				return nil, err
 			}
 
-			util.ApplyEvent(accountevent.SecretUsed{
+			eventapplicator.ApplyEvent(accountevent.SecretUsed{
 				Event:   eventbase.NewEvent(),
 				Account: account.Id,
 				Type:    accountevent.SecretUsedTypeSshSigning,

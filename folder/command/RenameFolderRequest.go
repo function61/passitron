@@ -6,6 +6,7 @@ import (
 	"github.com/function61/pi-security-module/folder/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -41,7 +42,7 @@ func HandleRenameFolderRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(event.FolderRenamed{
+	eventapplicator.ApplyEvent(event.FolderRenamed{
 		Event: eventbase.NewEvent(),
 		Id:    req.Id,
 		Name:  req.Name,

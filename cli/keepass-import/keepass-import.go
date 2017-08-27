@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/csv"
 	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/eventapplicator"
 	folderevent "github.com/function61/pi-security-module/folder/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
@@ -136,7 +137,7 @@ func main() {
 		}
 	}
 
-	util.ApplyEvents(events)
+	eventapplicator.ApplyEvents(events)
 
 	log.Printf("%d event(s) applied", len(events))
 

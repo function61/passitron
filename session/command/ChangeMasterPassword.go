@@ -6,6 +6,7 @@ import (
 	"github.com/function61/pi-security-module/session/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -43,7 +44,7 @@ func HandleChangeMasterPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(event.MasterPasswordChanged{
+	eventapplicator.ApplyEvent(event.MasterPasswordChanged{
 		Event: eventbase.NewEvent(),
 	})
 

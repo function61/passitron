@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -33,7 +34,7 @@ func HandleDeleteAccountRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(accountevent.AccountDeleted{
+	eventapplicator.ApplyEvent(accountevent.AccountDeleted{
 		Event: eventbase.NewEvent(),
 		Id:    req.Id,
 	})

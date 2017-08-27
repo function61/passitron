@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -37,7 +38,7 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(accountevent.AccountRenamed{
+	eventapplicator.ApplyEvent(accountevent.AccountRenamed{
 		Event: eventbase.NewEvent(),
 		Id:    req.Id,
 		Title: req.Title,

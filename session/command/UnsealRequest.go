@@ -6,6 +6,7 @@ import (
 	"github.com/function61/pi-security-module/session/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -39,7 +40,7 @@ func HandleUnsealRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(event.DatabaseUnsealed{
+	eventapplicator.ApplyEvent(event.DatabaseUnsealed{
 		Event: eventbase.NewEvent(),
 	})
 

@@ -6,6 +6,7 @@ import (
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -38,7 +39,7 @@ func HandleChangeUsernameRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvent(accountevent.UsernameChanged{
+	eventapplicator.ApplyEvent(accountevent.UsernameChanged{
 		Event:    eventbase.NewEvent(),
 		Id:       req.Id,
 		Username: req.Username,
