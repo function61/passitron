@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -12,7 +13,13 @@ type PasswordAdded struct {
 	Password string
 }
 
-func (e *PasswordAdded) Apply() {
+func (e PasswordAdded) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "PasswordAdded " + string(asJson)
+}
+
+func (e PasswordAdded) Apply() {
 	for idx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {
 			secret := state.Secret{

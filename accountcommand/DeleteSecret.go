@@ -26,12 +26,10 @@ func HandleDeleteSecretRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.SecretDeleted{
-			Event:   eventbase.NewEvent(),
-			Account: req.Account,
-			Secret:  req.Secret,
-		},
+	util.ApplyEvent(accountevent.SecretDeleted{
+		Event:   eventbase.NewEvent(),
+		Account: req.Account,
+		Secret:  req.Secret,
 	})
 
 	util.CommandGenericSuccess(w, r)

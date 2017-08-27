@@ -76,14 +76,12 @@ func HandleSetSshKeyRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.SshKeyAdded{
-			Event:                  eventbase.NewEvent(),
-			Account:                req.Id,
-			Id:                     eventbase.RandomId(),
-			SshPrivateKey:          req.SshPrivateKey,
-			SshPublicKeyAuthorized: req.sshPublicKeyAuthorized,
-		},
+	util.ApplyEvent(accountevent.SshKeyAdded{
+		Event:                  eventbase.NewEvent(),
+		Account:                req.Id,
+		Id:                     eventbase.RandomId(),
+		SshPrivateKey:          req.SshPrivateKey,
+		SshPublicKeyAuthorized: req.sshPublicKeyAuthorized,
 	})
 
 	util.CommandGenericSuccess(w, r)

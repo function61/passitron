@@ -41,7 +41,7 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 
 	accountId := eventbase.RandomId()
 
-	events := []interface{}{
+	events := []eventbase.EventInterface{
 		accountevent.AccountCreated{
 			Event:    eventbase.NewEvent(),
 			Id:       accountId,

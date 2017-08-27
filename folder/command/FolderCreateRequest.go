@@ -37,13 +37,11 @@ func HandleFolderCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		event.FolderCreated{
-			Event:    eventbase.NewEvent(),
-			Id:       eventbase.RandomId(),
-			ParentId: req.ParentId,
-			Name:     req.Name,
-		},
+	util.ApplyEvent(event.FolderCreated{
+		Event:    eventbase.NewEvent(),
+		Id:       eventbase.RandomId(),
+		ParentId: req.ParentId,
+		Name:     req.Name,
 	})
 
 	util.CommandGenericSuccess(w, r)

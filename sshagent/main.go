@@ -113,12 +113,10 @@ func (a AgentProxy) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error)
 				return nil, err
 			}
 
-			util.ApplyEvents([]interface{}{
-				accountevent.SecretUsed{
-					Event:   eventbase.NewEvent(),
-					Account: account.Id,
-					Type:    accountevent.SecretUsedTypeSshSigning,
-				},
+			util.ApplyEvent(accountevent.SecretUsed{
+				Event:   eventbase.NewEvent(),
+				Account: account.Id,
+				Type:    accountevent.SecretUsedTypeSshSigning,
 			})
 
 			return sig, nil

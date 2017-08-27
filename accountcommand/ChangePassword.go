@@ -43,13 +43,11 @@ func HandleChangePasswordRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.PasswordAdded{
-			Event:    eventbase.NewEvent(),
-			Account:  req.Id,
-			Id:       eventbase.RandomId(),
-			Password: req.Password,
-		},
+	util.ApplyEvent(accountevent.PasswordAdded{
+		Event:    eventbase.NewEvent(),
+		Account:  req.Id,
+		Id:       eventbase.RandomId(),
+		Password: req.Password,
 	})
 
 	util.CommandGenericSuccess(w, r)

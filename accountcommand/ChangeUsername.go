@@ -38,12 +38,10 @@ func HandleChangeUsernameRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.UsernameChanged{
-			Event:    eventbase.NewEvent(),
-			Id:       req.Id,
-			Username: req.Username,
-		},
+	util.ApplyEvent(accountevent.UsernameChanged{
+		Event:    eventbase.NewEvent(),
+		Id:       req.Id,
+		Username: req.Username,
 	})
 
 	util.CommandGenericSuccess(w, r)

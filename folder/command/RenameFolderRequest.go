@@ -41,12 +41,10 @@ func HandleRenameFolderRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		event.FolderRenamed{
-			Event: eventbase.NewEvent(),
-			Id:    req.Id,
-			Name:  req.Name,
-		},
+	util.ApplyEvent(event.FolderRenamed{
+		Event: eventbase.NewEvent(),
+		Id:    req.Id,
+		Name:  req.Name,
 	})
 
 	util.CommandGenericSuccess(w, r)

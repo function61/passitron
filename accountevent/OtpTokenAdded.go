@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -12,7 +13,13 @@ type OtpTokenAdded struct {
 	OtpProvisioningUrl string
 }
 
-func (e *OtpTokenAdded) Apply() {
+func (e OtpTokenAdded) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "OtpTokenAdded " + string(asJson)
+}
+
+func (e OtpTokenAdded) Apply() {
 	for idx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {
 			secret := state.Secret{

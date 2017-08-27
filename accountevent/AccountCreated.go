@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -12,7 +13,13 @@ type AccountCreated struct {
 	Title    string
 }
 
-func (e *AccountCreated) Apply() {
+func (e AccountCreated) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "AccountCreated " + string(asJson)
+}
+
+func (e AccountCreated) Apply() {
 	account := state.InsecureAccount{
 		Id:       e.Id,
 		FolderId: e.FolderId,

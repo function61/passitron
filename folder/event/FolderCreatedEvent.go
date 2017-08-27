@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -12,7 +13,13 @@ type FolderCreated struct {
 	Name     string
 }
 
-func (e *FolderCreated) Apply() {
+func (e FolderCreated) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "FolderCreated " + string(asJson)
+}
+
+func (e FolderCreated) Apply() {
 	newFolder := state.Folder{
 		Id:       e.Id,
 		ParentId: e.ParentId,

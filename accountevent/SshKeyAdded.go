@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -13,7 +14,13 @@ type SshKeyAdded struct {
 	SshPublicKeyAuthorized string
 }
 
-func (e *SshKeyAdded) Apply() {
+func (e SshKeyAdded) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "SshKeyAdded " + string(asJson)
+}
+
+func (e SshKeyAdded) Apply() {
 	for idx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {
 			secret := state.Secret{

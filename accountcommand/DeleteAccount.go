@@ -33,11 +33,9 @@ func HandleDeleteAccountRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.AccountDeleted{
-			Event: eventbase.NewEvent(),
-			Id:    req.Id,
-		},
+	util.ApplyEvent(accountevent.AccountDeleted{
+		Event: eventbase.NewEvent(),
+		Id:    req.Id,
 	})
 
 	util.CommandGenericSuccess(w, r)

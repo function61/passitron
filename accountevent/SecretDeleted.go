@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -11,7 +12,13 @@ type SecretDeleted struct {
 	Secret  string
 }
 
-func (e *SecretDeleted) Apply() {
+func (e SecretDeleted) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "SecretDeleted " + string(asJson)
+}
+
+func (e SecretDeleted) Apply() {
 	for accountIdx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {
 			for secretIdx, secret := range account.Secrets {

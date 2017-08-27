@@ -49,7 +49,7 @@ func main() {
 
 	foldersJustCreated := map[string]string{}
 
-	events := []interface{}{}
+	events := []eventbase.EventInterface{}
 
 	for _, res := range result {
 		// skip attachments because practically all of them are SSH keys which

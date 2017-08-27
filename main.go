@@ -159,12 +159,10 @@ func defineApi(router *mux.Router) {
 			return
 		}
 
-		util.ApplyEvents([]interface{}{
-			accountevent.SecretUsed{
-				Event:   eventbase.NewEvent(),
-				Account: account.Id,
-				Type:    accountevent.SecretUsedTypePasswordExposed,
-			},
+		util.ApplyEvent(accountevent.SecretUsed{
+			Event:   eventbase.NewEvent(),
+			Account: account.Id,
+			Type:    accountevent.SecretUsedTypePasswordExposed,
 		})
 
 		w.Header().Set("Content-Type", "application/json")

@@ -20,3 +20,8 @@ func NewEventWithTimestamp(timestamp time.Time) Event {
 type Event struct {
 	Timestamp time.Time
 }
+
+type EventInterface interface {
+	Serialize() string
+	Apply()
+}

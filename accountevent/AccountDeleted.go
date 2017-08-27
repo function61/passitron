@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -10,7 +11,13 @@ type AccountDeleted struct {
 	Id string
 }
 
-func (e *AccountDeleted) Apply() {
+func (e AccountDeleted) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "AccountDeleted " + string(asJson)
+}
+
+func (e AccountDeleted) Apply() {
 	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks

@@ -1,8 +1,8 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/util/eventbase"
-	"log"
 )
 
 const (
@@ -16,6 +16,12 @@ type SecretUsed struct {
 	Type    string
 }
 
-func (e *SecretUsed) Apply() {
-	log.Printf("Account %s was used, type = %s", e.Account, e.Type)
+func (e SecretUsed) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "SecretUsed " + string(asJson)
+}
+
+func (e SecretUsed) Apply() {
+	// noop
 }

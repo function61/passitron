@@ -44,12 +44,10 @@ func HandleMoveFolderRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		event.FolderMoved{
-			Event:    eventbase.NewEvent(),
-			Id:       req.Id,
-			ParentId: req.ParentId,
-		},
+	util.ApplyEvent(event.FolderMoved{
+		Event:    eventbase.NewEvent(),
+		Id:       req.Id,
+		ParentId: req.ParentId,
 	})
 
 	util.CommandGenericSuccess(w, r)

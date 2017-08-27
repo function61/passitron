@@ -26,12 +26,10 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.DescriptionChanged{
-			Event:       eventbase.NewEvent(),
-			Id:          req.Id,
-			Description: req.Description,
-		},
+	util.ApplyEvent(accountevent.DescriptionChanged{
+		Event:       eventbase.NewEvent(),
+		Id:          req.Id,
+		Description: req.Description,
 	})
 
 	util.CommandGenericSuccess(w, r)

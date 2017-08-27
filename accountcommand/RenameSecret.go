@@ -37,12 +37,10 @@ func HandleRenameSecretRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.AccountRenamed{
-			Event: eventbase.NewEvent(),
-			Id:    req.Id,
-			Title: req.Title,
-		},
+	util.ApplyEvent(accountevent.AccountRenamed{
+		Event: eventbase.NewEvent(),
+		Id:    req.Id,
+		Title: req.Title,
 	})
 
 	util.CommandGenericSuccess(w, r)

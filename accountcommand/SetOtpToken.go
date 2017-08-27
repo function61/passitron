@@ -37,13 +37,11 @@ func HandleSetOtpTokenRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ApplyEvents([]interface{}{
-		accountevent.OtpTokenAdded{
-			Event:              eventbase.NewEvent(),
-			Account:            req.Id,
-			Id:                 eventbase.RandomId(),
-			OtpProvisioningUrl: req.OtpProvisioningUrl,
-		},
+	util.ApplyEvent(accountevent.OtpTokenAdded{
+		Event:              eventbase.NewEvent(),
+		Account:            req.Id,
+		Id:                 eventbase.RandomId(),
+		OtpProvisioningUrl: req.OtpProvisioningUrl,
 	})
 
 	util.CommandGenericSuccess(w, r)

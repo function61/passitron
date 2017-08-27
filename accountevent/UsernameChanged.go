@@ -1,6 +1,7 @@
 package accountevent
 
 import (
+	"encoding/json"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
@@ -11,7 +12,13 @@ type UsernameChanged struct {
 	Username string
 }
 
-func (e *UsernameChanged) Apply() {
+func (e UsernameChanged) Serialize() string {
+	asJson, _ := json.Marshal(e)
+
+	return "UsernameChanged " + string(asJson)
+}
+
+func (e UsernameChanged) Apply() {
 	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {
 			s.Username = e.Username
