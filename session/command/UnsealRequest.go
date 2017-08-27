@@ -3,8 +3,10 @@ package command
 import (
 	"encoding/json"
 	"errors"
+	"github.com/function61/pi-security-module/session/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
+	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
 
@@ -36,6 +38,10 @@ func HandleUnsealRequest(w http.ResponseWriter, r *http.Request) {
 		util.CommandCustomError(w, r, "error", err, http.StatusForbidden)
 		return
 	}
+
+	util.ApplyEvent(event.DatabaseUnsealed{
+		Event: eventbase.NewEvent(),
+	})
 
 	util.CommandGenericSuccess(w, r)
 }
