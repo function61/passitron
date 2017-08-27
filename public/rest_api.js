@@ -22,9 +22,7 @@ function rest_credentialById(id) {
 function restDefaultErrorHandler(xhr) {
 	if (xhr.responseJSON && xhr.responseJSON.error_code) {
 		if (xhr.responseJSON.error_code === 'database_is_sealed') {
-			if (confirm('Error: you need to unseal the database first. Do that?')) {
-				invokeCommand('UnsealRequest');
-			}
+			invokeCommand('UnsealRequest');
 		} else {
 			alert(xhr.responseJSON.error_code + ': ' + xhr.responseJSON.error_description);
 		}
