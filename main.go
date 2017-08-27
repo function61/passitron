@@ -48,11 +48,13 @@ func defineApi(router *mux.Router) {
 		}
 
 		// commandHandlers is generated
-		if handler, ok := commandHandlers[commandName]; ok {
-			handler(w, r)
-		} else {
+		handler, handlerExists := commandHandlers[commandName]
+		if !handlerExists {
 			util.CommandCustomError(w, r, "unsupported_command", nil, http.StatusBadRequest)
+			return
 		}
+
+		handler(w, r)
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
