@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/signingapi"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
@@ -11,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -165,6 +167,19 @@ func defineApi(router *mux.Router) {
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		log.Fatalf("Usage: %s <run>", os.Args[0])
+	}
+
+	if os.Args[1] == "agent" {
+		sshagent.Run()
+		return
+	}
+
+	if os.Args[1] != "run" {
+		log.Fatalf("Invalid command", os.Args[1])
+	}
+
 	extractPublicFiles()
 
 	state.Initialize()
@@ -173,11 +188,11 @@ func main() {
 		panic(err)
 	}
 
-	go sshagent.Start()
-
 	router := mux.NewRouter()
 
 	defineApi(router)
+
+	signingapi.Setup(router)
 
 	// this most generic one has to be introduced last
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))

@@ -2,17 +2,26 @@ package sshagent
 
 import (
 	"bytes"
-	"crypto/rand"
+	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/accountevent"
-	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util/eventapplicator"
-	"github.com/function61/pi-security-module/util/eventbase"
+	"github.com/function61/pi-security-module/signingapi/signingapitypes"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
+	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
+	"os"
 )
+
+const (
+	sourceSocket = "/tmp/ssh-agent.sock"
+)
+
+/*	Linux / Mac: use ENV variable
+
+	Windows: use https://github.com/131/pageantbridge
+*/
 
 // SSH agent RFC:
 // 	https://tools.ietf.org/html/rfc4253#section-6.6
@@ -21,10 +30,6 @@ import (
 
 var errNotImplemented = errors.New("not implemented")
 
-const (
-	tcpListenAddr = "0.0.0.0:8096"
-)
-
 /*	OpenSSH client will:
 
 	1) List() to get list of public keys
@@ -32,163 +37,144 @@ const (
 */
 
 // implements interface
-type AgentProxy struct{}
+type AgentServer struct{}
 
-func (a AgentProxy) List() ([]*agent.Key, error) {
+func (a AgentServer) List() ([]*agent.Key, error) {
 	log.Printf("SshAgentServer: List()")
 
 	knownKeys := []*agent.Key{}
 
-	if !state.Inst.IsUnsealed() {
-		log.Printf("SshAgentServer: returned empty list because state is sealed")
-
-		return knownKeys, nil
+	resp, err := http.Get("http://localhost:8080/_api/signer/publickeys")
+	if err != nil {
+		return knownKeys, errors.New("public keys list request failed")
 	}
 
-	for _, account := range state.Inst.State.Accounts {
-		for _, secret := range account.Secrets {
-			if secret.SshPrivateKey == "" {
-				continue
-			}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return knownKeys, errors.New("failed reading body")
+	}
 
-			log.Printf("SshAgentServer: List() candidate %s", account.Title)
+	var output signingapitypes.PublicKeysResponse
+	if err := json.Unmarshal(body, &output); err != nil {
+		return knownKeys, errors.New("failed to parse JSON response")
+	}
 
-			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
-			if err != nil {
-				panic(err)
-			}
-
-			publicKey := signer.PublicKey()
-
-			knownKey := &agent.Key{
-				Format:  publicKey.Type(),
-				Blob:    publicKey.Marshal(),
-				Comment: account.Title,
-			}
-
-			knownKeys = append(knownKeys, knownKey)
+	for _, key := range output.PublicKeys {
+		knownKey := &agent.Key{
+			Format:  key.Format,
+			Blob:    key.Blob,
+			Comment: key.Comment,
 		}
+
+		knownKeys = append(knownKeys, knownKey)
 	}
 
 	return knownKeys, nil
 }
 
-func (a AgentProxy) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
+func (a AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
 	log.Printf("SshAgentServer: Sign()")
 
-	if !state.Inst.IsUnsealed() {
-		log.Printf("SshAgentServer: Sign() return because state is sealed")
+	reqJson, _ := json.Marshal(signingapitypes.SignRequestInput{
+		PublicKey: key.Marshal(),
+		Data:      data,
+	})
 
-		return nil, errors.New("state is sealed")
+	resp, err := http.Post(
+		"http://localhost:8080/_api/signer/sign",
+		"application/json",
+		bytes.NewReader(reqJson))
+	if err != nil {
+		return nil, errors.New("request failed")
 	}
 
-	keyMarshaled := key.Marshal()
-
-	for _, account := range state.Inst.State.Accounts {
-		for _, secret := range account.Secrets {
-			if secret.SshPrivateKey == "" {
-				continue
-			}
-
-			log.Printf("SshAgentServer: Sign() candidate %s", account.Title)
-
-			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
-			if err != nil {
-				panic(err)
-			}
-
-			publicKey := signer.PublicKey()
-
-			// TODO: is there better way to compare than marshal result?
-			if !bytes.Equal(keyMarshaled, publicKey.Marshal()) {
-				log.Printf("SshAgentServer: Sign(): skipping candidate")
-				continue
-			}
-
-			// found it
-
-			sig, err := signer.Sign(rand.Reader, data)
-			if err != nil {
-				log.Printf("SshAgentServer: Sign() error: %s", err.Error())
-				return nil, err
-			}
-
-			eventapplicator.ApplyEvent(accountevent.SecretUsed{
-				Event:   eventbase.NewEvent(),
-				Account: account.Id,
-				Type:    accountevent.SecretUsedTypeSshSigning,
-			})
-
-			return sig, nil
-		}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("failed reading body")
 	}
 
-	notFoundErr := errors.New("privkey not found by pubkey")
+	var output signingapitypes.SignResponse
+	if err := json.Unmarshal(body, &output); err != nil {
+		return nil, errors.New("failed to parse JSON response")
+	}
 
-	log.Printf("SshAgentServer: Sign(): %s", notFoundErr.Error())
-
-	return nil, notFoundErr
+	return output.Signature, nil
 }
 
-func (a AgentProxy) Add(key agent.AddedKey) error {
+func (a AgentServer) Add(key agent.AddedKey) error {
 	log.Printf("SshAgentServer: Add()")
 
 	return errNotImplemented
 }
 
-func (a AgentProxy) Remove(key ssh.PublicKey) error {
+func (a AgentServer) Remove(key ssh.PublicKey) error {
 	log.Printf("SshAgentServer: Remove()")
 
 	return errNotImplemented
 }
 
-func (a AgentProxy) RemoveAll() error {
+func (a AgentServer) RemoveAll() error {
 	log.Printf("SshAgentServer: RemoveAll()")
 
 	return errNotImplemented
 }
 
-func (a AgentProxy) Lock(passphrase []byte) error {
+func (a AgentServer) Lock(passphrase []byte) error {
 	log.Printf("SshAgentServer: Lock()")
 
 	return errNotImplemented
 }
 
-func (a AgentProxy) Unlock(passphrase []byte) error {
+func (a AgentServer) Unlock(passphrase []byte) error {
 	log.Printf("SshAgentServer: Unlock()")
 
 	return errNotImplemented
 }
 
-func (a AgentProxy) Signers() ([]ssh.Signer, error) {
+func (a AgentServer) Signers() ([]ssh.Signer, error) {
 	log.Printf("SshAgentServer: Signers()")
 
 	return []ssh.Signer{}, errNotImplemented
 }
 
-func Start() {
-	agentProxy := AgentProxy{}
+var agentServer = AgentServer{}
 
-	log.Printf("SshAgentMain: starting to listen on %s", tcpListenAddr)
+func checkSocketExistence() {
+	_, err := os.Stat(sourceSocket)
+	if err == nil { // socket exists
+		if err := os.Remove(sourceSocket); err != nil {
+			log.Fatalf("sshagent: remove error: %s", err.Error())
+		}
+	} else if !os.IsNotExist(err) { // some other error than not exists
+		log.Fatalf("sshagent: unexpected Stat() error: %s", err.Error())
+	}
+}
 
-	// netListener, err := net.Listen("unix", tcpListenAddr)
-	netListener, err := net.Listen("tcp", tcpListenAddr)
+func handleOneClient(client net.Conn) {
+	log.Printf("sshagent: client connected")
+
+	agent.ServeAgent(agentServer, client)
+}
+
+func Run() {
+	checkSocketExistence()
+
+	log.Printf("sshagent: listening at %s", sourceSocket)
+	log.Printf("sshagent: pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
+
+	socketListener, err := net.Listen("unix", sourceSocket)
 	if err != nil {
-		log.Fatalf("SshAgentMain: sock listen error: %s", err.Error())
+		log.Fatalf("sshagent: sock listen error: %s", err.Error())
 	}
 
 	for {
 		// intentionally only supporting sequential connections for now
-		fd, err := netListener.Accept()
+		client, err := socketListener.Accept()
 		if err != nil {
-			log.Printf("SshAgentMain: Accept() error: %s", err.Error())
+			log.Printf("sshagent: Accept() error: %s", err.Error())
 			continue
 		}
 
-		log.Printf("SshAgentMain: client connected")
-
-		agent.ServeAgent(agentProxy, fd)
-
-		log.Printf("SshAgentMain: client disconnected")
+		go handleOneClient(client)
 	}
 }

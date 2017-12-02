@@ -13,12 +13,16 @@ expose your secrets. This software only exposes your secret when you physically
 press a button on the device - and only exposes one secret per push acknowledge.
 
 
-Supported secrets
------------------
+Features
+--------
 
-- Passwords
-- OTP tokens (Google Authenticator)
-- SSH keys (via SSH agent protocol)
+- Supported secrets:
+	* Passwords
+	* OTP tokens (Google Authenticator)
+	* SSH keys (via SSH agent protocol)
+- Create, view and list secrets in a folder hierarchy.
+- Export database to Keepass format (for viewing in mobile devices when traveling etc.)
+- Import data from Keepass format
 
 
 Recommended hardware
@@ -29,19 +33,13 @@ with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zer
 and a [capacitive pushbutton](http://www.ebay.com/sch/?_nkw=ttp223).
 
 
-Features
---------
-
-- Create, view and list secrets in a folder hierarchy.
-- Export database to Keepass format (for viewing in mobile devices when traveling etc.)
-
 
 Building
 --------
 
 ```
 $ docker build -f Dockerfile.build -t pi-security-module .
-$ docker run --rm -it -p 8080:80 -p 8096:8096 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pi-security-module
+$ docker run --rm -it -p 8080:80 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pi-security-module
 $ glide install
 $ go build
 ```
