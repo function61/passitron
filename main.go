@@ -30,21 +30,12 @@ type FolderResponse struct {
 	Accounts      []state.SecureAccount
 }
 
-func errorIfUnsealed(w http.ResponseWriter, r *http.Request) bool {
-	if !state.Inst.IsUnsealed() {
-		util.CommandCustomError(w, r, "database_is_sealed", nil, http.StatusForbidden)
-		return true
-	}
-
-	return false
-}
-
 func defineApi(router *mux.Router) {
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
 		// only command able to be invoked unsealed is the Unseal command
-		if commandName != "UnsealRequest" && errorIfUnsealed(w, r) {
+		if commandName != "UnsealRequest" && util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
 			return
 		}
 
@@ -59,7 +50,7 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfUnsealed(w, r) {
+		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
 			return
 		}
 
@@ -85,7 +76,7 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfUnsealed(w, r) {
+		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
 			return
 		}
 
@@ -124,7 +115,7 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfUnsealed(w, r) {
+		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
 			return
 		}
 
@@ -140,7 +131,7 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfUnsealed(w, r) {
+		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
 			return
 		}
 

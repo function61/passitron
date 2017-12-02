@@ -25,6 +25,15 @@ func CommandValidationError(w http.ResponseWriter, r *http.Request, err error) {
 	http.Error(w, string(respJson), http.StatusBadRequest)
 }
 
+func ErrorIfSealed(w http.ResponseWriter, r *http.Request, unsealed bool) bool {
+	if !unsealed {
+		CommandCustomError(w, r, "database_is_sealed", nil, http.StatusForbidden)
+		return true
+	}
+
+	return false
+}
+
 func CommandCustomError(w http.ResponseWriter, r *http.Request, code string, err error, httpCode int) {
 	errorDescription := ""
 	if err != nil {
