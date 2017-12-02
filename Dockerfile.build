@@ -1,7 +1,4 @@
-FROM golang:1.8.0
-
-# $ docker build -t pi-security-module .
-# $ docker run --rm -it -p 8080:80 -p 8096:8096 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pi-security-module
+FROM golang:1.9.2
 
 CMD bash
 

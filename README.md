@@ -40,11 +40,13 @@ Building
 --------
 
 ```
-$ go generate
+$ docker build -f Dockerfile.build -t pi-security-module .
+$ docker run --rm -it -p 8080:80 -p 8096:8096 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pi-security-module
+$ glide install
 $ go build
 ```
 
-(generate step is currently unused)
+(the Docker build container is optional, but it makes everything easier and doesn't install anything in your host system)
 
 Releasing: take a look at `bin/release.sh`
 
