@@ -5,7 +5,6 @@ import (
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -27,7 +26,7 @@ func HandleChangeDescriptionRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventapplicator.ApplyEvent(accountevent.DescriptionChanged{
+	state.Inst.EventLog.Append(accountevent.DescriptionChanged{
 		Event:       eventbase.NewEvent(),
 		Id:          req.Id,
 		Description: req.Description,

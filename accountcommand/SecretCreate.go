@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -68,7 +68,7 @@ func HandleSecretCreateRequest(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	eventapplicator.ApplyEvents(events)
+	state.Inst.EventLog.AppendBatch(events)
 
 	util.CommandGenericSuccess(w, r)
 }

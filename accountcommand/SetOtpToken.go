@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -38,7 +38,7 @@ func HandleSetOtpTokenRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventapplicator.ApplyEvent(accountevent.OtpTokenAdded{
+	state.Inst.EventLog.Append(accountevent.OtpTokenAdded{
 		Event:              eventbase.NewEvent(),
 		Account:            req.Id,
 		Id:                 eventbase.RandomId(),

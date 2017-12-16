@@ -6,35 +6,42 @@ import (
 	"os"
 )
 
-var logHandle *os.File
+type EventApplicator struct {
+	logHandle *os.File
+}
 
-func InitStreamLog(filename string) error {
+func NewEventApplicator(filename string) *EventApplicator {
 	log.Printf("Opening stream log from %s", filename)
 
 	var err error
-	logHandle, err = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logHandle, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("InitStreamLog: failure: %s", err.Error())
+	}
 
-	return err
+	return &EventApplicator{
+		logHandle: logHandle,
+	}
 }
 
-func CloseStreamLog() {
+func (e *EventApplicator) Close() {
 	log.Printf("Closing stream log")
 
-	if err := logHandle.Close(); err != nil {
+	if err := e.logHandle.Close(); err != nil {
 		log.Printf("Error closing stream log: %s", err.Error())
 	}
 }
 
-func ApplyEvent(event eventbase.EventInterface) {
-	if _, err := logHandle.Write([]byte(event.Serialize() + "\n")); err != nil {
-		panic(err)
+func (e *EventApplicator) Append(event eventbase.EventInterface) {
+	if _, err := e.logHandle.Write([]byte(event.Serialize() + "\n")); err != nil {
+		log.Fatalf("Append: failure: %s", err.Error())
 	}
 
 	event.Apply()
 }
 
-func ApplyEvents(events []eventbase.EventInterface) {
+func (e *EventApplicator) AppendBatch(events []eventbase.EventInterface) {
 	for _, event := range events {
-		ApplyEvent(event)
+		e.Append(event)
 	}
 }

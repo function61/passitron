@@ -2,7 +2,9 @@ package state
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/function61/pi-security-module/util/crypto"
+	"github.com/function61/pi-security-module/util/eventapplicator"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,11 +12,13 @@ import (
 
 const (
 	statefilePath = "state.json"
+	logfilePath   = "events.log"
 )
 
 type State struct {
 	Password string
 	State    *Statefile
+	EventLog *eventapplicator.EventApplicator
 }
 
 func (s *Statefile) Save(password string) {
@@ -51,10 +55,23 @@ func writeBlankStatefile(password string) {
 var Inst *State
 
 func Initialize() {
+	if Inst != nil {
+		panic(errors.New("statefile: initialize called twice"))
+	}
+
+	ea := eventapplicator.NewEventApplicator(logfilePath)
+
 	Inst = &State{
 		Password: "",
 		State:    nil,
+		EventLog: ea,
 	}
+}
+
+func (s *State) Close() {
+	s.EventLog.Close()
+
+	Inst = nil
 }
 
 func (s *State) Unseal(password string) error {

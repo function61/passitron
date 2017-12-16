@@ -5,7 +5,6 @@ import (
 	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -27,7 +26,7 @@ func HandleDeleteSecretRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventapplicator.ApplyEvent(accountevent.SecretDeleted{
+	state.Inst.EventLog.Append(accountevent.SecretDeleted{
 		Event:   eventbase.NewEvent(),
 		Account: req.Account,
 		Secret:  req.Secret,

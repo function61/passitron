@@ -7,7 +7,6 @@ import (
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/gorilla/mux"
 	"log"
@@ -155,7 +154,7 @@ func defineApi(router *mux.Router) {
 			return
 		}
 
-		eventapplicator.ApplyEvent(accountevent.SecretUsed{
+		state.Inst.EventLog.Append(accountevent.SecretUsed{
 			Event:   eventbase.NewEvent(),
 			Account: account.Id,
 			Type:    accountevent.SecretUsedTypePasswordExposed,
@@ -183,10 +182,7 @@ func main() {
 	extractPublicFiles()
 
 	state.Initialize()
-
-	if err := eventapplicator.InitStreamLog("events.log"); err != nil {
-		panic(err)
-	}
+	defer state.Inst.Close()
 
 	router := mux.NewRouter()
 
@@ -201,5 +197,4 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":80", router))
 
-	eventapplicator.CloseStreamLog()
 }

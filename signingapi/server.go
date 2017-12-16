@@ -9,7 +9,6 @@ import (
 	"github.com/function61/pi-security-module/signingapi/signingapitypes"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
@@ -105,7 +104,7 @@ func Setup(router *mux.Router) {
 			return
 		}
 
-		eventapplicator.ApplyEvent(accountevent.SecretUsed{
+		state.Inst.EventLog.Append(accountevent.SecretUsed{
 			Event:   eventbase.NewEvent(),
 			Account: account.Id,
 			Type:    accountevent.SecretUsedTypeSshSigning,

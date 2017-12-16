@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/folder/event"
+	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventapplicator"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"net/http"
 )
@@ -38,7 +38,7 @@ func HandleFolderCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventapplicator.ApplyEvent(event.FolderCreated{
+	state.Inst.EventLog.Append(event.FolderCreated{
 		Event:    eventbase.NewEvent(),
 		Id:       eventbase.RandomId(),
 		ParentId: req.ParentId,
