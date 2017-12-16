@@ -18,6 +18,14 @@ func (e FolderRenamed) Serialize() string {
 	return "FolderRenamed " + string(asJson)
 }
 
+func FolderRenamedFromSerialized(payload []byte) *FolderRenamed {
+	var e FolderRenamed
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e FolderRenamed) Apply() {
 	for idx, s := range state.Inst.State.Folders {
 		if s.Id == e.Id {

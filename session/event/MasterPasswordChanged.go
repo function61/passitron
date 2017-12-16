@@ -15,6 +15,14 @@ func (e MasterPasswordChanged) Serialize() string {
 	return "MasterPasswordChanged " + string(asJson)
 }
 
+func MasterPasswordChangedFromSerialized(payload []byte) *MasterPasswordChanged {
+	var e MasterPasswordChanged
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e MasterPasswordChanged) Apply() {
 	// noop
 }

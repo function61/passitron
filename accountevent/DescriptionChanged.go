@@ -18,6 +18,14 @@ func (e DescriptionChanged) Serialize() string {
 	return "DescriptionChanged " + string(asJson)
 }
 
+func DescriptionChangedFromSerialized(payload []byte) *DescriptionChanged {
+	var e DescriptionChanged
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e DescriptionChanged) Apply() {
 	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {

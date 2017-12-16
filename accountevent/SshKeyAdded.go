@@ -20,6 +20,14 @@ func (e SshKeyAdded) Serialize() string {
 	return "SshKeyAdded " + string(asJson)
 }
 
+func SshKeyAddedFromSerialized(payload []byte) *SshKeyAdded {
+	var e SshKeyAdded
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e SshKeyAdded) Apply() {
 	for idx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {

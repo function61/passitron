@@ -18,6 +18,14 @@ func (e SecretDeleted) Serialize() string {
 	return "SecretDeleted " + string(asJson)
 }
 
+func SecretDeletedFromSerialized(payload []byte) *SecretDeleted {
+	var e SecretDeleted
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e SecretDeleted) Apply() {
 	for accountIdx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {

@@ -22,6 +22,14 @@ func (e SecretUsed) Serialize() string {
 	return "SecretUsed " + string(asJson)
 }
 
+func SecretUsedFromSerialized(payload []byte) *SecretUsed {
+	var e SecretUsed
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e SecretUsed) Apply() {
 	// noop
 }

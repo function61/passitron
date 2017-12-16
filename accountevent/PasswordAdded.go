@@ -19,6 +19,14 @@ func (e PasswordAdded) Serialize() string {
 	return "PasswordAdded " + string(asJson)
 }
 
+func PasswordAddedFromSerialized(payload []byte) *PasswordAdded {
+	var e PasswordAdded
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e PasswordAdded) Apply() {
 	for idx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {

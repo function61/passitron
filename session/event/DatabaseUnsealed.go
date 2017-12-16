@@ -15,6 +15,14 @@ func (e DatabaseUnsealed) Serialize() string {
 	return "DatabaseUnsealed " + string(asJson)
 }
 
+func DatabaseUnsealedFromSerialized(payload []byte) *DatabaseUnsealed {
+	var e DatabaseUnsealed
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e DatabaseUnsealed) Apply() {
 	// noop
 }

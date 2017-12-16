@@ -19,6 +19,14 @@ func (e FolderCreated) Serialize() string {
 	return "FolderCreated " + string(asJson)
 }
 
+func FolderCreatedFromSerialized(payload []byte) *FolderCreated {
+	var e FolderCreated
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e FolderCreated) Apply() {
 	newFolder := state.Folder{
 		Id:       e.Id,

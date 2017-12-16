@@ -19,6 +19,14 @@ func (e AccountCreated) Serialize() string {
 	return "AccountCreated " + string(asJson)
 }
 
+func AccountCreatedFromSerialized(payload []byte) *AccountCreated {
+	var e AccountCreated
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e AccountCreated) Apply() {
 	account := state.InsecureAccount{
 		Id:       e.Id,

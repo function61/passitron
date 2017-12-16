@@ -18,6 +18,14 @@ func (e AccountRenamed) Serialize() string {
 	return "AccountRenamed " + string(asJson)
 }
 
+func AccountRenamedFromSerialized(payload []byte) *AccountRenamed {
+	var e AccountRenamed
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e AccountRenamed) Apply() {
 	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {

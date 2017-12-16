@@ -18,6 +18,14 @@ func (e UsernameChanged) Serialize() string {
 	return "UsernameChanged " + string(asJson)
 }
 
+func UsernameChangedFromSerialized(payload []byte) *UsernameChanged {
+	var e UsernameChanged
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e UsernameChanged) Apply() {
 	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {

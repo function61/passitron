@@ -17,6 +17,14 @@ func (e AccountDeleted) Serialize() string {
 	return "AccountDeleted " + string(asJson)
 }
 
+func AccountDeletedFromSerialized(payload []byte) *AccountDeleted {
+	var e AccountDeleted
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e AccountDeleted) Apply() {
 	for idx, s := range state.Inst.State.Accounts {
 		if s.Id == e.Id {

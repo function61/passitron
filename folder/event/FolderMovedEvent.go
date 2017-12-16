@@ -18,6 +18,14 @@ func (e FolderMoved) Serialize() string {
 	return "FolderMoved " + string(asJson)
 }
 
+func FolderMovedFromSerialized(payload []byte) *FolderMoved {
+	var e FolderMoved
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e FolderMoved) Apply() {
 	for idx, s := range state.Inst.State.Folders {
 		if s.Id == e.Id {

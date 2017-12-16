@@ -19,6 +19,14 @@ func (e OtpTokenAdded) Serialize() string {
 	return "OtpTokenAdded " + string(asJson)
 }
 
+func OtpTokenAddedFromSerialized(payload []byte) *OtpTokenAdded {
+	var e OtpTokenAdded
+	if err := json.Unmarshal(payload, &e); err != nil {
+		panic(err)
+	}
+	return &e
+}
+
 func (e OtpTokenAdded) Apply() {
 	for idx, account := range state.Inst.State.Accounts {
 		if account.Id == e.Account {
