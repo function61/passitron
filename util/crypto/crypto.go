@@ -22,7 +22,7 @@ func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
 		[]byte(pwd),
 		salt,
 		iterationCount,
-		32,
+		256/8,
 		sha256.New)
 
 	if len(encryptionKey) != 32 {
