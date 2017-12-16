@@ -28,10 +28,16 @@ Features
 Recommended hardware
 --------------------
 
-Raspberry Pi. I'm using [Zero W](https://www.raspberrypi.org/products/pi-zero-w/)
+![](docs/pi-zero-in-wood-case.png)
+
+I'm using [Raspberry Zero W](https://www.raspberrypi.org/products/pi-zero-w/)
 with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zero-wood)
 and a [capacitive pushbutton](http://www.ebay.com/sch/?_nkw=ttp223).
 
+It doesn't matter much which hardware you use, as long as you don't run anything else on
+that system - to minimize the attack surface. For such a light use Raspberry Pi is
+economical, although this project runs across processor architectures and operating systems
+because Golang is so awesome. :)
 
 
 Building
