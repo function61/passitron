@@ -4,24 +4,24 @@ logBuild () {
 	target="$1"
 
 	echo "# Building $target"
-
-	mkdir -p "rel/$target"
 }
 
-echo "# Building rel/public.tar.gz"
+rm -rf rel/
 
-rm -f rel/public.tar.gz
+mkdir rel
+
+echo "# Building rel/public.tar.gz"
 
 tar -czf rel/public.tar.gz public/
 
 logBuild "linux-arm"
 
-GOOS=linux GOARCH=arm go build -o rel/linux-arm/pism
+GOOS=linux GOARCH=arm go build -o rel/pism_linux-arm
 
-logBuild "linux-x86_64"
+logBuild "linux-amd64"
 
-GOOS=linux GOARCH=amd64 go build -o rel/linux-x86_64/pism
+GOOS=linux GOARCH=amd64 go build -o rel/pism_linux-amd64
 
-logBuild "windows-x86_64"
+logBuild "windows-amd64"
 
-GOOS=windows GOARCH=amd64 go build -o rel/windows-x86_64/pism.exe
+GOOS=windows GOARCH=amd64 go build -o rel/pism_windows-amd64.exe
