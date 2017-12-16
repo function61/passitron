@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/keepassimport"
 	"github.com/function61/pi-security-module/signingapi"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
@@ -168,6 +169,11 @@ func defineApi(router *mux.Router) {
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <run>", os.Args[0])
+	}
+
+	if os.Args[1] == "keepassimport" {
+		keepassimport.Run(os.Args[2:])
+		return
 	}
 
 	if os.Args[1] == "agent" {

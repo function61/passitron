@@ -1,12 +1,10 @@
-package main
+package keepassimport
 
 import (
 	"encoding/csv"
 	"github.com/function61/pi-security-module/accountevent"
-	"github.com/function61/pi-security-module/eventapplicator"
 	folderevent "github.com/function61/pi-security-module/folder/event"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"log"
 	"os"
@@ -22,7 +20,7 @@ import (
 	Fields to export:
 
 		Group Tree
-		Group
+		Password Groups
 		Title
 		User Name
 		Password
@@ -36,8 +34,16 @@ import (
 	Replace \" with ""
 */
 
-func main() {
+func Run(args []string) {
+	if len(args) != 1 {
+		log.Fatalf("Usage: <csv path>")
+		return
+	}
+
+	csvPath := args[0]
+
 	state.Initialize()
+	defer state.Inst.Close()
 
 	// TODO: expecting hardcoded password here in initialization phase.
 	// this is not a catastropic security concern as after import we can
@@ -46,7 +52,7 @@ func main() {
 		panic(err)
 	}
 
-	result := parseGenericCsv("keepass2.csv")
+	result := parseGenericCsv(csvPath)
 
 	foldersJustCreated := map[string]string{}
 
@@ -63,9 +69,9 @@ func main() {
 			continue
 		}
 
-		groupPath := res["Group"]
+		groupPath := res["Password Groups"]
 		if res["Group Tree"] != "" {
-			groupPath = res["Group Tree"] + "\\" + res["Group"]
+			groupPath = res["Group Tree"] + "\\" + res["Password Groups"]
 		}
 
 		if groupPath == "" {
@@ -137,7 +143,7 @@ func main() {
 		}
 	}
 
-	eventapplicator.ApplyEvents(events)
+	state.Inst.EventLog.AppendBatch(events)
 
 	log.Printf("%d event(s) applied", len(events))
 
