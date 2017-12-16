@@ -38,13 +38,9 @@ func HandleChangeMasterPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := state.Inst.ChangePassword(req.NewMasterPassword); err != nil {
-		util.CommandCustomError(w, r, "error", err, http.StatusInternalServerError)
-		return
-	}
-
 	state.Inst.EventLog.Append(event.MasterPasswordChanged{
-		Event: eventbase.NewEvent(),
+		Event:    eventbase.NewEvent(),
+		Password: req.NewMasterPassword,
 	})
 
 	util.CommandGenericSuccess(w, r)

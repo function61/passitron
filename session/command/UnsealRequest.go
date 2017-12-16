@@ -19,6 +19,15 @@ func (f *UnsealRequest) Validate() error {
 		return errors.New("MasterPassword missing")
 	}
 
+	// TODO: predictable comparison time
+	if state.Inst.GetMasterPassword() != f.MasterPassword {
+		return errors.New("invalid password")
+	}
+
+	if state.Inst.IsUnsealed() {
+		return errors.New("state already unsealed")
+	}
+
 	return nil
 }
 
@@ -34,10 +43,7 @@ func HandleUnsealRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := state.Inst.Unseal(req.MasterPassword); err != nil {
-		util.CommandCustomError(w, r, "error", err, http.StatusForbidden)
-		return
-	}
+	state.Inst.SetSealed(false)
 
 	state.Inst.EventLog.Append(event.DatabaseUnsealed{
 		Event: eventbase.NewEvent(),

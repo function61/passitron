@@ -2,11 +2,13 @@ package event
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
 )
 
 type MasterPasswordChanged struct {
 	eventbase.Event
+	Password string
 }
 
 func (e MasterPasswordChanged) Serialize() string {
@@ -24,5 +26,5 @@ func MasterPasswordChangedFromSerialized(payload []byte) *MasterPasswordChanged 
 }
 
 func (e MasterPasswordChanged) Apply() {
-	// noop
+	state.Inst.SetMasterPassword(e.Password)
 }

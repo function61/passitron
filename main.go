@@ -9,6 +9,7 @@ import (
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
+	"github.com/function61/pi-security-module/util/eventlog"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -189,6 +190,10 @@ func main() {
 
 	state.Initialize()
 	defer state.Inst.Close()
+
+	if err := eventlog.ReadOldEvents(); err != nil {
+		panic(err)
+	}
 
 	router := mux.NewRouter()
 

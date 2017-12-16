@@ -6,6 +6,7 @@ import (
 	folderevent "github.com/function61/pi-security-module/folder/event"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/eventbase"
+	"github.com/function61/pi-security-module/util/eventlog"
 	"log"
 	"os"
 	"time"
@@ -45,10 +46,7 @@ func Run(args []string) {
 	state.Initialize()
 	defer state.Inst.Close()
 
-	// TODO: expecting hardcoded password here in initialization phase.
-	// this is not a catastropic security concern as after import we can
-	// change master pwd.
-	if err := state.Inst.Unseal("defaultpwd"); err != nil {
+	if err := eventlog.ReadOldEvents(); err != nil {
 		panic(err)
 	}
 
@@ -146,10 +144,6 @@ func Run(args []string) {
 	state.Inst.EventLog.AppendBatch(events)
 
 	log.Printf("%d event(s) applied", len(events))
-
-	state.Inst.Save()
-
-	log.Printf("State saved")
 }
 
 func parseGenericCsv(filename string) []map[string]string {

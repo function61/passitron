@@ -75,3 +75,16 @@ type Statefile struct {
 	Accounts []InsecureAccount
 	Folders  []Folder
 }
+
+func NewStatefile() *Statefile {
+	rootFolder := Folder{
+		Id:       "root",
+		ParentId: "",
+		Name:     "root",
+	}
+
+	return &Statefile{
+		Accounts: []InsecureAccount{},
+		Folders:  []Folder{rootFolder},
+	}
+}
