@@ -178,7 +178,7 @@ func main() {
 	}
 
 	if os.Args[1] == "agent" {
-		sshagent.Run()
+		sshagent.Run(os.Args[2:])
 		return
 	}
 

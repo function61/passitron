@@ -3,6 +3,8 @@ package signingapi
 import (
 	"bytes"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/accountevent"
@@ -13,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -40,9 +43,22 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte) (ssh.Signer, *state.InsecureAc
 	return nil, nil, errors.New("privkey not found by pubkey")
 }
 
+func expectedAuthHeader() string {
+	bearerHash := sha256.Sum256([]byte(state.Inst.GetMasterPassword() + ":sshagent"))
+
+	return "Bearer " + hex.EncodeToString(bearerHash[:])
+}
+
 func Setup(router *mux.Router) {
+	log.Printf("signingapi expected auth: %s", expectedAuthHeader())
+
 	router.HandleFunc("/_api/signer/publickeys", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+			return
+		}
+
+		if r.Header.Get("Authorization") != expectedAuthHeader() {
+			util.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
 			return
 		}
 
@@ -77,6 +93,11 @@ func Setup(router *mux.Router) {
 
 	router.HandleFunc("/_api/signer/sign", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+			return
+		}
+
+		if r.Header.Get("Authorization") != expectedAuthHeader() {
+			util.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
 			return
 		}
 
