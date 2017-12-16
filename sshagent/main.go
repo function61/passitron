@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 )
 
 const (
@@ -168,10 +169,10 @@ func Run() {
 	}
 
 	for {
-		// intentionally only supporting sequential connections for now
 		client, err := socketListener.Accept()
 		if err != nil {
 			log.Printf("sshagent: Accept() error: %s", err.Error())
+			time.Sleep(1 * time.Second)
 			continue
 		}
 
