@@ -1,6 +1,6 @@
 FROM golang:1.9.2
 
-CMD bash
+CMD bin/build.sh
 
 WORKDIR /go/src/github.com/function61/pi-security-module
 
