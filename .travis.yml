@@ -1,0 +1,11 @@
+
+sudo: required
+services: docker
+
+# https://github.com/travis-ci/docs-travis-ci-com/issues/1267
+language: minimal
+
+# adapt Travis specific environment to standardized one, run the build
+script:
+  - export CI_REVISION_ID="$TRAVIS_COMMIT"
+  - bin/ci-build.sh

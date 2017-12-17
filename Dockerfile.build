@@ -8,5 +8,6 @@ RUN mkdir -p /tmp/glide \
 	&& curl --location --fail https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz \
 	| tar -C /tmp/glide -xzf - \
 	&& mv /tmp/glide/linux-amd64/glide /usr/local/bin/ \
-	&& rm -rf /tmp/glide
-
+	&& rm -rf /tmp/glide \
+	&& curl --location --fail -o /usr/local/bin/jfrog-cli "https://bintray.com/jfrog/jfrog-cli-go/download_file?file_path=1.12.1%2Fjfrog-cli-linux-amd64%2Fjfrog" \
+	&& chmod +x /usr/local/bin/jfrog-cli
