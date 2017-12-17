@@ -88,7 +88,7 @@ routes.credview = function (args) {
 				} else if (secret.Kind === 'ssh_key') {
 					secretHeadingTd = secretsTable
 						.td(secretTr)
-						.text('SSH key');
+						.text('SSH public key');
 
 					secretsTable
 						.td(secretTr)
