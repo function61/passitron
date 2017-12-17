@@ -9,6 +9,8 @@ logBuild () {
 rm -rf rel
 mkdir rel
 
+glide install
+
 # go generate
 
 echo "# Building rel/public.tar.gz"
