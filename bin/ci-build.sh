@@ -16,7 +16,7 @@ docker build -f empty_dir/Dockerfile.build -t bob empty_dir/
 docker run \
 	--rm \
 	-it \
-	-v "$(pwd):/app" \
+	-v "$(pwd):/go/src/github.com/function61/pi-security-module" \
 	-e "CI_REVISION_ID=$CI_REVISION_ID" \
 	-e "FRIENDLY_REV_ID=$FRIENDLY_REV_ID" \
 	-e "BINTRAY_APIKEY=$BINTRAY_APIKEY" \
