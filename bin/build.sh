@@ -13,6 +13,8 @@ go generate
 
 go vet
 
+echo "# Downloading dependencies"
+
 dep ensure
 
 echo "# Building rel/public.tar.gz"
@@ -26,6 +28,8 @@ GOOS=linux GOARCH=arm go build -o rel/pism_linux-arm
 logBuild "linux-amd64"
 
 GOOS=linux GOARCH=amd64 go build -o rel/pism_linux-amd64
+
+echo "# Publishing build artefacts"
 
 # the CLI breaks automation unless opt-out..
 export JFROG_CLI_OFFER_CONFIG=false
