@@ -46,16 +46,21 @@ because Golang is so awesome. :)
 Download & running
 ------------------
 
-Click the "Download" badge at top of this readme, locate the version you want (probably the latest),
-click on "Files" tab and download both the binary for your OS/arch combo AND the `public.tar.gz`.
+Click the "Download" badge at top of this readme and locate the binary for your OS/arch combo:
 
-Additionally, you can do this from command line directly on your Pi:
+- For Raspberry Pi, download `pism_linux-arm`
+- For Linux PC, download `pism_linux-amd64`
+
+Note: don't worry about `public.tar.gz` - it's downloaded automatically if it doesn't exist.
+
+Rename the downloaded binary to `pism`.
+
+Pro-tip: you can download this directly to your Pi from command line:
 
 ```
 $ mkdir pi-security-module/
 $ cd pi-security-module
 $ curl --fail --location -o pism <url to pism_linux-arm from Bintray>
-$ curl --fail --location -o public.tar.gz <url to public.tar.gz from Bintray>
 
 # mark the binary executable
 $ chmod +x pism

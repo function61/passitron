@@ -203,7 +203,9 @@ func main() {
 		log.Fatalf("Invalid command: %v", os.Args[1])
 	}
 
-	extractPublicFiles()
+	if err := extractPublicFiles(); err != nil {
+		panic(err)
+	}
 
 	state.Initialize()
 	defer state.Inst.Close()
