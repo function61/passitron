@@ -16,6 +16,33 @@ expose your secrets. This software only exposes your secret when you physically
 press a button on the device - and only exposes one secret per push acknowledge.
 
 
+Features
+--------
+
+- Supported secrets:
+	* Passwords
+	* OTP tokens (Google Authenticator)
+	* SSH keys (via SSH agent protocol)
+- Create, view and list secrets in a folder hierarchy.
+- Export database to Keepass format (for viewing in mobile devices when traveling etc.)
+- Import data from Keepass format
+
+
+Recommended hardware
+--------------------
+
+![](docs/pi-zero-in-wood-case.png)
+
+I'm using [Raspberry Zero W](https://www.raspberrypi.org/products/pi-zero-w/)
+with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zero-wood)
+and a [capacitive pushbutton](http://www.ebay.com/sch/?_nkw=ttp223).
+
+It doesn't matter much which hardware you use, as long as you don't run anything else on
+that system - to minimize the attack surface. For such a light use Raspberry Pi is
+economical, although this project runs across processor architectures and operating systems
+because Golang is so awesome. :)
+
+
 Download & running
 ------------------
 
@@ -54,33 +81,6 @@ Mar 19 12:44:53 raspberrypi pism[15626]: 2018/03/19 12:44:53 Starting in port 80
 ```
 
 Looks good. You should now be able to access the web interface at `http://<ip of your pi>`.
-
-
-Features
---------
-
-- Supported secrets:
-	* Passwords
-	* OTP tokens (Google Authenticator)
-	* SSH keys (via SSH agent protocol)
-- Create, view and list secrets in a folder hierarchy.
-- Export database to Keepass format (for viewing in mobile devices when traveling etc.)
-- Import data from Keepass format
-
-
-Recommended hardware
---------------------
-
-![](docs/pi-zero-in-wood-case.png)
-
-I'm using [Raspberry Zero W](https://www.raspberrypi.org/products/pi-zero-w/)
-with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zero-wood)
-and a [capacitive pushbutton](http://www.ebay.com/sch/?_nkw=ttp223).
-
-It doesn't matter much which hardware you use, as long as you don't run anything else on
-that system - to minimize the attack surface. For such a light use Raspberry Pi is
-economical, although this project runs across processor architectures and operating systems
-because Golang is so awesome. :)
 
 
 Building
