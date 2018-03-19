@@ -33,6 +33,13 @@ type FolderResponse struct {
 	Accounts      []state.SecureAccount
 }
 
+// https://stackoverflow.com/a/2068407
+func disableCache(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+}
+
 func defineApi(router *mux.Router) {
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
@@ -74,6 +81,7 @@ func defineApi(router *mux.Router) {
 
 		resp := FolderResponse{folder, subFolders, parentFolders, accounts}
 
+		disableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
 	}))
@@ -114,6 +122,8 @@ func defineApi(router *mux.Router) {
 			}
 		}
 
+		disableCache(w)
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(matches)
 	}))
 
@@ -129,6 +139,7 @@ func defineApi(router *mux.Router) {
 			return
 		}
 
+		disableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(account)
 	}))
@@ -162,6 +173,7 @@ func defineApi(router *mux.Router) {
 			Type:    accountevent.SecretUsedTypePasswordExposed,
 		})
 
+		disableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(account.GetSecrets())
 	}))
