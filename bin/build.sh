@@ -11,7 +11,7 @@ mkdir rel
 
 glide install
 
-# go generate
+go generate
 
 echo "# Building rel/public.tar.gz"
 

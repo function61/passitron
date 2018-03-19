@@ -1,5 +1,9 @@
 syntax: glob
 
+# generated files
+version.go
+
+# misc
 state.json
 .glide/
 vendor/
