@@ -62,7 +62,7 @@ $ mkdir pi-security-module/
 $ cd pi-security-module
 $ curl --fail --location -o pism <url to pism_linux-arm from Bintray>
 
-# mark the binary executable
+# mark the binary as executable
 $ chmod +x pism
 ```
 
@@ -91,16 +91,19 @@ Looks good. You should now be able to access the web interface at `http://<ip of
 Building
 --------
 
+See [bin/build.sh](bin/build.sh) for the compilation steps that are done on the CI.
+
+To easily get all the tools required, build the builder image
+(see [bin/ci-build.sh](bin/ci-build.sh)) and get a Bash session in it:
+
 ```
-$ docker build -f Dockerfile.build -t pi-security-module .
-$ docker run --rm -it -p 8080:80 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pi-security-module
-$ glide install
-$ go build
+$ docker build -t pism-builder -f Dockerfile.build .
+$ docker run --rm -it -p 8080:80 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pism-builder bash
+
+# you can now interactively run the build commands mentioned in build.sh
 ```
 
 (the Docker build container is optional, but it makes everything easier and doesn't install anything in your host system)
-
-Releasing: take a look at `bin/release.sh`
 
 
 TODO
