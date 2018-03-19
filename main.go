@@ -190,8 +190,13 @@ func main() {
 		sshagent.Run(os.Args[2:])
 		return
 	} else if os.Args[1] == "install" {
-		if err := systemdinstaller.InstallSystemdServiceFile("pi-security-module", "Pi security module"); err != nil {
-			log.Fatalf("Installation failed: %s", err)
+		errInstall := systemdinstaller.InstallSystemdServiceFile(
+			"pi-security-module",
+			[]string{"run"},
+			"Pi security module")
+
+		if errInstall != nil {
+			log.Fatalf("Installation failed: %s", errInstall)
 		}
 		return
 	} else if os.Args[1] != "run" {

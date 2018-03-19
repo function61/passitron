@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func InstallSystemdServiceFile(servicename string, description string) error {
+// FIXME(security): args are not shell escaped - DO NOT TAKE THIS FROM USER INPUT
+func InstallSystemdServiceFile(servicename string, args []string, description string) error {
 	unitfilePath := "/etc/systemd/system/" + servicename + ".service"
 
 	unitTemplate := `[Unit]
@@ -29,10 +31,12 @@ RestartSec=10s
 		return errAbs
 	}
 
+	cmd := append([]string{selfAbsolutePath}, args...)
+
 	unitContent := fmt.Sprintf(
 		unitTemplate,
 		description,
-		selfAbsolutePath,
+		strings.Join(cmd, " "),
 		filepath.Dir(selfAbsolutePath))
 
 	if _, errStat := os.Stat(unitfilePath); errStat != nil && !os.IsNotExist(errStat) {
