@@ -88,9 +88,10 @@
   revision = "9e1935374bc73ffe011187dafed51a412b90fe43"
 
 [[projects]]
+  branch = "master"
   name = "github.com/tobischo/gokeepasslib"
   packages = ["."]
-  revision = "2c5c862670c1c5117739022c7b4ff231b3915bef"
+  revision = "1f6a74895d9bcde6571704ed41bc9bea181861dc"
 
 [[projects]]
   name = "golang.org/x/crypto"
@@ -110,6 +111,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7eb07b380ad9da3c9ac22c82fe0768360842a2a5997e200b68f819f249c512c2"
+  inputs-digest = "171f761021da84e4ab205fb6f90158cf3d779c3845d3c7494160a3525b33825f"
   solver-name = "gps-cdcl"
   solver-version = 1

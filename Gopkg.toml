@@ -12,8 +12,7 @@
   name = "github.com/mattetti/filebuffer"
 
 [[constraint]]
-  #branch = "master"
-  revision = "2c5c862670c1c5117739022c7b4ff231b3915bef"
+  branch = "master"
   name = "github.com/tobischo/gokeepasslib"
 
 [prune]
