@@ -7,8 +7,8 @@ CI_REVISION_ID_SHORT=${CI_REVISION_ID:0:16}
 FRIENDLY_REV_ID="$(date +%Y%m%d_%H%M)_$CI_REVISION_ID_SHORT"
 
 # contextless build for speed. we'll just mount our project directory inside the
-# build container when it's time to build. this also makes live editing from the
-# host system possible.
+# build container when it's time to build. this approach also makes live editing
+# from the host system possible in dev environments.
 docker build -t pism-builder - < Dockerfile.build
 
 docker run \

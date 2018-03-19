@@ -9,13 +9,15 @@ logBuild () {
 rm -rf rel
 mkdir rel
 
-go generate
-
-go vet
-
 echo "# Downloading dependencies"
 
 dep ensure
+
+echo "# Code generation and static analysis"
+
+go generate
+
+go vet
 
 echo "# Building rel/public.tar.gz"
 
