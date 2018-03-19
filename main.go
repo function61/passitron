@@ -10,6 +10,7 @@ import (
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/function61/pi-security-module/util/eventlog"
+	"github.com/function61/pi-security-module/util/systemdinstaller"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -182,19 +183,18 @@ func defineApi(router *mux.Router) {
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <run>", os.Args[0])
-	}
-
-	if os.Args[1] == "keepassimport" {
+	} else if os.Args[1] == "keepassimport" {
 		keepassimport.Run(os.Args[2:])
 		return
-	}
-
-	if os.Args[1] == "agent" {
+	} else if os.Args[1] == "agent" {
 		sshagent.Run(os.Args[2:])
 		return
-	}
-
-	if os.Args[1] != "run" {
+	} else if os.Args[1] == "install" {
+		if err := systemdinstaller.InstallSystemdServiceFile("pi-security-module", "Pi security module"); err != nil {
+			log.Fatalf("Installation failed: %s", err)
+		}
+		return
+	} else if os.Args[1] != "run" {
 		log.Fatalf("Invalid command", os.Args[1])
 	}
 
