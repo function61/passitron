@@ -1,0 +1,21 @@
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/aws/aws-sdk-go"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/function61/eventhorizon"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mattetti/filebuffer"
+
+[[constraint]]
+  #branch = "master"
+  revision = "2c5c862670c1c5117739022c7b4ff231b3915bef"
+  name = "github.com/tobischo/gokeepasslib"
+
+[prune]
+  go-tests = true
+  unused-packages = true

@@ -4,10 +4,7 @@ CMD bin/build.sh
 
 WORKDIR /go/src/github.com/function61/pi-security-module
 
-RUN mkdir -p /tmp/glide \
-	&& curl --location --fail https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz \
-	| tar -C /tmp/glide -xzf - \
-	&& mv /tmp/glide/linux-amd64/glide /usr/local/bin/ \
-	&& rm -rf /tmp/glide \
+RUN curl --fail --location -o /go/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 \
+	&& chmod +x /go/bin/dep \
 	&& curl --location --fail -o /usr/local/bin/jfrog-cli "https://bintray.com/jfrog/jfrog-cli-go/download_file?file_path=1.12.1%2Fjfrog-cli-linux-amd64%2Fjfrog" \
 	&& chmod +x /usr/local/bin/jfrog-cli

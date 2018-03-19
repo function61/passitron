@@ -13,7 +13,7 @@ go generate
 
 go vet
 
-glide install
+dep ensure
 
 echo "# Building rel/public.tar.gz"
 
