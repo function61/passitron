@@ -200,7 +200,7 @@ func main() {
 		}
 		return
 	} else if os.Args[1] != "run" {
-		log.Fatalf("Invalid command", os.Args[1])
+		log.Fatalf("Invalid command: %v", os.Args[1])
 	}
 
 	extractPublicFiles()

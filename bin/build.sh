@@ -9,9 +9,11 @@ logBuild () {
 rm -rf rel
 mkdir rel
 
-glide install
-
 go generate
+
+go vet
+
+glide install
 
 echo "# Building rel/public.tar.gz"
 
