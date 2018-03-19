@@ -6,21 +6,10 @@ CI_REVISION_ID_SHORT=${CI_REVISION_ID:0:16}
 # "20171217_1632_3811ac3f4de838f5"
 FRIENDLY_REV_ID="$(date +%Y%m%d_%H%M)_$CI_REVISION_ID_SHORT"
 
-docker_run_contextless_build () {
-	local dockerfile="$1"
-	local image_name="$2"
-
-	# Docker *requires* a directory that is used for build context. with the
-	# build image we don't need any, so we'll create an empty directory for it.
-	# IIRC it needs to be a subdirectory of our current working directory.
-	mkdir -p empty_dir
-
-	cp "$dockerfile" "empty_dir/${dockerfile}"
-
-	docker build -f "empty_dir/${dockerfile}" -t "$image_name" empty_dir/
-}
-
-docker_run_contextless_build "Dockerfile.build" "pism-builder"
+# contextless build for speed. we'll just mount our project directory inside the
+# build container when it's time to build. this also makes live editing from the
+# host system possible.
+docker build -t pism-builder - < Dockerfile.build
 
 docker run \
 	--rm \
