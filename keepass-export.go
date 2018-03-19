@@ -6,8 +6,8 @@ import (
 	"encoding/pem"
 	"github.com/function61/pi-security-module/state"
 	"github.com/tobischo/gokeepasslib"
+	"io"
 	"log"
-	"os"
 	"strconv"
 )
 
@@ -100,14 +100,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) gokeepasslib.Group 
 	return group
 }
 
-func keepassExport(password string) {
-	keepassOutFile, err := os.Create("keepass-export.kdbx")
-	if err != nil {
-		panic(err)
-	}
-
-	defer keepassOutFile.Close()
-
+func keepassExport(masterPassword string, output io.Writer) error {
 	meta := gokeepasslib.NewMetaData()
 
 	content := &gokeepasslib.DBContent{
@@ -123,14 +116,16 @@ func keepassExport(password string) {
 	db := &gokeepasslib.Database{
 		Signature:   &gokeepasslib.DefaultSig,
 		Headers:     gokeepasslib.NewFileHeaders(),
-		Credentials: gokeepasslib.NewPasswordCredentials(password),
+		Credentials: gokeepasslib.NewPasswordCredentials(masterPassword),
 		Content:     content,
 	}
 
 	db.LockProtectedEntries()
 
-	keepassEncoder := gokeepasslib.NewEncoder(keepassOutFile)
+	keepassEncoder := gokeepasslib.NewEncoder(output)
 	if err := keepassEncoder.Encode(db); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }

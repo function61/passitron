@@ -61,6 +61,8 @@ func ReadOldEvents() error {
 			e = accountevent.SecretUsedFromSerialized(payload)
 		case "MasterPasswordChanged":
 			e = sessionevent.MasterPasswordChangedFromSerialized(payload)
+		case "S3IntegrationConfigured":
+			e = sessionevent.S3IntegrationConfiguredFromSerialized(payload)
 		case "AccountDeleted":
 			e = accountevent.AccountDeletedFromSerialized(payload)
 		case "AccountRenamed":

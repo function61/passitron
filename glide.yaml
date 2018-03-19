@@ -11,6 +11,8 @@ import:
   - pbkdf2
   - ssh
   - ssh/agent
+- package: github.com/mattetti/filebuffer
+- package: github.com/aws/aws-sdk-go
 testImport:
 - package: github.com/function61/eventhorizon
   subpackages:

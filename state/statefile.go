@@ -17,6 +17,9 @@ type State struct {
 	sealed         bool
 	State          *Statefile
 	EventLog       *eventapplicator.EventApplicator
+	S3ExportBucket string
+	S3ExportApiKey string
+	S3ExportSecret string
 }
 
 func Initialize() {
