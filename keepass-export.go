@@ -34,7 +34,9 @@ func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
 	return ciphertextBlock
 }
 
-func exportRecursive(id string, meta *gokeepasslib.MetaData) gokeepasslib.Group {
+func exportRecursive(id string, meta *gokeepasslib.MetaData) (gokeepasslib.Group, int) {
+	entriesExported := 0
+
 	folder := state.FolderById(id)
 
 	group := gokeepasslib.NewGroup()
@@ -88,16 +90,22 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) gokeepasslib.Group 
 			log.Printf("Appending account %s", account.Title)
 
 			group.Entries = append(group.Entries, entry)
+
+			entriesExported++
 		}
 	}
 
 	subFolders := state.SubfoldersById(folder.Id)
 
 	for _, subFolder := range subFolders {
-		group.Groups = append(group.Groups, exportRecursive(subFolder.Id, meta))
+		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta)
+
+		group.Groups = append(group.Groups, subGroup)
+
+		entriesExported += subentriesExported
 	}
 
-	return group
+	return group, entriesExported
 }
 
 func keepassExport(masterPassword string, output io.Writer) error {
@@ -107,7 +115,7 @@ func keepassExport(masterPassword string, output io.Writer) error {
 		Meta: meta,
 	}
 
-	rootGroup := exportRecursive("root", meta)
+	rootGroup, entriesExported := exportRecursive("root", meta)
 
 	content.Root = &gokeepasslib.RootData{
 		Groups: []gokeepasslib.Group{rootGroup},
@@ -126,6 +134,8 @@ func keepassExport(masterPassword string, output io.Writer) error {
 	if err := keepassEncoder.Encode(db); err != nil {
 		return err
 	}
+
+	log.Printf("keepassExport: %d entries(s) exported", entriesExported)
 
 	return nil
 }

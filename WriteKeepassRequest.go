@@ -12,6 +12,7 @@ import (
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/mattetti/filebuffer"
+	"log"
 	"net/http"
 	"time"
 )
@@ -45,14 +46,18 @@ func handleWriteKeepassRequestInternal(req *WriteKeepassRequest) error {
 	// why filebuffer?
 	// https://stackoverflow.com/questions/20602131/io-writeseeker-and-io-readseeker-from-byte-or-file#comment60685488_20602219
 
+	remotePath := "/databases/" + time.Now().UTC().Format(time.RFC3339) + ".kdbx"
+
 	_, errS3Put := s3Client.PutObject(&s3.PutObjectInput{
 		Bucket: aws.String(state.Inst.S3ExportBucket),
-		Key:    aws.String("/databases/" + time.Now().UTC().Format(time.RFC3339) + ".kdbx"),
+		Key:    aws.String(remotePath),
 		Body:   filebuffer.New(keepassOutFile.Bytes()),
 	})
 	if errS3Put != nil {
 		return errS3Put
 	}
+
+	log.Printf("Keepass database uploaded to %s:%s", state.Inst.S3ExportBucket, remotePath)
 
 	return nil
 }
