@@ -87,8 +87,6 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) (gokeepasslib.Group
 
 			}
 
-			log.Printf("Appending account %s", account.Title)
-
 			group.Entries = append(group.Entries, entry)
 
 			entriesExported++
