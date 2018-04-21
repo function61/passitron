@@ -23,6 +23,8 @@ func (f *SetOtpTokenRequest) Validate() error {
 		return errors.New("OtpProvisioningUrl missing")
 	}
 
+	// TODO: validate URL
+
 	return nil
 }
 
