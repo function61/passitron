@@ -15,6 +15,7 @@ routes.sshkeys = function(args) {
 			a.text(entries[i].Title);
 			a.attr('href', linkTo([ 'credview', entries[i].Id ]));
 
+			// tbl.td(tr).text(entries[i].SshPublicKeyAuthorized.substr(0, 64) + '...');
 			tbl.td(tr).text('?');
 		}
 

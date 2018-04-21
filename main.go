@@ -221,6 +221,7 @@ func main() {
 	signingapi.Setup(router)
 
 	// this most generic one has to be introduced last
+	router.PathPrefix("/old/").Handler(http.StripPrefix("/old/", http.FileServer(http.Dir("./public_old/"))))
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
 	log.Printf("Version %s listening in port 80", version)
