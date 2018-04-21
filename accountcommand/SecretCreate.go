@@ -15,6 +15,7 @@ type SecretCreateRequest struct {
 	Title    string
 	Username string
 	Password string
+	// TODO: repeat password, but optional
 }
 
 func (f *SecretCreateRequest) Validate() error {
