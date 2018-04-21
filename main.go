@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-//go:generate go run gen/main.go
+//go:generate go run gen/version.go
 
 func askAuthorization() (bool, error) {
 	time.Sleep(2 * time.Second)
