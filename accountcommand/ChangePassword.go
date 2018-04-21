@@ -7,6 +7,7 @@ import (
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
+	"github.com/function61/pi-security-module/util/randompassword"
 	"net/http"
 )
 
@@ -27,6 +28,10 @@ func (f *ChangePasswordRequest) Validate() error {
 	}
 	if f.Password != f.PasswordRepeat {
 		return errors.New("PasswordRepeat different than Password")
+	}
+
+	if f.Password == "_auto" {
+		f.Password = randompassword.Build(randompassword.DefaultAlphabet, 16)
 	}
 
 	return nil
