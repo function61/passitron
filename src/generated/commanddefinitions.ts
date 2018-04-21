@@ -2,6 +2,17 @@ import {CommandDefinition, CommandFieldKind} from 'types';
 
 // TODO: this will be a generated file
 
+export function addOtpToken(accountId: string, otpToken: string): CommandDefinition {
+	return {
+		key: 'SetOtpTokenRequest',
+		title: 'Add OTP token',
+		fields: [
+			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'OtpProvisioningUrl', Kind: CommandFieldKind.Text, DefaultValueString: otpToken },
+		],
+	};
+}
+
 export function changeMasterPassword(): CommandDefinition {
 	return {
 		key: 'ChangeMasterPasswordRequest',
