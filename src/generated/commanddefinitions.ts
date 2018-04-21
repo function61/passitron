@@ -160,7 +160,7 @@ export function addSshKey(accountId: string): CommandDefinition {
 		key: 'SetSshKeyRequest',
 		title: '+ SSH key',
 		fields: [
-			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
 			{ Key: 'SshPrivateKey', Kind: CommandFieldKind.Multiline },
 		],
 	};
