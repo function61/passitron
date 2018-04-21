@@ -13,6 +13,68 @@ export function changeMasterPassword(): CommandDefinition {
 	};
 }
 
+export function unseal(): CommandDefinition {
+	return {
+		key: 'UnsealRequest',
+		title: 'Unseal database',
+		fields: [
+			{ Key: 'MasterPassword', Kind: CommandFieldKind.Password },
+		],
+	};
+}
+
+export function writeKeepass(): CommandDefinition {
+	return {
+		key: 'WriteKeepassRequest',
+		title: 'Write keepass',
+		fields: [ ],
+	};
+}
+
+export function renameAccount(accountId: string, currentName: string): CommandDefinition {
+	return {
+		key: 'RenameSecretRequest',
+		title: 'Rename account',
+		fields: [
+			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Title', Kind: CommandFieldKind.Text, DefaultValueString: currentName },
+		],
+	};
+}
+
+export function changeUsername(accountId: string, currentUsername: string): CommandDefinition {
+	return {
+		key: 'ChangeUsernameRequest',
+		title: 'Change username',
+		fields: [
+			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Username', Kind: CommandFieldKind.Text, DefaultValueString: currentUsername },
+		],
+	};
+}
+
+export function changeDescription(accountId: string, currentDescription: string): CommandDefinition {
+	return {
+		key: 'ChangeDescriptionRequest',
+		title: 'Change description',
+		fields: [
+			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Description', Kind: CommandFieldKind.Multiline, DefaultValueString: currentDescription },
+		],
+	};
+}
+
+export function deleteSecret(accountId: string, secretId: string): CommandDefinition {
+	return {
+		key: 'DeleteSecretRequest',
+		title: 'Delete secret',
+		fields: [
+			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Secret', Kind: CommandFieldKind.Text, DefaultValueString: secretId },
+		],
+	};
+}
+
 export function createAccount(defaultFolderId: string): CommandDefinition {
 	return {
 		key: 'SecretCreateRequest',

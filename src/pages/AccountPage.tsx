@@ -6,7 +6,15 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton, CommandLink} from 'components/CommandButton';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {folderLink, importOtpTokenLink} from 'links';
-import {deleteAccount, addPassword, addSshKey} from 'generated/commanddefinitions';
+import {
+	deleteAccount,
+	addPassword,
+	addSshKey,
+	deleteSecret,
+	changeUsername,
+	changeDescription,
+	renameAccount,
+} from 'generated/commanddefinitions';
 import {unrecognizedValue} from 'utils';
 
 interface ShittyDropdownProps {
@@ -53,7 +61,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		const account = this.state.account;
 
-		const secretRows = this.state.secrets.map((secret) => this.secretToRow(secret));
+		const secretRows = this.state.secrets.map((secret) => this.secretToRow(secret, account));
 
 		const breadcrumbItems = this.getBreadcrumbItems();
 
@@ -70,7 +78,10 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			<table className="table table-striped">
 			<tbody>
 				<tr>
-					<td>Username</td>
+					<td>
+						Username
+						<CommandLink command={changeUsername(account.Id, account.Username)} />
+					</td>
 					<td>{account.Username}</td>
 					<td onClick={() => this.copyToClipboard(account.Username)}>📋</td>
 				</tr>
@@ -86,42 +97,53 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<td></td>
 				</tr>
 				<tr>
-					<td>Description</td>
+					<td>
+						Description
+						<CommandLink command={changeDescription(account.Id, account.Description)} />
+					</td>
 					<td>{account.Description}</td>
 					<td></td>
 				</tr>
 			</tbody>
 			</table>
 
-			<CommandLink command={deleteAccount(account.Id)} />
+			<CommandButton command={renameAccount(account.Id, account.Title)} />
+			<CommandButton command={deleteAccount(account.Id)} />
 
-			<CommandButton command={deleteAccount(account.Id)}></CommandButton>
-
-			<CommandButton command={addSshKey(account.Id)}></CommandButton>
-			<CommandButton command={addPassword(account.Id)}></CommandButton>
+			<CommandButton command={addSshKey(account.Id)} />
+			<CommandButton command={addPassword(account.Id)} />
 
 			<a href={importOtpTokenLink(account.Id)} className="btn btn-default">+ OTP token</a>
 
 		</DefaultLayout>;
 	}
 
-	private secretToRow(secret: Secret): JSX.Element {
+	private secretToRow(secret: Secret, account: Account): JSX.Element {
 			switch (secret.Kind) {
 			case SecretKind.SshKey:			
 				return <tr key={secret.Id}>
-					<td>SSH public key</td>
+					<td>
+						SSH public key
+						<CommandLink command={deleteSecret(account.Id, secret.Id)} />
+					</td>
 					<td>{secret.SshPublicKeyAuthorized}</td>
 					<td></td>
 				</tr>;
 			case SecretKind.Password:
 				return <tr key={secret.Id}>
-					<td>Password</td>
+					<td>
+						Password
+						<CommandLink command={deleteSecret(account.Id, secret.Id)} />
+					</td>
 					<td>{secret.Password}</td>
 					<td onClick={() => this.copyToClipboard(secret.Password)}>📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
 				return <tr key={secret.Id}>
-					<td>OTP</td>
+					<td>
+						OTP
+						<CommandLink command={deleteSecret(account.Id, secret.Id)} />
+					</td>
 					<td>{secret.OtpProof}</td>
 					<td onClick={() => this.copyToClipboard(secret.OtpProof)}></td>
 				</tr>;

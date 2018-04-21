@@ -3,7 +3,7 @@ import DefaultLayout from 'layouts/DefaultLayout';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
 import {rootFolderName} from 'model';
-import {changeMasterPassword} from 'generated/commanddefinitions';
+import {unseal, changeMasterPassword, writeKeepass} from 'generated/commanddefinitions';
 import {indexLink} from 'links';
 
 export default class SettingsPage extends React.Component<{}, {}> {
@@ -18,12 +18,12 @@ export default class SettingsPage extends React.Component<{}, {}> {
 		return <DefaultLayout breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Settings</h1>
 
-			<button className="btn btn-default">unseal</button>
+			<CommandButton command={unseal()}></CommandButton>
 			<CommandButton command={changeMasterPassword()}></CommandButton>
 
 			<h2>Export / import</h2>
 
-			<button className="btn btn-default">write keepass</button>
+			<CommandButton command={writeKeepass()}></CommandButton>
 
 		</DefaultLayout>;
 	}
