@@ -111,6 +111,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 				name={field.Key}
 				className="form-control"
 				rows={7}
+				defaultValue={field.DefaultValueString}
 				onChange={this.onTextareaChange.bind(this)}
 			/>;
 		case CommandFieldKind.Checkbox:
