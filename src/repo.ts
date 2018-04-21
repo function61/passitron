@@ -35,7 +35,7 @@ export function getSecrets(accountId: string): Promise<Secret[]> {
 export function searchAccounts(query: string): Promise<Account[]> {
 	const searchEscaped = encodeURIComponent(query);
 
-	return getJson<Account[]>(`/accounts/search?q=${searchEscaped}`);
+	return getJson<Account[]>(`/accounts?search=${searchEscaped}`);
 }
 
 export function defaultErrorHandler(err: Error) {
