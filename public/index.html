@@ -1,0 +1,40 @@
+<!doctype html>
+
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>PiLockBox</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="style.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"></script>
+	<script>
+	requirejs.config({
+	    // "baseUrl": "js/lib",
+	    "paths": {
+	      "react": "https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development",
+	      "react-dom": "https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development",
+	      /*
+	      "react": "node_modules/react/umd/react.development",
+	      "react-dom": "node_modules/react-dom/umd/react-dom.development",
+	      */
+	    }
+	});
+	</script>
+	<script src="build.js"></script>
+	<script>
+	document.addEventListener('DOMContentLoaded', function(event) {
+		require(['main'], function (main){
+			main.default(document.getElementById('app'));
+		});
+	});
+	</script>
+</head>
+<body>
+
+<div id="app" class="container"></div>
+
+</body>
+</html>

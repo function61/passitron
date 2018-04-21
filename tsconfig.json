@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "public/build.js",
+        "baseUrl": "./src",
+        "jsx": "React",
+        "jsxFactory": "React.createElement",
+        "sourceMap": true,
+	    "lib": [
+	        "es2016",
+	        "dom"
+	    ]
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

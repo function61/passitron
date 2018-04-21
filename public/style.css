@@ -1,0 +1,8 @@
+
+body {
+	margin: 50px;
+	/*	scroll always visible, because it's ugly if dynamically new stuff if shown
+		which would add scrollbar, whole document re-flows because document width narrows
+	*/
+	overflow-y: scroll;
+}
