@@ -1,8 +1,9 @@
-package main
+package extractpublicfiles
 
 import (
 	"errors"
 	"github.com/function61/pi-security-module/util/tarextract"
+	"github.com/function61/pi-security-module/util/version"
 	"io"
 	"log"
 	"net/http"
@@ -16,8 +17,8 @@ const (
 
 var errDownloadWithDevVersion = errors.New("public files dir not exists and not using released version - don't know how to fix this")
 
-func publicFilesDownloadUrl(version string) string {
-	return "https://bintray.com/function61/pi-security-module/download_file?file_path=" + version + "%2Fpublic.tar.gz"
+func publicFilesDownloadUrl(versionStr string) string {
+	return "https://bintray.com/function61/pi-security-module/download_file?file_path=" + versionStr + "%2Fpublic.tar.gz"
 }
 
 func fileExists(path string) bool {
@@ -35,11 +36,11 @@ func fileExists(path string) bool {
 }
 
 func downloadPublicFiles() error {
-	if isDevVersion() {
+	if version.IsDevVersion() {
 		return errDownloadWithDevVersion
 	}
 
-	downloadUrl := publicFilesDownloadUrl(version)
+	downloadUrl := publicFilesDownloadUrl(version.Version)
 
 	log.Printf(
 		"extractPublicFiles: %s missing; downloading from %s",
@@ -73,7 +74,7 @@ func downloadPublicFiles() error {
 	return nil
 }
 
-func extractPublicFiles() error {
+func Run() error {
 	// our job here is done
 	if fileExists(publicFilesDirectory) {
 		return nil

@@ -10,8 +10,10 @@ import (
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/function61/pi-security-module/util/eventlog"
+	"github.com/function61/pi-security-module/util/extractpublicfiles"
 	"github.com/function61/pi-security-module/util/keepassimport"
 	"github.com/function61/pi-security-module/util/systemdinstaller"
+	"github.com/function61/pi-security-module/util/version"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -235,7 +237,7 @@ func main() {
 		log.Fatalf("Invalid command: %v", os.Args[1])
 	}
 
-	if err := extractPublicFiles(); err != nil {
+	if err := extractpublicfiles.Run(); err != nil {
 		panic(err)
 	}
 
@@ -255,7 +257,7 @@ func main() {
 	// this most generic one has to be introduced last
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
-	log.Printf("Version %s listening in port 80", version)
+	log.Printf("Version %s listening in port 80", version.Version)
 
 	log.Fatal(http.ListenAndServe(":80", router))
 }

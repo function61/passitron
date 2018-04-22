@@ -12,20 +12,20 @@ func genVersionFile() error {
 		friendlyRevId = "dev"
 	}
 
-	versionTemplate := `package main
+	versionTemplate := `package version
 
 // WARNING: generated file
 
-const version = "%s"
+const Version = "%s"
 
-func isDevVersion() bool {
-	return version == "dev"
+func IsDevVersion() bool {
+	return Version == "dev"
 }
 `
 
 	fileSerialized := []byte(fmt.Sprintf(versionTemplate, friendlyRevId))
 
-	if err := ioutil.WriteFile("version.go", fileSerialized, 0644); err != nil {
+	if err := ioutil.WriteFile("util/version/version.go", fileSerialized, 0644); err != nil {
 		return err
 	}
 
