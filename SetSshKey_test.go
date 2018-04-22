@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"github.com/function61/eventhorizon/util/ass"
 	"testing"
@@ -42,3 +43,5 @@ func TestSucceeds(t *testing.T) {
 		succeeds.sshPublicKeyAuthorized,
 		"ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEA2By4FxK0z0yhhsGP7EOm+3Ze81ZuQf53xpan3o1W9dIAJHDtTUQgrCjwmIq23P/6kKPrJKRoev839TjyU6vXOGWgHYId97R5RuNv5VdZdHocTA662nkqy9UYLrULDTAfmXpuc7kS2d796RMlWNuJ8nBfK/Aaa4H9caZXkdSibQc=\n")
 }
+
+*/
