@@ -10,6 +10,15 @@ export function httpMustBeOk(response: Response): Promise<Response> {
 	if (!response.ok) {
 		return new Promise<Response>(function(_resolve: any, reject: any) {
 			response.text().then((text: string) => {
+				if (response.headers.get('content-type') === 'application/json') {
+					const jsonError = JSON.parse(text) as {};
+
+					if (isStructuredErrorResponse(jsonError)) {
+						reject(jsonError);
+						return;
+					}
+				}
+
 				reject(new Error('HTTP response failure: ' + text));
 			}, (err: Error) => {
 				reject(new Error('HTTP response failure. Also, error fetching response body: ' + err.toString()));
@@ -41,4 +50,13 @@ export function searchAccounts(query: string): Promise<Account[]> {
 export function defaultErrorHandler(err: Error) {
 	alert('Error: ' + err.toString());
 	console.error(err);
+}
+
+interface StructuredErrorResponse {
+	error_code: string;
+	error_description: string;
+}
+
+function isStructuredErrorResponse(err: StructuredErrorResponse | {}): err is StructuredErrorResponse {
+	return 'error_code' in (<StructuredErrorResponse>err);
 }
