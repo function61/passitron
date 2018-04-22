@@ -99,17 +99,19 @@ func (c *CommandFieldSpec) Validate() error {
 	return nil
 }
 
-func writeCommandsGenJs(file *CommandSpecFile) {
+func writeCommandsGenJs(file *CommandSpecFile) error {
 	commandsGenJsSpecContent, encodeErr := json.MarshalIndent(file, "", "  ")
 	if encodeErr != nil {
-		panic(encodeErr)
+		return encodeErr
 	}
 
 	commandsGenJsContent := []byte(fmt.Sprintf("var _commands_generated = %s;\n", commandsGenJsSpecContent))
 
 	if writeErr := ioutil.WriteFile("static/commands.gen.js", commandsGenJsContent, 0777); writeErr != nil {
-		panic(writeErr)
+		return writeErr
 	}
+
+	return nil
 }
 
 func makeStruct(spec *CommandSpec) string {
@@ -143,7 +145,7 @@ func (x *%s) Validate() error {
 		strings.Join(validationSnippets, "\n\t"))
 }
 
-func writeCommandsMap(file *CommandSpecFile) {
+func writeCommandsMap(file *CommandSpecFile) error {
 	template := `package main
 
 // WARNING: generated file
@@ -182,8 +184,10 @@ var commandHandlers = map[string]func() Command{
 		strings.Join(handlerLines, "\n"))
 
 	if writeErr := ioutil.WriteFile("commandsgen.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
-		panic(writeErr)
+		return writeErr
 	}
+
+	return nil
 }
 
 func generateCommands() error {
@@ -201,8 +205,15 @@ func generateCommands() error {
 		return validationErr
 	}
 
-	writeCommandsMap(&file)
-	// writeCommandsGenJs(&file)
+	if err := writeCommandsMap(&file); err != nil {
+		return err
+	}
+
+	/*
+	if err := writeCommandsGenJs(&file); err != nil {
+		return err
+	}
+	*/
 
 	return nil
 }
