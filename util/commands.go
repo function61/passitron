@@ -2,8 +2,18 @@ package util
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
+
+func respondHttpJson(out interface{}, httpCode int, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpCode)
+
+	if err := json.NewEncoder(w).Encode(out); err != nil {
+		log.Printf("respondHttpJson: failed to encode JSON: %s", err.Error())
+	}
+}
 
 type ResponseError struct {
 	ErrorCode        string `json:"error_code"`
@@ -11,18 +21,12 @@ type ResponseError struct {
 }
 
 func CommandValidationError(w http.ResponseWriter, r *http.Request, err error) {
-	resp := ResponseError{
+	resp := &ResponseError{
 		ErrorCode:        "input_validation_failed",
 		ErrorDescription: err.Error(),
 	}
 
-	respJson, marshalErr := json.Marshal(resp)
-	if marshalErr != nil {
-		http.Error(w, "Error marshaling JSON: "+marshalErr.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	http.Error(w, string(respJson), http.StatusBadRequest)
+	respondHttpJson(resp, http.StatusBadRequest, w)
 }
 
 func ErrorIfSealed(w http.ResponseWriter, r *http.Request, unsealed bool) bool {
@@ -40,21 +44,20 @@ func CommandCustomError(w http.ResponseWriter, r *http.Request, code string, err
 		errorDescription = err.Error()
 	}
 
-	resp := ResponseError{
+	resp := &ResponseError{
 		ErrorCode:        code,
 		ErrorDescription: errorDescription,
 	}
 
-	respJson, marshalErr := json.Marshal(resp)
-	if marshalErr != nil {
-		http.Error(w, "Error marshaling JSON: "+marshalErr.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	http.Error(w, string(respJson), httpCode)
+	respondHttpJson(resp, httpCode, w)
 }
 
 func CommandGenericSuccess(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte("{\"status\": \"success\"}"))
+	type ResponseSuccess struct {
+		Status string `json:"status"`
+	}
+
+	respondHttpJson(&ResponseSuccess{
+		Status: "success",
+	}, http.StatusOK, w)
 }
