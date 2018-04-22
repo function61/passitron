@@ -19,7 +19,7 @@ export class CommandButton extends React.Component<CommandButtonProps, {}> {
 
 	save() {
 		this.cmdManager.execute().then(() => {
-			alert('generic ok');
+			document.location.reload();
 		}, defaultErrorHandler);
 	}
 
@@ -83,7 +83,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 
 	save() {
 		this.cmdManager.execute().then(() => {
-			alert('generic ok');
+			document.location.reload();
 		}, defaultErrorHandler);
 	}
 
