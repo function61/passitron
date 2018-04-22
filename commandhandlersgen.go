@@ -22,7 +22,6 @@ var commandHandlers = map[string]func(w http.ResponseWriter, r *http.Request){
 	"SetSshKeyRequest":            accountcommand.HandleSetSshKeyRequest,
 	"SetOtpTokenRequest":          accountcommand.HandleSetOtpTokenRequest,
 	"DeleteSecretRequest":         accountcommand.HandleDeleteSecretRequest,
-	"WriteKeepassRequest":         HandleWriteKeepassRequest,
 	"UnsealRequest":               sessioncommand.HandleUnsealRequest,
 	"ChangeMasterPasswordRequest": sessioncommand.HandleChangeMasterPassword,
 }
