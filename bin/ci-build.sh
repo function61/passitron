@@ -14,7 +14,6 @@ docker build -t pism-builder - < Dockerfile.build
 docker run \
 	--rm \
 	-it \
-	--workdir "/go/src/github.com/function61/pi-security-module" \
 	-v "$(pwd):/go/src/github.com/function61/pi-security-module" \
 	-e "CI_REVISION_ID=$CI_REVISION_ID" \
 	-e "FRIENDLY_REV_ID=$FRIENDLY_REV_ID" \
