@@ -27,6 +27,10 @@ export function settingsLink(): string {
 	return make('settings');
 }
 
+export function unsealLink(): string {
+	return make('unseal');
+}
+
 export function importOtpTokenLink(accountId: string): string {
 	return make('importotptoken', accountId);
 }

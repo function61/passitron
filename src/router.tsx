@@ -5,6 +5,7 @@ import SearchPage from 'pages/SearchPage';
 import ImportOtpToken from 'pages/ImportOtpToken';
 import {rootFolderId} from 'model';
 import AccountPage from 'pages/AccountPage';
+import UnsealPage from 'pages/UnsealPage';
 import SettingsPage from 'pages/SettingsPage';
 
 export interface RouterProps {
@@ -67,6 +68,8 @@ export class Router extends React.Component<RouterProps, RouterState> {
 			page = <SshKeysPage />;
 		} else if (firstComponent === 'settings' && hash.length === 1) {
 			page = <SettingsPage />;
+		} else if (firstComponent === 'unseal' && hash.length === 1) {
+			page = <UnsealPage />;
 		} else if (firstComponent === 'importotptoken' && hash.length === 2) {
 			page = <ImportOtpToken account={hash[1]} />;
 		} else {

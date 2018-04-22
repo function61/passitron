@@ -1,4 +1,5 @@
 import {FolderResponse, Account, Secret} from 'model';
+import {unsealLink} from 'links';
 
 function getJson<T>(url: string): Promise<T> {
 	return fetch(url)
@@ -47,7 +48,12 @@ export function searchAccounts(query: string): Promise<Account[]> {
 	return getJson<Account[]>(`/accounts?search=${searchEscaped}`);
 }
 
-export function defaultErrorHandler(err: Error) {
+export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
+	if (isStructuredErrorResponse(err) && err.error_code === 'database_is_sealed') {
+		document.location.assign(unsealLink());
+		return;
+	}
+
 	alert('Error: ' + err.toString());
 	console.error(err);
 }
