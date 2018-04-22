@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/signingapi"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
@@ -19,7 +20,7 @@ import (
 	"time"
 )
 
-//go:generate go run gen/version.go
+//go:generate go run gen/main.go gen/version.go gen/commands.go gen/events.go
 
 func askAuthorization() (bool, error) {
 	time.Sleep(2 * time.Second)
@@ -45,19 +46,50 @@ func defineApi(router *mux.Router) {
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
-		// only command able to be invoked unsealed is the Unseal command
-		if commandName != "UnsealRequest" && util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		// only command able to be invoked anonymously is the Unseal command
+		commandNeedsAuthorization := commandName != "database.Unseal"
+
+		if commandNeedsAuthorization && util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
 			return
 		}
 
-		// commandHandlers is generated
-		handler, handlerExists := commandHandlers[commandName]
+		cmdBuilder, handlerExists := commandHandlers[commandName]
 		if !handlerExists {
 			util.CommandCustomError(w, r, "unsupported_command", nil, http.StatusBadRequest)
 			return
 		}
 
-		handler(w, r)
+		ctx := &Ctx{
+			State:     state.Inst,
+			EventMeta: domain.Meta(time.Now(), "1"),
+		}
+
+		cmdStruct := cmdBuilder()
+
+		// FIXME: assert application/json
+		if errJson := json.NewDecoder(r.Body).Decode(cmdStruct); errJson != nil {
+			util.CommandCustomError(w, r, "json_parsing_failed", errJson, http.StatusBadRequest)
+			return
+		}
+
+		if errValidate := cmdStruct.Validate(); errValidate != nil {
+			util.CommandCustomError(w, r, "command_validation_failed", errValidate, http.StatusBadRequest)
+			return
+		}
+
+		if errInvoke := cmdStruct.Invoke(ctx); errInvoke != nil {
+			util.CommandCustomError(w, r, "command_failed", errInvoke, http.StatusBadRequest)
+			return
+		}
+
+		log.Printf("Command %s raised %d event(s)", commandName, len(ctx.raisedEvents))
+
+		type Output struct {
+			Status string
+		}
+
+		disableCache(w)
+		util.CommandGenericSuccess(w, r)
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -221,7 +253,6 @@ func main() {
 	signingapi.Setup(router)
 
 	// this most generic one has to be introduced last
-	router.PathPrefix("/old/").Handler(http.StripPrefix("/old/", http.FileServer(http.Dir("./public_old/"))))
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
 	log.Printf("Version %s listening in port 80", version)

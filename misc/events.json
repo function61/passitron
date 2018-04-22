@@ -1,0 +1,9 @@
+[
+	{
+		"event": "account.Renamed",
+		"fields": [
+			{ "key": "Id", "type": "string" },
+			{ "key": "Name", "type": "string" }
+		]
+	}
+]

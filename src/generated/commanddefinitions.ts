@@ -4,10 +4,10 @@ import {CommandDefinition, CommandFieldKind} from 'types';
 
 export function addOtpToken(accountId: string, otpToken: string): CommandDefinition {
 	return {
-		key: 'SetOtpTokenRequest',
+		key: 'account.AddOtpToken',
 		title: 'Add OTP token',
 		fields: [
-			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
 			{ Key: 'OtpProvisioningUrl', Kind: CommandFieldKind.Text, DefaultValueString: otpToken },
 		],
 	};
@@ -15,7 +15,7 @@ export function addOtpToken(accountId: string, otpToken: string): CommandDefinit
 
 export function changeMasterPassword(): CommandDefinition {
 	return {
-		key: 'ChangeMasterPasswordRequest',
+		key: 'database.ChangeMasterPassword',
 		title: 'Change master password',
 		fields: [
 			{ Key: 'NewMasterPassword', Kind: CommandFieldKind.Password },
@@ -26,7 +26,7 @@ export function changeMasterPassword(): CommandDefinition {
 
 export function unseal(): CommandDefinition {
 	return {
-		key: 'UnsealRequest',
+		key: 'database.Unseal',
 		title: 'Unseal database',
 		fields: [
 			{ Key: 'MasterPassword', Kind: CommandFieldKind.Password },
@@ -36,18 +36,18 @@ export function unseal(): CommandDefinition {
 
 export function writeKeepass(): CommandDefinition {
 	return {
-		key: 'WriteKeepassRequest',
-		title: 'Write keepass',
+		key: 'database.ExportToKeepass',
+		title: 'Export to KeePass format',
 		fields: [ ],
 	};
 }
 
 export function renameAccount(accountId: string, currentName: string): CommandDefinition {
 	return {
-		key: 'RenameSecretRequest',
+		key: 'account.Rename',
 		title: 'Rename account',
 		fields: [
-			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
 			{ Key: 'Title', Kind: CommandFieldKind.Text, DefaultValueString: currentName },
 		],
 	};
@@ -55,10 +55,10 @@ export function renameAccount(accountId: string, currentName: string): CommandDe
 
 export function changeUsername(accountId: string, currentUsername: string): CommandDefinition {
 	return {
-		key: 'ChangeUsernameRequest',
+		key: 'account.ChangeUsername',
 		title: 'Change username',
 		fields: [
-			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
 			{ Key: 'Username', Kind: CommandFieldKind.Text, DefaultValueString: currentUsername },
 		],
 	};
@@ -66,10 +66,10 @@ export function changeUsername(accountId: string, currentUsername: string): Comm
 
 export function changeDescription(accountId: string, currentDescription: string): CommandDefinition {
 	return {
-		key: 'ChangeDescriptionRequest',
+		key: 'account.ChangeDescription',
 		title: 'Change description',
 		fields: [
-			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
+			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
 			{ Key: 'Description', Kind: CommandFieldKind.Multiline, DefaultValueString: currentDescription },
 		],
 	};
@@ -77,7 +77,7 @@ export function changeDescription(accountId: string, currentDescription: string)
 
 export function deleteSecret(accountId: string, secretId: string): CommandDefinition {
 	return {
-		key: 'DeleteSecretRequest',
+		key: 'account.DeleteSecret',
 		title: 'Delete secret',
 		fields: [
 			{ Key: 'Account', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
@@ -88,7 +88,7 @@ export function deleteSecret(accountId: string, secretId: string): CommandDefini
 
 export function createAccount(defaultFolderId: string): CommandDefinition {
 	return {
-		key: 'SecretCreateRequest',
+		key: 'account.Create',
 		title: '+ Account',
 		fields: [
 			{ Key: 'FolderId', Kind: CommandFieldKind.Text, DefaultValueString: defaultFolderId },
@@ -101,10 +101,10 @@ export function createAccount(defaultFolderId: string): CommandDefinition {
 
 export function createFolder(parentId: string): CommandDefinition {
 	return {
-		key: 'FolderCreateRequest',
+		key: 'account.CreateFolder',
 		title: '+ Folder',
 		fields: [
-			{ Key: 'ParentId', Kind: CommandFieldKind.Text, DefaultValueString: parentId },
+			{ Key: 'Parent', Kind: CommandFieldKind.Text, DefaultValueString: parentId },
 			{ Key: 'Name', Kind: CommandFieldKind.Text },
 		],
 	};
@@ -112,7 +112,7 @@ export function createFolder(parentId: string): CommandDefinition {
 
 export function renameFolder(folderId: string, currentName: string): CommandDefinition {
 	return {
-		key: 'RenameFolderRequest',
+		key: 'account.RenameFolder',
 		title: 'Rename',
 		fields: [
 			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: folderId },
@@ -123,18 +123,18 @@ export function renameFolder(folderId: string, currentName: string): CommandDefi
 
 export function moveFolder(folderId: string): CommandDefinition {
 	return {
-		key: 'MoveFolderRequest',
+		key: 'account.MoveFolder',
 		title: 'Move',
 		fields: [
 			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: folderId },
-			{ Key: 'NewParentId', Kind: CommandFieldKind.Text },
+			{ Key: 'NewParent', Kind: CommandFieldKind.Text },
 		],
 	};
 }
 
 export function deleteAccount(accountId: string): CommandDefinition {
 	return {
-		key: 'DeleteAccountRequest',
+		key: 'account.Delete',
 		title: 'Delete',
 		fields: [
 			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
@@ -145,7 +145,7 @@ export function deleteAccount(accountId: string): CommandDefinition {
 
 export function addPassword(accountId: string): CommandDefinition {
 	return {
-		key: 'ChangePasswordRequest',
+		key: 'account.AddPassword',
 		title: '+ Password',
 		fields: [
 			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },
@@ -157,7 +157,7 @@ export function addPassword(accountId: string): CommandDefinition {
 
 export function addSshKey(accountId: string): CommandDefinition {
 	return {
-		key: 'SetSshKeyRequest',
+		key: 'account.AddSshKey',
 		title: '+ SSH key',
 		fields: [
 			{ Key: 'Id', Kind: CommandFieldKind.Text, DefaultValueString: accountId },

@@ -1,0 +1,106 @@
+[
+	{
+		"command": "account.Rename",
+		"fields": [
+			{ "key": "Account" },
+			{ "key": "Title" }
+		]
+	},
+	{
+		"command": "account.ChangeUsername",
+		"fields": [
+			{ "key": "Account" },
+			{ "key": "Username" }
+		]
+	},
+	{
+		"command": "account.ChangeDescription",
+		"fields": [
+			{ "key": "Account" },
+			{ "key": "Description" }
+		]
+	},
+	{
+		"command": "account.DeleteSecret",
+		"fields": [
+			{ "key": "Account" },
+			{ "key": "Secret" }
+		]
+	},
+	{
+		"command": "account.CreateFolder",
+		"fields": [
+			{ "key": "Parent" },
+			{ "key": "Name" }
+		]
+	},
+	{
+		"command": "account.RenameFolder",
+		"fields": [
+			{ "key": "Id" },
+			{ "key": "Name" }
+		]
+	},
+	{
+		"command": "account.MoveFolder",
+		"fields": [
+			{ "key": "Id" },
+			{ "key": "NewParent" }
+		]
+	},
+	{
+		"command": "account.Create",
+		"fields": [
+			{ "key": "FolderId" },
+			{ "key": "Title" },
+			{ "key": "Username", "optional": true },
+			{ "key": "Password", "optional": true }
+		]
+	},
+	{
+		"command": "account.Delete",
+		"fields": [
+			{ "key": "Id" },
+			{ "key": "Confirm", "type": "bool" }
+		]
+	},
+	{
+		"command": "account.AddPassword",
+		"fields": [
+			{ "key": "Id" },
+			{ "key": "Password" },
+			{ "key": "PasswordRepeat" }
+		]
+	},
+	{
+		"command": "account.AddSshKey",
+		"fields": [
+			{ "key": "Id" },
+			{ "key": "SshPrivateKey" }
+		]
+	},
+	{
+		"command": "account.AddOtpToken",
+		"fields": [
+			{ "key": "Account" },
+			{ "key": "OtpProvisioningUrl" }
+		]
+	},
+	{
+		"command": "database.ChangeMasterPassword",
+		"fields": [
+			{ "key": "NewMasterPassword" },
+			{ "key": "NewMasterPasswordRepeat" }
+		]
+	},
+	{
+		"command": "database.Unseal",
+		"fields": [
+			{ "key": "MasterPassword" }
+		]
+	},
+	{
+		"command": "database.ExportToKeepass",
+		"fields": []
+	}
+]
