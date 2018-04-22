@@ -101,7 +101,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						Description
 						<CommandLink command={changeDescription(account.Id, account.Description)} />
 					</td>
-					<td>{account.Description}</td>
+					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}>{account.Description}</td>
 					<td></td>
 				</tr>
 			</tbody>
