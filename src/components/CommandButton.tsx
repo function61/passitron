@@ -53,13 +53,22 @@ export class CommandButton extends React.Component<CommandButtonProps, {}> {
 	}
 }
 
+type EditType = "add" | "edit" | "remove";
+
 interface CommandLinkProps {
 	command: CommandDefinition;
+	type?: EditType;
 }
 
 interface CommandLinkState {
 	open: boolean,
 }
+
+const typeToIcon: {[key: string]: string} = {
+	"add": "glyphicon-plus",
+	"edit": "glyphicon-pencil",
+	"remove": "glyphicon-remove",
+};
 
 export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {
 	private dialogRef: HTMLDivElement | null = null;
@@ -90,12 +99,15 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 	render() {
 		const commandTitle = this.props.command.title;
 
+		const type = this.props.type ? this.props.type : 'edit';
+		const icon = typeToIcon[type];
+
 		if (this.state && this.state.open) {
 			const modalId = 'cmdModal' + uniqueDomId().toString();
 			const labelName = modalId + 'Label';
 
 			return <div style={{display: 'inline-block'}}>
-				<a onClick={() => this.openDialog()}>{commandTitle}</a>
+				<span className={`glyphicon ${icon} fauxlink`} onClick={() => this.openDialog()} title={commandTitle}></span>
 
 				<div className="modal" ref={(input) => { this.dialogRef = input; }} id={modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
 					<div className="modal-dialog" role="document">
@@ -117,6 +129,6 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 			</div>;
 		}
 
-		return <a onClick={() => this.openDialog()}>{commandTitle}</a>;
+		return <span className={`glyphicon ${icon} fauxlink`} onClick={() => this.openDialog()} title={commandTitle}></span>;
 	}
 }

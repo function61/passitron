@@ -124,7 +124,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						SSH public key
-						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.SshPublicKeyAuthorized}</td>
 					<td></td>
@@ -133,7 +133,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						Password
-						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.Password}</td>
 					<td onClick={() => this.copyToClipboard(secret.Password)} className="fauxlink">📋</td>
@@ -142,7 +142,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						OTP
-						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.OtpProof}</td>
 					<td onClick={() => this.copyToClipboard(secret.OtpProof)} className="fauxlink">📋</td>
