@@ -1,7 +1,7 @@
 import * as React from 'react';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {CommandButton} from 'components/CommandButton';
-import {addOtpToken} from 'generated/commanddefinitions';
+import {AccountAddOtpToken} from 'generated/commanddefinitions';
 import * as QrCode from 'jsqrcode';
 
 
@@ -20,7 +20,7 @@ export default class ImportOtpToken extends React.Component<ImportOtpTokenProps,
 		];
 
 		const maybeSubmit = this.state && this.state.OtpProvisioningUrl ?
-			<CommandButton command={addOtpToken(this.props.account, this.state.OtpProvisioningUrl)} /> :
+			<CommandButton command={AccountAddOtpToken(this.props.account, this.state.OtpProvisioningUrl)} /> :
 			<p>button will appear here</p>;
 
 		return <DefaultLayout breadcrumbs={breadcrumbs}>

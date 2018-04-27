@@ -4,7 +4,7 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
 import {WarningAlert} from 'components/alerts';
 import {rootFolderName} from 'model';
-import {unseal} from 'generated/commanddefinitions';
+import {DatabaseUnseal} from 'generated/commanddefinitions';
 import {indexLink} from 'links';
 
 export default class UnsealPage extends React.Component<{}, {}> {
@@ -21,7 +21,7 @@ export default class UnsealPage extends React.Component<{}, {}> {
 
 			<WarningAlert text="Database was sealed. Please unseal it." />
 
-			<CommandButton command={unseal()}></CommandButton>
+			<CommandButton command={DatabaseUnseal()}></CommandButton>
 
 		</DefaultLayout>;
 	}

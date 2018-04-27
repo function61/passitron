@@ -3,7 +3,7 @@ import DefaultLayout from 'layouts/DefaultLayout';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
 import {rootFolderName} from 'model';
-import {unseal, changeMasterPassword, writeKeepass} from 'generated/commanddefinitions';
+import {DatabaseUnseal, DatabaseChangeMasterPassword, DatabaseExportToKeepass} from 'generated/commanddefinitions';
 import {indexLink} from 'links';
 
 export default class SettingsPage extends React.Component<{}, {}> {
@@ -18,12 +18,12 @@ export default class SettingsPage extends React.Component<{}, {}> {
 		return <DefaultLayout breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Settings</h1>
 
-			<CommandButton command={unseal()}></CommandButton>
-			<CommandButton command={changeMasterPassword()}></CommandButton>
+			<CommandButton command={DatabaseUnseal()}></CommandButton>
+			<CommandButton command={DatabaseChangeMasterPassword()}></CommandButton>
 
 			<h2>Export / import</h2>
 
-			<CommandButton command={writeKeepass()}></CommandButton>
+			<CommandButton command={DatabaseExportToKeepass()}></CommandButton>
 
 		</DefaultLayout>;
 	}

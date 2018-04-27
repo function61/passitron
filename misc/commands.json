@@ -1,6 +1,8 @@
 [
 	{
 		"command": "account.Rename",
+		"ctor": ["Account","Title"],
+		"title": "Rename account",
 		"fields": [
 			{ "key": "Account" },
 			{ "key": "Title" }
@@ -8,6 +10,8 @@
 	},
 	{
 		"command": "account.ChangeUsername",
+		"ctor": ["Account","Username"],
+		"title": "Change username",
 		"fields": [
 			{ "key": "Account" },
 			{ "key": "Username" }
@@ -15,13 +19,17 @@
 	},
 	{
 		"command": "account.ChangeDescription",
+		"ctor": ["Account","Description"],
+		"title": "Change description",
 		"fields": [
 			{ "key": "Account" },
-			{ "key": "Description" }
+			{ "key": "Description", "type": "multiline" }
 		]
 	},
 	{
 		"command": "account.DeleteSecret",
+		"ctor": ["Account","Secret"],
+		"title": "Delete secret",
 		"fields": [
 			{ "key": "Account" },
 			{ "key": "Secret" }
@@ -29,6 +37,8 @@
 	},
 	{
 		"command": "account.CreateFolder",
+		"ctor": ["Parent"],
+		"title": "+ Folder",
 		"fields": [
 			{ "key": "Parent" },
 			{ "key": "Name" }
@@ -36,6 +46,8 @@
 	},
 	{
 		"command": "account.RenameFolder",
+		"ctor": ["Id","Name"],
+		"title": "Rename",
 		"fields": [
 			{ "key": "Id" },
 			{ "key": "Name" }
@@ -43,6 +55,8 @@
 	},
 	{
 		"command": "account.MoveFolder",
+		"ctor": ["Id"],
+		"title": "Move",
 		"fields": [
 			{ "key": "Id" },
 			{ "key": "NewParent" }
@@ -50,37 +64,47 @@
 	},
 	{
 		"command": "account.Create",
+		"ctor": ["FolderId"],
+		"title": "+ Account",
 		"fields": [
 			{ "key": "FolderId" },
 			{ "key": "Title" },
 			{ "key": "Username", "optional": true },
-			{ "key": "Password", "optional": true }
+			{ "key": "Password", "type": "password", "optional": true }
 		]
 	},
 	{
 		"command": "account.Delete",
+		"ctor": ["Id"],
+		"title": "Delete",
 		"fields": [
 			{ "key": "Id" },
-			{ "key": "Confirm", "type": "bool" }
+			{ "key": "Confirm", "type": "checkbox" }
 		]
 	},
 	{
 		"command": "account.AddPassword",
+		"ctor": ["Id"],
+		"title": "+ Password",
 		"fields": [
 			{ "key": "Id" },
-			{ "key": "Password" },
-			{ "key": "PasswordRepeat" }
+			{ "key": "Password", "type": "password" },
+			{ "key": "PasswordRepeat", "type": "password" }
 		]
 	},
 	{
 		"command": "account.AddSshKey",
+		"ctor": ["Id"],
+		"title": "+ SSH key",
 		"fields": [
 			{ "key": "Id" },
-			{ "key": "SshPrivateKey" }
+			{ "key": "SshPrivateKey", "type": "multiline" }
 		]
 	},
 	{
 		"command": "account.AddOtpToken",
+		"ctor": ["Account","OtpProvisioningUrl"],
+		"title": "Add OTP token",
 		"fields": [
 			{ "key": "Account" },
 			{ "key": "OtpProvisioningUrl" }
@@ -88,19 +112,25 @@
 	},
 	{
 		"command": "database.ChangeMasterPassword",
+		"ctor": [],
+		"title": "Change master password",
 		"fields": [
-			{ "key": "NewMasterPassword" },
-			{ "key": "NewMasterPasswordRepeat" }
+			{ "key": "NewMasterPassword", "type": "password" },
+			{ "key": "NewMasterPasswordRepeat", "type": "password" }
 		]
 	},
 	{
 		"command": "database.Unseal",
+		"ctor": [],
+		"title": "Unseal database",
 		"fields": [
-			{ "key": "MasterPassword" }
+			{ "key": "MasterPassword", "type": "password" }
 		]
 	},
 	{
 		"command": "database.ExportToKeepass",
+		"ctor": [],
+		"title": "Export to KeePass format",
 		"fields": []
 	}
 ]

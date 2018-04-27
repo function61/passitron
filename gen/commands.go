@@ -21,8 +21,10 @@ func (c *CommandSpecFile) Validate() error {
 }
 
 type CommandSpec struct {
-	Command string              `json:"command"`
-	Fields  []*CommandFieldSpec `json:"fields"`
+	Command  string              `json:"command"`
+	Title    string              `json:"title"`
+	CtorArgs []string            `json:"ctor"`
+	Fields   []*CommandFieldSpec `json:"fields"`
 }
 
 func (c *CommandSpec) AsGoStructName() string {
@@ -78,10 +80,13 @@ func (c *CommandFieldSpec) AsGoType() string {
 	if c.Type == "text" {
 		goType = "string"
 	}
+	if c.Type == "multiline" {
+		goType = "string"
+	}
 	if c.Type == "password" {
 		goType = "string"
 	}
-	if c.Type == "bool" {
+	if c.Type == "checkbox" {
 		goType = "bool"
 	}
 	return goType
@@ -190,6 +195,97 @@ var commandHandlers = map[string]func() Command{
 	return nil
 }
 
+func generateTypescript(file *CommandSpecFile) error {
+	template := `import {CommandDefinition, CommandFieldKind} from 'types';
+
+// WARNING: generated file
+
+%s
+`
+
+	fnTemplate := `export function %s(%s): CommandDefinition {
+	return {
+		key: '%s',
+		title: '%s',
+		fields: [
+			%s
+		],
+	};
+}`
+
+	emptyString := `""`
+
+	fns := []string{}
+
+	for _, commandSpec := range *file {
+		fields := []string{}
+
+		ctorArgs := []string{}
+
+		for _, ctorArg := range commandSpec.CtorArgs {
+			ctorArgs = append(ctorArgs, ctorArg+": string")
+		}
+
+		for _, fieldSpec := range commandSpec.Fields {
+			fieldSerialized := ""
+
+			defVal := emptyString
+			for _, ctorArg := range commandSpec.CtorArgs {
+				if ctorArg == fieldSpec.Key {
+					defVal = fieldSpec.Key
+					break
+				}
+			}
+
+			switch fieldSpec.Type {
+			case "text":
+				fieldSerialized = fmt.Sprintf(
+					`{ Key: '%s', Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
+					fieldSpec.Key,
+					defVal)
+			case "multiline":
+				fieldSerialized = fmt.Sprintf(
+					`{ Key: '%s', Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
+					fieldSpec.Key,
+					defVal)
+			case "password":
+				fieldSerialized = fmt.Sprintf(
+					`{ Key: '%s', Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
+					fieldSpec.Key,
+					defVal)
+			case "checkbox":
+				fieldSerialized = fmt.Sprintf(
+					`{ Key: '%s', Kind: CommandFieldKind.Checkbox },`,
+					fieldSpec.Key)
+			default:
+				return fmt.Errorf("Unsupported field type: %s", fieldSpec.Type)
+			}
+
+			fields = append(fields, fieldSerialized)
+		}
+
+		fn := fmt.Sprintf(
+			fnTemplate,
+			commandSpec.AsGoStructName(),
+			strings.Join(ctorArgs, ", "),
+			commandSpec.Command,
+			commandSpec.Title,
+			strings.Join(fields, "\n\t\t\t"))
+
+		fns = append(fns, fn)
+	}
+
+	fnsSerialized := fmt.Sprintf(
+		template,
+		strings.Join(fns, "\n\n"))
+
+	if writeErr := ioutil.WriteFile("src/generated/commanddefinitions.ts", []byte(fnsSerialized), 0777); writeErr != nil {
+		return writeErr
+	}
+
+	return nil
+}
+
 func generateCommands() error {
 	contents, readErr := ioutil.ReadFile("misc/commands.json")
 	if readErr != nil {
@@ -209,10 +305,14 @@ func generateCommands() error {
 		return err
 	}
 
-	/*
-	if err := writeCommandsGenJs(&file); err != nil {
+	if err := generateTypescript(&file); err != nil {
 		return err
 	}
+
+	/*
+		if err := writeCommandsGenJs(&file); err != nil {
+			return err
+		}
 	*/
 
 	return nil

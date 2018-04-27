@@ -7,13 +7,13 @@ import {CommandButton, CommandLink} from 'components/CommandButton';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {folderLink, importOtpTokenLink} from 'links';
 import {
-	deleteAccount,
-	addPassword,
-	addSshKey,
-	deleteSecret,
-	changeUsername,
-	changeDescription,
-	renameAccount,
+	AccountDelete,
+	AccountAddPassword,
+	AccountAddSshKey,
+	AccountDeleteSecret,
+	AccountChangeUsername,
+	AccountChangeDescription,
+	AccountRename,
 } from 'generated/commanddefinitions';
 import {unrecognizedValue} from 'utils';
 
@@ -80,7 +80,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				<tr>
 					<td>
 						Username
-						<CommandLink command={changeUsername(account.Id, account.Username)} />
+						<CommandLink command={AccountChangeUsername(account.Id, account.Username)} />
 					</td>
 					<td>{account.Username}</td>
 					<td onClick={() => this.copyToClipboard(account.Username)}>📋</td>
@@ -99,7 +99,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				<tr>
 					<td>
 						Description
-						<CommandLink command={changeDescription(account.Id, account.Description)} />
+						<CommandLink command={AccountChangeDescription(account.Id, account.Description)} />
 					</td>
 					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}>{account.Description}</td>
 					<td></td>
@@ -107,11 +107,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			</tbody>
 			</table>
 
-			<CommandButton command={renameAccount(account.Id, account.Title)} />
-			<CommandButton command={deleteAccount(account.Id)} />
+			<CommandButton command={AccountRename(account.Id, account.Title)} />
+			<CommandButton command={AccountDelete(account.Id)} />
 
-			<CommandButton command={addSshKey(account.Id)} />
-			<CommandButton command={addPassword(account.Id)} />
+			<CommandButton command={AccountAddSshKey(account.Id)} />
+			<CommandButton command={AccountAddPassword(account.Id)} />
 
 			<a href={importOtpTokenLink(account.Id)} className="btn btn-default">+ OTP token</a>
 
@@ -124,7 +124,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						SSH public key
-						<CommandLink command={deleteSecret(account.Id, secret.Id)} />
+						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.SshPublicKeyAuthorized}</td>
 					<td></td>
@@ -133,7 +133,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						Password
-						<CommandLink command={deleteSecret(account.Id, secret.Id)} />
+						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.Password}</td>
 					<td onClick={() => this.copyToClipboard(secret.Password)}>📋</td>
@@ -142,7 +142,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						OTP
-						<CommandLink command={deleteSecret(account.Id, secret.Id)} />
+						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.OtpProof}</td>
 					<td onClick={() => this.copyToClipboard(secret.OtpProof)}></td>
