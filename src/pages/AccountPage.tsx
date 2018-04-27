@@ -85,17 +85,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<td>{account.Username}</td>
 					<td onClick={() => this.copyToClipboard(account.Username)} className="fauxlink">📋</td>
 				</tr>
-				<tr>
-					<td>Secrets</td>
-					<td>
-						<table className="table table-striped">
-						<tbody>
-							{secretRows}
-						</tbody>
-						</table>
-					</td>
-					<td></td>
-				</tr>
+				{secretRows}
 				<tr>
 					<td>
 						Description
