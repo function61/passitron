@@ -145,7 +145,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.OtpProof}</td>
-					<td onClick={() => this.copyToClipboard(secret.OtpProof)}></td>
+					<td onClick={() => this.copyToClipboard(secret.OtpProof)}>📋</td>
 				</tr>;
 			default:
 				return unrecognizedValue(secret.Kind);
