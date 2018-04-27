@@ -6,3 +6,7 @@ body {
 	*/
 	overflow-y: scroll;
 }
+
+.fauxlink {
+	cursor: pointer;
+}

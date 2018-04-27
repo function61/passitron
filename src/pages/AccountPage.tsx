@@ -83,7 +83,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandLink command={AccountChangeUsername(account.Id, account.Username)} />
 					</td>
 					<td>{account.Username}</td>
-					<td onClick={() => this.copyToClipboard(account.Username)}>📋</td>
+					<td onClick={() => this.copyToClipboard(account.Username)} className="fauxlink">📋</td>
 				</tr>
 				<tr>
 					<td>Secrets</td>
@@ -136,7 +136,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.Password}</td>
-					<td onClick={() => this.copyToClipboard(secret.Password)}>📋</td>
+					<td onClick={() => this.copyToClipboard(secret.Password)} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
 				return <tr key={secret.Id}>
@@ -145,7 +145,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandLink command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.OtpProof}</td>
-					<td onClick={() => this.copyToClipboard(secret.OtpProof)}>📋</td>
+					<td onClick={() => this.copyToClipboard(secret.OtpProof)} className="fauxlink">📋</td>
 				</tr>;
 			default:
 				return unrecognizedValue(secret.Kind);
