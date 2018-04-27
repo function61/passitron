@@ -188,15 +188,17 @@ func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
 		return errors.New("PasswordRepeat different than Password")
 	}
 
-	if a.Password == "_auto" {
-		a.Password = randompassword.Build(randompassword.DefaultAlphabet, 16)
+	password := a.Password
+
+	if password == "_auto" {
+		password = randompassword.Build(randompassword.DefaultAlphabet, 16)
 	}
 
 	ctx.State.EventLog.Append(accountevent.PasswordAdded{
 		Event:    eventbase.NewEvent(),
 		Account:  a.Id,
 		Id:       eventbase.RandomId(),
-		Password: a.Password,
+		Password: password,
 	})
 
 	return nil
