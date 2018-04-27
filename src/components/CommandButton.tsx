@@ -40,7 +40,7 @@ export class CommandButton extends React.Component<CommandButtonProps, {}> {
 							<h4 className="modal-title" id={labelName}>{commandTitle}</h4>
 						</div>
 						<div className="modal-body">
-							<CommandPagelet command={this.props.command} updates={this.cmdManager.getChangeHandlerBound()} />
+							<CommandPagelet command={this.props.command} onSubmit={() => { this.save() }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
 						</div>
 						<div className="modal-footer">
 							<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
@@ -105,7 +105,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 								<h4 className="modal-title" id={labelName}>{commandTitle}</h4>
 							</div>
 							<div className="modal-body">
-								<CommandPagelet command={this.props.command} updates={this.cmdManager.getChangeHandlerBound()} />
+								<CommandPagelet command={this.props.command} onSubmit={() => { this.save() }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
 							</div>
 							<div className="modal-footer">
 								<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>

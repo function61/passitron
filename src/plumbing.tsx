@@ -4,6 +4,7 @@ import {httpMustBeOk} from 'repo';
 import {unrecognizedValue} from 'utils';
 
 export type CommandFieldChangeListener = (key: string, value: string | boolean) => void;
+export type CommandSubmitListener = () => void;
 
 export class CommandManager {
 	private definition: CommandDefinition;
@@ -57,7 +58,8 @@ export class CommandManager {
 
 interface CommandPageletProps {
 	command: CommandDefinition;
-	updates: CommandFieldChangeListener;
+	onSubmit: CommandSubmitListener;
+	fieldChanged: CommandFieldChangeListener;
 }
 
 export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
@@ -72,21 +74,26 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 			</div>;
 		});
 
-		return <form>
+		return <form onSubmit={(e) => this.onSubmit(e)}>
 			{fieldGroups}
 		</form>;
 	}
 
+	private onSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		this.props.onSubmit();
+	}
+
 	private onInputChange(e: React.FormEvent<HTMLInputElement>) {
-		this.props.updates(e.currentTarget.name, e.currentTarget.value);
+		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.value);
 	}
 
 	private onCheckboxChange(e: React.FormEvent<HTMLInputElement>) {
-		this.props.updates(e.currentTarget.name, e.currentTarget.checked);
+		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.checked);
 	}
 
 	private onTextareaChange(e: React.FormEvent<HTMLTextAreaElement>) {
-		this.props.updates(e.currentTarget.name, e.currentTarget.value);
+		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.value);
 	}
 
 	private createInput(field: CommandField): JSX.Element {
