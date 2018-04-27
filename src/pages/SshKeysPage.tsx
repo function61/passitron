@@ -22,7 +22,7 @@ export default class SshKeysPage extends React.Component<{}, SshKeysPageState> {
 			{ url: '', title: 'SSH keys' },
 		];
 
-		return <DefaultLayout breadcrumbs={breadcrumbs}>
+		return <DefaultLayout title="SSH keys" breadcrumbs={breadcrumbs}>
 			<SecretListing searchTerm="" listing={this.state.listing} />
 		</DefaultLayout>;
 	}

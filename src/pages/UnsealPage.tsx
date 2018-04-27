@@ -16,7 +16,7 @@ export default class UnsealPage extends React.Component<{}, {}> {
 	}
 
 	render() {
-		return <DefaultLayout breadcrumbs={this.getBreadcrumbs()}>
+		return <DefaultLayout title="Unseal" breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Unseal</h1>
 
 			<WarningAlert text="Database was sealed. Please unseal it." />

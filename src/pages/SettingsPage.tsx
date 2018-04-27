@@ -15,7 +15,7 @@ export default class SettingsPage extends React.Component<{}, {}> {
 	}
 
 	render() {
-		return <DefaultLayout breadcrumbs={this.getBreadcrumbs()}>
+		return <DefaultLayout title="Settings" breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Settings</h1>
 
 			<CommandButton command={DatabaseUnseal()}></CommandButton>

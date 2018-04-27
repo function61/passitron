@@ -40,7 +40,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 			breadcrumbs.unshift({ url: folderLink(parent.Id), title: parent.Name });
 		}
 
-		return <DefaultLayout breadcrumbs={breadcrumbs}>
+		return <DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
 			<SecretListing searchTerm="" listing={listing} />
 
 			<CommandButton command={AccountCreate(this.props.folderId)}></CommandButton>

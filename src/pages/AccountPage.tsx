@@ -65,7 +65,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		const breadcrumbItems = this.getBreadcrumbItems();
 
-		return <DefaultLayout breadcrumbs={breadcrumbItems}>
+		return <DefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
 			<h1>
 				{account.Title}
 				&nbsp;

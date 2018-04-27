@@ -37,7 +37,7 @@ export default class SearchPage extends React.Component<SearchPageProps, SearchP
 			{ url: '', title: `Search: ${this.props.searchTerm}` },
 		];
 
-		return <DefaultLayout breadcrumbs={breadcrumbs}>
+		return <DefaultLayout title="Search" breadcrumbs={breadcrumbs}>
 			<SecretListing searchTerm={this.props.searchTerm} listing={dummyResult} />
 		</DefaultLayout>;
 	}
