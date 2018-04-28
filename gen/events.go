@@ -227,7 +227,7 @@ var eventBuilders = map[string]func() Event{
 		serializes = append(serializes, fmt.Sprintf("func (e *%s) Serialize() string { return e.meta.Serialize(e) }", goStructName))
 
 		for _, ctorArg := range eventSpec.CtorArgs {
-			ctorArgs = append(ctorArgs, ctorArg+" " + structForEvent.Field(ctorArg).Type)
+			ctorArgs = append(ctorArgs, ctorArg+" "+structForEvent.Field(ctorArg).Type)
 
 			ctorAssignments = append(ctorAssignments, ctorArg+": "+ctorArg+",")
 		}

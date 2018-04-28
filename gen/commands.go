@@ -67,11 +67,11 @@ func (c *CommandFieldSpec) AsValidationSnippet() string {
 	}`,
 			c.Key,
 			c.Key)
-	} else if goType == "bool" {
-		// presence check not possible with boolean
+	} else if goType == "bool" || goType == "int" {
+		// presence check not possible for these types
 		return ""
 	} else {
-		panic(errors.New("unsupported"))
+		panic(errors.New("validation not supported for type: " + goType))
 	}
 }
 
@@ -88,6 +88,9 @@ func (c *CommandFieldSpec) AsGoType() string {
 	}
 	if c.Type == "checkbox" {
 		goType = "bool"
+	}
+	if c.Type == "integer" {
+		goType = "int"
 	}
 	return goType
 }
@@ -242,8 +245,12 @@ func generateTypescript(file *CommandSpecFile) error {
 				fieldSerialized = fmt.Sprintf(
 					`{ Key: '%s', Kind: CommandFieldKind.Checkbox },`,
 					fieldSpec.Key)
+			case "integer":
+				fieldSerialized = fmt.Sprintf(
+					`{ Key: '%s', Kind: CommandFieldKind.Integer },`,
+					fieldSpec.Key)
 			default:
-				return fmt.Errorf("Unsupported field type: %s", fieldSpec.Type)
+				return fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type)
 			}
 
 			fields = append(fields, fieldSerialized)

@@ -10,6 +10,7 @@ export enum CommandFieldKind {
 	Password = 'password',
 	Multiline = 'multiline',
 	Checkbox = 'checkbox',
+	Integer = 'integer',
 }
 
 export interface CommandField {

@@ -3,7 +3,7 @@ import {CommandDefinition, CommandField, CommandFieldKind} from 'types';
 import {httpMustBeOk} from 'repo';
 import {unrecognizedValue} from 'utils';
 
-export type CommandFieldChangeListener = (key: string, value: string | boolean) => void;
+export type CommandFieldChangeListener = (key: string, value: string | number | boolean | null) => void;
 export type CommandSubmitListener = () => void;
 
 export class CommandManager {
@@ -13,8 +13,12 @@ export class CommandManager {
 	constructor(definition: CommandDefinition) {
 		this.definition = definition;
 
+		// copy default values to commandBody, because they are only updated on
+		// "onChange" event, and thus if user doesn't change them, they wouldn't get filled
 		this.definition.fields.forEach((field) => {
 			switch (field.Kind) {
+			case CommandFieldKind.Integer:
+				break;
 			case CommandFieldKind.Password:
 			case CommandFieldKind.Text:
 			case CommandFieldKind.Multiline:
@@ -88,6 +92,14 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.value);
 	}
 
+	private onIntegerInputChange(e: React.FormEvent<HTMLInputElement>) {
+		if (e.currentTarget.value === "") {
+			this.props.fieldChanged(e.currentTarget.name, null);
+		} else {
+			this.props.fieldChanged(e.currentTarget.name, +e.currentTarget.value);
+		}
+	}
+
 	private onCheckboxChange(e: React.FormEvent<HTMLInputElement>) {
 		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.checked);
 	}
@@ -120,6 +132,13 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 				rows={7}
 				defaultValue={field.DefaultValueString}
 				onChange={this.onTextareaChange.bind(this)}
+			/>;
+		case CommandFieldKind.Integer:
+			return <input
+				type="number"
+				className="form-control"
+				name={field.Key}
+				onChange={this.onIntegerInputChange.bind(this)}
 			/>;
 		case CommandFieldKind.Checkbox:
 			return <input
