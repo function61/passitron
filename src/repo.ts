@@ -9,7 +9,7 @@ function getJson<T>(url: string): Promise<T> {
 
 export function httpMustBeOk(response: Response): Promise<Response> {
 	if (!response.ok) {
-		return new Promise<Response>(function(_resolve: any, reject: any) {
+		return new Promise<Response>((_resolve: any, reject: any) => {
 			response.text().then((text: string) => {
 				if (response.headers.get('content-type') === 'application/json') {
 					const jsonError = JSON.parse(text) as {};
@@ -23,7 +23,7 @@ export function httpMustBeOk(response: Response): Promise<Response> {
 				reject(new Error('HTTP response failure: ' + text));
 			}, (err: Error) => {
 				reject(new Error('HTTP response failure. Also, error fetching response body: ' + err.toString()));
-			})
+			});
 		});
 	}
 
@@ -55,7 +55,6 @@ export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	}
 
 	alert('Error: ' + err.toString());
-	console.error(err);
 }
 
 interface StructuredErrorResponse {

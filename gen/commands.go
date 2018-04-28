@@ -213,7 +213,7 @@ func generateTypescript(file *CommandSpecFile) error {
 	};
 }`
 
-	emptyString := `""`
+	emptyString := `''`
 
 	fns := []string{}
 

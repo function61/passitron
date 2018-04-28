@@ -40,7 +40,7 @@ export class CommandButton extends React.Component<CommandButtonProps, {}> {
 							<h4 className="modal-title" id={labelName}>{commandTitle}</h4>
 						</div>
 						<div className="modal-body">
-							<CommandPagelet command={this.props.command} onSubmit={() => { this.save() }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+							<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
 						</div>
 						<div className="modal-footer">
 							<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
@@ -53,7 +53,7 @@ export class CommandButton extends React.Component<CommandButtonProps, {}> {
 	}
 }
 
-type EditType = "add" | "edit" | "remove";
+type EditType = 'add' | 'edit' | 'remove';
 
 interface CommandLinkProps {
 	command: CommandDefinition;
@@ -61,13 +61,13 @@ interface CommandLinkProps {
 }
 
 interface CommandLinkState {
-	open: boolean,
+	open: boolean;
 }
 
 const typeToIcon: {[key: string]: string} = {
-	"add": "glyphicon-plus",
-	"edit": "glyphicon-pencil",
-	"remove": "glyphicon-remove",
+	'add': 'glyphicon-plus',
+	'edit': 'glyphicon-pencil',
+	'remove': 'glyphicon-remove',
 };
 
 export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {
@@ -117,7 +117,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 								<h4 className="modal-title" id={labelName}>{commandTitle}</h4>
 							</div>
 							<div className="modal-body">
-								<CommandPagelet command={this.props.command} onSubmit={() => { this.save() }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+								<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
 							</div>
 							<div className="modal-footer">
 								<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>

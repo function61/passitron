@@ -50,18 +50,17 @@ export default class ImportOtpToken extends React.Component<ImportOtpTokenProps,
 		const qrReader = new QrCode();
 		qrReader.callback = (err: Error, result: any) => {
 			if (err) {
-				alert('error reading QR code');
-				console.log(err);
+				alert('error reading QR code: ' + err.toString());
 				return;
 			}
 
 			this.setState({
 				OtpProvisioningUrl: result.result,
 			});
-		}
+		};
 
 		const fileReader = new FileReader();
-		fileReader.addEventListener('load', function() {
+		fileReader.addEventListener('load', () => {
 			qrReader.decode(fileReader.result);
 		}, false);
 		fileReader.readAsDataURL(file);

@@ -143,13 +143,13 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 	}
 
 	private fetchData() {
-		const account = getAccount(this.props.id);
+		const accountProm = getAccount(this.props.id);
 
-		const folder = account.then((acc) => getFolder(acc.FolderId));
+		const folderProm = accountProm.then((acc) => getFolder(acc.FolderId));
 
-		const secrets = account.then((acc) => getSecrets(acc.Id));
+		const secretsProm = accountProm.then((acc) => getSecrets(acc.Id));
 
-		Promise.all([account, folder, secrets]).then(([account, folderresponse, secrets]) => {
+		Promise.all([accountProm, folderProm, secretsProm]).then(([account, folderresponse, secrets]) => {
 			this.setState({
 				account,
 				folderresponse,
