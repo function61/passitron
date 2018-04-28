@@ -56,7 +56,7 @@ func (e *EventFieldSpec) AsGoType() string {
 }
 
 func generateEvents() error {
-	contents, readErr := ioutil.ReadFile("misc/events.json")
+	contents, readErr := ioutil.ReadFile("domain/events.json")
 	if readErr != nil {
 		return readErr
 	}
