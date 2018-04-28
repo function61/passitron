@@ -28,7 +28,7 @@ func New() *State {
 		sealed:         true,
 	}
 
-	// needs to be instantiated later, because handleEvent requires presence of "Inst"
+	// needs to be instantiated later, because handleEvent requires access to State
 	s.EventLog = eventlog.New(logfilePath, func(event domain.Event) error {
 		return handleEvent(event, s)
 	})
