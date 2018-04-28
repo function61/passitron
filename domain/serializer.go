@@ -14,7 +14,7 @@ func (e *EventMeta) Serialize(payload Event) string {
 		panic(err)
 	}
 
-	return payload.Type() + " " + e.Timestamp.Format(time.RFC3339Nano) + " " + e.UserId + " " + string(payloadJson)
+	return payload.MetaType() + " " + e.Timestamp.Format(time.RFC3339Nano) + " " + e.UserId + " " + string(payloadJson)
 }
 
 // only the user ID is optional

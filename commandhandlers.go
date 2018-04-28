@@ -5,11 +5,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/function61/pi-security-module/accountevent"
-	"github.com/function61/pi-security-module/folder/event"
-	sessionevent "github.com/function61/pi-security-module/session/event"
+	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/function61/pi-security-module/util/keepassexport"
 	"github.com/function61/pi-security-module/util/randompassword"
 	"github.com/pquerna/otp"
@@ -27,11 +24,10 @@ func (a *AccountRename) Invoke(ctx *Ctx) error {
 		return errAccountNotFound
 	}
 
-	ctx.State.EventLog.Append(accountevent.AccountRenamed{
-		Event: eventbase.NewEvent(),
-		Id:    a.Account,
-		Title: a.Title,
-	})
+	ctx.RaisesEvent(domain.NewAccountRenamed(
+		a.Account,
+		a.Title,
+		ctx.Meta))
 
 	return nil
 }
@@ -41,11 +37,10 @@ func (a *AccountChangeUsername) Invoke(ctx *Ctx) error {
 		return errAccountNotFound
 	}
 
-	ctx.State.EventLog.Append(accountevent.UsernameChanged{
-		Event:    eventbase.NewEvent(),
-		Id:       a.Account,
-		Username: a.Username,
-	})
+	ctx.RaisesEvent(domain.NewAccountUsernameChanged(
+		a.Account,
+		a.Username,
+		ctx.Meta))
 
 	return nil
 }
@@ -55,11 +50,10 @@ func (a *AccountChangeDescription) Invoke(ctx *Ctx) error {
 		return errAccountNotFound
 	}
 
-	ctx.State.EventLog.Append(accountevent.DescriptionChanged{
-		Event:       eventbase.NewEvent(),
-		Id:          a.Account,
-		Description: a.Description,
-	})
+	ctx.RaisesEvent(domain.NewAccountDescriptionChanged(
+		a.Account,
+		a.Description,
+		ctx.Meta))
 
 	return nil
 }
@@ -71,11 +65,10 @@ func (a *AccountDeleteSecret) Invoke(ctx *Ctx) error {
 
 	// TODO: validate secret
 
-	ctx.State.EventLog.Append(accountevent.SecretDeleted{
-		Event:   eventbase.NewEvent(),
-		Account: a.Account,
-		Secret:  a.Secret,
-	})
+	ctx.RaisesEvent(domain.NewAccountSecretDeleted(
+		a.Account,
+		a.Secret,
+		ctx.Meta))
 
 	return nil
 }
@@ -85,12 +78,11 @@ func (a *AccountCreateFolder) Invoke(ctx *Ctx) error {
 		return errFolderNotFound
 	}
 
-	ctx.State.EventLog.Append(event.FolderCreated{
-		Event:    eventbase.NewEvent(),
-		Id:       eventbase.RandomId(),
-		ParentId: a.Parent,
-		Name:     a.Name,
-	})
+	ctx.RaisesEvent(domain.NewAccountFolderCreated(
+		domain.RandomId(),
+		a.Parent,
+		a.Name,
+		ctx.Meta))
 
 	return nil
 }
@@ -100,11 +92,10 @@ func (a *AccountRenameFolder) Invoke(ctx *Ctx) error {
 		return errFolderNotFound
 	}
 
-	ctx.State.EventLog.Append(event.FolderRenamed{
-		Event: eventbase.NewEvent(),
-		Id:    a.Id,
-		Name:  a.Name,
-	})
+	ctx.RaisesEvent(domain.NewAccountFolderRenamed(
+		a.Id,
+		a.Name,
+		ctx.Meta))
 
 	return nil
 }
@@ -117,47 +108,39 @@ func (a *AccountMoveFolder) Invoke(ctx *Ctx) error {
 		return errFolderNotFound
 	}
 
-	ctx.State.EventLog.Append(event.FolderMoved{
-		Event:    eventbase.NewEvent(),
-		Id:       a.Id,
-		ParentId: a.NewParent,
-	})
+	ctx.RaisesEvent(domain.NewAccountFolderMoved(
+		a.Id,
+		a.NewParent,
+		ctx.Meta))
 
 	return nil
 }
 
 func (a *AccountCreate) Invoke(ctx *Ctx) error {
-	accountId := eventbase.RandomId()
+	accountId := domain.RandomId()
 
-	events := []eventbase.EventInterface{
-		accountevent.AccountCreated{
-			Event:    eventbase.NewEvent(),
-			Id:       accountId,
-			FolderId: a.FolderId,
-			Title:    a.Title,
-		},
-	}
+	ctx.RaisesEvent(domain.NewAccountCreated(
+		accountId,
+		a.FolderId,
+		a.Title,
+		ctx.Meta))
 
 	if a.Username != "" {
-		events = append(events, accountevent.UsernameChanged{
-			Event:    eventbase.NewEvent(),
-			Id:       accountId,
-			Username: a.Username,
-		})
+		ctx.RaisesEvent(domain.NewAccountUsernameChanged(
+			accountId,
+			a.Username,
+			ctx.Meta))
 	}
 
 	if a.Password != "" {
 		// TODO: repeat password, but optional
 
-		events = append(events, accountevent.PasswordAdded{
-			Event:    eventbase.NewEvent(),
-			Account:  accountId,
-			Id:       eventbase.RandomId(),
-			Password: a.Password,
-		})
+		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
+			accountId,
+			domain.RandomId(),
+			a.Password,
+			ctx.Meta))
 	}
-
-	ctx.State.EventLog.AppendBatch(events)
 
 	return nil
 }
@@ -171,10 +154,9 @@ func (a *AccountDelete) Invoke(ctx *Ctx) error {
 		return errDeleteNeedsConfirmation
 	}
 
-	ctx.State.EventLog.Append(accountevent.AccountDeleted{
-		Event: eventbase.NewEvent(),
-		Id:    a.Id,
-	})
+	ctx.RaisesEvent(domain.NewAccountDeleted(
+		a.Id,
+		ctx.Meta))
 
 	return nil
 }
@@ -194,12 +176,11 @@ func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
 		password = randompassword.Build(randompassword.DefaultAlphabet, 16)
 	}
 
-	ctx.State.EventLog.Append(accountevent.PasswordAdded{
-		Event:    eventbase.NewEvent(),
-		Account:  a.Id,
-		Id:       eventbase.RandomId(),
-		Password: password,
-	})
+	ctx.RaisesEvent(domain.NewAccountPasswordAdded(
+		a.Id,
+		domain.RandomId(),
+		password,
+		ctx.Meta))
 
 	return nil
 }
@@ -243,13 +224,12 @@ func (a *AccountAddSshKey) Invoke(ctx *Ctx) error {
 
 	publicKeyAuthorizedFormat := string(ssh.MarshalAuthorizedKey(publicKeySsh))
 
-	ctx.State.EventLog.Append(accountevent.SshKeyAdded{
-		Event:                  eventbase.NewEvent(),
-		Account:                a.Id,
-		Id:                     eventbase.RandomId(),
-		SshPrivateKey:          privateKeyReformatted,
-		SshPublicKeyAuthorized: publicKeyAuthorizedFormat,
-	})
+	ctx.RaisesEvent(domain.NewAccountSshKeyAdded(
+		a.Id,
+		domain.RandomId(),
+		privateKeyReformatted,
+		publicKeyAuthorizedFormat,
+		ctx.Meta))
 
 	return nil
 }
@@ -265,12 +245,11 @@ func (a *AccountAddOtpToken) Invoke(ctx *Ctx) error {
 		return fmt.Errorf("Failed to parse OtpProvisioningUrl: %s", errOtpParse.Error())
 	}
 
-	ctx.State.EventLog.Append(accountevent.OtpTokenAdded{
-		Event:              eventbase.NewEvent(),
-		Account:            a.Account,
-		Id:                 eventbase.RandomId(),
-		OtpProvisioningUrl: a.OtpProvisioningUrl,
-	})
+	ctx.RaisesEvent(domain.NewAccountOtpTokenAdded(
+		a.Account,
+		domain.RandomId(),
+		a.OtpProvisioningUrl,
+		ctx.Meta))
 
 	return nil
 }
@@ -280,10 +259,9 @@ func (a *DatabaseChangeMasterPassword) Invoke(ctx *Ctx) error {
 		return errors.New("NewMasterPassword not same as NewMasterPasswordRepeat")
 	}
 
-	ctx.State.EventLog.Append(sessionevent.MasterPasswordChanged{
-		Event:    eventbase.NewEvent(),
-		Password: a.NewMasterPassword,
-	})
+	ctx.RaisesEvent(domain.NewDatabaseMasterPasswordChanged(
+		a.NewMasterPassword,
+		ctx.Meta))
 
 	return nil
 }
@@ -303,9 +281,7 @@ func (a *DatabaseUnseal) Invoke(ctx *Ctx) error {
 	}
 	ctx.State.SetSealed(false)
 
-	ctx.State.EventLog.Append(sessionevent.DatabaseUnsealed{
-		Event: eventbase.NewEvent(),
-	})
+	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
 
 	return nil
 }

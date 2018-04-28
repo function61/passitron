@@ -7,16 +7,16 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/accountevent"
+	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/signingapi/signingapitypes"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventbase"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 func lookupSignerByPubKey(pubKeyMarshaled []byte) (ssh.Signer, *state.InsecureAccount, error) {
@@ -125,11 +125,11 @@ func Setup(router *mux.Router) {
 			return
 		}
 
-		state.Inst.EventLog.Append(accountevent.SecretUsed{
-			Event:   eventbase.NewEvent(),
-			Account: account.Id,
-			Type:    accountevent.SecretUsedTypeSshSigning,
-		})
+		state.Inst.EventLog.Append(
+			domain.NewAccountSecretUsed(
+				account.Id,
+				"SshSigning",
+				domain.Meta(time.Now(), "2")))
 
 		resp := signingapitypes.SignResponse{
 			Signature: signature,

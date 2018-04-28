@@ -1,12 +1,13 @@
 package domain
 
 import (
+	"github.com/function61/pi-security-module/util/cryptorandombytes"
 	"time"
 )
 
 type Event interface {
 	Meta() *EventMeta
-	Type() string
+	MetaType() string
 	Serialize() string
 }
 
@@ -20,4 +21,8 @@ func Meta(timestamp time.Time, userId string) EventMeta {
 		Timestamp: timestamp,
 		UserId:    userId,
 	}
+}
+
+func RandomId() string {
+	return cryptorandombytes.Hex(4)
 }

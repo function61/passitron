@@ -2,11 +2,8 @@ package keepassimport
 
 import (
 	"encoding/csv"
-	"github.com/function61/pi-security-module/accountevent"
-	folderevent "github.com/function61/pi-security-module/folder/event"
+	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util/eventbase"
-	"github.com/function61/pi-security-module/util/eventlog"
 	"log"
 	"os"
 	"time"
@@ -35,6 +32,8 @@ import (
 	Replace \" with ""
 */
 
+const defaultUser = "2"
+
 func Run(args []string) {
 	if len(args) != 1 {
 		log.Fatalf("Usage: <csv path>")
@@ -46,15 +45,17 @@ func Run(args []string) {
 	state.Initialize()
 	defer state.Inst.Close()
 
-	if err := eventlog.ReadOldEvents(); err != nil {
-		panic(err)
-	}
-
 	result := parseGenericCsv(csvPath)
 
 	foldersJustCreated := map[string]string{}
 
-	events := []eventbase.EventInterface{}
+	importStartedTime := time.Now()
+
+	events := []domain.Event{}
+
+	pushEvent := func(e domain.Event) {
+		events = append(events, e)
+	}
 
 	for _, res := range result {
 		// skip attachments because practically all of them are SSH keys which
@@ -84,19 +85,18 @@ func Run(args []string) {
 		} else if _, has := foldersJustCreated[groupPath]; has {
 			folderId = foldersJustCreated[groupPath]
 		} else {
-			folderId = eventbase.RandomId()
+			folderId = domain.RandomId()
 
-			events = append(events, folderevent.FolderCreated{
-				Event:    eventbase.NewEvent(),
-				Id:       folderId,
-				ParentId: "root",
-				Name:     groupPath,
-			})
+			pushEvent(domain.NewAccountFolderCreated(
+				folderId,
+				"root",
+				groupPath,
+				domain.Meta(importStartedTime, defaultUser)))
 
 			foldersJustCreated[groupPath] = folderId
 		}
 
-		accountId := eventbase.RandomId()
+		accountId := domain.RandomId()
 
 		creationTime, err := time.Parse("2006-01-02T15:04:05", res["Creation Time"])
 		if err != nil {
@@ -108,36 +108,32 @@ func Run(args []string) {
 			panic(err)
 		}
 
-		events = append(events, accountevent.AccountCreated{
-			Event:    eventbase.NewEventWithTimestamp(creationTime),
-			Id:       accountId,
-			FolderId: folderId,
-			Title:    res["Account"],
-		})
+		pushEvent(domain.NewAccountCreated(
+			accountId,
+			folderId,
+			res["Account"],
+			domain.Meta(creationTime, defaultUser)))
 
 		if res["Login Name"] != "" {
-			events = append(events, accountevent.UsernameChanged{
-				Event:    eventbase.NewEvent(),
-				Id:       accountId,
-				Username: res["Login Name"],
-			})
+			pushEvent(domain.NewAccountUsernameChanged(
+				accountId,
+				res["Login Name"],
+				domain.Meta(modificationTime, defaultUser)))
 		}
 
 		if res["Password"] != "" {
-			events = append(events, accountevent.PasswordAdded{
-				Event:    eventbase.NewEventWithTimestamp(modificationTime),
-				Account:  accountId,
-				Id:       eventbase.RandomId(),
-				Password: res["Password"],
-			})
+			pushEvent(domain.NewAccountPasswordAdded(
+				accountId,
+				domain.RandomId(),
+				res["Password"],
+				domain.Meta(modificationTime, defaultUser)))
 		}
 
 		if res["Comments"] != "" {
-			events = append(events, accountevent.DescriptionChanged{
-				Event:       eventbase.NewEvent(),
-				Id:          accountId,
-				Description: res["Comments"],
-			})
+			pushEvent(domain.NewAccountDescriptionChanged(
+				accountId,
+				res["Comments"],
+				domain.Meta(modificationTime, defaultUser)))
 		}
 	}
 

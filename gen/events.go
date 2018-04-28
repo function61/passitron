@@ -22,8 +22,9 @@ func (e *EventSpecFile) Validate() error {
 }
 
 type EventSpec struct {
-	Event  string            `json:"event"`
-	Fields []*EventFieldSpec `json:"fields"`
+	Event    string            `json:"event"`
+	CtorArgs []string          `json:"ctor"`
+	Fields   []*EventFieldSpec `json:"fields"`
 }
 
 func (e *EventSpec) AsGoStructName() string {
@@ -83,6 +84,10 @@ var eventBuilders = map[string]func() Event{
 	
 %s
 
+// constructors
+
+%s
+
 // boilerplate functions
 
 %s
@@ -97,7 +102,15 @@ var eventBuilders = map[string]func() Event{
 	%s
 }`
 
+	ctorTemplate := `func New%s(%s) *%s {
+	return &%s{
+		meta: &meta,
+		%s
+	}
+}`
+
 	structs := []string{}
+	constructors := []string{}
 	metaGetters := []string{}
 	typeGetters := []string{}
 	serializes := []string{}
@@ -106,8 +119,11 @@ var eventBuilders = map[string]func() Event{
 	for _, eventSpec := range file {
 		goStructName := eventSpec.AsGoStructName()
 
+		ctorArgs := []string{}
+		ctorAssignments := []string{}
+
 		metaGetters = append(metaGetters, fmt.Sprintf("func (e *%s) Meta() *EventMeta { return e.meta }", goStructName))
-		typeGetters = append(typeGetters, fmt.Sprintf("func (e *%s) Type() string { return `%s` }", goStructName, eventSpec.Event))
+		typeGetters = append(typeGetters, fmt.Sprintf("func (e *%s) MetaType() string { return `%s` }", goStructName, eventSpec.Event))
 		serializes = append(serializes, fmt.Sprintf("func (e *%s) Serialize() string { return e.meta.Serialize(e) }", goStructName))
 
 		fields := []string{}
@@ -121,6 +137,22 @@ var eventBuilders = map[string]func() Event{
 
 			fields = append(fields, fieldAsGoCode)
 		}
+
+		for _, ctorArg := range eventSpec.CtorArgs {
+			ctorArgs = append(ctorArgs, ctorArg+" string")
+
+			ctorAssignments = append(ctorAssignments, ctorArg+": "+ctorArg+",")
+		}
+
+		ctorArgs = append(ctorArgs, "meta EventMeta")
+
+		constructors = append(constructors, fmt.Sprintf(
+			ctorTemplate,
+			goStructName,
+			strings.Join(ctorArgs, ", "),
+			goStructName,
+			goStructName,
+			strings.Join(ctorAssignments, "\n\t\t")))
 
 		eventStruct := fmt.Sprintf(structTemplate, goStructName, strings.Join(fields, "\n\t"))
 
@@ -138,6 +170,7 @@ var eventBuilders = map[string]func() Event{
 		template,
 		strings.Join(builderLines, "\n\t"),
 		strings.Join(structs, "\n\n\n"),
+		strings.Join(constructors, "\n\n"),
 		strings.Join(metaGetters, "\n"),
 		strings.Join(typeGetters, "\n"),
 		strings.Join(serializes, "\n"))

@@ -2,14 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/function61/pi-security-module/accountevent"
 	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/signingapi"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/eventbase"
-	"github.com/function61/pi-security-module/util/eventlog"
 	"github.com/function61/pi-security-module/util/extractpublicfiles"
 	"github.com/function61/pi-security-module/util/keepassimport"
 	"github.com/function61/pi-security-module/util/systemdinstaller"
@@ -62,8 +59,8 @@ func defineApi(router *mux.Router) {
 		}
 
 		ctx := &Ctx{
-			State:     state.Inst,
-			EventMeta: domain.Meta(time.Now(), "1"),
+			State: state.Inst,
+			Meta:  domain.Meta(time.Now(), "2"),
 		}
 
 		cmdStruct := cmdBuilder()
@@ -85,6 +82,8 @@ func defineApi(router *mux.Router) {
 		}
 
 		log.Printf("Command %s raised %d event(s)", commandName, len(ctx.raisedEvents))
+
+		state.Inst.EventLog.AppendBatch(ctx.raisedEvents)
 
 		type Output struct {
 			Status string
@@ -202,11 +201,10 @@ func defineApi(router *mux.Router) {
 			return
 		}
 
-		state.Inst.EventLog.Append(accountevent.SecretUsed{
-			Event:   eventbase.NewEvent(),
-			Account: account.Id,
-			Type:    accountevent.SecretUsedTypePasswordExposed,
-		})
+		state.Inst.EventLog.Append(domain.NewAccountSecretUsed(
+			account.Id,
+			"PasswordExposed",
+			domain.Meta(time.Now(), "2")))
 
 		disableCache(w)
 		w.Header().Set("Content-Type", "application/json")
@@ -243,10 +241,6 @@ func main() {
 
 	state.Initialize()
 	defer state.Inst.Close()
-
-	if err := eventlog.ReadOldEvents(); err != nil {
-		panic(err)
-	}
 
 	router := mux.NewRouter()
 

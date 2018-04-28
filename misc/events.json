@@ -1,9 +1,203 @@
+
 [
 	{
-		"event": "account.Renamed",
+		"event": "account.Created",
+		"ctor": ["Id", "FolderId", "Title"],
 		"fields": [
-			{ "key": "Id", "type": "string" },
-			{ "key": "Name", "type": "string" }
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "FolderId", "type": "string"
+			},
+			{
+				"key": "Title", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.Deleted",
+		"ctor": ["Id"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.Renamed",
+		"ctor": ["Id", "Title"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "Title", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.DescriptionChanged",
+		"ctor": ["Id", "Description"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "Description", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.OtpTokenAdded",
+		"ctor": ["Id", "Account", "OtpProvisioningUrl"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "Account", "type": "string"
+			},
+			{
+				"key": "OtpProvisioningUrl", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.PasswordAdded",
+		"ctor": ["Account", "Id", "Password"],
+		"fields": [
+			{
+				"key": "Account", "type": "string"
+			},
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "Password", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.SecretDeleted",
+		"ctor": ["Account", "Secret"],
+		"fields": [
+			{
+				"key": "Account", "type": "string"
+			},
+			{
+				"key": "Secret", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.SecretUsed",
+		"ctor": ["Account", "Type"],
+		"fields": [
+			{
+				"key": "Account", "type": "string"
+			},
+			{
+				"key": "Type", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.SshKeyAdded",
+		"ctor": ["Account", "Id", "SshPrivateKey", "SshPublicKeyAuthorized"],
+		"fields": [
+			{
+				"key": "Account", "type": "string"
+			},
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "SshPrivateKey", "type": "string"
+			},
+			{
+				"key": "SshPublicKeyAuthorized", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.UsernameChanged",
+		"ctor": ["Id", "Username"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "Username", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.FolderCreated",
+		"ctor": ["Id", "ParentId", "Name"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "ParentId", "type": "string"
+			},
+			{
+				"key": "Name", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.FolderMoved",
+		"ctor": ["Id", "ParentId"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "ParentId", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "account.FolderRenamed",
+		"ctor": ["Id", "Name"],
+		"fields": [
+			{
+				"key": "Id", "type": "string"
+			},
+			{
+				"key": "Name", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "database.Unsealed",
+		"ctor": [],
+		"fields": []
+	},
+	{
+		"event": "database.MasterPasswordChanged",
+		"ctor": ["Password"],
+		"fields": [
+			{
+				"key": "Password", "type": "string"
+			}
+		]
+	},
+	{
+		"event": "database.S3IntegrationConfigured",
+		"ctor": ["Bucket", "ApiKey", "Secret"],
+		"fields": [
+			{
+				"key": "Bucket", "type": "string"
+			},
+			{
+				"key": "ApiKey", "type": "string"
+			},
+			{
+				"key": "Secret", "type": "string"
+			}
 		]
 	}
 ]

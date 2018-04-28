@@ -2,7 +2,7 @@ package state
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/util/eventapplicator"
+	"github.com/function61/pi-security-module/util/eventlog"
 )
 
 const (
@@ -16,7 +16,7 @@ type State struct {
 	masterPassword string
 	sealed         bool
 	State          *Statefile
-	EventLog       *eventapplicator.EventApplicator
+	EventLog       *eventlog.EventLog
 	S3ExportBucket string
 	S3ExportApiKey string
 	S3ExportSecret string
@@ -27,15 +27,15 @@ func Initialize() {
 		panic(errors.New("statefile: initialize called twice"))
 	}
 
-	ea := eventapplicator.NewEventApplicator(logfilePath)
-
 	// state from the event log is computed & populated here
 	Inst = &State{
 		masterPassword: "",
 		State:          NewStatefile(),
 		sealed:         true,
-		EventLog:       ea,
 	}
+
+	// needs to be instantiated later, because handleEvent requires presence of "Inst"
+	Inst.EventLog = eventlog.New(logfilePath, handleEvent)
 }
 
 func (s *State) Close() {
