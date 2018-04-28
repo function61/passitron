@@ -27,7 +27,7 @@ staticAnalysis() {
 buildPublicFiles() {
 	echo "# Building public files"
 
-	npm install
+	(cd frontend/ && npm install)
 
 	bin/tsc.sh
 

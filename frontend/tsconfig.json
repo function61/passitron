@@ -9,8 +9,8 @@
         "strictNullChecks": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "outFile": "public/build.js",
-        "baseUrl": "./src",
+        "outFile": "../public/build.js",
+        "baseUrl": ".",
         "jsx": "React",
         "jsxFactory": "React.createElement",
         "sourceMap": true,
@@ -20,7 +20,7 @@
 	    ]
     },
     "include": [
-        "src/**/*"
+        "**/*"
     ],
     "exclude": [
         "node_modules",

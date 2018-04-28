@@ -1,3 +1,4 @@
 #!/bin/bash -eu
 
-node_modules/tslint/bin/tslint 'src/**'
+cd frontend/
+node_modules/tslint/bin/tslint './**'
