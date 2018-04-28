@@ -279,7 +279,7 @@ func generateTypescript(file *CommandSpecFile) error {
 		template,
 		strings.Join(fns, "\n\n"))
 
-	if writeErr := ioutil.WriteFile("src/generated/commanddefinitions.ts", []byte(fnsSerialized), 0777); writeErr != nil {
+	if writeErr := ioutil.WriteFile("frontend/generated/commanddefinitions.ts", []byte(fnsSerialized), 0777); writeErr != nil {
 		return writeErr
 	}
 
