@@ -104,21 +104,6 @@ func (c *CommandFieldSpec) Validate() error {
 	return nil
 }
 
-func writeCommandsGenJs(file *CommandSpecFile) error {
-	commandsGenJsSpecContent, encodeErr := json.MarshalIndent(file, "", "  ")
-	if encodeErr != nil {
-		return encodeErr
-	}
-
-	commandsGenJsContent := []byte(fmt.Sprintf("var _commands_generated = %s;\n", commandsGenJsSpecContent))
-
-	if writeErr := ioutil.WriteFile("static/commands.gen.js", commandsGenJsContent, 0777); writeErr != nil {
-		return writeErr
-	}
-
-	return nil
-}
-
 func makeStruct(spec *CommandSpec) string {
 	template := `type %s struct {
 	%s
@@ -308,12 +293,6 @@ func generateCommands() error {
 	if err := generateTypescript(&file); err != nil {
 		return err
 	}
-
-	/*
-		if err := writeCommandsGenJs(&file); err != nil {
-			return err
-		}
-	*/
 
 	return nil
 }

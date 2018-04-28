@@ -5,13 +5,13 @@
 		"ctor": ["Id", "FolderId", "Title"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "FolderId", "type": "string"
+				"key": "FolderId", "type": {"_": "string"}
 			},
 			{
-				"key": "Title", "type": "string"
+				"key": "Title", "type": {"_": "string"}
 			}
 		]
 	},
@@ -20,7 +20,7 @@
 		"ctor": ["Id"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			}
 		]
 	},
@@ -29,10 +29,10 @@
 		"ctor": ["Id", "Title"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Title", "type": "string"
+				"key": "Title", "type": {"_": "string"}
 			}
 		]
 	},
@@ -41,10 +41,10 @@
 		"ctor": ["Id", "Description"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Description", "type": "string"
+				"key": "Description", "type": {"_": "string"}
 			}
 		]
 	},
@@ -53,13 +53,13 @@
 		"ctor": ["Id", "Account", "OtpProvisioningUrl"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Account", "type": "string"
+				"key": "Account", "type": {"_": "string"}
 			},
 			{
-				"key": "OtpProvisioningUrl", "type": "string"
+				"key": "OtpProvisioningUrl", "type": {"_": "string"}
 			}
 		]
 	},
@@ -68,13 +68,13 @@
 		"ctor": ["Account", "Id", "Password"],
 		"fields": [
 			{
-				"key": "Account", "type": "string"
+				"key": "Account", "type": {"_": "string"}
 			},
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Password", "type": "string"
+				"key": "Password", "type": {"_": "string"}
 			}
 		]
 	},
@@ -83,10 +83,10 @@
 		"ctor": ["Account", "Secret"],
 		"fields": [
 			{
-				"key": "Account", "type": "string"
+				"key": "Account", "type": {"_": "string"}
 			},
 			{
-				"key": "Secret", "type": "string"
+				"key": "Secret", "type": {"_": "string"}
 			}
 		]
 	},
@@ -95,10 +95,10 @@
 		"ctor": ["Account", "Type"],
 		"fields": [
 			{
-				"key": "Account", "type": "string"
+				"key": "Account", "type": {"_": "string"}
 			},
 			{
-				"key": "Type", "type": "string"
+				"key": "Type", "type": {"_": "string"}
 			}
 		]
 	},
@@ -107,16 +107,16 @@
 		"ctor": ["Account", "Id", "SshPrivateKey", "SshPublicKeyAuthorized"],
 		"fields": [
 			{
-				"key": "Account", "type": "string"
+				"key": "Account", "type": {"_": "string"}
 			},
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "SshPrivateKey", "type": "string"
+				"key": "SshPrivateKey", "type": {"_": "string"}
 			},
 			{
-				"key": "SshPublicKeyAuthorized", "type": "string"
+				"key": "SshPublicKeyAuthorized", "type": {"_": "string"}
 			}
 		]
 	},
@@ -125,10 +125,10 @@
 		"ctor": ["Id", "Username"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Username", "type": "string"
+				"key": "Username", "type": {"_": "string"}
 			}
 		]
 	},
@@ -137,13 +137,13 @@
 		"ctor": ["Id", "ParentId", "Name"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "ParentId", "type": "string"
+				"key": "ParentId", "type": {"_": "string"}
 			},
 			{
-				"key": "Name", "type": "string"
+				"key": "Name", "type": {"_": "string"}
 			}
 		]
 	},
@@ -152,10 +152,10 @@
 		"ctor": ["Id", "ParentId"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "ParentId", "type": "string"
+				"key": "ParentId", "type": {"_": "string"}
 			}
 		]
 	},
@@ -164,10 +164,10 @@
 		"ctor": ["Id", "Name"],
 		"fields": [
 			{
-				"key": "Id", "type": "string"
+				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Name", "type": "string"
+				"key": "Name", "type": {"_": "string"}
 			}
 		]
 	},
@@ -181,7 +181,7 @@
 		"ctor": ["Password"],
 		"fields": [
 			{
-				"key": "Password", "type": "string"
+				"key": "Password", "type": {"_": "string"}
 			}
 		]
 	},
@@ -190,13 +190,13 @@
 		"ctor": ["Bucket", "ApiKey", "Secret"],
 		"fields": [
 			{
-				"key": "Bucket", "type": "string"
+				"key": "Bucket", "type": {"_": "string"}
 			},
 			{
-				"key": "ApiKey", "type": "string"
+				"key": "ApiKey", "type": {"_": "string"}
 			},
 			{
-				"key": "Secret", "type": "string"
+				"key": "Secret", "type": {"_": "string"}
 			}
 		]
 	}

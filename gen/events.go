@@ -7,24 +7,101 @@ import (
 	"strings"
 )
 
-type EventSpecFile []*EventSpec
+type GoStructField struct {
+	Name string
+	Type string
+	Tags string
+}
 
-func (e *EventSpecFile) Validate() error {
-	for _, event := range *e {
-		for _, field := range event.Fields {
-			if field.AsGoType() == "" {
-				return fmt.Errorf("Event %s field %s invalid type: %s", event.Event, field.Key, field.Type)
-			}
+func (g *GoStructField) AsGoCode() string {
+	return fmt.Sprintf(
+		"%s %s `%s`",
+		g.Name,
+		g.Type,
+		g.Tags)
+}
+
+type GoStruct struct {
+	Name   string
+	Fields []GoStructField
+}
+
+func (g *GoStruct) Field(name string) *GoStructField {
+	for _, field := range g.Fields {
+		if field.Name == name {
+			return &field
 		}
 	}
 
-	return nil
+	panic("field " + name + " not found")
 }
+
+func (g *GoStruct) AsGoCode() string {
+	fieldsAsGoCode := []string{}
+
+	template := `type %s struct {
+	%s
+}`
+
+	for _, g := range g.Fields {
+		fieldAsGoCode := g.AsGoCode()
+
+		fieldsAsGoCode = append(fieldsAsGoCode, fieldAsGoCode)
+	}
+
+	return fmt.Sprintf(
+		template,
+		g.Name,
+		strings.Join(fieldsAsGoCode, "\n\t"))
+}
+
+type Visitor struct {
+	Structs []GoStruct
+}
+
+func (v *Visitor) AppendStruct(item GoStruct) {
+	v.Structs = append(v.Structs, item)
+}
+
+func (v *Visitor) AsGoCode() string {
+	structs := []string{}
+
+	for _, item := range v.Structs {
+		structs = append(structs, item.AsGoCode())
+	}
+
+	return strings.Join(structs, "\n\n")
+}
+
+type EventSpecFile []*EventSpec
 
 type EventSpec struct {
 	Event    string            `json:"event"`
 	CtorArgs []string          `json:"ctor"`
 	Fields   []*EventFieldSpec `json:"fields"`
+}
+
+func (e *EventSpec) VisitForGoStructs(visitor *Visitor) *GoStruct {
+	eventFields := []GoStructField{
+		GoStructField{Name: "meta", Type: "*EventMeta"},
+	}
+
+	for _, fieldSpec := range e.Fields {
+		eventFields = append(eventFields, GoStructField{
+			Name: fieldSpec.Key,
+			Type: fieldSpec.Type.AsGoType(e.AsGoStructName()+fieldSpec.Key, visitor),
+			Tags: "json:\"" + fieldSpec.Key + "\"",
+		})
+	}
+
+	eventStruct := GoStruct{
+		Name:   e.AsGoStructName(),
+		Fields: eventFields,
+	}
+
+	visitor.AppendStruct(eventStruct)
+
+	return &eventStruct
 }
 
 func (e *EventSpec) AsGoStructName() string {
@@ -38,21 +115,50 @@ func (e *EventSpec) AsGoStructName() string {
 }
 
 type EventFieldSpec struct {
-	Key  string `json:"key"`
-	Type string `json:"type"`
+	Key  string            `json:"key"`
+	Type EventFieldTypeDef `json:"type"`
 }
 
-func (e *EventFieldSpec) AsGoType() string {
-	switch e.Type {
+type EventFieldTypeDef struct {
+	Name string                         `json:"_"`
+	Of   *EventFieldTypeDef             `json:"of"`
+	Keys []EventFieldObjectFieldTypeDef `json:"keys"`
+}
+
+func (e *EventFieldTypeDef) AsGoType(parentGoName string, visitor *Visitor) string {
+	switch e.Name {
+	case "object":
+		// create supporting structure to represent item
+		supportStructDef := GoStruct{
+			Name:   parentGoName + "Item",
+			Fields: nil,
+		}
+
+		for _, objectKeyDefinition := range e.Keys {
+			field := GoStructField{
+				Name: objectKeyDefinition.Key,
+				Type: objectKeyDefinition.Type.AsGoType(supportStructDef.Name, visitor),
+				Tags: "json:\"" + objectKeyDefinition.Key + "\"",
+			}
+
+			supportStructDef.Fields = append(supportStructDef.Fields, field)
+		}
+
+		visitor.AppendStruct(supportStructDef)
+
+		return supportStructDef.Name
 	case "string":
 		return "string"
-	case "float32":
-		return "float32"
-	case "uint":
-		return "uint"
+	case "list":
+		return "[]" + e.Of.AsGoType(parentGoName, visitor)
 	default:
-		return "" // unrecognized type
+		panic("unsupported type: " + e.Name)
 	}
+}
+
+type EventFieldObjectFieldTypeDef struct {
+	Key  string             `json:"key"`
+	Type *EventFieldTypeDef `json:"type"`
 }
 
 func generateEvents() error {
@@ -64,10 +170,6 @@ func generateEvents() error {
 	var file EventSpecFile
 	if jsonErr := json.Unmarshal(contents, &file); jsonErr != nil {
 		return jsonErr
-	}
-
-	if validationErr := file.Validate(); validationErr != nil {
-		return validationErr
 	}
 
 	template := `package domain
@@ -97,11 +199,6 @@ var eventBuilders = map[string]func() Event{
 %s
 `
 
-	structTemplate := `type %s struct {
-	meta *EventMeta
-	%s
-}`
-
 	ctorTemplate := `func New%s(%s) *%s {
 	return &%s{
 		meta: &meta,
@@ -109,15 +206,18 @@ var eventBuilders = map[string]func() Event{
 	}
 }`
 
-	structs := []string{}
 	constructors := []string{}
 	metaGetters := []string{}
 	typeGetters := []string{}
 	serializes := []string{}
 	builderLines := []string{}
 
+	structsVisitor := &Visitor{}
+
 	for _, eventSpec := range file {
 		goStructName := eventSpec.AsGoStructName()
+
+		structForEvent := eventSpec.VisitForGoStructs(structsVisitor)
 
 		ctorArgs := []string{}
 		ctorAssignments := []string{}
@@ -126,20 +226,8 @@ var eventBuilders = map[string]func() Event{
 		typeGetters = append(typeGetters, fmt.Sprintf("func (e *%s) MetaType() string { return `%s` }", goStructName, eventSpec.Event))
 		serializes = append(serializes, fmt.Sprintf("func (e *%s) Serialize() string { return e.meta.Serialize(e) }", goStructName))
 
-		fields := []string{}
-
-		for _, fieldSpec := range eventSpec.Fields {
-			fieldAsGoCode := fmt.Sprintf(
-				"%s %s `json:\"%s\"`",
-				fieldSpec.Key,
-				fieldSpec.AsGoType(),
-				fieldSpec.Key)
-
-			fields = append(fields, fieldAsGoCode)
-		}
-
 		for _, ctorArg := range eventSpec.CtorArgs {
-			ctorArgs = append(ctorArgs, ctorArg+" string")
+			ctorArgs = append(ctorArgs, ctorArg+" " + structForEvent.Field(ctorArg).Type)
 
 			ctorAssignments = append(ctorAssignments, ctorArg+": "+ctorArg+",")
 		}
@@ -154,10 +242,6 @@ var eventBuilders = map[string]func() Event{
 			goStructName,
 			strings.Join(ctorAssignments, "\n\t\t")))
 
-		eventStruct := fmt.Sprintf(structTemplate, goStructName, strings.Join(fields, "\n\t"))
-
-		structs = append(structs, eventStruct)
-
 		builderLine := fmt.Sprintf(
 			`"%s": func() Event { return &%s{meta: &EventMeta{}} },`,
 			eventSpec.Event,
@@ -169,7 +253,7 @@ var eventBuilders = map[string]func() Event{
 	content := fmt.Sprintf(
 		template,
 		strings.Join(builderLines, "\n\t"),
-		strings.Join(structs, "\n\n\n"),
+		structsVisitor.AsGoCode(),
 		strings.Join(constructors, "\n\n"),
 		strings.Join(metaGetters, "\n"),
 		strings.Join(typeGetters, "\n"),
