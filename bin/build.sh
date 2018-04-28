@@ -31,7 +31,7 @@ buildPublicFiles() {
 
 	bin/tsc.sh
 
-	# TODO: run bin/tslint.sh
+	bin/tslint.sh
 }
 
 packagePublicFiles() {
