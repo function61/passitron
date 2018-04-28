@@ -93,7 +93,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 	}
 
 	private onIntegerInputChange(e: React.FormEvent<HTMLInputElement>) {
-		if (e.currentTarget.value === "") {
+		if (e.currentTarget.value === '') {
 			this.props.fieldChanged(e.currentTarget.name, null);
 		} else {
 			this.props.fieldChanged(e.currentTarget.name, +e.currentTarget.value);
