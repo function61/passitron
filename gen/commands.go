@@ -272,7 +272,7 @@ func generateTypescript(file *CommandSpecFile) error {
 }
 
 func generateCommands() error {
-	contents, readErr := ioutil.ReadFile("misc/commands.json")
+	contents, readErr := ioutil.ReadFile("commands.json")
 	if readErr != nil {
 		return readErr
 	}
