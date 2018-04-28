@@ -88,10 +88,12 @@ func (s *SecureAccount) GetSecrets() []ExposedSecret {
 		secrets = append(secrets, ExposedSecret{
 			Id:                     secret.Id,
 			Kind:                   secret.Kind,
+			Title:                  secret.Title,
 			Created:                secret.Created,
 			Password:               secret.Password,
 			OtpProof:               otpProof,
 			OtpProofTime:           otpProofTime,
+			KeylistKeys:            secret.KeylistKeys,
 			SshPublicKeyAuthorized: secret.SshPublicKeyAuthorized,
 		})
 	}
@@ -102,9 +104,11 @@ func (s *SecureAccount) GetSecrets() []ExposedSecret {
 type ExposedSecret struct {
 	Id                     string
 	Kind                   string
+	Title                  string
 	Created                time.Time
 	Password               string
 	OtpProof               string
 	OtpProofTime           time.Time
+	KeylistKeys            []KeylistKey
 	SshPublicKeyAuthorized string
 }

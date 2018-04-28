@@ -26,15 +26,23 @@ export interface FolderResponse {
 export interface Secret {
 	Id: string;
 	Kind: SecretKind;
+	Title: string;
 	Created: string;
 	Password: string;
 	OtpProof: string;
 	OtpProofTime: string;
 	SshPublicKeyAuthorized: string;
+	KeylistKeys: SecretKeylistKey[];
+}
+
+export interface SecretKeylistKey {
+	Key: string;
+	Value: string;
 }
 
 export enum SecretKind {
     Password = 'password',
     SshKey = 'ssh_key',
     OtpToken = 'otp_token',
+    Keylist = 'keylist',
 }

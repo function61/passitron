@@ -93,6 +93,17 @@
 		]
 	},
 	{
+		"command": "account.AddKeylist",
+		"ctor": ["Account"],
+		"title": "+ Keylist",
+		"fields": [
+			{ "key": "Account" },
+			{ "key": "Title" },
+			{ "key": "ExpectedKeyCount", "type": "integer" },
+			{ "key": "Keylist", "type": "multiline" }
+		]
+	},
+	{
 		"command": "account.AddSshKey",
 		"ctor": ["Id"],
 		"title": "+ SSH key",

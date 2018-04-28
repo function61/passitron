@@ -23,6 +23,7 @@ Features
 	* Passwords
 	* OTP tokens (Google Authenticator)
 	* SSH keys (via SSH agent protocol)
+	* Keylists (["hardcopy OTP list"](https://en.wikipedia.org/wiki/One-time_password#Hardcopy))
 - Create, view and list secrets in a folder hierarchy.
 - Export database to Keepass format (for viewing in mobile devices when traveling etc.)
 - Import data from Keepass format

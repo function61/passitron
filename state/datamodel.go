@@ -8,16 +8,24 @@ const (
 	SecretKindPassword = "password"
 	SecretKindOtpToken = "otp_token"
 	SecretKindSshKey   = "ssh_key"
+	SecretKindKeylist  = "keylist"
 )
 
 type Secret struct {
 	Id                     string
 	Kind                   string
+	Title                  string
 	Created                time.Time
 	Password               string
 	SshPrivateKey          string
 	SshPublicKeyAuthorized string
 	OtpProvisioningUrl     string
+	KeylistKeys            []KeylistKey
+}
+
+type KeylistKey struct {
+	Key   string
+	Value string
 }
 
 // insecure account = secure account + secrets as public

@@ -5,6 +5,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"regexp"
 	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/util/keepassexport"
 	"github.com/function61/pi-security-module/util/randompassword"
@@ -179,6 +180,41 @@ func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
 		a.Id,
 		domain.RandomId(),
 		password,
+		ctx.Meta))
+
+	return nil
+}
+
+func (a *AccountAddKeylist) Invoke(ctx *Ctx) error {
+	if ctx.State.AccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	keys := []domain.AccountKeylistAddedKeysItem{}
+
+	keylistParseRe := regexp.MustCompile("([a-zA-Z0-9]+)")
+
+	matches := keylistParseRe.FindAllString(a.Keylist, -1)
+	if matches == nil {
+		return errors.New("unable to parse keylist")
+	}
+
+	if a.ExpectedKeyCount == 0 || a.ExpectedKeyCount * 2 != len(matches) {
+		return errors.New("ExpectedKeyCount does not match with parsed keylist")
+	}
+
+	for i := 0; i < len(matches); i += 2 {
+		keys = append(keys, domain.AccountKeylistAddedKeysItem{
+			Key:   matches[i],
+			Value: matches[i+1],
+		})
+	}
+
+	ctx.RaisesEvent(domain.NewAccountKeylistAdded(
+		a.Account,
+		domain.RandomId(),
+		a.Title,
+		keys,
 		ctx.Meta))
 
 	return nil

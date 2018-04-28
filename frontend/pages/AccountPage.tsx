@@ -12,6 +12,7 @@ import {
 	AccountAddSshKey,
 	AccountDeleteSecret,
 	AccountChangeUsername,
+	AccountAddKeylist,
 	AccountChangeDescription,
 	AccountRename,
 } from 'generated/commanddefinitions';
@@ -101,6 +102,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			<CommandButton command={AccountDelete(account.Id)} />
 
 			<CommandButton command={AccountAddSshKey(account.Id)} />
+			<CommandButton command={AccountAddKeylist(account.Id)} />
 			<CommandButton command={AccountAddPassword(account.Id)} />
 
 			<a href={importOtpTokenLink(account.Id)} className="btn btn-default">+ OTP token</a>
@@ -136,6 +138,23 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					</td>
 					<td>{secret.OtpProof}</td>
 					<td onClick={() => this.copyToClipboard(secret.OtpProof)} className="fauxlink">📋</td>
+				</tr>;
+			case SecretKind.Keylist:
+				const keyRows = secret.KeylistKeys.map((item) => <tr key={item.Key}>
+					<th>{item.Key}</th>
+					<td>{item.Value}</td>
+				</tr>);
+
+				return <tr key={secret.Id}>
+					<td>
+						Keylist
+						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+					</td>
+					<td>{secret.Title}
+						<table className="table table-striped">
+						<tbody>{keyRows}</tbody>
+						</table>
+					</td>
 				</tr>;
 			default:
 				return unrecognizedValue(secret.Kind);

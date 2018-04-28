@@ -82,6 +82,33 @@ func handleAccountPasswordAdded(e *domain.AccountPasswordAdded, state *State) {
 	}
 }
 
+func handleAccountKeylistAdded(e *domain.AccountKeylistAdded, state *State) {
+	for idx, account := range state.State.Accounts {
+		if account.Id == e.Account {
+			keyItems := []KeylistKey{}
+
+			for _, key := range e.Keys {
+				keyItems = append(keyItems, KeylistKey{
+					Key:   key.Key,
+					Value: key.Value,
+				})
+			}
+
+			secret := Secret{
+				Id:          e.Id,
+				Kind:        SecretKindKeylist,
+				Title:       e.Title,
+				Created:     e.Meta().Timestamp,
+				KeylistKeys: keyItems,
+			}
+
+			account.Secrets = append(account.Secrets, secret)
+			state.State.Accounts[idx] = account
+			return
+		}
+	}
+}
+
 func handleAccountSecretDeleted(e *domain.AccountSecretDeleted, state *State) {
 	for accountIdx, account := range state.State.Accounts {
 		if account.Id == e.Account {
@@ -188,6 +215,8 @@ func handleEvent(event domain.Event, state *State) error {
 		handleAccountOtpTokenAdded(e, state)
 	case *domain.AccountPasswordAdded:
 		handleAccountPasswordAdded(e, state)
+	case *domain.AccountKeylistAdded:
+		handleAccountKeylistAdded(e, state)
 	case *domain.AccountSecretDeleted:
 		handleAccountSecretDeleted(e, state)
 	case *domain.AccountSecretUsed:
