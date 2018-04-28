@@ -72,7 +72,7 @@ Installation & running:
 # this only writes a Systemd unit file
 $ sudo ./pism install
 
-# configure Systemd to start this on system reboots
+# configure Systemd to start this on system reboot
 $ sudo systemctl enable pi-security-module
 
 # start it manually (reboot would have the same effects)
