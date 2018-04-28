@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/function61/pi-security-module/domain"
-	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util/keepassexport"
 	"github.com/function61/pi-security-module/util/randompassword"
 	"github.com/pquerna/otp"
@@ -20,7 +19,7 @@ var (
 )
 
 func (a *AccountRename) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Account) == nil {
+	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -33,7 +32,7 @@ func (a *AccountRename) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountChangeUsername) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Account) == nil {
+	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -46,7 +45,7 @@ func (a *AccountChangeUsername) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountChangeDescription) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Account) == nil {
+	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -59,7 +58,7 @@ func (a *AccountChangeDescription) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountDeleteSecret) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Account) == nil {
+	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -74,7 +73,7 @@ func (a *AccountDeleteSecret) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountCreateFolder) Invoke(ctx *Ctx) error {
-	if state.FolderById(a.Parent) == nil {
+	if ctx.State.FolderById(a.Parent) == nil {
 		return errFolderNotFound
 	}
 
@@ -88,7 +87,7 @@ func (a *AccountCreateFolder) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountRenameFolder) Invoke(ctx *Ctx) error {
-	if state.FolderById(a.Id) == nil {
+	if ctx.State.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
 
@@ -101,10 +100,10 @@ func (a *AccountRenameFolder) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountMoveFolder) Invoke(ctx *Ctx) error {
-	if state.FolderById(a.Id) == nil {
+	if ctx.State.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
-	if state.FolderById(a.NewParent) == nil {
+	if ctx.State.FolderById(a.NewParent) == nil {
 		return errFolderNotFound
 	}
 
@@ -146,7 +145,7 @@ func (a *AccountCreate) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountDelete) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Id) == nil {
+	if ctx.State.AccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -162,7 +161,7 @@ func (a *AccountDelete) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Id) == nil {
+	if ctx.State.AccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -186,7 +185,7 @@ func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountAddSshKey) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Id) == nil {
+	if ctx.State.AccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -235,7 +234,7 @@ func (a *AccountAddSshKey) Invoke(ctx *Ctx) error {
 }
 
 func (a *AccountAddOtpToken) Invoke(ctx *Ctx) error {
-	if state.AccountById(a.Account) == nil {
+	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -267,7 +266,7 @@ func (a *DatabaseChangeMasterPassword) Invoke(ctx *Ctx) error {
 }
 
 func (a *DatabaseExportToKeepass) Invoke(ctx *Ctx) error {
-	return keepassexport.Export()
+	return keepassexport.Export(ctx.State)
 }
 
 func (a *DatabaseUnseal) Invoke(ctx *Ctx) error {

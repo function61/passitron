@@ -7,7 +7,7 @@ import (
 
 type Ctx struct {
 	State *state.State
-	Meta domain.EventMeta
+	Meta  domain.EventMeta
 
 	raisedEvents []domain.Event
 }

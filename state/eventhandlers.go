@@ -174,40 +174,40 @@ func handleDatabaseS3IntegrationConfigured(e *domain.DatabaseS3IntegrationConfig
 	state.S3ExportSecret = e.Secret
 }
 
-func handleEvent(event domain.Event) error {
+func handleEvent(event domain.Event, state *State) error {
 	switch e := event.(type) {
 	case *domain.AccountCreated:
-		handleAccountCreated(e, Inst)
+		handleAccountCreated(e, state)
 	case *domain.AccountDeleted:
-		handleAccountDeleted(e, Inst)
+		handleAccountDeleted(e, state)
 	case *domain.AccountRenamed:
-		handleAccountRenamed(e, Inst)
+		handleAccountRenamed(e, state)
 	case *domain.AccountDescriptionChanged:
-		handleAccountDescriptionChanged(e, Inst)
+		handleAccountDescriptionChanged(e, state)
 	case *domain.AccountOtpTokenAdded:
-		handleAccountOtpTokenAdded(e, Inst)
+		handleAccountOtpTokenAdded(e, state)
 	case *domain.AccountPasswordAdded:
-		handleAccountPasswordAdded(e, Inst)
+		handleAccountPasswordAdded(e, state)
 	case *domain.AccountSecretDeleted:
-		handleAccountSecretDeleted(e, Inst)
+		handleAccountSecretDeleted(e, state)
 	case *domain.AccountSecretUsed:
-		handleAccountSecretUsed(e, Inst)
+		handleAccountSecretUsed(e, state)
 	case *domain.AccountSshKeyAdded:
-		handleAccountSshKeyAdded(e, Inst)
+		handleAccountSshKeyAdded(e, state)
 	case *domain.AccountUsernameChanged:
-		handleAccountUsernameChanged(e, Inst)
+		handleAccountUsernameChanged(e, state)
 	case *domain.AccountFolderCreated:
-		handleAccountFolderCreated(e, Inst)
+		handleAccountFolderCreated(e, state)
 	case *domain.AccountFolderMoved:
-		handleAccountFolderMoved(e, Inst)
+		handleAccountFolderMoved(e, state)
 	case *domain.AccountFolderRenamed:
-		handleAccountFolderRenamed(e, Inst)
+		handleAccountFolderRenamed(e, state)
 	case *domain.DatabaseUnsealed:
-		handleDatabaseUnsealed(e, Inst)
+		handleDatabaseUnsealed(e, state)
 	case *domain.DatabaseMasterPasswordChanged:
-		handleDatabaseMasterPasswordChanged(e, Inst)
+		handleDatabaseMasterPasswordChanged(e, state)
 	case *domain.DatabaseS3IntegrationConfigured:
-		handleDatabaseS3IntegrationConfigured(e, Inst)
+		handleDatabaseS3IntegrationConfigured(e, state)
 	default:
 		panic(errors.New("unknown event: " + event.MetaType()))
 	}

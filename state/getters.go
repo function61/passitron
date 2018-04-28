@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-func SubfoldersById(id string) []Folder {
+func (s *State) SubfoldersById(id string) []Folder {
 	subFolders := []Folder{}
 
-	for _, f := range Inst.State.Folders {
+	for _, f := range s.State.Folders {
 		if f.ParentId != id {
 			continue
 		}
@@ -20,10 +20,10 @@ func SubfoldersById(id string) []Folder {
 	return subFolders
 }
 
-func AccountsByFolder(id string) []SecureAccount {
+func (s *State) AccountsByFolder(id string) []SecureAccount {
 	accounts := []SecureAccount{}
 
-	for _, s := range Inst.State.Accounts {
+	for _, s := range s.State.Accounts {
 		if s.FolderId != id {
 			continue
 		}
@@ -34,8 +34,8 @@ func AccountsByFolder(id string) []SecureAccount {
 	return accounts
 }
 
-func AccountById(id string) *SecureAccount {
-	for _, s := range Inst.State.Accounts {
+func (s *State) AccountById(id string) *SecureAccount {
+	for _, s := range s.State.Accounts {
 		if s.Id == id {
 			account := s.ToSecureAccount()
 			return &account
@@ -45,8 +45,8 @@ func AccountById(id string) *SecureAccount {
 	return nil
 }
 
-func FolderById(id string) *Folder {
-	for _, f := range Inst.State.Folders {
+func (s *State) FolderById(id string) *Folder {
+	for _, f := range s.State.Folders {
 		if f.Id == id {
 			return &f
 		}
@@ -55,8 +55,8 @@ func FolderById(id string) *Folder {
 	return nil
 }
 
-func FolderByName(name string) *Folder {
-	for _, f := range Inst.State.Folders {
+func (s *State) FolderByName(name string) *Folder {
+	for _, f := range s.State.Folders {
 		if f.Name == name {
 			return &f
 		}

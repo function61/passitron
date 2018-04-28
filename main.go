@@ -41,14 +41,14 @@ func disableCache(w http.ResponseWriter) {
 	w.Header().Set("Expires", "0")
 }
 
-func defineApi(router *mux.Router) {
+func defineApi(router *mux.Router, st *state.State) {
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
 		// only command able to be invoked anonymously is the Unseal command
 		commandNeedsAuthorization := commandName != "database.Unseal"
 
-		if commandNeedsAuthorization && util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if commandNeedsAuthorization && util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
@@ -59,7 +59,7 @@ func defineApi(router *mux.Router) {
 		}
 
 		ctx := &Ctx{
-			State: state.Inst,
+			State: st,
 			Meta:  domain.Meta(time.Now(), "2"),
 		}
 
@@ -83,7 +83,7 @@ func defineApi(router *mux.Router) {
 
 		log.Printf("Command %s raised %d event(s)", commandName, len(ctx.raisedEvents))
 
-		state.Inst.EventLog.AppendBatch(ctx.raisedEvents)
+		st.EventLog.AppendBatch(ctx.raisedEvents)
 
 		type Output struct {
 			Status string
@@ -94,19 +94,19 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
-		folder := state.FolderById(mux.Vars(r)["folderId"])
+		folder := st.FolderById(mux.Vars(r)["folderId"])
 
-		accounts := state.AccountsByFolder(folder.Id)
-		subFolders := state.SubfoldersById(folder.Id)
+		accounts := st.AccountsByFolder(folder.Id)
+		subFolders := st.SubfoldersById(folder.Id)
 		parentFolders := []state.Folder{}
 
 		parentId := folder.ParentId
 		for parentId != "" {
-			parent := state.FolderById(parentId)
+			parent := st.FolderById(parentId)
 
 			parentFolders = append(parentFolders, *parent)
 
@@ -121,7 +121,7 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
@@ -133,7 +133,7 @@ func defineApi(router *mux.Router) {
 		matches := []state.SecureAccount{}
 
 		if sshkey == "y" {
-			for _, account := range state.Inst.State.Accounts {
+			for _, account := range st.State.Accounts {
 				for _, secret := range account.Secrets {
 					if secret.SshPublicKeyAuthorized == "" {
 						continue
@@ -143,11 +143,11 @@ func defineApi(router *mux.Router) {
 				}
 			}
 		} else if search == "" { // no filter => return all
-			for _, s := range state.Inst.State.Accounts {
+			for _, s := range st.State.Accounts {
 				matches = append(matches, s.ToSecureAccount())
 			}
 		} else { // search filter
-			for _, s := range state.Inst.State.Accounts {
+			for _, s := range st.State.Accounts {
 				if !strings.Contains(strings.ToLower(s.Title), search) {
 					continue
 				}
@@ -162,11 +162,11 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
-		account := state.AccountById(mux.Vars(r)["accountId"])
+		account := st.AccountById(mux.Vars(r)["accountId"])
 
 		if account == nil {
 			util.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
@@ -179,11 +179,11 @@ func defineApi(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
-		account := state.AccountById(mux.Vars(r)["accountId"])
+		account := st.AccountById(mux.Vars(r)["accountId"])
 
 		if account == nil {
 			util.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
@@ -201,7 +201,7 @@ func defineApi(router *mux.Router) {
 			return
 		}
 
-		state.Inst.EventLog.Append(domain.NewAccountSecretUsed(
+		st.EventLog.Append(domain.NewAccountSecretUsed(
 			account.Id,
 			"PasswordExposed",
 			domain.Meta(time.Now(), "2")))
@@ -239,14 +239,14 @@ func main() {
 		panic(err)
 	}
 
-	state.Initialize()
-	defer state.Inst.Close()
+	st := state.New()
+	defer st.Close()
 
 	router := mux.NewRouter()
 
-	defineApi(router)
+	defineApi(router, st)
 
-	signingapi.Setup(router)
+	signingapi.Setup(router, st)
 
 	// this most generic one has to be introduced last
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))

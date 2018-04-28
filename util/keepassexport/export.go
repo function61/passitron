@@ -20,20 +20,20 @@ import (
 	"time"
 )
 
-func Export() error {
-	if state.Inst.S3ExportBucket == "" || state.Inst.S3ExportApiKey == "" || state.Inst.S3ExportSecret == "" {
+func Export(st *state.State) error {
+	if st.S3ExportBucket == "" || st.S3ExportApiKey == "" || st.S3ExportSecret == "" {
 		return errors.New("S3ExportBucket, S3ExportApiKey or S3ExportSecret undefined")
 	}
 
 	var keepassOutFile bytes.Buffer
 
-	if err := keepassExport(state.Inst.GetMasterPassword(), &keepassOutFile); err != nil {
+	if err := keepassExport(st.GetMasterPassword(), &keepassOutFile, st); err != nil {
 		return err
 	}
 
 	manualCredential := credentials.NewStaticCredentials(
-		state.Inst.S3ExportApiKey,
-		state.Inst.S3ExportSecret,
+		st.S3ExportApiKey,
+		st.S3ExportSecret,
 		"")
 
 	awsSession, errSession := session.NewSession()
@@ -49,7 +49,7 @@ func Export() error {
 	remotePath := "/databases/" + time.Now().UTC().Format(time.RFC3339) + ".kdbx"
 
 	_, errS3Put := s3Client.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(state.Inst.S3ExportBucket),
+		Bucket: aws.String(st.S3ExportBucket),
 		Key:    aws.String(remotePath),
 		Body:   filebuffer.New(keepassOutFile.Bytes()),
 	})
@@ -57,7 +57,7 @@ func Export() error {
 		return errS3Put
 	}
 
-	log.Printf("Keepass database uploaded to %s:%s", state.Inst.S3ExportBucket, remotePath)
+	log.Printf("Keepass database uploaded to %s:%s", st.S3ExportBucket, remotePath)
 
 	return nil
 }
@@ -85,15 +85,15 @@ func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
 	return ciphertextBlock
 }
 
-func exportRecursive(id string, meta *gokeepasslib.MetaData) (gokeepasslib.Group, int) {
+func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (gokeepasslib.Group, int) {
 	entriesExported := 0
 
-	folder := state.FolderById(id)
+	folder := st.FolderById(id)
 
 	group := gokeepasslib.NewGroup()
 	group.Name = folder.Name
 
-	accounts := state.AccountsByFolder(folder.Id)
+	accounts := st.AccountsByFolder(folder.Id)
 
 	for _, secureAccount := range accounts {
 		account := secureAccount.ToInsecureAccount()
@@ -126,7 +126,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) (gokeepasslib.Group
 
 				encryptedSshKey := encryptPemBlock(
 					plaintextSshBlock,
-					[]byte(state.Inst.GetMasterPassword()))
+					[]byte(st.GetMasterPassword()))
 
 				binary := meta.Binaries.Add(pem.EncodeToMemory(encryptedSshKey))
 				binaryReference := binary.CreateReference(filename)
@@ -144,10 +144,10 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) (gokeepasslib.Group
 		}
 	}
 
-	subFolders := state.SubfoldersById(folder.Id)
+	subFolders := st.SubfoldersById(folder.Id)
 
 	for _, subFolder := range subFolders {
-		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta)
+		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta, st)
 
 		group.Groups = append(group.Groups, subGroup)
 
@@ -157,14 +157,14 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData) (gokeepasslib.Group
 	return group, entriesExported
 }
 
-func keepassExport(masterPassword string, output io.Writer) error {
+func keepassExport(masterPassword string, output io.Writer, st *state.State) error {
 	meta := gokeepasslib.NewMetaData()
 
 	content := &gokeepasslib.DBContent{
 		Meta: meta,
 	}
 
-	rootGroup, entriesExported := exportRecursive("root", meta)
+	rootGroup, entriesExported := exportRecursive("root", meta, st)
 
 	content.Root = &gokeepasslib.RootData{
 		Groups: []gokeepasslib.Group{rootGroup},

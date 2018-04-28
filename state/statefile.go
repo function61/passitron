@@ -1,7 +1,7 @@
 package state
 
 import (
-	"errors"
+	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/util/eventlog"
 )
 
@@ -9,8 +9,6 @@ const (
 	statefilePath = "state.json"
 	logfilePath   = "events.log"
 )
-
-var Inst *State
 
 type State struct {
 	masterPassword string
@@ -22,26 +20,24 @@ type State struct {
 	S3ExportSecret string
 }
 
-func Initialize() {
-	if Inst != nil {
-		panic(errors.New("statefile: initialize called twice"))
-	}
-
+func New() *State {
 	// state from the event log is computed & populated here
-	Inst = &State{
+	s := &State{
 		masterPassword: "",
 		State:          NewStatefile(),
 		sealed:         true,
 	}
 
 	// needs to be instantiated later, because handleEvent requires presence of "Inst"
-	Inst.EventLog = eventlog.New(logfilePath, handleEvent)
+	s.EventLog = eventlog.New(logfilePath, func(event domain.Event) error {
+		return handleEvent(event, s)
+	})
+
+	return s
 }
 
 func (s *State) Close() {
 	s.EventLog.Close()
-
-	Inst = nil
 }
 
 // for Keepass export

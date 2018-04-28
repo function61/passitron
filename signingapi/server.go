@@ -19,8 +19,8 @@ import (
 	"time"
 )
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte) (ssh.Signer, *state.InsecureAccount, error) {
-	for _, account := range state.Inst.State.Accounts {
+func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.InsecureAccount, error) {
+	for _, account := range st.State.Accounts {
 		for _, secret := range account.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
@@ -43,28 +43,28 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte) (ssh.Signer, *state.InsecureAc
 	return nil, nil, errors.New("privkey not found by pubkey")
 }
 
-func expectedAuthHeader() string {
-	bearerHash := sha256.Sum256([]byte(state.Inst.GetMasterPassword() + ":sshagent"))
+func expectedAuthHeader(st *state.State) string {
+	bearerHash := sha256.Sum256([]byte(st.GetMasterPassword() + ":sshagent"))
 
 	return "Bearer " + hex.EncodeToString(bearerHash[:])
 }
 
-func Setup(router *mux.Router) {
-	log.Printf("signingapi expected auth: %s", expectedAuthHeader())
+func Setup(router *mux.Router, st *state.State) {
+	log.Printf("signingapi expected auth: %s", expectedAuthHeader(st))
 
 	router.HandleFunc("/_api/signer/publickeys", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
-		if r.Header.Get("Authorization") != expectedAuthHeader() {
+		if r.Header.Get("Authorization") != expectedAuthHeader(st) {
 			util.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
 			return
 		}
 
 		resp := signingapitypes.NewPublicKeysResponse()
 
-		for _, account := range state.Inst.State.Accounts {
+		for _, account := range st.State.Accounts {
 			for _, secret := range account.Secrets {
 				if secret.SshPrivateKey == "" {
 					continue
@@ -92,11 +92,11 @@ func Setup(router *mux.Router) {
 	}))
 
 	router.HandleFunc("/_api/signer/sign", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, state.Inst.IsUnsealed()) {
+		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
-		if r.Header.Get("Authorization") != expectedAuthHeader() {
+		if r.Header.Get("Authorization") != expectedAuthHeader(st) {
 			util.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
 			return
 		}
@@ -113,7 +113,7 @@ func Setup(router *mux.Router) {
 			return
 		}
 
-		signer, account, err := lookupSignerByPubKey(input.PublicKey)
+		signer, account, err := lookupSignerByPubKey(input.PublicKey, st)
 		if err != nil {
 			util.CommandCustomError(w, r, "privkey_for_pubkey_not_found", err, http.StatusBadRequest)
 			return
@@ -125,7 +125,7 @@ func Setup(router *mux.Router) {
 			return
 		}
 
-		state.Inst.EventLog.Append(
+		st.EventLog.Append(
 			domain.NewAccountSecretUsed(
 				account.Id,
 				"SshSigning",

@@ -42,8 +42,8 @@ func Run(args []string) {
 
 	csvPath := args[0]
 
-	state.Initialize()
-	defer state.Inst.Close()
+	st := state.New()
+	defer st.Close()
 
 	result := parseGenericCsv(csvPath)
 
@@ -77,7 +77,7 @@ func Run(args []string) {
 			log.Fatal("need group path")
 		}
 
-		folder := state.FolderByName(groupPath)
+		folder := st.FolderByName(groupPath)
 
 		folderId := ""
 		if folder != nil {
@@ -137,7 +137,7 @@ func Run(args []string) {
 		}
 	}
 
-	state.Inst.EventLog.AppendBatch(events)
+	st.EventLog.AppendBatch(events)
 
 	log.Printf("%d event(s) applied", len(events))
 }
