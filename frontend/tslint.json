@@ -15,6 +15,7 @@
 		"switch-default": true,
 		"no-string-throw": true,
 		"no-unused-expression": true,
+		"no-floating-promises": true,
 		"only-arrow-functions": {
 			"options": [
 				"allow-declarations",
