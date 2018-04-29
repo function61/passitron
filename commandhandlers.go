@@ -204,10 +204,20 @@ func (a *AccountAddKeylist) Invoke(ctx *Ctx) error {
 	}
 
 	for i := 0; i < len(matches); i += 2 {
-		keys = append(keys, domain.AccountKeylistAddedKeysItem{
+		item := domain.AccountKeylistAddedKeysItem{
 			Key:   matches[i],
 			Value: matches[i+1],
-		})
+		}
+
+		if a.LengthOfKeys != 0 && len(item.Key) != a.LengthOfKeys {
+			return errors.New("invalid length for key: " + item.Key)
+		}
+
+		if a.LengthOfValues != 0 && len(item.Value) != a.LengthOfValues {
+			return errors.New("invalid length for value: " + item.Value)
+		}
+
+		keys = append(keys, item)
 	}
 
 	ctx.RaisesEvent(domain.NewAccountKeylistAdded(

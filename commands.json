@@ -100,6 +100,8 @@
 			{ "key": "Account" },
 			{ "key": "Title" },
 			{ "key": "ExpectedKeyCount", "type": "integer" },
+			{ "key": "LengthOfKeys", "type": "integer" },
+			{ "key": "LengthOfValues", "type": "integer" },
 			{ "key": "Keylist", "type": "multiline" }
 		]
 	},
