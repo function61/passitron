@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Account, Secret, SecretKind, Folder, FolderResponse} from 'model';
 import clipboard from 'clipboard';
-import {getAccount, getFolder, getSecrets} from 'repo';
+import {getAccount, getFolder, getSecrets, defaultErrorHandler} from 'repo';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton, CommandLink} from 'components/CommandButton';
 import DefaultLayout from 'layouts/DefaultLayout';
@@ -174,7 +174,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				folderresponse,
 				secrets,
 			});
-		});
+		}, defaultErrorHandler);
 	}
 
 	private getBreadcrumbItems(): Breadcrumb[] {
