@@ -23,7 +23,7 @@ Features
 	* Passwords
 	* OTP tokens (Google Authenticator)
 	* SSH keys (via SSH agent protocol)
-	* Keylists (["hardcopy OTP list"](https://en.wikipedia.org/wiki/One-time_password#Hardcopy))
+	* Keylists (["printed OTP list"](https://en.wikipedia.org/wiki/One-time_password#Hardcopy))
 - Create, view and list secrets in a folder hierarchy.
 - Export database to Keepass format (for viewing in mobile devices when traveling etc.)
 - Import data from Keepass format
@@ -76,7 +76,7 @@ $ sudo ./pism install
 # configure Systemd to start this on system reboot
 $ sudo systemctl enable pi-security-module
 
-# start it manually (reboot would have the same effects)
+# start it manually (reboot would have the same effect)
 $ sudo systemctl start pi-security-module
 
 # check logs for succesful start
