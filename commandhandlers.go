@@ -5,12 +5,12 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"regexp"
 	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/util/keepassexport"
 	"github.com/function61/pi-security-module/util/randompassword"
 	"github.com/pquerna/otp"
 	"golang.org/x/crypto/ssh"
+	"regexp"
 )
 
 var (
@@ -199,7 +199,7 @@ func (a *AccountAddKeylist) Invoke(ctx *Ctx) error {
 		return errors.New("unable to parse keylist")
 	}
 
-	if a.ExpectedKeyCount == 0 || a.ExpectedKeyCount * 2 != len(matches) {
+	if a.ExpectedKeyCount == 0 || a.ExpectedKeyCount*2 != len(matches) {
 		return errors.New("ExpectedKeyCount does not match with parsed keylist")
 	}
 
