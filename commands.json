@@ -23,7 +23,7 @@
 		"title": "Change description",
 		"fields": [
 			{ "key": "Account" },
-			{ "key": "Description", "type": "multiline" }
+			{ "key": "Description", "type": "multiline", "optional": true }
 		]
 	},
 	{
