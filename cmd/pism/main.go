@@ -15,8 +15,6 @@ import (
 	"os"
 )
 
-//go:generate go run gen/main.go gen/version.go gen/commands.go gen/events.go
-
 func runMain() {
 	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
 	if version.IsDevVersion() {

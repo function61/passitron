@@ -162,7 +162,7 @@ type EventFieldObjectFieldTypeDef struct {
 }
 
 func generateEvents() error {
-	contents, readErr := ioutil.ReadFile("pkg/domain/events.json")
+	contents, readErr := ioutil.ReadFile("../pkg/domain/events.json")
 	if readErr != nil {
 		return readErr
 	}
@@ -259,7 +259,7 @@ var eventBuilders = map[string]func() Event{
 		strings.Join(typeGetters, "\n"),
 		strings.Join(serializes, "\n"))
 
-	if writeErr := ioutil.WriteFile("pkg/domain/events.go", []byte(content), 0777); writeErr != nil {
+	if writeErr := ioutil.WriteFile("../pkg/domain/events.go", []byte(content), 0777); writeErr != nil {
 		panic(writeErr)
 	}
 

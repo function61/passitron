@@ -15,7 +15,7 @@ downloadDependencies() {
 codeGeneration() {
 	echo "# Code generation"
 
-	go generate
+	go generate ./...
 }
 
 staticAnalysis() {
