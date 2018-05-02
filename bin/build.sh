@@ -43,11 +43,11 @@ packagePublicFiles() {
 buildBinaries() {
 	logBuild "linux-arm"
 
-	GOOS=linux GOARCH=arm go build -o rel/pism_linux-arm
+	(cd cmd/pism && GOOS=linux GOARCH=arm go build -o ../../rel/pism_linux-arm)
 
 	logBuild "linux-amd64"
 
-	GOOS=linux GOARCH=amd64 go build -o rel/pism_linux-amd64
+	(cd cmd/pism && GOOS=linux GOARCH=amd64 go build -o ../../rel/pism_linux-amd64)
 }
 
 uploadArtefacts() {
