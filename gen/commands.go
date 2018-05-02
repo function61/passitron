@@ -139,12 +139,13 @@ func (x *%s) Validate() error {
 }
 
 func writeCommandsMap(file *CommandSpecFile) error {
-	template := `package main
+	template := `package commandhandlers
 
 // WARNING: generated file
 
 import (
 	"errors"
+	"github.com/function61/pi-security-module/util/command"
 )
 
 func fieldEmptyValidationError(fieldName string) error {
@@ -153,7 +154,7 @@ func fieldEmptyValidationError(fieldName string) error {
 
 %s
 
-var commandHandlers = map[string]func() Command{
+var StructBuilders = map[string]func() command.Command{
 %s
 }
 
@@ -167,7 +168,7 @@ var commandHandlers = map[string]func() Command{
 		structs = append(structs, makeStruct(commandSpec))
 
 		handlerLine := fmt.Sprintf(
-			`	"%s": func() Command { return &%s{} },`,
+			`	"%s": func() command.Command { return &%s{} },`,
 			commandSpec.Command,
 			commandSpec.AsGoStructName())
 
@@ -179,7 +180,7 @@ var commandHandlers = map[string]func() Command{
 		strings.Join(structs, "\n\n"),
 		strings.Join(handlerLines, "\n"))
 
-	if writeErr := ioutil.WriteFile("commandsgen.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
+	if writeErr := ioutil.WriteFile("util/commandhandlers/generated.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
 		return writeErr
 	}
 

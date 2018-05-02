@@ -1,4 +1,4 @@
-package main
+package commandhandlers
 
 import (
 	"crypto/x509"
@@ -8,6 +8,7 @@ import (
 	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/util/keepassexport"
 	"github.com/function61/pi-security-module/util/randompassword"
+	"github.com/function61/pi-security-module/util/command"
 	"github.com/pquerna/otp"
 	"golang.org/x/crypto/ssh"
 	"regexp"
@@ -19,7 +20,7 @@ var (
 	errDeleteNeedsConfirmation = errors.New("Delete needs confirmation")
 )
 
-func (a *AccountRename) Invoke(ctx *Ctx) error {
+func (a *AccountRename) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -32,7 +33,7 @@ func (a *AccountRename) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountChangeUsername) Invoke(ctx *Ctx) error {
+func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -45,7 +46,7 @@ func (a *AccountChangeUsername) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountChangeDescription) Invoke(ctx *Ctx) error {
+func (a *AccountChangeDescription) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -58,7 +59,7 @@ func (a *AccountChangeDescription) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountDeleteSecret) Invoke(ctx *Ctx) error {
+func (a *AccountDeleteSecret) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -73,7 +74,7 @@ func (a *AccountDeleteSecret) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountCreateFolder) Invoke(ctx *Ctx) error {
+func (a *AccountCreateFolder) Invoke(ctx *command.Ctx) error {
 	if ctx.State.FolderById(a.Parent) == nil {
 		return errFolderNotFound
 	}
@@ -87,7 +88,7 @@ func (a *AccountCreateFolder) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountRenameFolder) Invoke(ctx *Ctx) error {
+func (a *AccountRenameFolder) Invoke(ctx *command.Ctx) error {
 	if ctx.State.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
@@ -100,7 +101,7 @@ func (a *AccountRenameFolder) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountMoveFolder) Invoke(ctx *Ctx) error {
+func (a *AccountMoveFolder) Invoke(ctx *command.Ctx) error {
 	if ctx.State.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
@@ -116,7 +117,7 @@ func (a *AccountMoveFolder) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountCreate) Invoke(ctx *Ctx) error {
+func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 	accountId := domain.RandomId()
 
 	ctx.RaisesEvent(domain.NewAccountCreated(
@@ -145,7 +146,7 @@ func (a *AccountCreate) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountDelete) Invoke(ctx *Ctx) error {
+func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
@@ -161,7 +162,7 @@ func (a *AccountDelete) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
+func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
@@ -185,7 +186,7 @@ func (a *AccountAddPassword) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountAddKeylist) Invoke(ctx *Ctx) error {
+func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -230,7 +231,7 @@ func (a *AccountAddKeylist) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountAddSshKey) Invoke(ctx *Ctx) error {
+func (a *AccountAddSshKey) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
@@ -279,7 +280,7 @@ func (a *AccountAddSshKey) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *AccountAddOtpToken) Invoke(ctx *Ctx) error {
+func (a *AccountAddOtpToken) Invoke(ctx *command.Ctx) error {
 	if ctx.State.AccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -299,7 +300,7 @@ func (a *AccountAddOtpToken) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *DatabaseChangeMasterPassword) Invoke(ctx *Ctx) error {
+func (a *DatabaseChangeMasterPassword) Invoke(ctx *command.Ctx) error {
 	if a.NewMasterPassword != a.NewMasterPasswordRepeat {
 		return errors.New("NewMasterPassword not same as NewMasterPasswordRepeat")
 	}
@@ -311,11 +312,11 @@ func (a *DatabaseChangeMasterPassword) Invoke(ctx *Ctx) error {
 	return nil
 }
 
-func (a *DatabaseExportToKeepass) Invoke(ctx *Ctx) error {
+func (a *DatabaseExportToKeepass) Invoke(ctx *command.Ctx) error {
 	return keepassexport.Export(ctx.State)
 }
 
-func (a *DatabaseUnseal) Invoke(ctx *Ctx) error {
+func (a *DatabaseUnseal) Invoke(ctx *command.Ctx) error {
 	// TODO: predictable comparison time
 	if ctx.State.GetMasterPassword() != a.MasterPassword {
 		return errors.New("invalid password")
