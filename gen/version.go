@@ -25,7 +25,7 @@ func IsDevVersion() bool {
 
 	fileSerialized := []byte(fmt.Sprintf(versionTemplate, friendlyRevId))
 
-	if err := ioutil.WriteFile("util/version/version.go", fileSerialized, 0644); err != nil {
+	if err := ioutil.WriteFile("pkg/version/version.go", fileSerialized, 0644); err != nil {
 		return err
 	}
 

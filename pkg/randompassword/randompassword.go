@@ -11,8 +11,7 @@ const (
 	numbers      = "0123456789"
 	specialchars = "!_-=:;,."
 
-	// numbers twice and specialchars three times to increase probability
-	DefaultAlphabet = az + AZ + numbers + numbers + specialchars + specialchars + specialchars
+	DefaultAlphabet = az + AZ + numbers + specialchars
 )
 
 func Build(alphabet string, length int) string {

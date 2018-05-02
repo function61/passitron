@@ -3,12 +3,11 @@ package restapi
 import (
 	"encoding/json"
 	"github.com/function61/pi-security-module/domain"
+	"github.com/function61/pi-security-module/pkg/command"
+	"github.com/function61/pi-security-module/pkg/commandhandlers"
+	"github.com/function61/pi-security-module/pkg/httputil"
+	"github.com/function61/pi-security-module/pkg/physicalauth"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util"
-	"github.com/function61/pi-security-module/util/command"
-	"github.com/function61/pi-security-module/util/commandhandlers"
-	"github.com/function61/pi-security-module/util/httputil"
-	"github.com/function61/pi-security-module/util/physicalauth"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -23,13 +22,13 @@ func Define(router *mux.Router, st *state.State) {
 		// only command able to be invoked anonymously is the Unseal command
 		commandNeedsAuthorization := commandName != "database.Unseal"
 
-		if commandNeedsAuthorization && util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if commandNeedsAuthorization && httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
 		cmdStructBuilder, commandExists := commandhandlers.StructBuilders[commandName]
 		if !commandExists {
-			util.CommandCustomError(w, r, "unsupported_command", nil, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "unsupported_command", nil, http.StatusBadRequest)
 			return
 		}
 
@@ -42,17 +41,17 @@ func Define(router *mux.Router, st *state.State) {
 
 		// FIXME: assert application/json
 		if errJson := json.NewDecoder(r.Body).Decode(cmdStruct); errJson != nil {
-			util.CommandCustomError(w, r, "json_parsing_failed", errJson, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "json_parsing_failed", errJson, http.StatusBadRequest)
 			return
 		}
 
 		if errValidate := cmdStruct.Validate(); errValidate != nil {
-			util.CommandCustomError(w, r, "command_validation_failed", errValidate, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "command_validation_failed", errValidate, http.StatusBadRequest)
 			return
 		}
 
 		if errInvoke := cmdStruct.Invoke(ctx); errInvoke != nil {
-			util.CommandCustomError(w, r, "command_failed", errInvoke, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "command_failed", errInvoke, http.StatusBadRequest)
 			return
 		}
 
@@ -63,11 +62,11 @@ func Define(router *mux.Router, st *state.State) {
 		st.EventLog.AppendBatch(raisedEvents)
 
 		httputil.DisableCache(w)
-		util.CommandGenericSuccess(w, r)
+		httputil.CommandGenericSuccess(w, r)
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
@@ -101,7 +100,7 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
@@ -142,14 +141,14 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
 		account := st.AccountById(mux.Vars(r)["accountId"])
 
 		if account == nil {
-			util.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
+			httputil.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
 			return
 		}
 
@@ -159,27 +158,27 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
 		account := st.AccountById(mux.Vars(r)["accountId"])
 
 		if account == nil {
-			util.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
+			httputil.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
 			return
 		}
 
 		authorized, err := physicalauth.Dummy()
 		if err != nil {
-			util.CommandCustomError(w, r, "technical_error_in_physical_authorization", err, http.StatusInternalServerError)
+			httputil.CommandCustomError(w, r, "technical_error_in_physical_authorization", err, http.StatusInternalServerError)
 			return
 		}
 
 		// FIXME: PasswordExposed via enum
 
 		if !authorized {
-			util.CommandCustomError(w, r, "did_not_receive_physical_authorization", nil, http.StatusForbidden)
+			httputil.CommandCustomError(w, r, "did_not_receive_physical_authorization", nil, http.StatusForbidden)
 			return
 		}
 

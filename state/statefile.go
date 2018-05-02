@@ -2,7 +2,7 @@ package state
 
 import (
 	"github.com/function61/pi-security-module/domain"
-	"github.com/function61/pi-security-module/util/eventlog"
+	"github.com/function61/pi-security-module/pkg/eventlog"
 )
 
 const (

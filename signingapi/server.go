@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/domain"
+	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/signingapi/signingapitypes"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
@@ -53,12 +53,12 @@ func Setup(router *mux.Router, st *state.State) {
 	log.Printf("signingapi expected auth: %s", expectedAuthHeader(st))
 
 	router.HandleFunc("/_api/signer/publickeys", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
 		if r.Header.Get("Authorization") != expectedAuthHeader(st) {
-			util.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
+			httputil.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
 			return
 		}
 
@@ -92,36 +92,36 @@ func Setup(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/_api/signer/sign", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if util.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
 			return
 		}
 
 		if r.Header.Get("Authorization") != expectedAuthHeader(st) {
-			util.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
+			httputil.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
 			return
 		}
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			util.CommandCustomError(w, r, "unable_to_read_body", err, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "unable_to_read_body", err, http.StatusBadRequest)
 			return
 		}
 
 		var input signingapitypes.SignRequestInput
 		if err := json.Unmarshal(body, &input); err != nil {
-			util.CommandCustomError(w, r, "unable_to_parse_json", err, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "unable_to_parse_json", err, http.StatusBadRequest)
 			return
 		}
 
 		signer, account, err := lookupSignerByPubKey(input.PublicKey, st)
 		if err != nil {
-			util.CommandCustomError(w, r, "privkey_for_pubkey_not_found", err, http.StatusBadRequest)
+			httputil.CommandCustomError(w, r, "privkey_for_pubkey_not_found", err, http.StatusBadRequest)
 			return
 		}
 
 		signature, err := signer.Sign(rand.Reader, input.Data)
 		if err != nil {
-			util.CommandCustomError(w, r, "signing_failed", err, http.StatusInternalServerError)
+			httputil.CommandCustomError(w, r, "signing_failed", err, http.StatusInternalServerError)
 			return
 		}
 

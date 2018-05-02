@@ -1,14 +1,14 @@
 package main
 
 import (
+	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
+	"github.com/function61/pi-security-module/pkg/keepassimport"
+	"github.com/function61/pi-security-module/pkg/restapi"
+	"github.com/function61/pi-security-module/pkg/systemdinstaller"
+	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/function61/pi-security-module/signingapi"
 	"github.com/function61/pi-security-module/sshagent"
 	"github.com/function61/pi-security-module/state"
-	"github.com/function61/pi-security-module/util/extractpublicfiles"
-	"github.com/function61/pi-security-module/util/keepassimport"
-	"github.com/function61/pi-security-module/util/restapi"
-	"github.com/function61/pi-security-module/util/systemdinstaller"
-	"github.com/function61/pi-security-module/util/version"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

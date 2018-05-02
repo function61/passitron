@@ -145,7 +145,7 @@ func writeCommandsMap(file *CommandSpecFile) error {
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/util/command"
+	"github.com/function61/pi-security-module/pkg/command"
 )
 
 func fieldEmptyValidationError(fieldName string) error {
@@ -180,7 +180,7 @@ var StructBuilders = map[string]func() command.Command{
 		strings.Join(structs, "\n\n"),
 		strings.Join(handlerLines, "\n"))
 
-	if writeErr := ioutil.WriteFile("util/commandhandlers/generated.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
+	if writeErr := ioutil.WriteFile("pkg/commandhandlers/generated.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
 		return writeErr
 	}
 

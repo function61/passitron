@@ -2,8 +2,8 @@ package extractpublicfiles
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/util/tarextract"
-	"github.com/function61/pi-security-module/util/version"
+	"github.com/function61/pi-security-module/pkg/tarextract"
+	"github.com/function61/pi-security-module/pkg/version"
 	"io"
 	"log"
 	"net/http"

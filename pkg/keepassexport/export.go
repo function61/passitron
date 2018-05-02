@@ -113,6 +113,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 			switch secret.Kind {
 			default:
 				panic("invalid secret kind: " + secret.Kind)
+			// TODO: keylist
 			case state.SecretKindPassword:
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Password))
 
