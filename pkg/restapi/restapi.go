@@ -65,8 +65,7 @@ func Define(router *mux.Router, st *state.State) {
 
 		st.EventLog.AppendBatch(raisedEvents)
 
-		httputil.DisableCache(w)
-		httputil.CommandGenericSuccess(w, r)
+		httputil.RespondHttpJson(httputil.GenericSuccess(), http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -98,9 +97,7 @@ func Define(router *mux.Router, st *state.State) {
 
 		resp := FolderResponse{folder, subFolders, parentFolders, accounts}
 
-		httputil.DisableCache(w)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		httputil.RespondHttpJson(resp, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -139,9 +136,7 @@ func Define(router *mux.Router, st *state.State) {
 			}
 		}
 
-		httputil.DisableCache(w)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(matches)
+		httputil.RespondHttpJson(matches, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -156,9 +151,7 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		httputil.DisableCache(w)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(account)
+		httputil.RespondHttpJson(account, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -191,8 +184,6 @@ func Define(router *mux.Router, st *state.State) {
 			"PasswordExposed",
 			domain.Meta(time.Now(), "2")))
 
-		httputil.DisableCache(w)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(account.GetSecrets())
+		httputil.RespondHttpJson(account.GetSecrets(), http.StatusOK, w)
 	}))
 }

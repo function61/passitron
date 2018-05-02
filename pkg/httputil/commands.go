@@ -4,18 +4,22 @@ import (
 	"net/http"
 )
 
+type SimpleStatusedResponse struct {
+	Status string `json:"status"`
+}
+
+// TODO: combine these
+
 type ResponseError struct {
 	ErrorCode        string `json:"error_code"`
 	ErrorDescription string `json:"error_description"`
 }
 
 func CommandValidationError(w http.ResponseWriter, r *http.Request, err error) {
-	resp := &ResponseError{
+	RespondHttpJson(&ResponseError{
 		ErrorCode:        "input_validation_failed",
 		ErrorDescription: err.Error(),
-	}
-
-	RespondHttpJson(resp, http.StatusBadRequest, w)
+	}, http.StatusBadRequest, w)
 }
 
 func ErrorIfSealed(w http.ResponseWriter, r *http.Request, unsealed bool) bool {
@@ -33,20 +37,14 @@ func CommandCustomError(w http.ResponseWriter, r *http.Request, code string, err
 		errorDescription = err.Error()
 	}
 
-	resp := &ResponseError{
+	RespondHttpJson(&ResponseError{
 		ErrorCode:        code,
 		ErrorDescription: errorDescription,
-	}
-
-	RespondHttpJson(resp, httpCode, w)
+	}, httpCode, w)
 }
 
-func CommandGenericSuccess(w http.ResponseWriter, r *http.Request) {
-	type ResponseSuccess struct {
-		Status string `json:"status"`
-	}
-
-	RespondHttpJson(&ResponseSuccess{
+func GenericSuccess() *SimpleStatusedResponse {
+	return &SimpleStatusedResponse{
 		Status: "success",
-	}, http.StatusOK, w)
+	}
 }
