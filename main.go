@@ -9,6 +9,7 @@ import (
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/extractpublicfiles"
 	"github.com/function61/pi-security-module/util/keepassimport"
+	"github.com/function61/pi-security-module/util/physicalauth"
 	"github.com/function61/pi-security-module/util/systemdinstaller"
 	"github.com/function61/pi-security-module/util/version"
 	"github.com/gorilla/mux"
@@ -20,12 +21,6 @@ import (
 )
 
 //go:generate go run gen/main.go gen/version.go gen/commands.go gen/events.go
-
-func askAuthorization() (bool, error) {
-	time.Sleep(2 * time.Second)
-
-	return true, nil
-}
 
 type FolderResponse struct {
 	Folder        *state.Folder
@@ -190,7 +185,7 @@ func defineApi(router *mux.Router, st *state.State) {
 			return
 		}
 
-		authorized, err := askAuthorization()
+		authorized, err := physicalauth.Dummy()
 		if err != nil {
 			util.CommandCustomError(w, r, "technical_error_in_physical_authorization", err, http.StatusInternalServerError)
 			return
