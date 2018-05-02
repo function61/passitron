@@ -17,29 +17,7 @@ import (
 
 //go:generate go run gen/main.go gen/version.go gen/commands.go gen/events.go
 
-func main() {
-	if len(os.Args) < 2 {
-		log.Fatalf("Usage: %s <run>", os.Args[0])
-	} else if os.Args[1] == "keepassimport" {
-		keepassimport.Run(os.Args[2:])
-		return
-	} else if os.Args[1] == "agent" {
-		sshagent.Run(os.Args[2:])
-		return
-	} else if os.Args[1] == "install" {
-		errInstall := systemdinstaller.InstallSystemdServiceFile(
-			"pi-security-module",
-			[]string{"run"},
-			"Pi security module")
-
-		if errInstall != nil {
-			log.Fatalf("Installation failed: %s", errInstall)
-		}
-		return
-	} else if os.Args[1] != "run" {
-		log.Fatalf("Invalid command: %v", os.Args[1])
-	}
-
+func runMain() {
 	if err := extractpublicfiles.Run(); err != nil {
 		panic(err)
 	}
@@ -59,4 +37,31 @@ func main() {
 	log.Printf("Version %s listening in port 80", version.Version)
 
 	log.Fatal(http.ListenAndServe(":80", router))
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		log.Fatalf("Usage: %s <run>", os.Args[0])
+	} else if os.Args[1] == "keepassimport" {
+		keepassimport.Run(os.Args[2:])
+		return
+	} else if os.Args[1] == "agent" {
+		sshagent.Run(os.Args[2:])
+		return
+	} else if os.Args[1] == "install" {
+		errInstall := systemdinstaller.InstallSystemdServiceFile(
+			"pi-security-module",
+			[]string{"run"},
+			"Pi security module")
+
+		if errInstall != nil {
+			log.Fatalf("Installation failed: %s", errInstall)
+		}
+		return
+	} else if os.Args[1] == "run" {
+		runMain()
+		return
+	}
+
+	log.Fatalf("Invalid command: %v", os.Args[1])
 }
