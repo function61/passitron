@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {indexLink, sshKeysLink, settingsLink} from 'links';
+import {indexLink, sshKeysLink, settingsLink, auditLogLink} from 'links';
 
 interface NavLink {
 	url: string;
@@ -12,6 +12,7 @@ export default class Navigation extends React.Component<{}, {}> {
 			{ title: 'Home', url: indexLink() },
 			{ title: 'SSH keys', url: sshKeysLink() },
 			{ title: 'Settings', url: settingsLink() },
+			{ title: 'Audit log', url: auditLogLink() },
 		];
 
 		const items = links.map((link: NavLink) => {

@@ -31,6 +31,10 @@ export function unsealLink(): string {
 	return make('unseal');
 }
 
+export function auditLogLink(): string {
+	return make('auditlog');
+}
+
 export function importOtpTokenLink(accountId: string): string {
 	return make('importotptoken', accountId);
 }

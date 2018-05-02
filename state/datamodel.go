@@ -1,6 +1,7 @@
 package state
 
 import (
+	"github.com/function61/pi-security-module/domain"
 	"time"
 )
 
@@ -82,6 +83,27 @@ type Folder struct {
 type Statefile struct {
 	Accounts []InsecureAccount
 	Folders  []Folder
+	AuditLog []AuditLogEntry
+}
+
+const maxAuditLogEntries = 10
+
+func (s *Statefile) Audit(message string, meta *domain.EventMeta) {
+	entry := AuditLogEntry{meta.Timestamp, message}
+
+	high := len(s.AuditLog)
+	if high > maxAuditLogEntries-1 {
+		high = maxAuditLogEntries - 1
+	}
+
+	s.AuditLog = append(
+		[]AuditLogEntry{entry},
+		s.AuditLog[0:high]...)
+}
+
+type AuditLogEntry struct {
+	Timestamp time.Time
+	Message   string
 }
 
 func NewStatefile() *Statefile {
@@ -94,5 +116,6 @@ func NewStatefile() *Statefile {
 	return &Statefile{
 		Accounts: []InsecureAccount{},
 		Folders:  []Folder{rootFolder},
+		AuditLog: []AuditLogEntry{},
 	}
 }

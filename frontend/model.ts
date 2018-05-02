@@ -40,6 +40,11 @@ export interface SecretKeylistKey {
 	Value: string;
 }
 
+export interface AuditlogEntry {
+	Timestamp: string;
+	Message: string;
+}
+
 export enum SecretKind {
     Password = 'password',
     SshKey = 'ssh_key',

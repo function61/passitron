@@ -16,6 +16,10 @@ import (
 )
 
 func Define(router *mux.Router, st *state.State) {
+	router.HandleFunc("/auditlog", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		httputil.RespondHttpJson(st.State.AuditLog, http.StatusOK, w)
+	}))
+
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 

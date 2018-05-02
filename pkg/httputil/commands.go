@@ -1,19 +1,8 @@
 package httputil
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 )
-
-func respondHttpJson(out interface{}, httpCode int, w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(httpCode)
-
-	if err := json.NewEncoder(w).Encode(out); err != nil {
-		log.Printf("respondHttpJson: failed to encode JSON: %s", err.Error())
-	}
-}
 
 type ResponseError struct {
 	ErrorCode        string `json:"error_code"`
@@ -26,7 +15,7 @@ func CommandValidationError(w http.ResponseWriter, r *http.Request, err error) {
 		ErrorDescription: err.Error(),
 	}
 
-	respondHttpJson(resp, http.StatusBadRequest, w)
+	RespondHttpJson(resp, http.StatusBadRequest, w)
 }
 
 func ErrorIfSealed(w http.ResponseWriter, r *http.Request, unsealed bool) bool {
@@ -49,7 +38,7 @@ func CommandCustomError(w http.ResponseWriter, r *http.Request, code string, err
 		ErrorDescription: errorDescription,
 	}
 
-	respondHttpJson(resp, httpCode, w)
+	RespondHttpJson(resp, httpCode, w)
 }
 
 func CommandGenericSuccess(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +46,7 @@ func CommandGenericSuccess(w http.ResponseWriter, r *http.Request) {
 		Status string `json:"status"`
 	}
 
-	respondHttpJson(&ResponseSuccess{
+	RespondHttpJson(&ResponseSuccess{
 		Status: "success",
 	}, http.StatusOK, w)
 }

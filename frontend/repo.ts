@@ -1,4 +1,4 @@
-import {FolderResponse, Account, Secret} from 'model';
+import {FolderResponse, Account, Secret, AuditlogEntry} from 'model';
 import {unsealLink} from 'links';
 
 function getJson<T>(url: string): Promise<T> {
@@ -46,6 +46,10 @@ export function searchAccounts(query: string): Promise<Account[]> {
 	const searchEscaped = encodeURIComponent(query);
 
 	return getJson<Account[]>(`/accounts?search=${searchEscaped}`);
+}
+
+export function auditLogEntries(): Promise<AuditlogEntry[]> {
+	return getJson<AuditlogEntry[]>('/auditlog');
 }
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {

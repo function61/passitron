@@ -6,6 +6,7 @@ import ImportOtpToken from 'pages/ImportOtpToken';
 import {rootFolderId} from 'model';
 import AccountPage from 'pages/AccountPage';
 import UnsealPage from 'pages/UnsealPage';
+import AuditLogPage from 'pages/AuditLogPage';
 import SettingsPage from 'pages/SettingsPage';
 
 export interface RouterProps {
@@ -70,6 +71,8 @@ export class Router extends React.Component<RouterProps, RouterState> {
 			page = <SettingsPage />;
 		} else if (firstComponent === 'unseal' && hash.length === 1) {
 			page = <UnsealPage />;
+		} else if (firstComponent === 'auditlog' && hash.length === 1) {
+			page = <AuditLogPage />;
 		} else if (firstComponent === 'importotptoken' && hash.length === 2) {
 			page = <ImportOtpToken account={hash[1]} />;
 		} else {

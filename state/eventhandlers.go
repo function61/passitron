@@ -2,6 +2,7 @@ package state
 
 import (
 	"errors"
+	"fmt"
 	"github.com/function61/pi-security-module/domain"
 )
 
@@ -126,7 +127,7 @@ func handleAccountSecretDeleted(e *domain.AccountSecretDeleted, state *State) {
 }
 
 func handleAccountSecretUsed(e *domain.AccountSecretUsed, state *State) {
-	// no-op
+	state.State.Audit(fmt.Sprintf("Secret %s used (%s)", e.Account, e.Type), e.Meta())
 }
 
 func handleAccountSshKeyAdded(e *domain.AccountSshKeyAdded, state *State) {
