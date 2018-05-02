@@ -1,4 +1,9 @@
 {
+	"linterOptions": {
+		"exclude": [
+			"typescript-safe-router/**/*"
+		]
+	},
 	"rules": {
 		"new-parens": true,
 		"no-arg": true,

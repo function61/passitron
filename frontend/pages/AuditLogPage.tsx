@@ -3,7 +3,7 @@ import DefaultLayout from 'layouts/DefaultLayout';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {auditLogEntries, defaultErrorHandler} from 'repo';
 import {rootFolderName, AuditlogEntry} from 'model';
-import {indexLink} from 'links';
+import {indexRoute} from 'routes';
 
 interface AuditLogPageState {
 	entries: AuditlogEntry[];
@@ -17,7 +17,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 	}
 
 	render() {
-		const entryToRow = (entry: AuditlogEntry) => <tr>
+		const entryToRow = (entry: AuditlogEntry, idx: number) => <tr key={idx}>
 			<td>{entry.Timestamp}</td>
 			<td>{entry.Message}</td>
 		</tr>;
@@ -40,7 +40,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{url: indexLink(), title: rootFolderName},
+			{url: indexRoute.buildUrl({}), title: rootFolderName},
 			{url: '', title: this.title},
 		];
 	}
@@ -48,7 +48,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 	private fetchData() {
 		auditLogEntries().then((entries) => {
 			this.setState({
-				entries
+				entries,
 			});
 		}, defaultErrorHandler);
 	}

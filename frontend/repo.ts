@@ -1,5 +1,5 @@
 import {FolderResponse, Account, Secret, AuditlogEntry} from 'model';
-import {unsealLink} from 'links';
+import {unsealRoute} from 'routes';
 
 function getJson<T>(url: string): Promise<T> {
 	return fetch(url)
@@ -54,7 +54,7 @@ export function auditLogEntries(): Promise<AuditlogEntry[]> {
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	if (isStructuredErrorResponse(err) && err.error_code === 'database_is_sealed') {
-		document.location.assign(unsealLink());
+		document.location.assign(unsealRoute.buildUrl({}));
 		return;
 	}
 

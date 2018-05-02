@@ -5,7 +5,7 @@ import {getAccount, getFolder, getSecrets, defaultErrorHandler} from 'repo';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton, CommandLink} from 'components/CommandButton';
 import DefaultLayout from 'layouts/DefaultLayout';
-import {folderLink, importOtpTokenLink} from 'links';
+import {folderRoute, importotptokenRoute} from 'routes';
 import {
 	AccountDelete,
 	AccountAddPassword,
@@ -105,7 +105,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			<CommandButton command={AccountAddKeylist(account.Id)} />
 			<CommandButton command={AccountAddPassword(account.Id)} />
 
-			<a href={importOtpTokenLink(account.Id)} className="btn btn-default">+ OTP token</a>
+			<a href={importotptokenRoute.buildUrl({account: account.Id})} className="btn btn-default">+ OTP token</a>
 
 		</DefaultLayout>;
 	}
@@ -184,7 +184,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		function unshiftFolderToBreadcrumb(fld: Folder) {
 			breadcrumbItems.unshift({
-				url: folderLink(fld.Id),
+				url: folderRoute.buildUrl({folderId: fld.Id}),
 				title: fld.Name,
 			});
 		}

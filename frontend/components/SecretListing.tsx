@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FolderResponse} from 'model';
-import {searchLink, folderLink, indexLink, secretLink} from 'links';
+import {searchRoute, folderRoute, indexRoute, credviewRoute} from 'routes';
 
 interface SecretListingProps {
 	searchTerm: string;
@@ -12,7 +12,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 		const folderRows = this.props.listing.SubFolders.map((folder) => {
 			return <tr key={folder.Id}>
 				<td><span className="glyphicon glyphicon-folder-open"></span></td>
-				<td><a href={folderLink(folder.Id)}>{folder.Name}</a></td>
+				<td><a href={folderRoute.buildUrl({folderId: folder.Id})}>{folder.Name}</a></td>
 				<td></td>
 			</tr>;
 		});
@@ -20,7 +20,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 		const accountRows = this.props.listing.Accounts.map((account) => {
 			return <tr key={account.Id}>
 				<td></td>
-				<td><a href={secretLink(account.Id)}>{account.Title}</a></td>
+				<td><a href={credviewRoute.buildUrl({id: account.Id})}>{account.Title}</a></td>
 				<td>{account.Username}</td>
 			</tr>;
 		});
@@ -54,9 +54,9 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 		const searchTerm = e.target.value;
 
 		if (searchTerm !== '') {
-			document.location.hash = searchLink(searchTerm);
+			document.location.hash = searchRoute.buildUrl({searchTerm});
 		} else {
-			document.location.hash = indexLink();
+			document.location.hash = indexRoute.buildUrl({});
 		}
 	}
 }

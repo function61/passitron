@@ -9,6 +9,8 @@ interface SshKeysPageState {
 }
 
 export default class SshKeysPage extends React.Component<{}, SshKeysPageState> {
+	private title = 'SSH keys';
+
 	componentDidMount() {
 		this.fetchData();
 	}
@@ -19,10 +21,10 @@ export default class SshKeysPage extends React.Component<{}, SshKeysPageState> {
 		}
 
 		const breadcrumbs = [
-			{ url: '', title: 'SSH keys' },
+			{ url: '', title: this.title },
 		];
 
-		return <DefaultLayout title="SSH keys" breadcrumbs={breadcrumbs}>
+		return <DefaultLayout title={this.title} breadcrumbs={breadcrumbs}>
 			<SecretListing searchTerm="" listing={this.state.listing} />
 		</DefaultLayout>;
 	}

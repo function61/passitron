@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Navigation from 'components/Navigation';
 import {BreadcrumbTrail, Breadcrumb} from 'components/breadcrumbtrail';
-import {indexLink} from 'links';
+import {indexRoute} from 'routes';
 
 interface DefaultLayoutProps {
 	title: string;
@@ -17,7 +17,7 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 			<div className="header clearfix">
 				<div className="pull-left">
 					<h3 className="text-muted">
-						<a href={indexLink()}>PiLockBox</a>
+						<a href={indexRoute.buildUrl({})}>PiLockBox</a>
 					</h3>
 				</div>
 

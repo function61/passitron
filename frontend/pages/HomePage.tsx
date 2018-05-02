@@ -1,7 +1,7 @@
 import * as React from 'react';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {FolderResponse} from 'model';
-import {folderLink} from 'links';
+import {folderRoute} from 'routes';
 import {getFolder, defaultErrorHandler} from 'repo';
 import {CommandButton} from 'components/CommandButton';
 import {AccountCreate, AccountCreateFolder, AccountRenameFolder, AccountMoveFolder} from 'generated/commanddefinitions';
@@ -37,7 +37,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 		];
 
 		for (const parent of listing.ParentFolders) {
-			breadcrumbs.unshift({ url: folderLink(parent.Id), title: parent.Name });
+			breadcrumbs.unshift({ url: folderRoute.buildUrl({folderId: parent.Id}), title: parent.Name });
 		}
 
 		return <DefaultLayout title="Home" breadcrumbs={breadcrumbs}>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {rootFolderName, Account, FolderResponse} from 'model';
-import {indexLink} from 'links';
+import {indexRoute} from 'routes';
 import {searchAccounts, defaultErrorHandler} from 'repo';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {SecretListing} from 'components/SecretListing';
@@ -33,7 +33,7 @@ export default class SearchPage extends React.Component<SearchPageProps, SearchP
 		};
 
 		const breadcrumbs: Breadcrumb[] = [
-			{ url: indexLink(), title: rootFolderName },
+			{ url: indexRoute.buildUrl({}), title: rootFolderName },
 			{ url: '', title: `Search: ${this.props.searchTerm}` },
 		];
 

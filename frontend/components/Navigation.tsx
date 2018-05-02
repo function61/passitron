@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {indexLink, sshKeysLink, settingsLink, auditLogLink} from 'links';
+import {indexRoute, sshkeysRoute, settingsRoute, auditlogRoute} from 'routes';
 
 interface NavLink {
 	url: string;
@@ -9,10 +9,10 @@ interface NavLink {
 export default class Navigation extends React.Component<{}, {}> {
 	render() {
 		const links: NavLink[] = [
-			{ title: 'Home', url: indexLink() },
-			{ title: 'SSH keys', url: sshKeysLink() },
-			{ title: 'Settings', url: settingsLink() },
-			{ title: 'Audit log', url: auditLogLink() },
+			{ title: 'Home', url: indexRoute.buildUrl({}) },
+			{ title: 'SSH keys', url: sshkeysRoute.buildUrl({}) },
+			{ title: 'Settings', url: settingsRoute.buildUrl({}) },
+			{ title: 'Audit log', url: auditlogRoute.buildUrl({}) },
 		];
 
 		const items = links.map((link: NavLink) => {

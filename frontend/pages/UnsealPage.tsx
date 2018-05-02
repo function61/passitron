@@ -5,12 +5,12 @@ import {CommandButton} from 'components/CommandButton';
 import {WarningAlert} from 'components/alerts';
 import {rootFolderName} from 'model';
 import {DatabaseUnseal} from 'generated/commanddefinitions';
-import {indexLink} from 'links';
+import {indexRoute} from 'routes';
 
 export default class UnsealPage extends React.Component<{}, {}> {
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{url: indexLink(), title: rootFolderName},
+			{url: indexRoute.buildUrl({}), title: rootFolderName},
 			{url: '', title: 'unseal'},
 		];
 	}

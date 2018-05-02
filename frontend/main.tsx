@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Router} from 'router';
+import {App} from 'app';
 
 export default function (appElement: HTMLElement): void {
 	function render() {
 		ReactDOM.render(
-		    <Router initialHash={ document.location.hash } />,
+		    <App initialHash={ document.location.hash } />,
 		    appElement);
 	}
 

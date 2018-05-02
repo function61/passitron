@@ -4,18 +4,20 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
 import {rootFolderName} from 'model';
 import {DatabaseUnseal, DatabaseChangeMasterPassword, DatabaseExportToKeepass} from 'generated/commanddefinitions';
-import {indexLink} from 'links';
+import {indexRoute} from 'routes';
 
 export default class SettingsPage extends React.Component<{}, {}> {
+	private title = 'Settings';
+
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{url: indexLink(), title: rootFolderName},
-			{url: '', title: 'settings'},
+			{url: indexRoute.buildUrl({}), title: rootFolderName},
+			{url: '', title: this.title },
 		];
 	}
 
 	render() {
-		return <DefaultLayout title="Settings" breadcrumbs={this.getBreadcrumbs()}>
+		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Settings</h1>
 
 			<CommandButton command={DatabaseUnseal()}></CommandButton>
