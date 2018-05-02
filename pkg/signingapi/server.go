@@ -13,7 +13,6 @@ import (
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -87,8 +86,7 @@ func Setup(router *mux.Router, st *state.State) {
 			}
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		httputil.RespondHttpJson(resp, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/_api/signer/sign", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -101,14 +99,8 @@ func Setup(router *mux.Router, st *state.State) {
 			return
 		}
 
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			httputil.CommandCustomError(w, r, "unable_to_read_body", err, http.StatusBadRequest)
-			return
-		}
-
 		var input signingapitypes.SignRequestInput
-		if err := json.Unmarshal(body, &input); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 			httputil.CommandCustomError(w, r, "unable_to_parse_json", err, http.StatusBadRequest)
 			return
 		}
@@ -133,11 +125,8 @@ func Setup(router *mux.Router, st *state.State) {
 				"SshSigning",
 				domain.Meta(time.Now(), "2")))
 
-		resp := signingapitypes.SignResponse{
+		httputil.RespondHttpJson(signingapitypes.SignResponse{
 			Signature: signature,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		}, http.StatusOK, w)
 	}))
 }
