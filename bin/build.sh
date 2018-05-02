@@ -21,7 +21,7 @@ codeGeneration() {
 staticAnalysis() {
 	echo "# Static analysis"
 	
-	go vet
+	go vet ./...
 }
 
 buildPublicFiles() {
