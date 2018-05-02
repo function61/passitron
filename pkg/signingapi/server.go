@@ -7,10 +7,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/domain"
+	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httputil"
-	"github.com/function61/pi-security-module/signingapi/signingapitypes"
-	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
+	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
@@ -118,6 +118,8 @@ func Setup(router *mux.Router, st *state.State) {
 			httputil.CommandCustomError(w, r, "privkey_for_pubkey_not_found", err, http.StatusBadRequest)
 			return
 		}
+
+		// FIXME: implement SshSigning as enum
 
 		signature, err := signer.Sign(rand.Reader, input.Data)
 		if err != nil {

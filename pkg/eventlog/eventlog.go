@@ -3,7 +3,7 @@ package eventlog
 import (
 	"bufio"
 	"fmt"
-	"github.com/function61/pi-security-module/domain"
+	"github.com/function61/pi-security-module/pkg/domain"
 	"log"
 	"os"
 )

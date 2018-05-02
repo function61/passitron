@@ -2,12 +2,12 @@ package restapi
 
 import (
 	"encoding/json"
-	"github.com/function61/pi-security-module/domain"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
+	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/physicalauth"
-	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/function61/pi-security-module/signingapi/signingapitypes"
+	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"io/ioutil"

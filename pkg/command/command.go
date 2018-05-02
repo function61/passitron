@@ -1,8 +1,8 @@
 package command
 
 import (
-	"github.com/function61/pi-security-module/domain"
-	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/state"
 )
 
 type Ctx struct {

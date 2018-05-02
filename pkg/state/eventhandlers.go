@@ -3,7 +3,7 @@ package state
 import (
 	"errors"
 	"fmt"
-	"github.com/function61/pi-security-module/domain"
+	"github.com/function61/pi-security-module/pkg/domain"
 )
 
 func handleAccountCreated(e *domain.AccountCreated, state *State) {

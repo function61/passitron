@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/mattetti/filebuffer"
 	"github.com/tobischo/gokeepasslib"
 	"io"

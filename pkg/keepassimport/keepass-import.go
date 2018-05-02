@@ -2,8 +2,8 @@ package keepassimport
 
 import (
 	"encoding/csv"
-	"github.com/function61/pi-security-module/domain"
-	"github.com/function61/pi-security-module/state"
+	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/state"
 	"log"
 	"os"
 	"time"
