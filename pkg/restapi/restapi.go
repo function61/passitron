@@ -117,8 +117,6 @@ func Define(router *mux.Router, st *state.State) {
 		search := strings.ToLower(r.URL.Query().Get("search"))
 		sshkey := strings.ToLower(r.URL.Query().Get("sshkey"))
 
-		w.Header().Set("Content-Type", "application/json")
-
 		matches := []state.SecureAccount{}
 
 		if sshkey == "y" {
