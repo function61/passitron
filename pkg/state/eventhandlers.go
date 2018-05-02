@@ -1,12 +1,12 @@
 package state
 
 import (
-	"errors"
 	"fmt"
+	"errors"
 	"github.com/function61/pi-security-module/pkg/domain"
 )
 
-func handleAccountCreated(e *domain.AccountCreated, state *State) {
+func (s *State) ApplyAccountCreated(e *domain.AccountCreated) {
 	account := InsecureAccount{
 		Id:       e.Id,
 		FolderId: e.FolderId,
@@ -14,43 +14,43 @@ func handleAccountCreated(e *domain.AccountCreated, state *State) {
 		Created:  e.Meta().Timestamp,
 	}
 
-	state.State.Accounts = append(state.State.Accounts, account)
+	s.State.Accounts = append(s.State.Accounts, account)
 }
 
-func handleAccountDeleted(e *domain.AccountDeleted, state *State) {
-	for idx, s := range state.State.Accounts {
-		if s.Id == e.Id {
+func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) {
+	for idx, acc := range s.State.Accounts {
+		if acc.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			state.State.Accounts = append(
-				state.State.Accounts[:idx],
-				state.State.Accounts[idx+1:]...)
+			s.State.Accounts = append(
+				s.State.Accounts[:idx],
+				s.State.Accounts[idx+1:]...)
 			return
 		}
 	}
 }
 
-func handleAccountRenamed(e *domain.AccountRenamed, state *State) {
-	for idx, s := range state.State.Accounts {
-		if s.Id == e.Id {
-			s.Title = e.Title
-			state.State.Accounts[idx] = s
+func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) {
+	for idx, acc := range s.State.Accounts {
+		if acc.Id == e.Id {
+			acc.Title = e.Title
+			s.State.Accounts[idx] = acc
 			return
 		}
 	}
 }
 
-func handleAccountDescriptionChanged(e *domain.AccountDescriptionChanged, state *State) {
-	for idx, s := range state.State.Accounts {
-		if s.Id == e.Id {
-			s.Description = e.Description
-			state.State.Accounts[idx] = s
+func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) {
+	for idx, acc := range s.State.Accounts {
+		if acc.Id == e.Id {
+			acc.Description = e.Description
+			s.State.Accounts[idx] = acc
 			return
 		}
 	}
 }
 
-func handleAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded, state *State) {
-	for idx, account := range state.State.Accounts {
+func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) {
+	for idx, account := range s.State.Accounts {
 		if account.Id == e.Account {
 			secret := Secret{
 				Id:                 e.Id,
@@ -60,14 +60,14 @@ func handleAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded, state *State) {
 			}
 
 			account.Secrets = append(account.Secrets, secret)
-			state.State.Accounts[idx] = account
+			s.State.Accounts[idx] = account
 			return
 		}
 	}
 }
 
-func handleAccountPasswordAdded(e *domain.AccountPasswordAdded, state *State) {
-	for idx, account := range state.State.Accounts {
+func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) {
+	for idx, account := range s.State.Accounts {
 		if account.Id == e.Account {
 			secret := Secret{
 				Id:       e.Id,
@@ -77,14 +77,14 @@ func handleAccountPasswordAdded(e *domain.AccountPasswordAdded, state *State) {
 			}
 
 			account.Secrets = append(account.Secrets, secret)
-			state.State.Accounts[idx] = account
+			s.State.Accounts[idx] = account
 			return
 		}
 	}
 }
 
-func handleAccountKeylistAdded(e *domain.AccountKeylistAdded, state *State) {
-	for idx, account := range state.State.Accounts {
+func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) {
+	for idx, account := range s.State.Accounts {
 		if account.Id == e.Account {
 			keyItems := []KeylistKey{}
 
@@ -104,14 +104,14 @@ func handleAccountKeylistAdded(e *domain.AccountKeylistAdded, state *State) {
 			}
 
 			account.Secrets = append(account.Secrets, secret)
-			state.State.Accounts[idx] = account
+			s.State.Accounts[idx] = account
 			return
 		}
 	}
 }
 
-func handleAccountSecretDeleted(e *domain.AccountSecretDeleted, state *State) {
-	for accountIdx, account := range state.State.Accounts {
+func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) {
+	for accountIdx, account := range s.State.Accounts {
 		if account.Id == e.Account {
 			for secretIdx, secret := range account.Secrets {
 				if secret.Id == e.Secret {
@@ -120,18 +120,18 @@ func handleAccountSecretDeleted(e *domain.AccountSecretDeleted, state *State) {
 						account.Secrets[secretIdx+1:]...)
 				}
 			}
-			state.State.Accounts[accountIdx] = account
+			s.State.Accounts[accountIdx] = account
 			return
 		}
 	}
 }
 
-func handleAccountSecretUsed(e *domain.AccountSecretUsed, state *State) {
-	state.State.Audit(fmt.Sprintf("Secret %s used (%s)", e.Account, e.Type), e.Meta())
+func (s *State) ApplyAccountSecretUsed(e *domain.AccountSecretUsed) {
+	s.State.Audit(fmt.Sprintf("Secret %s used (%s)", e.Account, e.Type), e.Meta())
 }
 
-func handleAccountSshKeyAdded(e *domain.AccountSshKeyAdded, state *State) {
-	for idx, account := range state.State.Accounts {
+func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) {
+	for idx, account := range s.State.Accounts {
 		if account.Id == e.Account {
 			secret := Secret{
 				Id:                     e.Id,
@@ -142,105 +142,66 @@ func handleAccountSshKeyAdded(e *domain.AccountSshKeyAdded, state *State) {
 			}
 
 			account.Secrets = append(account.Secrets, secret)
-			state.State.Accounts[idx] = account
+			s.State.Accounts[idx] = account
 			return
 		}
 	}
 }
 
-func handleAccountUsernameChanged(e *domain.AccountUsernameChanged, state *State) {
-	for idx, s := range state.State.Accounts {
-		if s.Id == e.Id {
-			s.Username = e.Username
-			state.State.Accounts[idx] = s
+func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) {
+	for idx, acc := range s.State.Accounts {
+		if acc.Id == e.Id {
+			acc.Username = e.Username
+			s.State.Accounts[idx] = acc
 			return
 		}
 	}
 }
 
-func handleAccountFolderCreated(e *domain.AccountFolderCreated, state *State) {
+func (s *State) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) {
 	newFolder := Folder{
 		Id:       e.Id,
 		ParentId: e.ParentId,
 		Name:     e.Name,
 	}
 
-	state.State.Folders = append(state.State.Folders, newFolder)
+	s.State.Folders = append(s.State.Folders, newFolder)
 }
 
-func handleAccountFolderMoved(e *domain.AccountFolderMoved, state *State) {
-	for idx, s := range state.State.Folders {
-		if s.Id == e.Id {
-			s.ParentId = e.ParentId
-			state.State.Folders[idx] = s
+func (s *State) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) {
+	for idx, acc := range s.State.Folders {
+		if acc.Id == e.Id {
+			acc.ParentId = e.ParentId
+			s.State.Folders[idx] = acc
 			return
 		}
 	}
 }
 
-func handleAccountFolderRenamed(e *domain.AccountFolderRenamed, state *State) {
-	for idx, s := range state.State.Folders {
-		if s.Id == e.Id {
-			s.Name = e.Name
-			state.State.Folders[idx] = s
+func (s *State) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) {
+	for idx, acc := range s.State.Folders {
+		if acc.Id == e.Id {
+			acc.Name = e.Name
+			s.State.Folders[idx] = acc
 			return
 		}
 	}
 }
 
-func handleDatabaseUnsealed(e *domain.DatabaseUnsealed, state *State) {
+func (s *State) ApplyDatabaseUnsealed(e *domain.DatabaseUnsealed) {
 	// no-op
 }
 
-func handleDatabaseMasterPasswordChanged(e *domain.DatabaseMasterPasswordChanged, state *State) {
-	state.SetMasterPassword(e.Password)
+func (s *State) ApplyDatabaseMasterPasswordChanged(e *domain.DatabaseMasterPasswordChanged) {
+	s.SetMasterPassword(e.Password)
 }
 
-func handleDatabaseS3IntegrationConfigured(e *domain.DatabaseS3IntegrationConfigured, state *State) {
-	state.S3ExportBucket = e.Bucket
-	state.S3ExportApiKey = e.ApiKey
-	state.S3ExportSecret = e.Secret
+func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3IntegrationConfigured) {
+	s.S3ExportBucket = e.Bucket
+	s.S3ExportApiKey = e.ApiKey
+	s.S3ExportSecret = e.Secret
 }
 
-func handleEvent(event domain.Event, state *State) error {
-	switch e := event.(type) {
-	case *domain.AccountCreated:
-		handleAccountCreated(e, state)
-	case *domain.AccountDeleted:
-		handleAccountDeleted(e, state)
-	case *domain.AccountRenamed:
-		handleAccountRenamed(e, state)
-	case *domain.AccountDescriptionChanged:
-		handleAccountDescriptionChanged(e, state)
-	case *domain.AccountOtpTokenAdded:
-		handleAccountOtpTokenAdded(e, state)
-	case *domain.AccountPasswordAdded:
-		handleAccountPasswordAdded(e, state)
-	case *domain.AccountKeylistAdded:
-		handleAccountKeylistAdded(e, state)
-	case *domain.AccountSecretDeleted:
-		handleAccountSecretDeleted(e, state)
-	case *domain.AccountSecretUsed:
-		handleAccountSecretUsed(e, state)
-	case *domain.AccountSshKeyAdded:
-		handleAccountSshKeyAdded(e, state)
-	case *domain.AccountUsernameChanged:
-		handleAccountUsernameChanged(e, state)
-	case *domain.AccountFolderCreated:
-		handleAccountFolderCreated(e, state)
-	case *domain.AccountFolderMoved:
-		handleAccountFolderMoved(e, state)
-	case *domain.AccountFolderRenamed:
-		handleAccountFolderRenamed(e, state)
-	case *domain.DatabaseUnsealed:
-		handleDatabaseUnsealed(e, state)
-	case *domain.DatabaseMasterPasswordChanged:
-		handleDatabaseMasterPasswordChanged(e, state)
-	case *domain.DatabaseS3IntegrationConfigured:
-		handleDatabaseS3IntegrationConfigured(e, state)
-	default:
-		panic(errors.New("unknown event: " + event.MetaType()))
-	}
-
-	return nil
+func (s *State) HandleUnknownEvent(e domain.Event) error {
+	return errors.New("unknown event: " + e.MetaType())
 }

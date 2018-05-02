@@ -197,6 +197,24 @@ var eventBuilders = map[string]func() Event{
 %s
 
 %s
+
+// interface
+
+type EventListener interface {
+	%s
+	HandleUnknownEvent(event Event) error
+}
+
+func DispatchEvent(event Event, listener EventListener) error {
+	switch e := event.(type) {
+	%s
+	default:
+		return listener.HandleUnknownEvent(event)
+	}
+
+	return nil
+}
+
 `
 
 	ctorTemplate := `func New%s(%s) *%s {
@@ -211,6 +229,8 @@ var eventBuilders = map[string]func() Event{
 	typeGetters := []string{}
 	serializes := []string{}
 	builderLines := []string{}
+	interfaceApplyDefinitions := []string{}
+	eventDispatchCalls := []string{}
 
 	structsVisitor := &Visitor{}
 
@@ -247,6 +267,10 @@ var eventBuilders = map[string]func() Event{
 			eventSpec.Event,
 			goStructName)
 
+		applyMethod := fmt.Sprintf(`Apply%s(*%s)`, goStructName, goStructName)
+		interfaceApplyDefinitions = append(interfaceApplyDefinitions, applyMethod)
+		eventDispatchCalls = append(eventDispatchCalls, fmt.Sprintf("case *%s:\n\t\tlistener.Apply%s(e)", goStructName, goStructName))
+
 		builderLines = append(builderLines, builderLine)
 	}
 
@@ -257,7 +281,9 @@ var eventBuilders = map[string]func() Event{
 		strings.Join(constructors, "\n\n"),
 		strings.Join(metaGetters, "\n"),
 		strings.Join(typeGetters, "\n"),
-		strings.Join(serializes, "\n"))
+		strings.Join(serializes, "\n"),
+		strings.Join(interfaceApplyDefinitions, "\n\t"),
+		strings.Join(eventDispatchCalls, "\n\t"))
 
 	if writeErr := ioutil.WriteFile("../pkg/domain/events.go", []byte(content), 0777); writeErr != nil {
 		panic(writeErr)

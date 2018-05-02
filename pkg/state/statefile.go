@@ -30,7 +30,7 @@ func New() *State {
 
 	// needs to be instantiated later, because handleEvent requires access to State
 	s.EventLog = eventlog.New(logfilePath, func(event domain.Event) error {
-		return handleEvent(event, s)
+		return domain.DispatchEvent(event, s)
 	})
 
 	return s
