@@ -15,6 +15,15 @@ import (
 	"time"
 )
 
+func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
+	if !unsealed {
+		httputil.RespondHttpJson(httputil.GenericError("database_is_sealed", nil), http.StatusForbidden, w)
+		return true
+	}
+
+	return false
+}
+
 func Define(router *mux.Router, st *state.State) {
 	router.HandleFunc("/auditlog", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httputil.RespondHttpJson(st.State.AuditLog, http.StatusOK, w)
@@ -26,13 +35,13 @@ func Define(router *mux.Router, st *state.State) {
 		// only command able to be invoked anonymously is the Unseal command
 		commandNeedsAuthorization := commandName != "database.Unseal"
 
-		if commandNeedsAuthorization && httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if commandNeedsAuthorization && errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
 		cmdStructBuilder, commandExists := commandhandlers.StructBuilders[commandName]
 		if !commandExists {
-			httputil.CommandCustomError(w, r, "unsupported_command", nil, http.StatusBadRequest)
+			httputil.RespondHttpJson(httputil.GenericError("unsupported_command", nil), http.StatusBadRequest, w)
 			return
 		}
 
@@ -45,17 +54,17 @@ func Define(router *mux.Router, st *state.State) {
 
 		// FIXME: assert application/json
 		if errJson := json.NewDecoder(r.Body).Decode(cmdStruct); errJson != nil {
-			httputil.CommandCustomError(w, r, "json_parsing_failed", errJson, http.StatusBadRequest)
+			httputil.RespondHttpJson(httputil.GenericError("json_parsing_failed", errJson), http.StatusBadRequest, w)
 			return
 		}
 
 		if errValidate := cmdStruct.Validate(); errValidate != nil {
-			httputil.CommandCustomError(w, r, "command_validation_failed", errValidate, http.StatusBadRequest)
+			httputil.RespondHttpJson(httputil.GenericError("command_validation_failed", errValidate), http.StatusBadRequest, w)
 			return
 		}
 
 		if errInvoke := cmdStruct.Invoke(ctx); errInvoke != nil {
-			httputil.CommandCustomError(w, r, "command_failed", errInvoke, http.StatusBadRequest)
+			httputil.RespondHttpJson(httputil.GenericError("command_failed", errInvoke), http.StatusBadRequest, w)
 			return
 		}
 
@@ -69,7 +78,7 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
@@ -101,7 +110,7 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
@@ -140,14 +149,14 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
 		account := st.AccountById(mux.Vars(r)["accountId"])
 
 		if account == nil {
-			httputil.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
+			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 			return
 		}
 
@@ -155,27 +164,27 @@ func Define(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
 		account := st.AccountById(mux.Vars(r)["accountId"])
 
 		if account == nil {
-			httputil.CommandCustomError(w, r, "account_not_found", nil, http.StatusNotFound)
+			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 			return
 		}
 
 		authorized, err := physicalauth.Dummy()
 		if err != nil {
-			httputil.CommandCustomError(w, r, "technical_error_in_physical_authorization", err, http.StatusInternalServerError)
+			httputil.RespondHttpJson(httputil.GenericError("technical_error_in_physical_authorization", err), http.StatusInternalServerError, w)
 			return
 		}
 
 		// FIXME: PasswordExposed via enum
 
 		if !authorized {
-			httputil.CommandCustomError(w, r, "did_not_receive_physical_authorization", nil, http.StatusForbidden)
+			httputil.RespondHttpJson(httputil.GenericError("did_not_receive_physical_authorization", nil), http.StatusForbidden, w)
 			return
 		}
 

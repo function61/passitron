@@ -6,6 +6,31 @@ import (
 	"net/http"
 )
 
+type GenericResponse struct {
+	Status           string `json:"status"`
+	ErrorCode        string `json:"error_code"`
+	ErrorDescription string `json:"error_description"`
+}
+
+func GenericError(code string, err error) *GenericResponse {
+	errorDescription := ""
+	if err != nil {
+		errorDescription = err.Error()
+	}
+
+	return &GenericResponse{
+		Status:           "error",
+		ErrorCode:        code,
+		ErrorDescription: errorDescription,
+	}
+}
+
+func GenericSuccess() *GenericResponse {
+	return &GenericResponse{
+		Status: "success",
+	}
+}
+
 func RespondHttpJson(out interface{}, httpCode int, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 

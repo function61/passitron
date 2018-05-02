@@ -18,6 +18,15 @@ import (
 	"time"
 )
 
+func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
+	if !unsealed {
+		httputil.RespondHttpJson(httputil.GenericError("database_is_sealed", nil), http.StatusForbidden, w)
+		return true
+	}
+
+	return false
+}
+
 func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.InsecureAccount, error) {
 	for _, account := range st.State.Accounts {
 		for _, secret := range account.Secrets {
@@ -52,12 +61,12 @@ func Setup(router *mux.Router, st *state.State) {
 	log.Printf("signingapi expected auth: %s", expectedAuthHeader(st))
 
 	router.HandleFunc("/_api/signer/publickeys", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
 		if r.Header.Get("Authorization") != expectedAuthHeader(st) {
-			httputil.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
+			httputil.RespondHttpJson(httputil.GenericError("invalid_auth_header", errors.New("Authorization failed")), http.StatusForbidden, w)
 			return
 		}
 
@@ -90,24 +99,24 @@ func Setup(router *mux.Router, st *state.State) {
 	}))
 
 	router.HandleFunc("/_api/signer/sign", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if httputil.ErrorIfSealed(w, r, st.IsUnsealed()) {
+		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
 		if r.Header.Get("Authorization") != expectedAuthHeader(st) {
-			httputil.CommandCustomError(w, r, "invalid_auth_header", errors.New("Authorization failed"), http.StatusForbidden)
+			httputil.RespondHttpJson(httputil.GenericError("invalid_auth_header", errors.New("Authorization failed")), http.StatusForbidden, w)
 			return
 		}
 
 		var input signingapitypes.SignRequestInput
 		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-			httputil.CommandCustomError(w, r, "unable_to_parse_json", err, http.StatusBadRequest)
+			httputil.RespondHttpJson(httputil.GenericError("unable_to_parse_json", err), http.StatusBadRequest, w)
 			return
 		}
 
 		signer, account, err := lookupSignerByPubKey(input.PublicKey, st)
 		if err != nil {
-			httputil.CommandCustomError(w, r, "privkey_for_pubkey_not_found", err, http.StatusBadRequest)
+			httputil.RespondHttpJson(httputil.GenericError("privkey_for_pubkey_not_found", err), http.StatusBadRequest, w)
 			return
 		}
 
@@ -115,7 +124,7 @@ func Setup(router *mux.Router, st *state.State) {
 
 		signature, err := signer.Sign(rand.Reader, input.Data)
 		if err != nil {
-			httputil.CommandCustomError(w, r, "signing_failed", err, http.StatusInternalServerError)
+			httputil.RespondHttpJson(httputil.GenericError("signing_failed", err), http.StatusInternalServerError, w)
 			return
 		}
 
