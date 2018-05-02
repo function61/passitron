@@ -18,7 +18,12 @@ import (
 //go:generate go run gen/main.go gen/version.go gen/commands.go gen/events.go
 
 func runMain() {
-	if err := extractpublicfiles.Run(); err != nil {
+	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
+	if version.IsDevVersion() {
+		downloadUrl = ""
+	}
+
+	if err := extractpublicfiles.Run(downloadUrl); err != nil {
 		panic(err)
 	}
 
