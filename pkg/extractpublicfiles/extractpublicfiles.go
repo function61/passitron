@@ -94,7 +94,9 @@ func Run() error {
 	}
 	defer f.Close()
 
-	tarextract.ExtractTarGz(f)
+	if err := tarextract.ExtractTarGz(f); err != nil {
+		log.Fatalf("tarextract: %s", err.Error())
+	}
 
 	return nil
 }
