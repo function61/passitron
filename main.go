@@ -8,6 +8,7 @@ import (
 	"github.com/function61/pi-security-module/state"
 	"github.com/function61/pi-security-module/util"
 	"github.com/function61/pi-security-module/util/extractpublicfiles"
+	"github.com/function61/pi-security-module/util/httputil"
 	"github.com/function61/pi-security-module/util/keepassimport"
 	"github.com/function61/pi-security-module/util/physicalauth"
 	"github.com/function61/pi-security-module/util/systemdinstaller"
@@ -27,13 +28,6 @@ type FolderResponse struct {
 	SubFolders    []state.Folder
 	ParentFolders []state.Folder
 	Accounts      []state.SecureAccount
-}
-
-// https://stackoverflow.com/a/2068407
-func disableCache(w http.ResponseWriter) {
-	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Header().Set("Pragma", "no-cache")
-	w.Header().Set("Expires", "0")
 }
 
 func defineApi(router *mux.Router, st *state.State) {
@@ -84,7 +78,7 @@ func defineApi(router *mux.Router, st *state.State) {
 			Status string
 		}
 
-		disableCache(w)
+		httputil.DisableCache(w)
 		util.CommandGenericSuccess(w, r)
 	}))
 
@@ -110,7 +104,7 @@ func defineApi(router *mux.Router, st *state.State) {
 
 		resp := FolderResponse{folder, subFolders, parentFolders, accounts}
 
-		disableCache(w)
+		httputil.DisableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
 	}))
@@ -151,7 +145,7 @@ func defineApi(router *mux.Router, st *state.State) {
 			}
 		}
 
-		disableCache(w)
+		httputil.DisableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(matches)
 	}))
@@ -168,7 +162,7 @@ func defineApi(router *mux.Router, st *state.State) {
 			return
 		}
 
-		disableCache(w)
+		httputil.DisableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(account)
 	}))
@@ -201,7 +195,7 @@ func defineApi(router *mux.Router, st *state.State) {
 			"PasswordExposed",
 			domain.Meta(time.Now(), "2")))
 
-		disableCache(w)
+		httputil.DisableCache(w)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(account.GetSecrets())
 	}))
