@@ -63,7 +63,7 @@ func (c *CommandFieldSpec) AsValidationSnippet() string {
 	if goType == "string" || goType == "password" {
 		return fmt.Sprintf(
 			`if x.%s == "" {
-		return errors.New("field %s cannot be empty")
+		return fieldEmptyValidationError("%s")
 	}`,
 			c.Key,
 			c.Key)
@@ -147,6 +147,9 @@ import (
 	"errors"
 )
 
+func fieldEmptyValidationError(fieldName string) error {
+	return errors.New("field " + fieldName + " cannot be empty")
+}
 
 %s
 
