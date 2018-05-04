@@ -151,7 +151,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						Keylist
 						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
-					<td>{secret.Title}
+					<td colSpan={2}>{secret.Title}
 						<table className="table table-striped">
 						<tbody>{keyRows}</tbody>
 						</table>
