@@ -3,9 +3,62 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
+	"text/template"
 )
+
+const fileTemplate = `package domain
+
+// WARNING: generated file
+
+var eventBuilders = map[string]func() Event{
+{{range .EventDefs}}
+	"{{.EventKey}}": func() Event { return &{{.GoStructName}}{meta: &EventMeta{}} },{{end}}
+}
+
+
+{{.StructsAsGoCode}}
+
+
+// constructors
+
+{{range .EventDefs}}
+func New{{.GoStructName}}({{.CtorArgs}}) *{{.GoStructName}} {
+	return &{{.GoStructName}}{
+		meta: &meta,
+		{{.CtorAssignments}}
+	}
+}
+{{end}}
+
+{{range .EventDefs}}
+func (e *{{.GoStructName}}) Meta() *EventMeta { return e.meta }{{end}}
+
+{{range .EventDefs}}
+func (e *{{.GoStructName}}) MetaType() string { return "{{.EventKey}}" }{{end}}
+
+{{range .EventDefs}}
+func (e *{{.GoStructName}}) Serialize() string { return e.meta.Serialize(e) }{{end}}
+
+// interface
+
+type EventListener interface { {{range .EventDefs}}
+	Apply{{.GoStructName}}(*{{.GoStructName}}) error{{end}}
+
+	HandleUnknownEvent(event Event) error
+}
+
+func DispatchEvent(event Event, listener EventListener) error {
+	switch e := event.(type) { {{range .EventDefs}}
+	case *{{.GoStructName}}:
+		return listener.Apply{{.GoStructName}}(e){{end}}
+	default:
+		return listener.HandleUnknownEvent(event)
+	}
+}
+
+`
 
 type GoStructField struct {
 	Name string
@@ -161,88 +214,33 @@ type EventFieldObjectFieldTypeDef struct {
 	Type *EventFieldTypeDef `json:"type"`
 }
 
+type EventDefForTpl struct {
+	EventKey        string
+	CtorArgs        string
+	CtorAssignments string
+	GoStructName    string
+}
+
 func generateEvents() error {
-	contents, readErr := ioutil.ReadFile("../pkg/domain/events.json")
-	if readErr != nil {
-		return readErr
+	eventsFile, openErr := os.Open("../pkg/domain/events.json")
+	if openErr != nil {
+		return openErr
 	}
 
 	var file EventSpecFile
-	if jsonErr := json.Unmarshal(contents, &file); jsonErr != nil {
+	if jsonErr := json.NewDecoder(eventsFile).Decode(&file); jsonErr != nil {
 		return jsonErr
 	}
 
-	template := `package domain
-
-// WARNING: generated file
-
-// builder map
-
-var eventBuilders = map[string]func() Event{
-	%s
-}
-
-// structs
-	
-%s
-
-// constructors
-
-%s
-
-// boilerplate functions
-
-%s
-
-%s
-
-%s
-
-// interface
-
-type EventListener interface {
-	%s
-	HandleUnknownEvent(event Event) error
-}
-
-func DispatchEvent(event Event, listener EventListener) error {
-	switch e := event.(type) {
-	%s
-	default:
-		return listener.HandleUnknownEvent(event)
-	}
-}
-
-`
-
-	ctorTemplate := `func New%s(%s) *%s {
-	return &%s{
-		meta: &meta,
-		%s
-	}
-}`
-
-	constructors := []string{}
-	metaGetters := []string{}
-	typeGetters := []string{}
-	serializes := []string{}
-	builderLines := []string{}
-	interfaceApplyDefinitions := []string{}
-	eventDispatchCalls := []string{}
-
 	structsVisitor := &Visitor{}
 
-	for _, eventSpec := range file {
-		goStructName := eventSpec.AsGoStructName()
+	eventDefs := []EventDefForTpl{}
 
+	for _, eventSpec := range file {
 		structForEvent := eventSpec.VisitForGoStructs(structsVisitor)
 
 		ctorArgs := []string{}
 		ctorAssignments := []string{}
-
-		metaGetters = append(metaGetters, fmt.Sprintf("func (e *%s) Meta() *EventMeta { return e.meta }", goStructName))
-		typeGetters = append(typeGetters, fmt.Sprintf("func (e *%s) MetaType() string { return `%s` }", goStructName, eventSpec.Event))
-		serializes = append(serializes, fmt.Sprintf("func (e *%s) Serialize() string { return e.meta.Serialize(e) }", goStructName))
 
 		for _, ctorArg := range eventSpec.CtorArgs {
 			ctorArgs = append(ctorArgs, ctorArg+" "+structForEvent.Field(ctorArg).Type)
@@ -252,39 +250,33 @@ func DispatchEvent(event Event, listener EventListener) error {
 
 		ctorArgs = append(ctorArgs, "meta EventMeta")
 
-		constructors = append(constructors, fmt.Sprintf(
-			ctorTemplate,
-			goStructName,
-			strings.Join(ctorArgs, ", "),
-			goStructName,
-			goStructName,
-			strings.Join(ctorAssignments, "\n\t\t")))
-
-		builderLine := fmt.Sprintf(
-			`"%s": func() Event { return &%s{meta: &EventMeta{}} },`,
-			eventSpec.Event,
-			goStructName)
-
-		applyMethod := fmt.Sprintf(`Apply%s(*%s) error`, goStructName, goStructName)
-		interfaceApplyDefinitions = append(interfaceApplyDefinitions, applyMethod)
-		eventDispatchCalls = append(eventDispatchCalls, fmt.Sprintf("case *%s:\n\t\treturn listener.Apply%s(e)", goStructName, goStructName))
-
-		builderLines = append(builderLines, builderLine)
+		eventDefs = append(eventDefs, EventDefForTpl{
+			EventKey:        eventSpec.Event,
+			GoStructName:    eventSpec.AsGoStructName(),
+			CtorArgs:        strings.Join(ctorArgs, ", "),
+			CtorAssignments: strings.Join(ctorAssignments, "\n\t\t"),
+		})
 	}
 
-	content := fmt.Sprintf(
-		template,
-		strings.Join(builderLines, "\n\t"),
-		structsVisitor.AsGoCode(),
-		strings.Join(constructors, "\n\n"),
-		strings.Join(metaGetters, "\n"),
-		strings.Join(typeGetters, "\n"),
-		strings.Join(serializes, "\n"),
-		strings.Join(interfaceApplyDefinitions, "\n\t"),
-		strings.Join(eventDispatchCalls, "\n\t"))
+	eventsFileGenerated, errFile := os.Create("../pkg/domain/events.go")
+	if errFile != nil {
+		return errFile
+	}
 
-	if writeErr := ioutil.WriteFile("../pkg/domain/events.go", []byte(content), 0777); writeErr != nil {
-		panic(writeErr)
+	defer eventsFileGenerated.Close()
+
+	type TplData struct {
+		StructsAsGoCode string
+		EventDefs       []EventDefForTpl
+	}
+
+	tplParsed, _ := template.New("").Parse(fileTemplate)
+
+	if err := tplParsed.Execute(eventsFileGenerated, TplData{
+		EventDefs:       eventDefs,
+		StructsAsGoCode: structsVisitor.AsGoCode(),
+	}); err != nil {
+		return err
 	}
 
 	return nil
