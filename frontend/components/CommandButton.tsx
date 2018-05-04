@@ -107,7 +107,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 			const labelName = modalId + 'Label';
 
 			return <div style={{display: 'inline-block'}}>
-				<span className={`glyphicon ${icon} fauxlink`} onClick={() => this.openDialog()} title={commandTitle}></span>
+				<span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => this.openDialog()} title={commandTitle}></span>
 
 				<div className="modal" ref={(input) => { this.dialogRef = input; }} id={modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
 					<div className="modal-dialog" role="document">
@@ -129,6 +129,6 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 			</div>;
 		}
 
-		return <span className={`glyphicon ${icon} fauxlink`} onClick={() => this.openDialog()} title={commandTitle}></span>;
+		return <span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => this.openDialog()} title={commandTitle}></span>;
 	}
 }

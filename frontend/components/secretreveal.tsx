@@ -17,9 +17,8 @@ export class SecretReveal extends React.Component<SecretRevealProps, SecretRevea
 		return <span>
 			********
 			<span
-				className="glyphicon glyphicon-eye-open fauxlink"
-				onClick={() => this.setState({open: true})}
-				style={{marginLeft: '10px'}} />
+				className="glyphicon glyphicon-eye-open hovericon margin-left"
+				onClick={() => this.setState({open: true})} />
 		</span>;
 	}
 }
