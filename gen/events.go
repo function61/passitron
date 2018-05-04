@@ -211,8 +211,6 @@ func DispatchEvent(event Event, listener EventListener) error {
 	default:
 		return listener.HandleUnknownEvent(event)
 	}
-
-	return nil
 }
 
 `
@@ -267,9 +265,9 @@ func DispatchEvent(event Event, listener EventListener) error {
 			eventSpec.Event,
 			goStructName)
 
-		applyMethod := fmt.Sprintf(`Apply%s(*%s)`, goStructName, goStructName)
+		applyMethod := fmt.Sprintf(`Apply%s(*%s) error`, goStructName, goStructName)
 		interfaceApplyDefinitions = append(interfaceApplyDefinitions, applyMethod)
-		eventDispatchCalls = append(eventDispatchCalls, fmt.Sprintf("case *%s:\n\t\tlistener.Apply%s(e)", goStructName, goStructName))
+		eventDispatchCalls = append(eventDispatchCalls, fmt.Sprintf("case *%s:\n\t\treturn listener.Apply%s(e)", goStructName, goStructName))
 
 		builderLines = append(builderLines, builderLine)
 	}
