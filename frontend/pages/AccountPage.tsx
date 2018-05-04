@@ -3,6 +3,7 @@ import {Account, Secret, SecretKind, Folder, FolderResponse} from 'model';
 import clipboard from 'clipboard';
 import {getAccount, getFolder, getSecrets, defaultErrorHandler} from 'repo';
 import {Breadcrumb} from 'components/breadcrumbtrail';
+import {SecretReveal} from 'components/secretreveal';
 import {CommandButton, CommandLink} from 'components/CommandButton';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {folderRoute, importotptokenRoute} from 'routes';
@@ -127,7 +128,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						Password
 						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
-					<td>{secret.Password}</td>
+					<td><SecretReveal secret={secret.Password} /></td>
 					<td onClick={() => this.copyToClipboard(secret.Password)} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
