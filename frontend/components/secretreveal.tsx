@@ -11,7 +11,7 @@ interface SecretRevealState {
 export class SecretReveal extends React.Component<SecretRevealProps, SecretRevealState> {
 	render() {
 		if (this.state && this.state.open) {
-			return <span>{this.props.secret}</span>
+			return <span>{this.props.secret}</span>;
 		}
 
 		return <span>
