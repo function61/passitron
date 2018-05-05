@@ -1,32 +1,34 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { router } from 'routes';
 
-export interface AppProps {
-	initialHash: string;
+// entrypoint for the app. this is called when DOM is loaded
+export function main(appElement: HTMLElement): void {
+	ReactDOM.render(
+		<App />,
+		appElement);
 }
 
 export interface AppState {
 	hash: string;
 }
 
-export class App extends React.Component<AppProps, AppState> {
+export class App extends React.Component<{}, AppState> {
 	private listenerProxy: any;
 
-	constructor(props: AppProps) {
+	constructor(props: {}) {
 		super(props);
 
+		// need to create create bound proxy, because this object function
+		// ref (bound one) must be used for removeEventListener()
+		this.listenerProxy = () => this.hashChanged();
+
 		this.state = {
-			hash: props.initialHash,
+			hash: document.location.hash,
 		};
 	}
 
 	componentDidMount() {
-		this.listenerProxy = () => {
-			const newHash = document.location.hash;
-			this.setState({ hash: newHash });
-			return;
-		};
-
 		window.addEventListener('hashchange', this.listenerProxy);
 	}
 
@@ -35,11 +37,15 @@ export class App extends React.Component<AppProps, AppState> {
 	}
 
 	render() {
-		const fromRouter = router.match(window.location.hash);
+		const fromRouter = router.match(document.location.hash);
 		if (!fromRouter) {
 			throw new Error('unknown page');
 		}
 
 		return fromRouter;
+	}
+
+	private hashChanged() {
+		this.setState({ hash: document.location.hash });
 	}
 }

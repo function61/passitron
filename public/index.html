@@ -27,8 +27,8 @@
 	<script src="build.js"></script>
 	<script>
 	document.addEventListener('DOMContentLoaded', function(event) {
-		require(['main'], function (main){
-			main.default(document.getElementById('app'));
+		require(['app'], function (app){
+			app.main(document.getElementById('app'));
 		});
 	});
 	</script>
