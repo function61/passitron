@@ -1,4 +1,4 @@
-package main
+package codegen
 
 import (
 	"encoding/json"
@@ -282,7 +282,7 @@ func generateTypescript(file *CommandSpecFile) error {
 	return nil
 }
 
-func generateCommands() error {
+func GenerateCommands() error {
 	contents, readErr := ioutil.ReadFile("commands.json")
 	if readErr != nil {
 		return readErr

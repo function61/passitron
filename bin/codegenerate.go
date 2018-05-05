@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-//go:generate go run main.go commands.go
+//go:generate go run codegenerate.go
 
 func main() {
 	// normalize to root of the project
@@ -17,7 +17,7 @@ func main() {
 
 	panicIfError(versioncodegen.Generate())
 
-	panicIfError(generateCommands())
+	panicIfError(codegen.GenerateCommands())
 
 	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(file)
 
