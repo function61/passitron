@@ -14,9 +14,6 @@ func main() {
 
 	file, err := codegen.DeserializeDomainFile("pkg/domain/domain.json")
 	panicIfError(err)
-	if err != nil {
-		panic(err)
-	}
 
 	panicIfError(versioncodegen.Generate())
 
