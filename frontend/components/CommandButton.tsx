@@ -93,3 +93,42 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 		</span>;
 	}
 }
+
+interface CommandLinkProps {
+	command: CommandDefinition;
+}
+
+interface CommandLinkState {
+	dialogOpen: boolean;
+}
+
+export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {
+	private cmdManager: CommandManager;
+
+	constructor(props: CommandLinkProps, state: CommandLinkState) {
+		super(props, state);
+
+		this.state = { dialogOpen: false };
+
+		this.cmdManager = new CommandManager(this.props.command);
+	}
+
+	save() {
+		this.cmdManager.execute().then(() => {
+			document.location.reload();
+		}, defaultErrorHandler);
+	}
+
+	render() {
+		const commandTitle = this.props.command.title;
+
+		const maybeDialog = this.state.dialogOpen ? <ModalDialog title={commandTitle} onSave={() => { this.save(); }}>
+			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+		</ModalDialog> : null;
+
+		return <a className={'fauxlink'} onClick={() => { this.setState({dialogOpen: true}); }}>
+			{commandTitle}
+			{maybeDialog}
+		</a>;
+	}
+}

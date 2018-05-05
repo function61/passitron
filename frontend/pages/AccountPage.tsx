@@ -1,6 +1,6 @@
 import clipboard from 'clipboard';
 import {Breadcrumb} from 'components/breadcrumbtrail';
-import {CommandButton, CommandIcon} from 'components/CommandButton';
+import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
 import {SecretReveal} from 'components/secretreveal';
 import {
@@ -53,8 +53,14 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				{account.Title}
 				&nbsp;
 				<Dropdown>
-					<a href="#">Separated link</a>
-					<a href="#">Separated link</a>
+					<CommandLink command={AccountRename(account.Id, account.Title)} />
+					<CommandLink command={AccountDelete(account.Id)} />
+
+					<CommandLink command={AccountAddSshKey(account.Id)} />
+					<CommandLink command={AccountAddKeylist(account.Id)} />
+					<CommandLink command={AccountAddPassword(account.Id)} />
+
+					<a href={importotptokenRoute.buildUrl({account: account.Id})}>+ OTP token</a>
 				</Dropdown>
 			</h1>
 
@@ -79,16 +85,6 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				</tr>
 			</tbody>
 			</table>
-
-			<CommandButton command={AccountRename(account.Id, account.Title)} />
-			<CommandButton command={AccountDelete(account.Id)} />
-
-			<CommandButton command={AccountAddSshKey(account.Id)} />
-			<CommandButton command={AccountAddKeylist(account.Id)} />
-			<CommandButton command={AccountAddPassword(account.Id)} />
-
-			<a href={importotptokenRoute.buildUrl({account: account.Id})} className="btn btn-default">+ OTP token</a>
-
 		</DefaultLayout>;
 	}
 
