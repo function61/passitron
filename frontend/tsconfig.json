@@ -1,12 +1,11 @@
 {
     "compilerOptions": {
+		"strict": true,
         "module": "amd",
-        "noImplicitAny": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
         "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "strictNullChecks": true,
         "removeComments": true,
         "preserveConstEnums": true,
         "outFile": "../public/build.js",
