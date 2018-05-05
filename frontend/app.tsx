@@ -1,3 +1,5 @@
+import {DangerAlert} from 'components/alerts';
+import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { router } from 'routes';
@@ -39,7 +41,11 @@ export class App extends React.Component<{}, AppState> {
 	render() {
 		const fromRouter = router.match(document.location.hash);
 		if (!fromRouter) {
-			throw new Error('unknown page');
+			return <DefaultLayout title="404" breadcrumbs={[]}>
+				<h1>404</h1>
+
+				<DangerAlert text="The page you were looking for is not found." />
+			</DefaultLayout>;
 		}
 
 		return fromRouter;
