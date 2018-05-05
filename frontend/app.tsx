@@ -22,7 +22,7 @@ export class App extends React.Component<AppProps, AppState> {
 
 	componentDidMount() {
 		this.listenerProxy = () => {
-			var newHash = document.location.hash;
+			const newHash = document.location.hash;
 			this.setState({ hash: newHash });
 			return;
 		};

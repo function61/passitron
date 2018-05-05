@@ -65,9 +65,9 @@ interface CommandLinkState {
 }
 
 const typeToIcon: {[key: string]: string} = {
-	'add': 'glyphicon-plus',
-	'edit': 'glyphicon-pencil',
-	'remove': 'glyphicon-remove',
+	add: 'glyphicon-plus',
+	edit: 'glyphicon-pencil',
+	remove: 'glyphicon-remove',
 };
 
 export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {

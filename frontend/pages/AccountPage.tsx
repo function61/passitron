@@ -114,7 +114,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 	private secretToRow(secret: Secret, account: Account): JSX.Element {
 			switch (secret.Kind) {
-			case SecretKind.SshKey:			
+			case SecretKind.SshKey:
 				return <tr key={secret.Id}>
 					<td>
 						SSH public key

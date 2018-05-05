@@ -9,13 +9,6 @@ import {indexRoute} from 'routes';
 export default class SettingsPage extends React.Component<{}, {}> {
 	private title = 'Settings';
 
-	private getBreadcrumbs(): Breadcrumb[] {
-		return [
-			{url: indexRoute.buildUrl({}), title: RootFolderName},
-			{url: '', title: this.title },
-		];
-	}
-
 	render() {
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Settings</h1>
@@ -28,5 +21,12 @@ export default class SettingsPage extends React.Component<{}, {}> {
 			<CommandButton command={DatabaseExportToKeepass()}></CommandButton>
 
 		</DefaultLayout>;
+	}
+
+	private getBreadcrumbs(): Breadcrumb[] {
+		return [
+			{url: indexRoute.buildUrl({}), title: RootFolderName},
+			{url: '', title: this.title },
+		];
 	}
 }

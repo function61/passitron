@@ -10,10 +10,10 @@ declare global {
 }
 
 // thanks https://stackoverflow.com/a/33928558
-export default function (text: string): boolean {
+export default function(text: string): boolean {
 	if (window.clipboardData && window.clipboardData.setData) {
 		// IE specific code path to prevent textarea being shown while dialog is visible.
-		return window.clipboardData.setData('Text', text); 
+		return window.clipboardData.setData('Text', text);
 
 	} else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
 		const textarea = document.createElement('textarea');

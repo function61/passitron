@@ -43,14 +43,14 @@ export class CommandManager {
 		return fetch(`/command/${this.definition.key}`, {
 			method: 'POST',
 			headers: {
-				Accept: 'application/json',
+				'Accept': 'application/json',
 				'Content-Type': 'application/json',
 			},
 			body: bodyToPost,
 		})
 			.then(httpMustBeOk)
-			.then(res => res.json())
-			.then(_ => {
+			.then((res) => res.json())
+			.then((_) => {
 				return;
 			});
 	}

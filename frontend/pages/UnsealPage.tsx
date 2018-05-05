@@ -10,13 +10,6 @@ import {indexRoute} from 'routes';
 export default class UnsealPage extends React.Component<{}, {}> {
 	private title = 'Unseal';
 
-	private getBreadcrumbs(): Breadcrumb[] {
-		return [
-			{url: indexRoute.buildUrl({}), title: RootFolderName},
-			{url: '', title: this.title},
-		];
-	}
-
 	render() {
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>Unseal</h1>
@@ -26,5 +19,12 @@ export default class UnsealPage extends React.Component<{}, {}> {
 			<CommandButton command={DatabaseUnseal()}></CommandButton>
 
 		</DefaultLayout>;
+	}
+
+	private getBreadcrumbs(): Breadcrumb[] {
+		return [
+			{url: indexRoute.buildUrl({}), title: RootFolderName},
+			{url: '', title: this.title},
+		];
 	}
 }

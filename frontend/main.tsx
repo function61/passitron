@@ -2,11 +2,11 @@ import {App} from 'app';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-export default function (appElement: HTMLElement): void {
+export default function(appElement: HTMLElement): void {
 	function render() {
 		ReactDOM.render(
-		    <App initialHash={ document.location.hash } />,
-		    appElement);
+			<App initialHash={ document.location.hash } />,
+			appElement);
 	}
 
 	/*

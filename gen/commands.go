@@ -200,7 +200,7 @@ func generateTypescript(file *CommandSpecFile) error {
 		key: '%s',
 		title: '%s',
 		fields: [
-			%s
+%s
 		],
 	};
 }`

@@ -9,7 +9,7 @@ function getJson<T>(url: string): Promise<T> {
 
 export function httpMustBeOk(response: Response): Promise<Response> {
 	if (!response.ok) {
-		return new Promise<Response>((_resolve: any, reject: any) => {
+		return new Promise<Response>((_: any, reject: any) => {
 			response.text().then((text: string) => {
 				if (response.headers.get('content-type') === 'application/json') {
 					const jsonError = JSON.parse(text) as {};
@@ -67,5 +67,5 @@ interface StructuredErrorResponse {
 }
 
 function isStructuredErrorResponse(err: StructuredErrorResponse | {}): err is StructuredErrorResponse {
-	return 'error_code' in (<StructuredErrorResponse>err);
+	return 'error_code' in (err as StructuredErrorResponse);
 }
