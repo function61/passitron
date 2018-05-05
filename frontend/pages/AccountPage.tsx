@@ -1,6 +1,7 @@
 import clipboard from 'clipboard';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton, CommandIcon} from 'components/CommandButton';
+import {Dropdown} from 'components/dropdown';
 import {SecretReveal} from 'components/secretreveal';
 import {
 	AccountAddKeylist,
@@ -19,27 +20,6 @@ import * as React from 'react';
 import {defaultErrorHandler, getAccount, getFolder, getSecrets} from 'repo';
 import {folderRoute, importotptokenRoute} from 'routes';
 import {unrecognizedValue} from 'utils';
-
-interface ShittyDropdownProps {
-	children: JSX.Element[];
-}
-
-export class ShittyDropdown extends React.Component<ShittyDropdownProps, {}> {
-	render() {
-		const items = this.props.children.map((child, idx) => {
-			return <li key={idx}>{child}</li>;
-		});
-
-		return <div className="btn-group">
-			<button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span className="caret"></span>
-			</button>
-			<ul className="dropdown-menu">
-				{ items }
-			</ul>
-		</div>;
-	}
-}
 
 interface AccountPageProps {
 	id: string;
@@ -72,10 +52,10 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			<h1>
 				{account.Title}
 				&nbsp;
-				<ShittyDropdown>
+				<Dropdown>
 					<a href="#">Separated link</a>
 					<a href="#">Separated link</a>
-				</ShittyDropdown>
+				</Dropdown>
 			</h1>
 
 			<table className="table table-striped">
