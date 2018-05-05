@@ -1,6 +1,4 @@
-
-export const rootFolderId = 'root';
-export const rootFolderName = 'root';
+import {SecretKind} from 'generated/domain';
 
 export interface Account {
 	Id: string;
@@ -43,11 +41,4 @@ export interface SecretKeylistKey {
 export interface AuditlogEntry {
 	Timestamp: string;
 	Message: string;
-}
-
-export enum SecretKind {
-    Password = 'password',
-    SshKey = 'ssh_key',
-    OtpToken = 'otp_token',
-    Keylist = 'keylist',
 }

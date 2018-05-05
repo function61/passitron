@@ -2,7 +2,8 @@ import * as React from 'react';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {auditLogEntries, defaultErrorHandler} from 'repo';
-import {rootFolderName, AuditlogEntry} from 'model';
+import {AuditlogEntry} from 'model';
+import {RootFolderName} from 'generated/domain';
 import {indexRoute} from 'routes';
 
 interface AuditLogPageState {
@@ -40,7 +41,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{url: indexRoute.buildUrl({}), title: rootFolderName},
+			{url: indexRoute.buildUrl({}), title: RootFolderName},
 			{url: '', title: this.title},
 		];
 	}

@@ -89,7 +89,7 @@ func Run(args []string) {
 
 			pushEvent(domain.NewAccountFolderCreated(
 				folderId,
-				"root",
+				domain.RootFolderId,
 				groupPath,
 				domain.Meta(importStartedTime, defaultUser)))
 

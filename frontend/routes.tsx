@@ -4,7 +4,7 @@ import HomePage from 'pages/HomePage';
 import SshKeysPage from 'pages/SshKeysPage';
 import SearchPage from 'pages/SearchPage';
 import ImportOtpToken from 'pages/ImportOtpToken';
-import {rootFolderId} from 'model';
+import {RootFolderId} from 'generated/domain';
 import AccountPage from 'pages/AccountPage';
 import UnsealPage from 'pages/UnsealPage';
 import AuditLogPage from 'pages/AuditLogPage';
@@ -20,7 +20,7 @@ export const unsealRoute = makeRoute('unseal', {});
 export const auditlogRoute = makeRoute('auditlog', {});
 export const importotptokenRoute = makeRoute('importotptoken', {account: 'string'});
 
-export const router = makeRouter(indexRoute, () => <HomePage key={rootFolderId} folderId={rootFolderId} />)
+export const router = makeRouter(indexRoute, () => <HomePage key={RootFolderId} folderId={RootFolderId} />)
 	.registerRoute(folderRoute, (opts) => <HomePage key={opts.folderId} folderId={opts.folderId} />)
 	.registerRoute(searchRoute, (opts) => <SearchPage searchTerm={opts.searchTerm} />)
 	.registerRoute(credviewRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)

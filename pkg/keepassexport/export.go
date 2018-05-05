@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/mattetti/filebuffer"
 	"github.com/tobischo/gokeepasslib"
@@ -110,14 +111,13 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 			entry.Values = append(entry.Values, mkValue("UserName", account.Username))
 			entry.Values = append(entry.Values, mkValue("Notes", account.Description))
 
-			switch secret.Kind {
-			default:
-				panic("invalid secret kind: " + secret.Kind)
-			// TODO: keylist
-			case state.SecretKindPassword:
+			switch domain.SecretKindExhaustive44d6e3(secret.Kind) {
+			case domain.SecretKindKeylist:
+				panic("not implemented")
+			case domain.SecretKindPassword:
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Password))
 
-			case state.SecretKindSshKey:
+			case domain.SecretKindSshKey:
 				filename := account.Id + ".id_rsa"
 
 				plaintextSshBlock, rest := pem.Decode([]byte(secret.SshPrivateKey))
@@ -134,9 +134,11 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 
 				entry.Binaries = append(entry.Binaries, binaryReference)
 
-			case state.SecretKindOtpToken:
+			case domain.SecretKindOtpToken:
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))
 
+			default:
+				panic("invalid secret kind: " + secret.Kind)
 			}
 
 			group.Entries = append(group.Entries, entry)
@@ -165,7 +167,7 @@ func keepassExport(masterPassword string, output io.Writer, st *state.State) err
 		Meta: meta,
 	}
 
-	rootGroup, entriesExported := exportRecursive("root", meta, st)
+	rootGroup, entriesExported := exportRecursive(domain.RootFolderId, meta, st)
 
 	content.Root = &gokeepasslib.RootData{
 		Groups: []gokeepasslib.Group{rootGroup},

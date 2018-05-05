@@ -66,7 +66,7 @@ func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error 
 		if account.Id == e.Account {
 			secret := Secret{
 				Id:                 e.Id,
-				Kind:               SecretKindOtpToken,
+				Kind:               domain.SecretKindOtpToken,
 				Created:            e.Meta().Timestamp,
 				OtpProvisioningUrl: e.OtpProvisioningUrl,
 			}
@@ -85,7 +85,7 @@ func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error 
 		if account.Id == e.Account {
 			secret := Secret{
 				Id:       e.Id,
-				Kind:     SecretKindPassword,
+				Kind:     domain.SecretKindPassword,
 				Created:  e.Meta().Timestamp,
 				Password: e.Password,
 			}
@@ -113,7 +113,7 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 
 			secret := Secret{
 				Id:          e.Id,
-				Kind:        SecretKindKeylist,
+				Kind:        domain.SecretKindKeylist,
 				Title:       e.Title,
 				Created:     e.Meta().Timestamp,
 				KeylistKeys: keyItems,
@@ -157,7 +157,7 @@ func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 		if account.Id == e.Account {
 			secret := Secret{
 				Id:                     e.Id,
-				Kind:                   SecretKindSshKey,
+				Kind:                   domain.SecretKindSshKey,
 				Created:                e.Meta().Timestamp,
 				SshPrivateKey:          e.SshPrivateKey,
 				SshPublicKeyAuthorized: e.SshPublicKeyAuthorized,

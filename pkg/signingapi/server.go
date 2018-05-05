@@ -120,8 +120,6 @@ func Setup(router *mux.Router, st *state.State) {
 			return
 		}
 
-		// FIXME: implement SshSigning as enum
-
 		signature, err := signer.Sign(rand.Reader, input.Data)
 		if err != nil {
 			httputil.RespondHttpJson(httputil.GenericError("signing_failed", err), http.StatusInternalServerError, w)
@@ -131,7 +129,7 @@ func Setup(router *mux.Router, st *state.State) {
 		st.EventLog.Append(
 			domain.NewAccountSecretUsed(
 				account.Id,
-				"SshSigning",
+				domain.SecretUsedTypeSshSigning,
 				domain.Meta(time.Now(), "2")))
 
 		httputil.RespondHttpJson(signingapitypes.SignResponse{

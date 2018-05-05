@@ -5,13 +5,6 @@ import (
 	"time"
 )
 
-const (
-	SecretKindPassword = "password"
-	SecretKindOtpToken = "otp_token"
-	SecretKindSshKey   = "ssh_key"
-	SecretKindKeylist  = "keylist"
-)
-
 type Secret struct {
 	Id                     string
 	Kind                   string
@@ -108,9 +101,9 @@ type AuditLogEntry struct {
 
 func NewStatefile() *Statefile {
 	rootFolder := Folder{
-		Id:       "root",
+		Id:       domain.RootFolderId,
 		ParentId: "",
-		Name:     "root",
+		Name:     domain.RootFolderName,
 	}
 
 	return &Statefile{

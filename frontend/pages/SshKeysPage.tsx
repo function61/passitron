@@ -1,6 +1,7 @@
 import * as React from 'react';
 import DefaultLayout from 'layouts/DefaultLayout';
-import {rootFolderId, FolderResponse} from 'model';
+import {FolderResponse} from 'model';
+import {RootFolderId} from 'generated/domain';
 import {getFolder, defaultErrorHandler} from 'repo';
 import {SecretListing} from 'components/SecretListing';
 
@@ -30,7 +31,7 @@ export default class SshKeysPage extends React.Component<{}, SshKeysPageState> {
 	}
 
 	private fetchData() {
-		getFolder(rootFolderId).then((listing: FolderResponse) => {
+		getFolder(RootFolderId).then((listing) => {
 			this.setState({ listing });
 		}, defaultErrorHandler);
 	}

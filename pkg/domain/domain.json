@@ -1,5 +1,29 @@
-
-[
+{
+	"stringConsts": [
+		{ "key": "RootFolderId", "value": "root" },
+		{ "key": "RootFolderName", "value": "root" }
+	],
+	"enums": [
+		{
+			"name": "SecretKind",
+			"type": "string",
+			"stringMembers": [
+				"password",
+				"otp_token",
+				"ssh_key",
+				"keylist"
+			]
+		},
+		{
+			"name": "SecretUsedType",
+			"type": "string",
+			"stringMembers": [
+				"SshSigning",
+				"PasswordExposed"
+			]
+		}
+	],
+	"events": [
 	{
 		"event": "account.Created",
 		"ctor": ["Id", "FolderId", "Title"],
@@ -228,3 +252,4 @@
 		]
 	}
 ]
+}

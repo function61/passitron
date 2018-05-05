@@ -179,8 +179,6 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		// FIXME: PasswordExposed via enum
-
 		if !authorized {
 			httputil.RespondHttpJson(httputil.GenericError("did_not_receive_physical_authorization", nil), http.StatusForbidden, w)
 			return
@@ -188,7 +186,7 @@ func Define(router *mux.Router, st *state.State) {
 
 		st.EventLog.Append(domain.NewAccountSecretUsed(
 			account.Id,
-			"PasswordExposed",
+			domain.SecretUsedTypePasswordExposed,
 			domain.Meta(time.Now(), "2")))
 
 		httputil.RespondHttpJson(account.GetSecrets(), http.StatusOK, w)
