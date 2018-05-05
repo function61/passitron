@@ -1,5 +1,6 @@
 {
 	"stringConsts": [
+		{ "key": "DefaultUserIdTODO", "value": "2" },
 		{ "key": "RootFolderId", "value": "root" },
 		{ "key": "RootFolderName", "value": "root" }
 	],

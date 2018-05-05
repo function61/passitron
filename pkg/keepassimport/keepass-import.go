@@ -32,8 +32,6 @@ import (
 	Replace \" with ""
 */
 
-const defaultUser = "2"
-
 func Run(args []string) {
 	if len(args) != 1 {
 		log.Fatalf("Usage: <csv path>")
@@ -91,7 +89,7 @@ func Run(args []string) {
 				folderId,
 				domain.RootFolderId,
 				groupPath,
-				domain.Meta(importStartedTime, defaultUser)))
+				domain.Meta(importStartedTime, domain.DefaultUserIdTODO)))
 
 			foldersJustCreated[groupPath] = folderId
 		}
@@ -112,13 +110,13 @@ func Run(args []string) {
 			accountId,
 			folderId,
 			res["Account"],
-			domain.Meta(creationTime, defaultUser)))
+			domain.Meta(creationTime, domain.DefaultUserIdTODO)))
 
 		if res["Login Name"] != "" {
 			pushEvent(domain.NewAccountUsernameChanged(
 				accountId,
 				res["Login Name"],
-				domain.Meta(modificationTime, defaultUser)))
+				domain.Meta(modificationTime, domain.DefaultUserIdTODO)))
 		}
 
 		if res["Password"] != "" {
@@ -126,14 +124,14 @@ func Run(args []string) {
 				accountId,
 				domain.RandomId(),
 				res["Password"],
-				domain.Meta(modificationTime, defaultUser)))
+				domain.Meta(modificationTime, domain.DefaultUserIdTODO)))
 		}
 
 		if res["Comments"] != "" {
 			pushEvent(domain.NewAccountDescriptionChanged(
 				accountId,
 				res["Comments"],
-				domain.Meta(modificationTime, defaultUser)))
+				domain.Meta(modificationTime, domain.DefaultUserIdTODO)))
 		}
 	}
 

@@ -130,7 +130,7 @@ func Setup(router *mux.Router, st *state.State) {
 			domain.NewAccountSecretUsed(
 				account.Id,
 				domain.SecretUsedTypeSshSigning,
-				domain.Meta(time.Now(), "2")))
+				domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
 		httputil.RespondHttpJson(signingapitypes.SignResponse{
 			Signature: signature,

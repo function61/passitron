@@ -47,7 +47,7 @@ func Define(router *mux.Router, st *state.State) {
 
 		ctx := &command.Ctx{
 			State: st,
-			Meta:  domain.Meta(time.Now(), "2"),
+			Meta:  domain.Meta(time.Now(), domain.DefaultUserIdTODO),
 		}
 
 		cmdStruct := cmdStructBuilder()
@@ -187,7 +187,7 @@ func Define(router *mux.Router, st *state.State) {
 		st.EventLog.Append(domain.NewAccountSecretUsed(
 			account.Id,
 			domain.SecretUsedTypePasswordExposed,
-			domain.Meta(time.Now(), "2")))
+			domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
 		httputil.RespondHttpJson(account.GetSecrets(), http.StatusOK, w)
 	}))
