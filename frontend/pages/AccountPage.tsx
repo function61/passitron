@@ -1,6 +1,6 @@
 import clipboard from 'clipboard';
 import {Breadcrumb} from 'components/breadcrumbtrail';
-import {CommandButton, CommandLink} from 'components/CommandButton';
+import {CommandButton, CommandIcon} from 'components/CommandButton';
 import {SecretReveal} from 'components/secretreveal';
 import {
 	AccountAddKeylist,
@@ -83,7 +83,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				<tr>
 					<td>
 						Username
-						<CommandLink command={AccountChangeUsername(account.Id, account.Username)} />
+						<CommandIcon command={AccountChangeUsername(account.Id, account.Username)} />
 					</td>
 					<td>{account.Username}</td>
 					<td onClick={() => this.copyToClipboard(account.Username)} className="fauxlink">📋</td>
@@ -92,7 +92,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				<tr>
 					<td>
 						Description
-						<CommandLink command={AccountChangeDescription(account.Id, account.Description)} />
+						<CommandIcon command={AccountChangeDescription(account.Id, account.Description)} />
 					</td>
 					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}>{account.Description}</td>
 					<td></td>
@@ -118,7 +118,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						SSH public key
-						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.SshPublicKeyAuthorized}</td>
 					<td></td>
@@ -127,7 +127,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						Password
-						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td><SecretReveal secret={secret.Password} /></td>
 					<td onClick={() => this.copyToClipboard(secret.Password)} className="fauxlink">📋</td>
@@ -136,7 +136,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						OTP
-						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{secret.OtpProof}</td>
 					<td onClick={() => this.copyToClipboard(secret.OtpProof)} className="fauxlink">📋</td>
@@ -150,7 +150,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<td>
 						Keylist
-						<CommandLink type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td colSpan={2}>{secret.Title}
 						<table className="table table-striped">

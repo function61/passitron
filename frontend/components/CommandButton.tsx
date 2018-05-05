@@ -46,12 +46,12 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 
 type EditType = 'add' | 'edit' | 'remove';
 
-interface CommandLinkProps {
+interface CommandIconProps {
 	command: CommandDefinition;
 	type?: EditType;
 }
 
-interface CommandLinkState {
+interface CommandIconState {
 	dialogOpen: boolean;
 }
 
@@ -61,10 +61,10 @@ const typeToIcon: {[key: string]: string} = {
 	remove: 'glyphicon-remove',
 };
 
-export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {
+export class CommandIcon extends React.Component<CommandIconProps, CommandIconState> {
 	private cmdManager: CommandManager;
 
-	constructor(props: CommandLinkProps, state: CommandLinkState) {
+	constructor(props: CommandIconProps, state: CommandIconState) {
 		super(props, state);
 
 		this.state = { dialogOpen: false };
