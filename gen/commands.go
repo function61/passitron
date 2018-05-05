@@ -188,7 +188,7 @@ var StructBuilders = map[string]func() command.Command{
 }
 
 func generateTypescript(file *CommandSpecFile) error {
-	template := `import {CommandDefinition, CommandFieldKind} from 'types';
+	template := `import {CommandDefinition, CommandFieldKind} from 'commandtypes';
 
 // WARNING: generated file
 
