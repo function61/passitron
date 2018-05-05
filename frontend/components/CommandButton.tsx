@@ -1,18 +1,24 @@
 import {CommandDefinition} from 'commandtypes';
+import {ModalDialog} from 'components/modaldialog';
 import {CommandManager, CommandPagelet} from 'plumbing';
 import * as React from 'react';
 import {defaultErrorHandler} from 'repo';
-import {uniqueDomId} from 'utils';
 
 interface CommandButtonProps {
 	command: CommandDefinition;
 }
 
-export class CommandButton extends React.Component<CommandButtonProps, {}> {
+interface CommandButtonState {
+	dialogOpen: boolean;
+}
+
+export class CommandButton extends React.Component<CommandButtonProps, CommandButtonState> {
 	private cmdManager: CommandManager;
 
-	constructor(props: CommandButtonProps, state: {}) {
+	constructor(props: CommandButtonProps, state: CommandButtonState) {
 		super(props, state);
+
+		this.state = { dialogOpen: false };
 
 		this.cmdManager = new CommandManager(this.props.command);
 	}
@@ -24,31 +30,16 @@ export class CommandButton extends React.Component<CommandButtonProps, {}> {
 	}
 
 	render() {
-		const modalId = 'cmdModal' + uniqueDomId().toString();
-		const labelName = modalId + 'Label';
-
 		const commandTitle = this.props.command.title;
 
-		return <div style={{display: 'inline-block'}}>
-			<a className="btn btn-default" data-toggle="modal" data-target={'#' + modalId}>{commandTitle}</a>
+		const maybeDialog = this.state.dialogOpen ? <ModalDialog title={commandTitle} onSave={() => { this.save(); }}>
+			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+		</ModalDialog> : null;
 
-			<div className="modal" id={modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
-				<div className="modal-dialog" role="document">
-					<div className="modal-content">
-						<div className="modal-header">
-							<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 className="modal-title" id={labelName}>{commandTitle}</h4>
-						</div>
-						<div className="modal-body">
-							<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
-						</div>
-						<div className="modal-footer">
-							<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-							<button type="button" onClick={() => this.save()} className="btn btn-primary">Save changes</button>
-						</div>
-					</div>
-				</div>
-			</div>
+		return <div style={{display: 'inline-block'}}>
+			<a className="btn btn-default" onClick={() => { this.setState({ dialogOpen: true }); }}>{commandTitle}</a>
+
+			{ maybeDialog }
 		</div>;
 	}
 }
@@ -61,7 +52,7 @@ interface CommandLinkProps {
 }
 
 interface CommandLinkState {
-	open: boolean;
+	dialogOpen: boolean;
 }
 
 const typeToIcon: {[key: string]: string} = {
@@ -71,23 +62,14 @@ const typeToIcon: {[key: string]: string} = {
 };
 
 export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {
-	private dialogRef: HTMLDivElement | null = null;
 	private cmdManager: CommandManager;
 
 	constructor(props: CommandLinkProps, state: CommandLinkState) {
 		super(props, state);
 
+		this.state = { dialogOpen: false };
+
 		this.cmdManager = new CommandManager(this.props.command);
-	}
-
-	componentDidUpdate() {
-		if (this.dialogRef) {
-			$(this.dialogRef).modal('toggle');
-		}
-	}
-
-	openDialog() {
-		this.setState({ open: true });
 	}
 
 	save() {
@@ -102,33 +84,12 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 		const type = this.props.type ? this.props.type : 'edit';
 		const icon = typeToIcon[type];
 
-		if (this.state && this.state.open) {
-			const modalId = 'cmdModal' + uniqueDomId().toString();
-			const labelName = modalId + 'Label';
+		const maybeDialog = this.state.dialogOpen ? <ModalDialog title={commandTitle} onSave={() => { this.save(); }}>
+			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+		</ModalDialog> : null;
 
-			return <div style={{display: 'inline-block'}}>
-				<span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => this.openDialog()} title={commandTitle}></span>
-
-				<div className="modal" ref={(input) => { this.dialogRef = input; }} id={modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
-					<div className="modal-dialog" role="document">
-						<div className="modal-content">
-							<div className="modal-header">
-								<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								<h4 className="modal-title" id={labelName}>{commandTitle}</h4>
-							</div>
-							<div className="modal-body">
-								<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
-							</div>
-							<div className="modal-footer">
-								<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-								<button type="button" onClick={() => this.save()} className="btn btn-primary">Save changes</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>;
-		}
-
-		return <span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => this.openDialog()} title={commandTitle}></span>;
+		return <span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => { this.setState({dialogOpen: true}); }} title={commandTitle}>
+			{maybeDialog}
+		</span>;
 	}
 }
