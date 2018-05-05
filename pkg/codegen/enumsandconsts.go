@@ -64,11 +64,11 @@ func ProcessStringConsts(file *DomainFile) []ProcessedStringConst {
 }
 
 func GenerateEnumsAndConsts(data *TplData) error {
-	if err := WriteTemplateFile("../pkg/domain/domain.go", data, DomainFileTemplateGo); err != nil {
+	if err := WriteTemplateFile("pkg/domain/domain.go", data, DomainFileTemplateGo); err != nil {
 		return err
 	}
 
-	if err := WriteTemplateFile("../frontend/generated/domain.ts", data, DomainFileTemplateTypeScript); err != nil {
+	if err := WriteTemplateFile("frontend/generated/domain.ts", data, DomainFileTemplateTypeScript); err != nil {
 		return err
 	}
 

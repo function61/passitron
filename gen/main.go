@@ -3,12 +3,16 @@ package main
 import (
 	"github.com/function61/pi-security-module/pkg/codegen"
 	"github.com/function61/pi-security-module/pkg/version/versioncodegen"
+	"os"
 )
 
 //go:generate go run main.go commands.go
 
 func main() {
-	file, err := codegen.DeserializeDomainFile("../pkg/domain/domain.json")
+	// normalize to root of the project
+	panicIfError(os.Chdir(".."))
+
+	file, err := codegen.DeserializeDomainFile("pkg/domain/domain.json")
 	panicIfError(err)
 	if err != nil {
 		panic(err)
@@ -28,7 +32,7 @@ func main() {
 		EventStructsAsGoCode: eventStructsAsGoCode,
 	}
 
-	panicIfError(codegen.WriteTemplateFile("../pkg/domain/events.go", tplData, codegen.EventsTemplateGo))
+	panicIfError(codegen.WriteTemplateFile("pkg/domain/events.go", tplData, codegen.EventsTemplateGo))
 
 	panicIfError(codegen.GenerateEnumsAndConsts(tplData))
 }

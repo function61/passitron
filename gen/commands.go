@@ -180,7 +180,7 @@ var StructBuilders = map[string]func() command.Command{
 		strings.Join(structs, "\n\n"),
 		strings.Join(handlerLines, "\n"))
 
-	if writeErr := ioutil.WriteFile("../pkg/commandhandlers/generated.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
+	if writeErr := ioutil.WriteFile("pkg/commandhandlers/generated.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
 		return writeErr
 	}
 
@@ -275,7 +275,7 @@ func generateTypescript(file *CommandSpecFile) error {
 		template,
 		strings.Join(fns, "\n\n"))
 
-	if writeErr := ioutil.WriteFile("../frontend/generated/commanddefinitions.ts", []byte(fnsSerialized), 0777); writeErr != nil {
+	if writeErr := ioutil.WriteFile("frontend/generated/commanddefinitions.ts", []byte(fnsSerialized), 0777); writeErr != nil {
 		return writeErr
 	}
 
@@ -283,7 +283,7 @@ func generateTypescript(file *CommandSpecFile) error {
 }
 
 func generateCommands() error {
-	contents, readErr := ioutil.ReadFile("../commands.json")
+	contents, readErr := ioutil.ReadFile("commands.json")
 	if readErr != nil {
 		return readErr
 	}
