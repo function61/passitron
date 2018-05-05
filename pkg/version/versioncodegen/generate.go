@@ -1,4 +1,4 @@
-package main
+package versioncodegen
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func genVersionFile() error {
+func Generate() error {
 	friendlyRevId := os.Getenv("FRIENDLY_REV_ID")
 	if friendlyRevId == "" {
 		friendlyRevId = "dev"

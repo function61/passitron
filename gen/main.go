@@ -2,9 +2,10 @@ package main
 
 import (
 	"github.com/function61/pi-security-module/pkg/codegen"
+	"github.com/function61/pi-security-module/pkg/version/versioncodegen"
 )
 
-//go:generate go run main.go version.go commands.go
+//go:generate go run main.go commands.go
 
 func main() {
 	file, err := codegen.DeserializeDomainFile("../pkg/domain/domain.json")
@@ -13,7 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	panicIfError(genVersionFile())
+	panicIfError(versioncodegen.Generate())
 
 	panicIfError(generateCommands())
 
