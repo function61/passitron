@@ -1,6 +1,6 @@
-import * as React from 'react';
+import {Breadcrumb, BreadcrumbTrail} from 'components/breadcrumbtrail';
 import Navigation from 'components/Navigation';
-import {BreadcrumbTrail, Breadcrumb} from 'components/breadcrumbtrail';
+import * as React from 'react';
 import {indexRoute} from 'routes';
 
 interface DefaultLayoutProps {

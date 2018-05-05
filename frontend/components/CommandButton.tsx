@@ -1,7 +1,7 @@
-import * as React from 'react';
-import {CommandDefinition} from 'types';
-import {defaultErrorHandler} from 'repo';
 import {CommandManager, CommandPagelet} from 'plumbing';
+import * as React from 'react';
+import {defaultErrorHandler} from 'repo';
+import {CommandDefinition} from 'types';
 import {uniqueDomId} from 'utils';
 
 interface CommandButtonProps {

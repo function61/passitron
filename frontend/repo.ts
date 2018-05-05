@@ -1,4 +1,4 @@
-import {FolderResponse, Account, Secret, AuditlogEntry} from 'model';
+import {Account, AuditlogEntry, FolderResponse, Secret} from 'model';
 import {unsealRoute} from 'routes';
 
 function getJson<T>(url: string): Promise<T> {

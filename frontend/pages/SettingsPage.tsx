@@ -1,9 +1,9 @@
-import * as React from 'react';
-import DefaultLayout from 'layouts/DefaultLayout';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
+import {DatabaseChangeMasterPassword, DatabaseExportToKeepass, DatabaseUnseal} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
-import {DatabaseUnseal, DatabaseChangeMasterPassword, DatabaseExportToKeepass} from 'generated/commanddefinitions';
+import DefaultLayout from 'layouts/DefaultLayout';
+import * as React from 'react';
 import {indexRoute} from 'routes';
 
 export default class SettingsPage extends React.Component<{}, {}> {

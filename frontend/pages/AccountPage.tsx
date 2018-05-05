@@ -1,23 +1,23 @@
-import * as React from 'react';
-import {Account, Secret, Folder, FolderResponse} from 'model';
 import clipboard from 'clipboard';
-import {getAccount, getFolder, getSecrets, defaultErrorHandler} from 'repo';
 import {Breadcrumb} from 'components/breadcrumbtrail';
-import {SecretKind} from 'generated/domain';
-import {SecretReveal} from 'components/secretreveal';
 import {CommandButton, CommandLink} from 'components/CommandButton';
-import DefaultLayout from 'layouts/DefaultLayout';
-import {folderRoute, importotptokenRoute} from 'routes';
+import {SecretReveal} from 'components/secretreveal';
 import {
-	AccountDelete,
+	AccountAddKeylist,
 	AccountAddPassword,
 	AccountAddSshKey,
-	AccountDeleteSecret,
-	AccountChangeUsername,
-	AccountAddKeylist,
 	AccountChangeDescription,
+	AccountChangeUsername,
+	AccountDelete,
+	AccountDeleteSecret,
 	AccountRename,
 } from 'generated/commanddefinitions';
+import {SecretKind} from 'generated/domain';
+import DefaultLayout from 'layouts/DefaultLayout';
+import {Account, Folder, FolderResponse, Secret} from 'model';
+import * as React from 'react';
+import {defaultErrorHandler, getAccount, getFolder, getSecrets} from 'repo';
+import {folderRoute, importotptokenRoute} from 'routes';
 import {unrecognizedValue} from 'utils';
 
 interface ShittyDropdownProps {

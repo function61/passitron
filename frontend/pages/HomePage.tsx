@@ -1,12 +1,12 @@
-import * as React from 'react';
+import {Breadcrumb} from 'components/breadcrumbtrail';
+import {CommandButton} from 'components/CommandButton';
+import {SecretListing} from 'components/SecretListing';
+import {AccountCreate, AccountCreateFolder, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
 import DefaultLayout from 'layouts/DefaultLayout';
 import {FolderResponse} from 'model';
+import * as React from 'react';
+import {defaultErrorHandler, getFolder} from 'repo';
 import {folderRoute} from 'routes';
-import {getFolder, defaultErrorHandler} from 'repo';
-import {CommandButton} from 'components/CommandButton';
-import {AccountCreate, AccountCreateFolder, AccountRenameFolder, AccountMoveFolder} from 'generated/commanddefinitions';
-import {Breadcrumb} from 'components/breadcrumbtrail';
-import {SecretListing} from 'components/SecretListing';
 
 interface HomePageProps {
 	folderId: string;

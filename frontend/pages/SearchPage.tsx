@@ -1,11 +1,11 @@
-import * as React from 'react';
-import {Account, FolderResponse} from 'model';
-import {RootFolderName} from 'generated/domain';
-import {indexRoute} from 'routes';
-import {searchAccounts, defaultErrorHandler} from 'repo';
-import DefaultLayout from 'layouts/DefaultLayout';
-import {SecretListing} from 'components/SecretListing';
 import {Breadcrumb} from 'components/breadcrumbtrail';
+import {SecretListing} from 'components/SecretListing';
+import {RootFolderName} from 'generated/domain';
+import DefaultLayout from 'layouts/DefaultLayout';
+import {Account, FolderResponse} from 'model';
+import * as React from 'react';
+import {defaultErrorHandler, searchAccounts} from 'repo';
+import {indexRoute} from 'routes';
 
 interface SearchPageProps {
 	searchTerm: string;

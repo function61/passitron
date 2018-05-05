@@ -1,14 +1,14 @@
-import * as React from 'react';
-import {makeRoute, makeRouter} from 'typescript-safe-router/saferouter';
-import HomePage from 'pages/HomePage';
-import SshKeysPage from 'pages/SshKeysPage';
-import SearchPage from 'pages/SearchPage';
-import ImportOtpToken from 'pages/ImportOtpToken';
 import {RootFolderId} from 'generated/domain';
 import AccountPage from 'pages/AccountPage';
-import UnsealPage from 'pages/UnsealPage';
 import AuditLogPage from 'pages/AuditLogPage';
+import HomePage from 'pages/HomePage';
+import ImportOtpToken from 'pages/ImportOtpToken';
+import SearchPage from 'pages/SearchPage';
 import SettingsPage from 'pages/SettingsPage';
+import SshKeysPage from 'pages/SshKeysPage';
+import UnsealPage from 'pages/UnsealPage';
+import * as React from 'react';
+import {makeRoute, makeRouter} from 'typescript-safe-router/saferouter';
 
 export const indexRoute = makeRoute('index', {});
 export const folderRoute = makeRoute('folder', {folderId: 'string'});

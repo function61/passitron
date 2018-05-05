@@ -1,8 +1,8 @@
-import * as React from 'react';
-import DefaultLayout from 'layouts/DefaultLayout';
 import {CommandButton} from 'components/CommandButton';
 import {AccountAddOtpToken} from 'generated/commanddefinitions';
 import * as QrCode from 'jsqrcode';
+import DefaultLayout from 'layouts/DefaultLayout';
+import * as React from 'react';
 
 
 interface ImportOtpTokenProps {

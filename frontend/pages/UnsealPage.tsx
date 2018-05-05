@@ -1,10 +1,10 @@
-import * as React from 'react';
-import DefaultLayout from 'layouts/DefaultLayout';
+import {WarningAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
-import {WarningAlert} from 'components/alerts';
-import {RootFolderName} from 'generated/domain';
 import {DatabaseUnseal} from 'generated/commanddefinitions';
+import {RootFolderName} from 'generated/domain';
+import DefaultLayout from 'layouts/DefaultLayout';
+import * as React from 'react';
 import {indexRoute} from 'routes';
 
 export default class UnsealPage extends React.Component<{}, {}> {

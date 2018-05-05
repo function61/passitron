@@ -1,6 +1,6 @@
-import * as React from 'react';
 import {FolderResponse} from 'model';
-import {searchRoute, folderRoute, indexRoute, credviewRoute} from 'routes';
+import * as React from 'react';
+import {credviewRoute, folderRoute, indexRoute, searchRoute} from 'routes';
 
 interface SecretListingProps {
 	searchTerm: string;

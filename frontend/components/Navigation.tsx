@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {indexRoute, sshkeysRoute, settingsRoute, auditlogRoute} from 'routes';
+import {auditlogRoute, indexRoute, settingsRoute, sshkeysRoute} from 'routes';
 
 interface NavLink {
 	url: string;
