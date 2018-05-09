@@ -1,6 +1,7 @@
 package commandhandlers
 
 import (
+	"crypto/subtle"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -317,8 +318,7 @@ func (a *DatabaseExportToKeepass) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *DatabaseUnseal) Invoke(ctx *command.Ctx) error {
-	// TODO: predictable comparison time
-	if ctx.State.GetMasterPassword() != a.MasterPassword {
+	if subtle.ConstantTimeCompare([]byte(ctx.State.GetMasterPassword()), []byte(a.MasterPassword)) != 1 {
 		return errors.New("invalid password")
 	}
 
