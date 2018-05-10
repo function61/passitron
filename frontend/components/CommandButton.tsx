@@ -1,8 +1,8 @@
 import {CommandDefinition} from 'commandtypes';
 import {ModalDialog} from 'components/modaldialog';
+import {defaultErrorHandler} from 'generated/restapi';
 import {CommandManager, CommandPagelet} from 'plumbing';
 import * as React from 'react';
-import {defaultErrorHandler} from 'repo';
 
 interface CommandButtonProps {
 	command: CommandDefinition;

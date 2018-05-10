@@ -1,0 +1,13 @@
+package apitypes
+
+import (
+	"time"
+)
+
+type SecretKind string
+
+{{range .RestStructsAsGoCode}}
+
+{{.}}
+
+{{end}}

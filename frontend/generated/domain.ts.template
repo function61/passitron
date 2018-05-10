@@ -1,0 +1,12 @@
+// WARNING: generated file
+
+{{range .StringEnums}}
+export enum {{.Name}} {
+{{range .Members}}
+	{{.Key}} = '{{.GoValue}}',{{end}}
+}
+{{end}}
+
+{{range .StringConsts}}
+export const {{.Key}} = '{{.Value}}';
+{{end}}

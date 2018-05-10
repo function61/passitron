@@ -3,9 +3,9 @@ import {CommandButton} from 'components/CommandButton';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {AccountCreate, AccountCreateFolder, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
+import {defaultErrorHandler, getFolder} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {defaultErrorHandler, getFolder} from 'repo';
 import {folderRoute} from 'routes';
 
 interface HomePageProps {

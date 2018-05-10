@@ -15,9 +15,9 @@ import {
 	AccountRename,
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
+import {defaultErrorHandler, getAccount, getFolder, getSecrets} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {defaultErrorHandler, getAccount, getFolder, getSecrets} from 'repo';
 import {folderRoute, importotptokenRoute} from 'routes';
 import {unrecognizedValue} from 'utils';
 

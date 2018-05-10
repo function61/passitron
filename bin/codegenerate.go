@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/function61/pi-security-module/pkg/codegen"
 	"github.com/function61/pi-security-module/pkg/version/versioncodegen"
+	"io/ioutil"
 	"os"
 )
 
@@ -12,35 +13,52 @@ func main() {
 	// normalize to root of the project
 	panicIfError(os.Chdir(".."))
 
-	file := &codegen.DomainFile{}
-	panicIfError(codegen.DeserializeJsonFile("pkg/domain/domain.json", file))
+	domainSpecs := &codegen.DomainFile{}
+	panicIfError(codegen.DeserializeJsonFile("pkg/domain/domain.json", domainSpecs))
 
-	restStructsFile := &codegen.RestStructsFile{}
-	panicIfError(codegen.DeserializeJsonFile("pkg/apitypes/apitypes.json", restStructsFile))
+	applicationTypes := &codegen.ApplicationTypesDefinition{}
+	panicIfError(codegen.DeserializeJsonFile("pkg/apitypes/apitypes.json", applicationTypes))
 
 	panicIfError(versioncodegen.Generate())
 
 	panicIfError(codegen.GenerateCommands())
 
-	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(file)
+	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(domainSpecs)
 
-	tplData := &codegen.TplData{
+	data := &codegen.TplData{
 		GoPackage:                   "domain",
-		StringEnums:                 codegen.ProcessStringEnums(file),
-		StringConsts:                codegen.ProcessStringConsts(file),
+		DomainSpecs:                 domainSpecs,
+		ApplicationTypes:            applicationTypes,
+		StringEnums:                 codegen.ProcessStringEnums(domainSpecs),
+		StringConsts:                codegen.ProcessStringConsts(domainSpecs),
 		EventDefs:                   eventDefs,
 		EventStructsAsGoCode:        eventStructsAsGoCode,
-		RestStructsAsGoCode:         codegen.ProcessRestStructsAsGoCode(restStructsFile),
-		RestStructsAsTypeScriptCode: codegen.ProcessRestStructsAsTypeScriptCode(restStructsFile),
+		RestStructsAsGoCode:         codegen.ProcessRestStructsAsGoCode(applicationTypes),
+		RestStructsAsTypeScriptCode: codegen.ProcessRestStructsAsTypeScriptCode(applicationTypes),
 	}
 
-	panicIfError(codegen.WriteTemplateFile("pkg/domain/events.go", tplData, codegen.EventsTemplateGo))
+	panicIfError(renderTemplateFile("pkg/domain/events.go", data))
 
-	panicIfError(codegen.GenerateEnumsAndConsts(tplData))
+	panicIfError(renderTemplateFile("pkg/domain/domain.go", data))
 
-	panicIfError(codegen.WriteTemplateFile("pkg/apitypes/apitypes.go", tplData, codegen.RestStructsTemplateGo))
+	panicIfError(renderTemplateFile("frontend/generated/domain.ts", data))
 
-	panicIfError(codegen.WriteTemplateFile("frontend/generated/apitypes.ts", tplData, codegen.RestStructsTemplateTypeScript))
+	panicIfError(renderTemplateFile("pkg/apitypes/apitypes.go", data))
+
+	panicIfError(renderTemplateFile("frontend/generated/apitypes.ts", data))
+
+	panicIfError(renderTemplateFile("frontend/generated/restapi.ts", data))
+}
+
+func renderTemplateFile(generatedPath string, data *codegen.TplData) error {
+	templatePath := generatedPath + ".template"
+
+	templateContent, readErr := ioutil.ReadFile(templatePath)
+	if readErr != nil {
+		return readErr
+	}
+
+	return codegen.WriteTemplateFile(generatedPath, data, string(templateContent))
 }
 
 func panicIfError(err error) {

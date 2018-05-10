@@ -1,9 +1,9 @@
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {RootFolderId} from 'generated/domain';
+import {defaultErrorHandler, getFolder} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {defaultErrorHandler, getFolder} from 'repo';
 
 interface SshKeysPageState {
 	listing: FolderResponse;

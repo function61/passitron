@@ -1,4 +1,10 @@
 {
+	"endpoints": [
+		{ "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
+		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "name": "getSecrets" },
+		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
+		{ "path": "/accounts/{id}", "produces": {"_": "Account"}, "name": "getAccount" }
+	],
 	"structs": [
 		{
 			"name": "FolderResponse",

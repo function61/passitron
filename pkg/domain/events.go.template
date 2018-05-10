@@ -1,0 +1,49 @@
+package domain
+
+// WARNING: generated file
+
+var eventBuilders = map[string]func() Event{
+{{range .EventDefs}}
+	"{{.EventKey}}": func() Event { return &{{.GoStructName}}{meta: &EventMeta{}} },{{end}}
+}
+
+
+{{.EventStructsAsGoCode}}
+
+
+// constructors
+
+{{range .EventDefs}}
+func New{{.GoStructName}}({{.CtorArgs}}) *{{.GoStructName}} {
+	return &{{.GoStructName}}{
+		meta: &meta,
+		{{.CtorAssignments}}
+	}
+}
+{{end}}
+
+{{range .EventDefs}}
+func (e *{{.GoStructName}}) Meta() *EventMeta { return e.meta }{{end}}
+
+{{range .EventDefs}}
+func (e *{{.GoStructName}}) MetaType() string { return "{{.EventKey}}" }{{end}}
+
+{{range .EventDefs}}
+func (e *{{.GoStructName}}) Serialize() string { return e.meta.Serialize(e) }{{end}}
+
+// interface
+
+type EventListener interface { {{range .EventDefs}}
+	Apply{{.GoStructName}}(*{{.GoStructName}}) error{{end}}
+
+	HandleUnknownEvent(event Event) error
+}
+
+func DispatchEvent(event Event, listener EventListener) error {
+	switch e := event.(type) { {{range .EventDefs}}
+	case *{{.GoStructName}}:
+		return listener.Apply{{.GoStructName}}(e){{end}}
+	default:
+		return listener.HandleUnknownEvent(event)
+	}
+}

@@ -1,0 +1,7 @@
+import {SecretKind} from 'generated/domain';
+
+{{range .RestStructsAsTypeScriptCode}}
+
+{{.}}
+
+{{end}}

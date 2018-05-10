@@ -1,6 +1,6 @@
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
+import {httpMustBeOk} from 'httputil';
 import * as React from 'react';
-import {httpMustBeOk} from 'repo';
 import {unrecognizedValue} from 'utils';
 
 export type CommandFieldChangeListener = (key: string, value: string | number | boolean | null) => void;

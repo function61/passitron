@@ -2,9 +2,9 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {SecretListing} from 'components/SecretListing';
 import {Account, FolderResponse} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
+import {defaultErrorHandler, searchAccounts} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {defaultErrorHandler, searchAccounts} from 'repo';
 import {indexRoute} from 'routes';
 
 interface SearchPageProps {

@@ -2,11 +2,38 @@ package codegen
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
-type RestStructsFile struct {
-	Structs []StructDefinition `json:"structs"`
+type ApplicationTypesDefinition struct {
+	Structs   []StructDefinition   `json:"structs"`
+	Endpoints []EndpointDefinition `json:"endpoints"`
+}
+
+type EndpointDefinition struct {
+	Path     string      `json:"path"`
+	Name     string      `json:"name"`
+	Produces DatatypeDef `json:"produces"`
+}
+
+// "/users/{id}" => "/users/${id}"
+func (e *EndpointDefinition) TypescriptPath() string {
+	return strings.Replace(e.Path, "{", "${", -1)
+}
+
+var routePlaceholderParseRe = regexp.MustCompile("\\{([a-zA-Z0-9]+)\\}")
+
+// "/users/{id}/addresses/{idx}" => "id: string, idx: string"
+func (e *EndpointDefinition) TypescriptArgs() string {
+	parsed := routePlaceholderParseRe.FindAllStringSubmatch(e.Path, -1)
+	typescripted := []string{}
+
+	for _, item := range parsed {
+		typescripted = append(typescripted, item[1]+": string")
+	}
+
+	return strings.Join(typescripted, ", ")
 }
 
 type StructDefinition struct {
@@ -35,7 +62,7 @@ func StructToGoCode(s *StructDefinition) string {
 	return structProcessed.AsGoCode()
 }
 
-func asTypeScriptType(d *DatatypeDef) string {
+func (d *DatatypeDef) AsTypeScriptType() string {
 	tsType := ""
 
 	if d.Name == "string" {
@@ -45,7 +72,7 @@ func asTypeScriptType(d *DatatypeDef) string {
 	} else if d.Name == "boolean" {
 		tsType = "boolean"
 	} else if d.Name == "list" {
-		tsType = asTypeScriptType(d.Of) + "[]"
+		tsType = d.Of.AsTypeScriptType() + "[]"
 	} else if isCustomType(d.Name) {
 		tsType = d.Name
 	} else {
@@ -63,7 +90,7 @@ func StructToTypeScriptCode(s *StructDefinition) string {
 	fieldsSerialized := []string{}
 
 	for _, field := range s.Fields {
-		fieldsSerialized = append(fieldsSerialized, field.Key+": "+asTypeScriptType(field.Type)+";")
+		fieldsSerialized = append(fieldsSerialized, field.Key+": "+field.Type.AsTypeScriptType()+";")
 	}
 
 	return fmt.Sprintf(`export interface %s {
@@ -73,7 +100,7 @@ func StructToTypeScriptCode(s *StructDefinition) string {
 		strings.Join(fieldsSerialized, "\n\t"))
 }
 
-func ProcessRestStructsAsGoCode(file *RestStructsFile) []string {
+func ProcessRestStructsAsGoCode(file *ApplicationTypesDefinition) []string {
 	ret := []string{}
 
 	for _, struct_ := range file.Structs {
@@ -83,7 +110,7 @@ func ProcessRestStructsAsGoCode(file *RestStructsFile) []string {
 	return ret
 }
 
-func ProcessRestStructsAsTypeScriptCode(file *RestStructsFile) []string {
+func ProcessRestStructsAsTypeScriptCode(file *ApplicationTypesDefinition) []string {
 	ret := []string{}
 
 	for _, struct_ := range file.Structs {

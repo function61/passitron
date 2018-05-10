@@ -43,6 +43,8 @@ type EventDefForTpl struct {
 
 type TplData struct {
 	GoPackage                   string
+	DomainSpecs                 *DomainFile
+	ApplicationTypes            *ApplicationTypesDefinition
 	StringEnums                 []ProcessedStringEnum
 	StringConsts                []ProcessedStringConst
 	EventStructsAsGoCode        string

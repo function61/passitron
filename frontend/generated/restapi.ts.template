@@ -1,0 +1,40 @@
+// WARNING: generated file
+
+// tslint:disable:quotemark
+// WHY: wouldn't make sense complicating code generation to check
+// if we need template string or not in path string
+
+import {Account, AuditlogEntry, ExposedSecret, FolderResponse} from 'generated/apitypes';
+import {getJson} from 'httputil';
+import {unsealRoute} from 'routes';
+
+{{range .ApplicationTypes.Endpoints}}
+export function {{.Name}}({{.TypescriptArgs}}): Promise<{{.Produces.AsTypeScriptType}}> {
+	return getJson<{{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`);
+}
+{{end}}
+
+export function searchAccounts(query: string): Promise<Account[]> {
+	const searchEscaped = encodeURIComponent(query);
+
+	return getJson<Account[]>(`/accounts?search=${searchEscaped}`);
+}
+
+export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
+	if (isStructuredErrorResponse(err) && err.error_code === 'database_is_sealed') {
+		document.location.assign(unsealRoute.buildUrl({}));
+		return;
+	}
+
+	alert('Error: ' + err.toString());
+}
+
+interface StructuredErrorResponse {
+	error_code: string;
+	error_description: string;
+}
+
+function isStructuredErrorResponse(err: StructuredErrorResponse | {}): err is StructuredErrorResponse {
+	return 'error_code' in (err as StructuredErrorResponse);
+}
+
