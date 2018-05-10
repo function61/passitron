@@ -37,6 +37,8 @@ func main() {
 		RestStructsAsTypeScriptCode: codegen.ProcessRestStructsAsTypeScriptCode(applicationTypes),
 	}
 
+	panicIfError(renderTemplateFile("docs/generated.md", data))
+
 	panicIfError(renderTemplateFile("pkg/domain/events.go", data))
 
 	panicIfError(renderTemplateFile("pkg/domain/domain.go", data))

@@ -1,0 +1,25 @@
+This is automatically generated documentation from the specification files.
+
+Domain consts
+-------------
+
+```{{range .DomainSpecs.StringConsts}}
+const {{.Key}} = "{{.Value}}"{{end}}
+```
+
+
+REST endpoints
+--------------
+
+| path | produces | 
+|------|----------|
+{{range .ApplicationTypes.Endpoints}}| `{{.Path}}` | `{{.Produces.AsTypeScriptType}}` |
+{{end}}
+
+{{range .DomainSpecs.Events}}
+Event: {{.Event}}
+-------
+
+{{range .Fields}}- {{.Key}}
+{{end}}
+{{end}}
