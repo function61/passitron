@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/function61/pi-security-module/pkg/codegen"
-	"github.com/function61/pi-security-module/pkg/version/versioncodegen"
+	"github.com/function61/pi-security-module/pkg/version/versionresolver"
 	"io/ioutil"
 	"os"
 )
@@ -19,14 +19,13 @@ func main() {
 	applicationTypes := &codegen.ApplicationTypesDefinition{}
 	panicIfError(codegen.DeserializeJsonFile("pkg/apitypes/apitypes.json", applicationTypes))
 
-	panicIfError(versioncodegen.Generate())
-
 	panicIfError(codegen.GenerateCommands())
 
 	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(domainSpecs)
 
 	data := &codegen.TplData{
 		GoPackage:                   "domain",
+		Version:                     versionresolver.ResolveVersion(),
 		DomainSpecs:                 domainSpecs,
 		ApplicationTypes:            applicationTypes,
 		StringEnums:                 codegen.ProcessStringEnums(domainSpecs),
@@ -45,7 +44,11 @@ func main() {
 
 	panicIfError(renderTemplateFile("frontend/generated/domain.ts", data))
 
+	panicIfError(renderTemplateFile("frontend/generated/version.ts", data))
+
 	panicIfError(renderTemplateFile("pkg/apitypes/apitypes.go", data))
+
+	panicIfError(renderTemplateFile("pkg/version/version.go", data))
 
 	panicIfError(renderTemplateFile("frontend/generated/apitypes.ts", data))
 

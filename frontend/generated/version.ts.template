@@ -1,0 +1,3 @@
+// WARNING: generated file
+
+export const version = '{{.Version}}';

@@ -1,5 +1,6 @@
 import {Breadcrumb, BreadcrumbTrail} from 'components/breadcrumbtrail';
 import Navigation from 'components/Navigation';
+import {version} from 'generated/version';
 import * as React from 'react';
 import {indexRoute} from 'routes';
 
@@ -29,6 +30,10 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 			<BreadcrumbTrail items={this.props.breadcrumbs} />
 
 			{ this.props.children }
+
+			<div className="panel panel-default" style={{marginTop: '16px'}}>
+				<div className="panel-footer">PiLockBox {version}</div>
+			</div>
 		</div>;
 	}
 }
