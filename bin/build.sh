@@ -18,6 +18,12 @@ codeGeneration() {
 	go generate ./...
 }
 
+unitTests() {
+	echo "# Unit tests"
+	
+	go test ./...
+}
+
 staticAnalysis() {
 	echo "# Static analysis"
 	
@@ -73,6 +79,8 @@ downloadDependencies
 codeGeneration
 
 staticAnalysis
+
+unitTests
 
 buildPublicFiles
 
