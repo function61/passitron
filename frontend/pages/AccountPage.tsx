@@ -3,6 +3,7 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
 import {SecretReveal} from 'components/secretreveal';
+import {Account, ExposedSecret, Folder, FolderResponse} from 'generated/apitypes';
 import {
 	AccountAddKeylist,
 	AccountAddPassword,
@@ -15,7 +16,6 @@ import {
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
 import DefaultLayout from 'layouts/DefaultLayout';
-import {Account, Folder, FolderResponse, Secret} from 'model';
 import * as React from 'react';
 import {defaultErrorHandler, getAccount, getFolder, getSecrets} from 'repo';
 import {folderRoute, importotptokenRoute} from 'routes';
@@ -27,7 +27,7 @@ interface AccountPageProps {
 
 interface AccountPageState {
 	account: Account;
-	secrets: Secret[];
+	secrets: ExposedSecret[];
 	folderresponse: FolderResponse;
 }
 
@@ -88,8 +88,10 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 		</DefaultLayout>;
 	}
 
-	private secretToRow(secret: Secret, account: Account): JSX.Element {
-			switch (secret.Kind) {
+	private secretToRow(exposedSecret: ExposedSecret, account: Account): JSX.Element {
+		const secret = exposedSecret.Secret;
+
+		switch (secret.Kind) {
 			case SecretKind.SshKey:
 				return <tr key={secret.Id}>
 					<td>
@@ -114,8 +116,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						OTP
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
-					<td>{secret.OtpProof}</td>
-					<td onClick={() => this.copyToClipboard(secret.OtpProof)} className="fauxlink">📋</td>
+					<td>{exposedSecret.OtpProof}</td>
+					<td onClick={() => this.copyToClipboard(exposedSecret.OtpProof)} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.Keylist:
 				const keyRows = secret.KeylistKeys.map((item) => <tr key={item.Key}>
@@ -136,7 +138,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				</tr>;
 			default:
 				return unrecognizedValue(secret.Kind);
-			}
+		}
 	}
 
 	private fetchData() {

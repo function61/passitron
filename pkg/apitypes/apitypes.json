@@ -1,0 +1,66 @@
+{
+	"structs": [
+		{
+			"name": "FolderResponse",
+			"fields": [
+				{ "key": "Folder", "type": {"_": "Folder", "nullable": true} },
+				{ "key": "SubFolders", "type": {"_": "list", "of": {"_": "Folder"}} },
+				{ "key": "ParentFolders", "type": {"_": "list", "of": {"_": "Folder"}} },
+				{ "key": "Accounts", "type": {"_": "list", "of": {"_": "Account"}} }
+			]
+		},
+		{
+			"name": "Account",
+			"fields": [
+				{ "key": "Id", "type": {"_": "string"} },
+				{ "key": "Created", "type": {"_": "datetime"} },
+				{ "key": "FolderId", "type": {"_": "string"} },
+				{ "key": "Title", "type": {"_": "string"} },
+				{ "key": "Username", "type": {"_": "string"} },
+				{ "key": "Description", "type": {"_": "string"} }
+			]
+		},
+		{
+			"name": "Folder",
+			"fields": [
+				{ "key": "Id", "type": {"_": "string"} },
+				{ "key": "ParentId", "type": {"_": "string"} },
+				{ "key": "Name", "type": {"_": "string"} }
+			]
+		},
+		{
+			"name": "AuditlogEntry",
+			"fields": [
+				{ "key": "Timestamp", "type": {"_": "datetime"} },
+				{ "key": "Message", "type": {"_": "string"} }
+			]
+		},
+		{
+			"name": "Secret",
+			"fields": [
+				{ "key": "Id", "type": {"_": "string"} },
+				{ "key": "Kind", "type": {"_": "SecretKind"} },
+				{ "key": "Title", "type": {"_": "string"} },
+				{ "key": "Created", "type": {"_": "datetime"} },
+				{ "key": "Password", "type": {"_": "string"} },
+				{ "key": "SshPublicKeyAuthorized", "type": {"_": "string"} },
+				{ "key": "KeylistKeys", "type": {"_": "list", "of": {"_": "SecretKeylistKey"}} }
+			]
+		},
+		{
+			"name": "ExposedSecret",
+			"fields": [
+				{ "key": "Secret", "type": {"_": "Secret"} },
+				{ "key": "OtpProof", "type": {"_": "string"} },
+				{ "key": "OtpProofTime", "type": {"_": "datetime"} }
+			]
+		},
+		{
+			"name": "SecretKeylistKey",
+			"fields": [
+				{ "key": "Key", "type": {"_": "string"} },
+				{ "key": "Value", "type": {"_": "string"} }
+			]
+		}
+	]
+}

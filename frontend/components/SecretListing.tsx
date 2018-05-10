@@ -1,4 +1,4 @@
-import {FolderResponse} from 'model';
+import {FolderResponse} from 'generated/apitypes';
 import * as React from 'react';
 import {credviewRoute, folderRoute, indexRoute, searchRoute} from 'routes';
 

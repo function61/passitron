@@ -1,13 +1,14 @@
 package state
 
 import (
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"time"
 )
 
-func (s *State) SubfoldersById(id string) []Folder {
-	subFolders := []Folder{}
+func (s *State) SubfoldersById(id string) []apitypes.Folder {
+	subFolders := []apitypes.Folder{}
 
 	for _, f := range s.State.Folders {
 		if f.ParentId != id {
@@ -20,61 +21,60 @@ func (s *State) SubfoldersById(id string) []Folder {
 	return subFolders
 }
 
-func (s *State) AccountsByFolder(id string) []SecureAccount {
-	accounts := []SecureAccount{}
+func (s *State) WrappedAccountsByFolder(id string) []WrappedAccount {
+	accounts := []WrappedAccount{}
 
-	for _, s := range s.State.Accounts {
-		if s.FolderId != id {
+	for _, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.FolderId != id {
 			continue
 		}
 
-		accounts = append(accounts, s.ToSecureAccount())
+		accounts = append(accounts, wacc)
 	}
 
 	return accounts
 }
 
-func (s *State) AccountById(id string) *SecureAccount {
-	for _, s := range s.State.Accounts {
-		if s.Id == id {
-			account := s.ToSecureAccount()
-			return &account
+func (s *State) WrappedAccountById(id string) *WrappedAccount {
+	for _, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == id {
+			return &wacc
 		}
 	}
 
 	return nil
 }
 
-func (s *State) FolderById(id string) *Folder {
-	for _, f := range s.State.Folders {
-		if f.Id == id {
-			return &f
+func (s *State) FolderById(id string) *apitypes.Folder {
+	for _, folder := range s.State.Folders {
+		if folder.Id == id {
+			return &folder
 		}
 	}
 
 	return nil
 }
 
-func (s *State) FolderByName(name string) *Folder {
-	for _, f := range s.State.Folders {
-		if f.Name == name {
-			return &f
-		}
+func UnwrapAccounts(waccs []WrappedAccount) []apitypes.Account {
+	ret := []apitypes.Account{}
+
+	for _, wacc := range waccs {
+		ret = append(ret, wacc.Account)
 	}
 
-	return nil
+	return ret
 }
 
-func (s *SecureAccount) GetSecrets() []ExposedSecret {
-	secrets := []ExposedSecret{}
+func UnwrapSecrets(secrets []WrappedSecret) []apitypes.ExposedSecret {
+	ret := []apitypes.ExposedSecret{}
 
 	otpProofTime := time.Now()
 
-	for _, secret := range s.secrets {
+	for _, psecret := range secrets {
 		otpProof := ""
 
-		if secret.OtpProvisioningUrl != "" {
-			key, err := otp.NewKeyFromURL(secret.OtpProvisioningUrl)
+		if psecret.OtpProvisioningUrl != "" {
+			key, err := otp.NewKeyFromURL(psecret.OtpProvisioningUrl)
 			if err != nil {
 				panic(err)
 			}
@@ -85,30 +85,14 @@ func (s *SecureAccount) GetSecrets() []ExposedSecret {
 			}
 		}
 
-		secrets = append(secrets, ExposedSecret{
-			Id:                     secret.Id,
-			Kind:                   secret.Kind,
-			Title:                  secret.Title,
-			Created:                secret.Created,
-			Password:               secret.Password,
-			OtpProof:               otpProof,
-			OtpProofTime:           otpProofTime,
-			KeylistKeys:            secret.KeylistKeys,
-			SshPublicKeyAuthorized: secret.SshPublicKeyAuthorized,
-		})
+		es := apitypes.ExposedSecret{
+			OtpProof:     otpProof,
+			OtpProofTime: otpProofTime,
+			Secret:       psecret.Secret,
+		}
+
+		ret = append(ret, es)
 	}
 
-	return secrets
-}
-
-type ExposedSecret struct {
-	Id                     string
-	Kind                   string
-	Title                  string
-	Created                time.Time
-	Password               string
-	OtpProof               string
-	OtpProofTime           time.Time
-	KeylistKeys            []KeylistKey
-	SshPublicKeyAuthorized string
+	return ret
 }

@@ -27,9 +27,9 @@ func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
 	return false
 }
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.InsecureAccount, error) {
-	for _, account := range st.State.Accounts {
-		for _, secret := range account.Secrets {
+func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.WrappedAccount, error) {
+	for _, wacc := range st.State.WrappedAccounts {
+		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
 			}
@@ -43,7 +43,7 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, 
 
 			// TODO: is there better way to compare than marshal result?
 			if bytes.Equal(pubKeyMarshaled, publicKey.Marshal()) {
-				return signer, &account, nil
+				return signer, &wacc, nil
 			}
 		}
 	}
@@ -72,8 +72,8 @@ func Setup(router *mux.Router, st *state.State) {
 
 		resp := signingapitypes.NewPublicKeysResponse()
 
-		for _, account := range st.State.Accounts {
-			for _, secret := range account.Secrets {
+		for _, wacc := range st.State.WrappedAccounts {
+			for _, secret := range wacc.Secrets {
 				if secret.SshPrivateKey == "" {
 					continue
 				}
@@ -88,7 +88,7 @@ func Setup(router *mux.Router, st *state.State) {
 				pitem := signingapitypes.PublicKeyResponseItem{
 					Format:  publicKey.Type(),
 					Blob:    publicKey.Marshal(),
-					Comment: account.Title,
+					Comment: wacc.Account.Title,
 				}
 
 				resp.PublicKeys = append(resp.PublicKeys, pitem)
@@ -114,7 +114,7 @@ func Setup(router *mux.Router, st *state.State) {
 			return
 		}
 
-		signer, account, err := lookupSignerByPubKey(input.PublicKey, st)
+		signer, wacc, err := lookupSignerByPubKey(input.PublicKey, st)
 		if err != nil {
 			httputil.RespondHttpJson(httputil.GenericError("privkey_for_pubkey_not_found", err), http.StatusBadRequest, w)
 			return
@@ -128,7 +128,7 @@ func Setup(router *mux.Router, st *state.State) {
 
 		st.EventLog.Append(
 			domain.NewAccountSecretUsed(
-				account.Id,
+				wacc.Account.Id,
 				domain.SecretUsedTypeSshSigning,
 				domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 

@@ -1,7 +1,7 @@
 import {SecretListing} from 'components/SecretListing';
+import {FolderResponse} from 'generated/apitypes';
 import {RootFolderId} from 'generated/domain';
 import DefaultLayout from 'layouts/DefaultLayout';
-import {FolderResponse} from 'model';
 import * as React from 'react';
 import {defaultErrorHandler, getFolder} from 'repo';
 

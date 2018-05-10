@@ -3,6 +3,7 @@ package state
 import (
 	"errors"
 	"fmt"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 )
 
@@ -11,25 +12,28 @@ var (
 )
 
 func (s *State) ApplyAccountCreated(e *domain.AccountCreated) error {
-	account := InsecureAccount{
-		Id:       e.Id,
-		FolderId: e.FolderId,
-		Title:    e.Title,
-		Created:  e.Meta().Timestamp,
+	wrappedAccount := WrappedAccount{
+		Account: apitypes.Account{
+			Id:       e.Id,
+			Created:  e.Meta().Timestamp,
+			FolderId: e.FolderId,
+			Title:    e.Title,
+		},
+		Secrets: []WrappedSecret{},
 	}
 
-	s.State.Accounts = append(s.State.Accounts, account)
+	s.State.WrappedAccounts = append(s.State.WrappedAccounts, wrappedAccount)
 
 	return nil
 }
 
 func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) error {
-	for idx, acc := range s.State.Accounts {
-		if acc.Id == e.Id {
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			s.State.Accounts = append(
-				s.State.Accounts[:idx],
-				s.State.Accounts[idx+1:]...)
+			s.State.WrappedAccounts = append(
+				s.State.WrappedAccounts[:idx],
+				s.State.WrappedAccounts[idx+1:]...)
 			return nil
 		}
 	}
@@ -38,10 +42,10 @@ func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) error {
 }
 
 func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
-	for idx, acc := range s.State.Accounts {
-		if acc.Id == e.Id {
-			acc.Title = e.Title
-			s.State.Accounts[idx] = acc
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Id {
+			wacc.Account.Title = e.Title
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -50,10 +54,10 @@ func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
 }
 
 func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) error {
-	for idx, acc := range s.State.Accounts {
-		if acc.Id == e.Id {
-			acc.Description = e.Description
-			s.State.Accounts[idx] = acc
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Id {
+			wacc.Account.Description = e.Description
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -62,17 +66,19 @@ func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChang
 }
 
 func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error {
-	for idx, account := range s.State.Accounts {
-		if account.Id == e.Account {
-			secret := Secret{
-				Id:                 e.Id,
-				Kind:               domain.SecretKindOtpToken,
-				Created:            e.Meta().Timestamp,
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Account {
+			secret := WrappedSecret{
+				Secret: apitypes.Secret{
+					Id:      e.Id,
+					Kind:    domain.SecretKindOtpToken,
+					Created: e.Meta().Timestamp,
+				},
 				OtpProvisioningUrl: e.OtpProvisioningUrl,
 			}
 
-			account.Secrets = append(account.Secrets, secret)
-			s.State.Accounts[idx] = account
+			wacc.Secrets = append(wacc.Secrets, secret)
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -81,17 +87,19 @@ func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error 
 }
 
 func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error {
-	for idx, account := range s.State.Accounts {
-		if account.Id == e.Account {
-			secret := Secret{
-				Id:       e.Id,
-				Kind:     domain.SecretKindPassword,
-				Created:  e.Meta().Timestamp,
-				Password: e.Password,
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Account {
+			secret := WrappedSecret{
+				Secret: apitypes.Secret{
+					Id:       e.Id,
+					Kind:     domain.SecretKindPassword,
+					Created:  e.Meta().Timestamp,
+					Password: e.Password,
+				},
 			}
 
-			account.Secrets = append(account.Secrets, secret)
-			s.State.Accounts[idx] = account
+			wacc.Secrets = append(wacc.Secrets, secret)
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -100,27 +108,29 @@ func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error 
 }
 
 func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
-	for idx, account := range s.State.Accounts {
-		if account.Id == e.Account {
-			keyItems := []KeylistKey{}
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Account {
+			keyItems := []apitypes.SecretKeylistKey{}
 
 			for _, key := range e.Keys {
-				keyItems = append(keyItems, KeylistKey{
+				keyItems = append(keyItems, apitypes.SecretKeylistKey{
 					Key:   key.Key,
 					Value: key.Value,
 				})
 			}
 
-			secret := Secret{
-				Id:          e.Id,
-				Kind:        domain.SecretKindKeylist,
-				Title:       e.Title,
-				Created:     e.Meta().Timestamp,
-				KeylistKeys: keyItems,
+			secret := WrappedSecret{
+				Secret: apitypes.Secret{
+					Id:          e.Id,
+					Kind:        domain.SecretKindKeylist,
+					Title:       e.Title,
+					Created:     e.Meta().Timestamp,
+					KeylistKeys: keyItems,
+				},
 			}
 
-			account.Secrets = append(account.Secrets, secret)
-			s.State.Accounts[idx] = account
+			wacc.Secrets = append(wacc.Secrets, secret)
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -129,16 +139,16 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 }
 
 func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error {
-	for accountIdx, account := range s.State.Accounts {
-		if account.Id == e.Account {
-			for secretIdx, secret := range account.Secrets {
-				if secret.Id == e.Secret {
-					account.Secrets = append(
-						account.Secrets[:secretIdx],
-						account.Secrets[secretIdx+1:]...)
+	for accountIdx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Account {
+			for secretIdx, secret := range wacc.Secrets {
+				if secret.Secret.Id == e.Secret {
+					wacc.Secrets = append(
+						wacc.Secrets[:secretIdx],
+						wacc.Secrets[secretIdx+1:]...)
 				}
 			}
-			s.State.Accounts[accountIdx] = account
+			s.State.WrappedAccounts[accountIdx] = wacc
 			return nil
 		}
 	}
@@ -153,18 +163,20 @@ func (s *State) ApplyAccountSecretUsed(e *domain.AccountSecretUsed) error {
 }
 
 func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
-	for idx, account := range s.State.Accounts {
-		if account.Id == e.Account {
-			secret := Secret{
-				Id:                     e.Id,
-				Kind:                   domain.SecretKindSshKey,
-				Created:                e.Meta().Timestamp,
-				SshPrivateKey:          e.SshPrivateKey,
-				SshPublicKeyAuthorized: e.SshPublicKeyAuthorized,
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Account {
+			secret := WrappedSecret{
+				Secret: apitypes.Secret{
+					Id:                     e.Id,
+					Kind:                   domain.SecretKindSshKey,
+					Created:                e.Meta().Timestamp,
+					SshPublicKeyAuthorized: e.SshPublicKeyAuthorized,
+				},
+				SshPrivateKey: e.SshPrivateKey,
 			}
 
-			account.Secrets = append(account.Secrets, secret)
-			s.State.Accounts[idx] = account
+			wacc.Secrets = append(wacc.Secrets, secret)
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -173,10 +185,10 @@ func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 }
 
 func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) error {
-	for idx, acc := range s.State.Accounts {
-		if acc.Id == e.Id {
-			acc.Username = e.Username
-			s.State.Accounts[idx] = acc
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Id {
+			wacc.Account.Username = e.Username
+			s.State.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -185,7 +197,7 @@ func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) er
 }
 
 func (s *State) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) error {
-	newFolder := Folder{
+	newFolder := apitypes.Folder{
 		Id:       e.Id,
 		ParentId: e.ParentId,
 		Name:     e.Name,

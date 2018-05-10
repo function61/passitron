@@ -2,6 +2,7 @@ package restapi
 
 import (
 	"encoding/json"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -84,9 +85,9 @@ func Define(router *mux.Router, st *state.State) {
 
 		folder := st.FolderById(mux.Vars(r)["folderId"])
 
-		accounts := st.AccountsByFolder(folder.Id)
+		accounts := state.UnwrapAccounts(st.WrappedAccountsByFolder(folder.Id))
 		subFolders := st.SubfoldersById(folder.Id)
-		parentFolders := []state.Folder{}
+		parentFolders := []apitypes.Folder{}
 
 		parentId := folder.ParentId
 		for parentId != "" {
@@ -97,16 +98,12 @@ func Define(router *mux.Router, st *state.State) {
 			parentId = parent.ParentId
 		}
 
-		type FolderResponse struct {
-			Folder        *state.Folder
-			SubFolders    []state.Folder
-			ParentFolders []state.Folder
-			Accounts      []state.SecureAccount
-		}
-
-		resp := FolderResponse{folder, subFolders, parentFolders, accounts}
-
-		httputil.RespondHttpJson(resp, http.StatusOK, w)
+		httputil.RespondHttpJson(apitypes.FolderResponse{
+			Folder:        folder,
+			SubFolders:    subFolders,
+			ParentFolders: parentFolders,
+			Accounts:      accounts,
+		}, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -117,29 +114,29 @@ func Define(router *mux.Router, st *state.State) {
 		search := strings.ToLower(r.URL.Query().Get("search"))
 		sshkey := strings.ToLower(r.URL.Query().Get("sshkey"))
 
-		matches := []state.SecureAccount{}
+		matches := []apitypes.Account{}
 
 		if sshkey == "y" {
-			for _, account := range st.State.Accounts {
-				for _, secret := range account.Secrets {
-					if secret.SshPublicKeyAuthorized == "" {
+			for _, wacc := range st.State.WrappedAccounts {
+				for _, secret := range wacc.Secrets {
+					if secret.Secret.SshPublicKeyAuthorized == "" {
 						continue
 					}
 
-					matches = append(matches, account.ToSecureAccount())
+					matches = append(matches, wacc.Account)
 				}
 			}
 		} else if search == "" { // no filter => return all
-			for _, s := range st.State.Accounts {
-				matches = append(matches, s.ToSecureAccount())
+			for _, wacc := range st.State.WrappedAccounts {
+				matches = append(matches, wacc.Account)
 			}
 		} else { // search filter
-			for _, s := range st.State.Accounts {
-				if !strings.Contains(strings.ToLower(s.Title), search) {
+			for _, wacc := range st.State.WrappedAccounts {
+				if !strings.Contains(strings.ToLower(wacc.Account.Title), search) {
 					continue
 				}
 
-				matches = append(matches, s.ToSecureAccount())
+				matches = append(matches, wacc.Account)
 			}
 		}
 
@@ -151,14 +148,14 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		account := st.AccountById(mux.Vars(r)["accountId"])
+		wacc := st.WrappedAccountById(mux.Vars(r)["accountId"])
 
-		if account == nil {
+		if wacc == nil {
 			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 			return
 		}
 
-		httputil.RespondHttpJson(account, http.StatusOK, w)
+		httputil.RespondHttpJson(wacc.Account, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -166,9 +163,9 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		account := st.AccountById(mux.Vars(r)["accountId"])
+		wacc := st.WrappedAccountById(mux.Vars(r)["accountId"])
 
-		if account == nil {
+		if wacc == nil {
 			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 			return
 		}
@@ -185,10 +182,10 @@ func Define(router *mux.Router, st *state.State) {
 		}
 
 		st.EventLog.Append(domain.NewAccountSecretUsed(
-			account.Id,
+			wacc.Account.Id,
 			domain.SecretUsedTypePasswordExposed,
 			domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
-		httputil.RespondHttpJson(account.GetSecrets(), http.StatusOK, w)
+		httputil.RespondHttpJson(state.UnwrapSecrets(wacc.Secrets), http.StatusOK, w)
 	}))
 }

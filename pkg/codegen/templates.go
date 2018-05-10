@@ -92,3 +92,27 @@ func DispatchEvent(event Event, listener EventListener) error {
 }
 
 `
+
+const RestStructsTemplateGo = `package apitypes
+
+import (
+	"time"
+)
+
+type SecretKind string
+
+{{range .RestStructsAsGoCode}}
+
+{{.}}
+
+{{end}}
+`
+
+const RestStructsTemplateTypeScript = `import {SecretKind} from 'generated/domain';
+
+{{range .RestStructsAsTypeScriptCode}}
+
+{{.}}
+
+{{end}}
+`

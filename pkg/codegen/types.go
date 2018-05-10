@@ -42,11 +42,13 @@ type EventDefForTpl struct {
 }
 
 type TplData struct {
-	GoPackage            string
-	StringEnums          []ProcessedStringEnum
-	StringConsts         []ProcessedStringConst
-	EventStructsAsGoCode string
-	EventDefs            []EventDefForTpl
+	GoPackage                   string
+	StringEnums                 []ProcessedStringEnum
+	StringConsts                []ProcessedStringConst
+	EventStructsAsGoCode        string
+	EventDefs                   []EventDefForTpl
+	RestStructsAsGoCode         []string
+	RestStructsAsTypeScriptCode []string
 }
 
 type EventSpec struct {
@@ -56,17 +58,18 @@ type EventSpec struct {
 }
 
 type EventFieldSpec struct {
-	Key  string            `json:"key"`
-	Type EventFieldTypeDef `json:"type"`
+	Key  string      `json:"key"`
+	Type DatatypeDef `json:"type"`
 }
 
-type EventFieldTypeDef struct {
-	Name string                         `json:"_"`
-	Of   *EventFieldTypeDef             `json:"of"`
-	Keys []EventFieldObjectFieldTypeDef `json:"keys"`
+type DatatypeDef struct {
+	Name     string                   `json:"_"`
+	Nullable bool                     `json:"nullable"`
+	Of       *DatatypeDef             `json:"of"`
+	Keys     []DatatypeDefObjectField `json:"keys"`
 }
 
-type EventFieldObjectFieldTypeDef struct {
-	Key  string             `json:"key"`
-	Type *EventFieldTypeDef `json:"type"`
+type DatatypeDefObjectField struct {
+	Key  string       `json:"key"`
+	Type *DatatypeDef `json:"type"`
 }

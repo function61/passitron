@@ -1,7 +1,7 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
+import {AuditlogEntry} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
 import DefaultLayout from 'layouts/DefaultLayout';
-import {AuditlogEntry} from 'model';
 import * as React from 'react';
 import {auditLogEntries, defaultErrorHandler} from 'repo';
 import {indexRoute} from 'routes';

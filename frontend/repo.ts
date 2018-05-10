@@ -1,4 +1,4 @@
-import {Account, AuditlogEntry, FolderResponse, Secret} from 'model';
+import {Account, AuditlogEntry, ExposedSecret, FolderResponse} from 'generated/apitypes';
 import {unsealRoute} from 'routes';
 
 function getJson<T>(url: string): Promise<T> {
@@ -38,8 +38,8 @@ export function getAccount(id: string): Promise<Account> {
 	return getJson<Account>(`/accounts/${id}`);
 }
 
-export function getSecrets(accountId: string): Promise<Secret[]> {
-	return getJson<Secret[]>(`/accounts/${accountId}/secrets`);
+export function getSecrets(accountId: string): Promise<ExposedSecret[]> {
+	return getJson<ExposedSecret[]>(`/accounts/${accountId}/secrets`);
 }
 
 export function searchAccounts(query: string): Promise<Account[]> {

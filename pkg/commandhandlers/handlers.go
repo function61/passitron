@@ -22,7 +22,7 @@ var (
 )
 
 func (a *AccountRename) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Account) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -35,7 +35,7 @@ func (a *AccountRename) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Account) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -48,7 +48,7 @@ func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountChangeDescription) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Account) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -61,7 +61,7 @@ func (a *AccountChangeDescription) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountDeleteSecret) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Account) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -148,7 +148,7 @@ func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Id) == nil {
+	if ctx.State.WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -164,7 +164,7 @@ func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Id) == nil {
+	if ctx.State.WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -188,7 +188,7 @@ func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Account) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -233,7 +233,7 @@ func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountAddSshKey) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Id) == nil {
+	if ctx.State.WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -282,7 +282,7 @@ func (a *AccountAddSshKey) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountAddOtpToken) Invoke(ctx *command.Ctx) error {
-	if ctx.State.AccountById(a.Account) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 

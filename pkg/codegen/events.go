@@ -104,7 +104,11 @@ func EventNameAsGoStructName(e *EventSpec) string {
 	return titleCased
 }
 
-func AsGoType(e *EventFieldTypeDef, parentGoName string, visitor *Visitor) string {
+func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) string {
+	if isCustomType(e.Name) {
+		return e.Name
+	}
+
 	switch e.Name {
 	case "object":
 		// create supporting structure to represent item
@@ -128,11 +132,25 @@ func AsGoType(e *EventFieldTypeDef, parentGoName string, visitor *Visitor) strin
 		return supportStructDef.Name
 	case "string":
 		return "string"
+	case "boolean":
+		return "bool"
+	case "datetime":
+		return "time.Time"
 	case "list":
 		return "[]" + AsGoType(e.Of, parentGoName, visitor)
 	default:
 		panic("unsupported type: " + e.Name)
 	}
+}
+
+func AsGoType(e *DatatypeDef, parentGoName string, visitor *Visitor) string {
+	typ := asGoTypeInternal(e, parentGoName, visitor)
+
+	if e.Nullable {
+		typ = "*" + typ
+	}
+
+	return typ
 }
 
 func ProcessEvents(file *DomainFile) ([]EventDefForTpl, string) {

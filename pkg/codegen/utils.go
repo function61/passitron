@@ -3,6 +3,7 @@ package codegen
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -19,16 +20,24 @@ func WriteTemplateFile(filename string, data interface{}, templateString string)
 	return tpl.Execute(file, data)
 }
 
-func DeserializeDomainFile(path string) (*DomainFile, error) {
-	domainFile, openErr := os.Open(path)
+func DeserializeJsonFile(path string, data interface{}) error {
+	file, openErr := os.Open(path)
 	if openErr != nil {
-		return nil, openErr
+		return openErr
+	}
+	defer file.Close()
+
+	if jsonErr := json.NewDecoder(file).Decode(data); jsonErr != nil {
+		return jsonErr
 	}
 
-	file := &DomainFile{}
-	if jsonErr := json.NewDecoder(domainFile).Decode(file); jsonErr != nil {
-		return nil, jsonErr
-	}
+	return nil
+}
 
-	return file, nil
+func isUppercase(input string) bool {
+	return strings.ToLower(input) != input
+}
+
+func isCustomType(typeName string) bool {
+	return isUppercase(typeName[0:1])
 }

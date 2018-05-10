@@ -94,13 +94,11 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 	group := gokeepasslib.NewGroup()
 	group.Name = folder.Name
 
-	accounts := st.AccountsByFolder(folder.Id)
+	waccs := st.WrappedAccountsByFolder(folder.Id)
 
-	for _, secureAccount := range accounts {
-		account := secureAccount.ToInsecureAccount()
-
-		for idx, secret := range account.Secrets {
-			title := account.Title
+	for _, wacc := range waccs {
+		for idx, secret := range wacc.Secrets {
+			title := wacc.Account.Title
 
 			if idx > 0 { // append index, if many secrets in account
 				title = title + " " + strconv.Itoa(idx)
@@ -108,17 +106,17 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 
 			entry := gokeepasslib.NewEntry()
 			entry.Values = append(entry.Values, mkValue("Title", title))
-			entry.Values = append(entry.Values, mkValue("UserName", account.Username))
-			entry.Values = append(entry.Values, mkValue("Notes", account.Description))
+			entry.Values = append(entry.Values, mkValue("UserName", wacc.Account.Username))
+			entry.Values = append(entry.Values, mkValue("Notes", wacc.Account.Description))
 
-			switch domain.SecretKindExhaustive44d6e3(secret.Kind) {
+			switch domain.SecretKindExhaustive44d6e3(string(secret.Secret.Kind)) {
 			case domain.SecretKindKeylist:
 				panic("not implemented")
 			case domain.SecretKindPassword:
-				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Password))
+				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Secret.Password))
 
 			case domain.SecretKindSshKey:
-				filename := account.Id + ".id_rsa"
+				filename := wacc.Account.Id + ".id_rsa"
 
 				plaintextSshBlock, rest := pem.Decode([]byte(secret.SshPrivateKey))
 				if len(rest) > 0 {
@@ -138,7 +136,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))
 
 			default:
-				panic("invalid secret kind: " + secret.Kind)
+				panic("invalid secret kind: " + secret.Secret.Kind)
 			}
 
 			group.Entries = append(group.Entries, entry)

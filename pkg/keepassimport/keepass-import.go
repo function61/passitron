@@ -75,12 +75,8 @@ func Run(args []string) {
 			log.Fatal("need group path")
 		}
 
-		folder := st.FolderByName(groupPath)
-
 		folderId := ""
-		if folder != nil {
-			folderId = folder.Id
-		} else if _, has := foldersJustCreated[groupPath]; has {
+		if _, has := foldersJustCreated[groupPath]; has {
 			folderId = foldersJustCreated[groupPath]
 		} else {
 			folderId = domain.RandomId()
