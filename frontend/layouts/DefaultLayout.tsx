@@ -32,7 +32,10 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 			{ this.props.children }
 
 			<div className="panel panel-default" style={{marginTop: '16px'}}>
-				<div className="panel-footer">PiLockBox {version}</div>
+				<div className="panel-footer">
+					<a href="https://github.com/function61/pi-security-module" target="_blank">PiLockBox</a>
+					&nbsp;
+					{version}</div>
 			</div>
 		</div>;
 	}
