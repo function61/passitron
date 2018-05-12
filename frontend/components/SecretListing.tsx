@@ -3,7 +3,7 @@ import * as React from 'react';
 import {credviewRoute, folderRoute, indexRoute, searchRoute} from 'routes';
 
 interface SecretListingProps {
-	searchTerm: string;
+	searchTerm?: string;
 	listing: FolderResponse;
 }
 

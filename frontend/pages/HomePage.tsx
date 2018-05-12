@@ -41,7 +41,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 		}
 
 		return <DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
-			<SecretListing searchTerm="" listing={listing} />
+			<SecretListing listing={listing} />
 
 			<CommandButton command={AccountCreate(this.props.folderId)}></CommandButton>
 			<CommandButton command={AccountCreateFolder(this.props.folderId)}></CommandButton>
