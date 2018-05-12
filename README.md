@@ -16,6 +16,12 @@ expose your secrets. This software only exposes your secret when you physically
 press a button on the device - and only exposes one secret per push acknowledge.
 
 
+Links
+-----
+
+- [Developer docs](https://docs.function61.com/pi-security-module)
+
+
 Features
 --------
 

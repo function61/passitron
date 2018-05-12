@@ -1,0 +1,7 @@
+{{range .DomainSpecs.Events}}
+{{.Event}}
+-------
+
+{{range .Fields}}- {{.Key}}
+{{end}}
+{{end}}

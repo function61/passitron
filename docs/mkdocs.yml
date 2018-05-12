@@ -1,0 +1,17 @@
+site_name: 'pi-security-module docs'
+
+theme: readthedocs
+
+docs_dir: '.'
+
+pages:
+
+- 'index.md'
+
+- 'Domain model':
+  - 'Events': 'domain_model/events.md'
+  - 'Constants': 'domain_model/consts.md'
+
+- 'Application model':
+  - 'REST endpoints': 'application_model/rest_endpoints.md'
+  - 'Commands': 'application_model/commands.md'

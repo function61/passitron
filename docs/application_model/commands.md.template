@@ -1,0 +1,9 @@
+{{range .CommandSpecs}}
+{{.Command}}
+----------
+
+| key | type | optional |
+|-----|------|----------|
+{{range .Fields}}| {{.Key}} | {{.Type}} | {{.Optional}} |
+{{end}}
+{{end}}

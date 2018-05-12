@@ -7,4 +7,6 @@ RUN curl --fail --location -o /go/bin/dep https://github.com/golang/dep/releases
 	&& curl --location --fail -o /usr/local/bin/jfrog-cli "https://bintray.com/jfrog/jfrog-cli-go/download_file?file_path=1.12.1%2Fjfrog-cli-linux-amd64%2Fjfrog" \
 	&& chmod +x /usr/local/bin/jfrog-cli \
 	&& curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-	&& apt-get install -y nodejs
+	&& apt-get install -y nodejs mkdocs \
+	&& curl --location --fail -o /usr/local/bin/mc https://dl.minio.io/client/mc/release/linux-amd64/mc \
+	&& chmod +x /usr/local/bin/mc

@@ -1,0 +1,7 @@
+REST endpoints
+--------------
+
+| path | produces | 
+|------|----------|
+{{range .ApplicationTypes.Endpoints}}| {{.Path}} | {{.Produces.AsTypeScriptType}} |
+{{end}}

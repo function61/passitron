@@ -39,27 +39,27 @@ func main() {
 		RestStructsAsTypeScriptCode: codegen.ProcessRestStructsAsTypeScriptCode(applicationTypes),
 	}
 
-	panicIfError(renderTemplateFile("docs/generated.md", data))
+	files := []string{
+		"docs/application_model/commands.md",
+		"docs/application_model/rest_endpoints.md",
+		"docs/domain_model/consts.md",
+		"docs/domain_model/events.md",
+		"frontend/generated/apitypes.ts",
+		"frontend/generated/commanddefinitions.ts",
+		"frontend/generated/domain.ts",
+		"frontend/generated/restapi.ts",
+		"frontend/generated/version.ts",
+		"pkg/apitypes/apitypes.go",
+		"pkg/commandhandlers/generated.go",
+		"pkg/domain/domain.go",
+		"pkg/domain/events.go",
+		"pkg/version/version.go",
+	}
 
-	panicIfError(renderTemplateFile("pkg/domain/events.go", data))
-
-	panicIfError(renderTemplateFile("pkg/domain/domain.go", data))
-
-	panicIfError(renderTemplateFile("frontend/generated/domain.ts", data))
-
-	panicIfError(renderTemplateFile("frontend/generated/version.ts", data))
-
-	panicIfError(renderTemplateFile("frontend/generated/commanddefinitions.ts", data))
-
-	panicIfError(renderTemplateFile("pkg/apitypes/apitypes.go", data))
-
-	panicIfError(renderTemplateFile("pkg/version/version.go", data))
-
-	panicIfError(renderTemplateFile("frontend/generated/apitypes.ts", data))
-
-	panicIfError(renderTemplateFile("frontend/generated/restapi.ts", data))
-
-	panicIfError(renderTemplateFile("pkg/commandhandlers/generated.go", data))
+	for _, file := range files {
+		panicIfError(renderTemplateFile(file, data))
+		
+	}
 }
 
 func renderTemplateFile(generatedPath string, data *codegen.TplData) error {
