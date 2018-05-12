@@ -1,7 +1,6 @@
 package codegen
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -283,25 +282,20 @@ func generateTypescript(file *CommandSpecFile) error {
 }
 
 func GenerateCommands() error {
-	contents, readErr := ioutil.ReadFile("commands.json")
-	if readErr != nil {
-		return readErr
-	}
-
-	var file CommandSpecFile
-	if jsonErr := json.Unmarshal(contents, &file); jsonErr != nil {
-		return jsonErr
+	file := &CommandSpecFile{}
+	if err := DeserializeJsonFile("commands.json", file); err != nil {
+		return err
 	}
 
 	if validationErr := file.Validate(); validationErr != nil {
 		return validationErr
 	}
 
-	if err := writeCommandsMap(&file); err != nil {
+	if err := writeCommandsMap(file); err != nil {
 		return err
 	}
 
-	if err := generateTypescript(&file); err != nil {
+	if err := generateTypescript(file); err != nil {
 		return err
 	}
 
