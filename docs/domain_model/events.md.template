@@ -2,6 +2,8 @@
 {{.Event}}
 -------
 
-{{range .Fields}}- {{.Key}}
+| key | type |
+|-----|------|
+{{range .Fields}}| {{.Key}} | {{.Type.Name}} |
 {{end}}
 {{end}}
