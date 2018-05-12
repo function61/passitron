@@ -22,10 +22,10 @@ export const importotptokenRoute = makeRoute('importotptoken', {account: 'string
 
 export const router = makeRouter(indexRoute, () => <HomePage key={RootFolderId} folderId={RootFolderId} />)
 	.registerRoute(folderRoute, (opts) => <HomePage key={opts.folderId} folderId={opts.folderId} />)
-	.registerRoute(searchRoute, (opts) => <SearchPage searchTerm={opts.searchTerm} />)
+	.registerRoute(searchRoute, (opts) => <SearchPage key={opts.searchTerm} searchTerm={opts.searchTerm} />)
 	.registerRoute(credviewRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)
 	.registerRoute(sshkeysRoute, () => <SshKeysPage />)
 	.registerRoute(settingsRoute, () => <SettingsPage />)
 	.registerRoute(unsealRoute, () => <UnsealPage />)
 	.registerRoute(auditlogRoute, () => <AuditLogPage />)
-	.registerRoute(importotptokenRoute, (opts) => <ImportOtpToken account={opts.account} />);
+	.registerRoute(importotptokenRoute, (opts) => <ImportOtpToken key={opts.account} account={opts.account} />);
