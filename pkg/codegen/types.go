@@ -45,6 +45,7 @@ type TplData struct {
 	GoPackage                   string
 	Version                     string
 	DomainSpecs                 *DomainFile
+	CommandSpecs                *CommandSpecFile
 	ApplicationTypes            *ApplicationTypesDefinition
 	StringEnums                 []ProcessedStringEnum
 	StringConsts                []ProcessedStringConst

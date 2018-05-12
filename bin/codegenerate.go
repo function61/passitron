@@ -19,7 +19,9 @@ func main() {
 	applicationTypes := &codegen.ApplicationTypesDefinition{}
 	panicIfError(codegen.DeserializeJsonFile("pkg/apitypes/apitypes.json", applicationTypes))
 
-	panicIfError(codegen.GenerateCommands())
+	commandSpecs := &codegen.CommandSpecFile{}
+	panicIfError(codegen.DeserializeJsonFile("commands.json", commandSpecs))
+	panicIfError(commandSpecs.Validate())
 
 	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(domainSpecs)
 
@@ -27,6 +29,7 @@ func main() {
 		GoPackage:                   "domain",
 		Version:                     versionresolver.ResolveVersion(),
 		DomainSpecs:                 domainSpecs,
+		CommandSpecs:                commandSpecs,
 		ApplicationTypes:            applicationTypes,
 		StringEnums:                 codegen.ProcessStringEnums(domainSpecs),
 		StringConsts:                codegen.ProcessStringConsts(domainSpecs),
@@ -46,6 +49,8 @@ func main() {
 
 	panicIfError(renderTemplateFile("frontend/generated/version.ts", data))
 
+	panicIfError(renderTemplateFile("frontend/generated/commanddefinitions.ts", data))
+
 	panicIfError(renderTemplateFile("pkg/apitypes/apitypes.go", data))
 
 	panicIfError(renderTemplateFile("pkg/version/version.go", data))
@@ -53,6 +58,8 @@ func main() {
 	panicIfError(renderTemplateFile("frontend/generated/apitypes.ts", data))
 
 	panicIfError(renderTemplateFile("frontend/generated/restapi.ts", data))
+
+	panicIfError(renderTemplateFile("pkg/commandhandlers/generated.go", data))
 }
 
 func renderTemplateFile(generatedPath string, data *codegen.TplData) error {

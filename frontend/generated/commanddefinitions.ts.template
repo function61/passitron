@@ -1,0 +1,15 @@
+import {CommandDefinition, CommandFieldKind} from 'commandtypes';
+
+// WARNING: generated file
+
+{{range .CommandSpecs}}
+export function {{.AsGoStructName}}({{.CtorArgsForTypeScript}}): CommandDefinition {
+	return {
+		key: '{{.Command}}',
+		title: '{{.Title}}',
+		fields: [
+{{.FieldsForTypeScript}}
+		],
+	};
+}
+{{end}}

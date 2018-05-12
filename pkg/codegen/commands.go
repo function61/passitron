@@ -3,7 +3,6 @@ package codegen
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"strings"
 )
 
@@ -106,198 +105,91 @@ func (c *CommandFieldSpec) Validate() error {
 	return nil
 }
 
-func makeStruct(spec *CommandSpec) string {
+func (c *CommandSpec) MakeStruct() string {
 	template := `type %s struct {
 	%s
-}
-
-func (x *%s) Validate() error {
-	%s
-
-	return nil
-}
-`
+}`
 
 	fieldLines := []string{}
+
+	for _, field := range c.Fields {
+		fieldLines = append(fieldLines, field.AsGoField())
+	}
+
+	return fmt.Sprintf(
+		template,
+		c.AsGoStructName(),
+		strings.Join(fieldLines, "\n\t"))
+}
+
+func (c *CommandSpec) MakeValidation() string {
 	validationSnippets := []string{}
 
-	for _, field := range spec.Fields {
-		fieldLines = append(fieldLines, field.AsGoField())
-
+	for _, field := range c.Fields {
 		if !field.Optional {
 			validationSnippets = append(validationSnippets, field.AsValidationSnippet())
 		}
 	}
 
-	return fmt.Sprintf(
-		template,
-		spec.AsGoStructName(),
-		strings.Join(fieldLines, "\n\t"),
-		spec.AsGoStructName(),
-		strings.Join(validationSnippets, "\n\t"))
+	return strings.Join(validationSnippets, "\n\t")
 }
 
-func writeCommandsMap(file *CommandSpecFile) error {
-	template := `package commandhandlers
-
-// WARNING: generated file
-
-import (
-	"errors"
-	"github.com/function61/pi-security-module/pkg/command"
-)
-
-func fieldEmptyValidationError(fieldName string) error {
-	return errors.New("field " + fieldName + " cannot be empty")
-}
-
-%s
-
-var StructBuilders = map[string]func() command.Command{
-%s
-}
-
-
-`
-	structs := []string{}
-
-	handlerLines := []string{}
-
-	for _, commandSpec := range *file {
-		structs = append(structs, makeStruct(commandSpec))
-
-		handlerLine := fmt.Sprintf(
-			`	"%s": func() command.Command { return &%s{} },`,
-			commandSpec.Command,
-			commandSpec.AsGoStructName())
-
-		handlerLines = append(handlerLines, handlerLine)
-	}
-
-	commandsGenJsContent := fmt.Sprintf(
-		template,
-		strings.Join(structs, "\n\n"),
-		strings.Join(handlerLines, "\n"))
-
-	if writeErr := ioutil.WriteFile("pkg/commandhandlers/generated.go", []byte(commandsGenJsContent), 0777); writeErr != nil {
-		return writeErr
-	}
-
-	return nil
-}
-
-func generateTypescript(file *CommandSpecFile) error {
-	template := `import {CommandDefinition, CommandFieldKind} from 'commandtypes';
-
-// WARNING: generated file
-
-%s
-`
-
-	fnTemplate := `export function %s(%s): CommandDefinition {
-	return {
-		key: '%s',
-		title: '%s',
-		fields: [
-%s
-		],
-	};
-}`
+func (c *CommandSpec) FieldsForTypeScript() string {
+	fields := []string{}
 
 	emptyString := `''`
 
-	fns := []string{}
+	for _, fieldSpec := range c.Fields {
+		fieldSerialized := ""
 
-	for _, commandSpec := range *file {
-		fields := []string{}
-
-		ctorArgs := []string{}
-
-		for _, ctorArg := range commandSpec.CtorArgs {
-			ctorArgs = append(ctorArgs, ctorArg+": string")
+		defVal := emptyString
+		for _, ctorArg := range c.CtorArgs {
+			if ctorArg == fieldSpec.Key {
+				defVal = fieldSpec.Key
+				break
+			}
 		}
 
-		for _, fieldSpec := range commandSpec.Fields {
-			fieldSerialized := ""
-
-			defVal := emptyString
-			for _, ctorArg := range commandSpec.CtorArgs {
-				if ctorArg == fieldSpec.Key {
-					defVal = fieldSpec.Key
-					break
-				}
-			}
-
-			switch fieldSpec.Type {
-			case "text":
-				fieldSerialized = fmt.Sprintf(
-					`{ Key: '%s', Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
-					fieldSpec.Key,
-					defVal)
-			case "multiline":
-				fieldSerialized = fmt.Sprintf(
-					`{ Key: '%s', Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
-					fieldSpec.Key,
-					defVal)
-			case "password":
-				fieldSerialized = fmt.Sprintf(
-					`{ Key: '%s', Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
-					fieldSpec.Key,
-					defVal)
-			case "checkbox":
-				fieldSerialized = fmt.Sprintf(
-					`{ Key: '%s', Kind: CommandFieldKind.Checkbox },`,
-					fieldSpec.Key)
-			case "integer":
-				fieldSerialized = fmt.Sprintf(
-					`{ Key: '%s', Kind: CommandFieldKind.Integer },`,
-					fieldSpec.Key)
-			default:
-				return fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type)
-			}
-
-			fields = append(fields, fieldSerialized)
+		switch fieldSpec.Type {
+		case "text":
+			fieldSerialized = fmt.Sprintf(
+				`{ Key: '%s', Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
+				fieldSpec.Key,
+				defVal)
+		case "multiline":
+			fieldSerialized = fmt.Sprintf(
+				`{ Key: '%s', Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
+				fieldSpec.Key,
+				defVal)
+		case "password":
+			fieldSerialized = fmt.Sprintf(
+				`{ Key: '%s', Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
+				fieldSpec.Key,
+				defVal)
+		case "checkbox":
+			fieldSerialized = fmt.Sprintf(
+				`{ Key: '%s', Kind: CommandFieldKind.Checkbox },`,
+				fieldSpec.Key)
+		case "integer":
+			fieldSerialized = fmt.Sprintf(
+				`{ Key: '%s', Kind: CommandFieldKind.Integer },`,
+				fieldSpec.Key)
+		default:
+			panic(fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type))
 		}
 
-		fn := fmt.Sprintf(
-			fnTemplate,
-			commandSpec.AsGoStructName(),
-			strings.Join(ctorArgs, ", "),
-			commandSpec.Command,
-			commandSpec.Title,
-			strings.Join(fields, "\n\t\t\t"))
-
-		fns = append(fns, fn)
+		fields = append(fields, fieldSerialized)
 	}
 
-	fnsSerialized := fmt.Sprintf(
-		template,
-		strings.Join(fns, "\n\n"))
-
-	if writeErr := ioutil.WriteFile("frontend/generated/commanddefinitions.ts", []byte(fnsSerialized), 0777); writeErr != nil {
-		return writeErr
-	}
-
-	return nil
+	return strings.Join(fields, "\n\t\t\t")
 }
 
-func GenerateCommands() error {
-	file := &CommandSpecFile{}
-	if err := DeserializeJsonFile("commands.json", file); err != nil {
-		return err
+func (c *CommandSpec) CtorArgsForTypeScript() string {
+	ctorArgs := []string{}
+
+	for _, ctorArg := range c.CtorArgs {
+		ctorArgs = append(ctorArgs, ctorArg+": string")
 	}
 
-	if validationErr := file.Validate(); validationErr != nil {
-		return validationErr
-	}
-
-	if err := writeCommandsMap(file); err != nil {
-		return err
-	}
-
-	if err := generateTypescript(file); err != nil {
-		return err
-	}
-
-	return nil
+	return strings.Join(ctorArgs, ", ")
 }
