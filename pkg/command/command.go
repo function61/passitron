@@ -22,5 +22,6 @@ func (c *Ctx) RaisesEvent(event domain.Event) {
 
 type Command interface {
 	Validate() error
+	RequiresAuthentication() bool
 	Invoke(*Ctx) error
 }

@@ -134,6 +134,7 @@
 	},
 	{
 		"command": "database.Unseal",
+		"anonymous": true,
 		"ctor": [],
 		"title": "Unseal database",
 		"fields": [

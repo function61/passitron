@@ -25,6 +25,11 @@ func (x *{{.AsGoStructName}}) Validate() error {
 }
 {{end}}
 
+// authentication
+
+{{range .CommandSpecs}}
+func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return !{{.Anonymous}} }{{end}}
+
 // builders
 
 var StructBuilders = map[string]func() command.Command{

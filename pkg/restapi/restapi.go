@@ -33,16 +33,15 @@ func Define(router *mux.Router, st *state.State) {
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
-		// only command able to be invoked anonymously is the Unseal command
-		commandNeedsAuthorization := commandName != "database.Unseal"
-
-		if commandNeedsAuthorization && errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
-
 		cmdStructBuilder, commandExists := commandhandlers.StructBuilders[commandName]
 		if !commandExists {
 			httputil.RespondHttpJson(httputil.GenericError("unsupported_command", nil), http.StatusBadRequest, w)
+			return
+		}
+
+		cmdStruct := cmdStructBuilder()
+
+		if cmdStruct.RequiresAuthentication() && errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
@@ -50,8 +49,6 @@ func Define(router *mux.Router, st *state.State) {
 			State: st,
 			Meta:  domain.Meta(time.Now(), domain.DefaultUserIdTODO),
 		}
-
-		cmdStruct := cmdStructBuilder()
 
 		// FIXME: assert application/json
 		if errJson := json.NewDecoder(r.Body).Decode(cmdStruct); errJson != nil {
