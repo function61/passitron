@@ -58,7 +58,6 @@ func main() {
 
 	for _, file := range files {
 		panicIfError(renderTemplateFile(file, data))
-		
 	}
 }
 
