@@ -1,38 +1,30 @@
 #!/bin/bash -eu
 
-logBuild () {
-	target="$1"
+run() {
+	fn="$1"
 
-	echo "# Building $target"
+	echo "# $fn"
+
+	"$fn"
 }
 
 downloadDependencies() {
-	echo "# Downloading dependencies"
-
 	dep ensure
 }
 
 codeGeneration() {
-	echo "# Code generation"
-
 	go generate ./...
 }
 
 unitTests() {
-	echo "# Unit tests"
-	
 	go test ./...
 }
 
 staticAnalysis() {
-	echo "# Static analysis"
-	
 	go vet ./...
 }
 
 buildPublicFiles() {
-	echo "# Building public files"
-
 	(cd frontend/ && npm install)
 
 	bin/tsc.sh
@@ -41,24 +33,18 @@ buildPublicFiles() {
 }
 
 packagePublicFiles() {
-	echo "# Building rel/public.tar.gz"
-
 	tar -czf rel/public.tar.gz public/
 }
 
-buildBinaries() {
-	logBuild "linux-arm"
-
+buildLinuxArm() {
 	(cd cmd/pism && GOOS=linux GOARCH=arm go build -o ../../rel/pism_linux-arm)
+}
 
-	logBuild "linux-amd64"
-
+buildLinuxAmd64() {
 	(cd cmd/pism && GOOS=linux GOARCH=amd64 go build -o ../../rel/pism_linux-amd64)
 }
 
 buildAndDeployDocs() {
-	echo "# buildAndDeployDocs"
-
 	bin/generate_docs.sh
 
 	mc config host add s3 https://s3.amazonaws.com "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" S3v4
@@ -66,9 +52,7 @@ buildAndDeployDocs() {
 	mc cp --json --no-color docs_ready/docs.tar.gz s3/docs.function61.com/_packages/pi-security-module.tar.gz
 }
 
-uploadArtefacts() {
-	echo "# Publishing build artefacts"
-
+uploadBuildArtefacts() {
 	# the CLI breaks automation unless opt-out..
 	export JFROG_CLI_OFFER_CONFIG=false
 
@@ -84,20 +68,22 @@ uploadArtefacts() {
 rm -rf rel
 mkdir rel
 
-downloadDependencies
+run downloadDependencies
 
-codeGeneration
+run codeGeneration
 
-staticAnalysis
+run staticAnalysis
 
-unitTests
+run unitTests
 
-buildPublicFiles
+run buildPublicFiles
 
-packagePublicFiles
+run packagePublicFiles
 
-buildBinaries
+run buildLinuxArm
 
-buildAndDeployDocs
+run buildLinuxAmd64
 
-uploadArtefacts
+run buildAndDeployDocs
+
+run uploadBuildArtefacts
