@@ -10,6 +10,7 @@
         "preserveConstEnums": true,
         "outFile": "../public/build.js",
         "baseUrl": ".",
+        "moduleResolution": "Node",
         "jsx": "React",
         "jsxFactory": "React.createElement",
         "sourceMap": true,
