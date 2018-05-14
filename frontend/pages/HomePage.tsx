@@ -1,5 +1,6 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
-import {CommandButton} from 'components/CommandButton';
+import {CommandLink} from 'components/CommandButton';
+import {Dropdown} from 'components/dropdown';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {AccountCreate, AccountCreateFolder, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
@@ -43,10 +44,12 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 		return <DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
 			<SecretListing listing={listing} />
 
-			<CommandButton command={AccountCreate(this.props.folderId)}></CommandButton>
-			<CommandButton command={AccountCreateFolder(this.props.folderId)}></CommandButton>
-			<CommandButton command={AccountRenameFolder(this.props.folderId, listing.Folder!.Name)}></CommandButton>
-			<CommandButton command={AccountMoveFolder(this.props.folderId)}></CommandButton>
+			<Dropdown label="Actions">
+				<CommandLink command={AccountCreate(this.props.folderId)}></CommandLink>
+				<CommandLink command={AccountCreateFolder(this.props.folderId)}></CommandLink>
+				<CommandLink command={AccountRenameFolder(this.props.folderId, listing.Folder!.Name)}></CommandLink>
+				<CommandLink command={AccountMoveFolder(this.props.folderId)}></CommandLink>
+			</Dropdown>
 		</DefaultLayout>;
 	}
 
