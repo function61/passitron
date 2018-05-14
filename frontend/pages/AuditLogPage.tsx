@@ -1,4 +1,5 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
+import {Timestamp} from 'components/timestamp';
 import {AuditlogEntry} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
 import {auditLogEntries, defaultErrorHandler} from 'generated/restapi';
@@ -19,7 +20,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 
 	render() {
 		const entryToRow = (entry: AuditlogEntry, idx: number) => <tr key={idx}>
-			<td>{entry.Timestamp}</td>
+			<td><Timestamp ts={entry.Timestamp} /></td>
 			<td>{entry.Message}</td>
 		</tr>;
 
@@ -30,7 +31,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>{this.title}</h1>
 
-			<table>
+			<table className="table table-striped">
 				<tbody>
 					{rows}
 				</tbody>
