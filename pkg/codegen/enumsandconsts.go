@@ -49,16 +49,3 @@ func ProcessStringEnums(file *DomainFile) []ProcessedStringEnum {
 
 	return enums
 }
-
-func ProcessStringConsts(file *DomainFile) []ProcessedStringConst {
-	consts := []ProcessedStringConst{}
-
-	for _, def := range file.StringConsts {
-		consts = append(consts, ProcessedStringConst{
-			Key:   def.Key,
-			Value: def.Value,
-		})
-	}
-
-	return consts
-}

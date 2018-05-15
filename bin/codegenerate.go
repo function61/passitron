@@ -9,6 +9,8 @@ import (
 
 //go:generate go run codegenerate.go
 
+// name the code generation part to GUTS (Grand Unified Type System, i.e. a whack at GRUB)
+
 func main() {
 	// normalize to root of the project
 	panicIfError(os.Chdir(".."))
@@ -31,10 +33,8 @@ func main() {
 		CommandSpecs:         commandSpecs,
 		ApplicationTypes:     applicationTypes,
 		StringEnums:          codegen.ProcessStringEnums(domainSpecs),
-		StringConsts:         codegen.ProcessStringConsts(domainSpecs),
 		EventDefs:            eventDefs,
 		EventStructsAsGoCode: eventStructsAsGoCode,
-		RestStructsAsGoCode:  codegen.ProcessRestStructsAsGoCode(applicationTypes),
 	}
 
 	files := []string{

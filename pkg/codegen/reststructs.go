@@ -55,7 +55,7 @@ func (s *StructDefinition) AsTypeScriptCode() string {
 		strings.Join(fieldsSerialized, "\n\t"))
 }
 
-func StructToGoCode(s *StructDefinition) string {
+func (s *StructDefinition) AsToGoCode() string {
 	fields := []GoStructField{}
 
 	visitor := &Visitor{}
@@ -98,14 +98,4 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 	}
 
 	return tsType
-}
-
-func ProcessRestStructsAsGoCode(file *ApplicationTypesDefinition) []string {
-	ret := []string{}
-
-	for _, struct_ := range file.Structs {
-		ret = append(ret, StructToGoCode(&struct_))
-	}
-
-	return ret
 }

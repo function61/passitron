@@ -6,8 +6,6 @@ import (
 
 type SecretKind string
 
-{{range .RestStructsAsGoCode}}
-
-{{.}}
-
+{{range .ApplicationTypes.Structs}}
+{{.AsToGoCode}}
 {{end}}

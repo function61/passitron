@@ -17,6 +17,6 @@ func {{.Name}}Exhaustive{{.MembersDigest}}(in string) string {
 }
 {{end}}
 
-{{range .StringConsts}}
+{{range .DomainSpecs.StringConsts}}
 const {{.Key}} = "{{.Value}}";
 {{end}}

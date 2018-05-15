@@ -7,6 +7,6 @@ export enum {{.Name}} {
 }
 {{end}}
 
-{{range .StringConsts}}
+{{range .DomainSpecs.StringConsts}}
 export const {{.Key}} = '{{.Value}}';
 {{end}}

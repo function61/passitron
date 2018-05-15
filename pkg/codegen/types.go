@@ -6,11 +6,6 @@ type ProcessedStringEnumMember struct {
 	GoValue string
 }
 
-type ProcessedStringConst struct {
-	Key   string
-	Value string
-}
-
 type ProcessedStringEnum struct {
 	Name          string
 	MembersDigest string
@@ -47,10 +42,8 @@ type TplData struct {
 	CommandSpecs         *CommandSpecFile
 	ApplicationTypes     *ApplicationTypesDefinition
 	StringEnums          []ProcessedStringEnum
-	StringConsts         []ProcessedStringConst
 	EventStructsAsGoCode string
 	EventDefs            []EventDefForTpl
-	RestStructsAsGoCode  []string
 }
 
 type EventSpec struct {
