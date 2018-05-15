@@ -42,17 +42,15 @@ type EventDefForTpl struct {
 }
 
 type TplData struct {
-	GoPackage                   string
-	Version                     string
-	DomainSpecs                 *DomainFile
-	CommandSpecs                *CommandSpecFile
-	ApplicationTypes            *ApplicationTypesDefinition
-	StringEnums                 []ProcessedStringEnum
-	StringConsts                []ProcessedStringConst
-	EventStructsAsGoCode        string
-	EventDefs                   []EventDefForTpl
-	RestStructsAsGoCode         []string
-	RestStructsAsTypeScriptCode []string
+	Version              string
+	DomainSpecs          *DomainFile
+	CommandSpecs         *CommandSpecFile
+	ApplicationTypes     *ApplicationTypesDefinition
+	StringEnums          []ProcessedStringEnum
+	StringConsts         []ProcessedStringConst
+	EventStructsAsGoCode string
+	EventDefs            []EventDefForTpl
+	RestStructsAsGoCode  []string
 }
 
 type EventSpec struct {

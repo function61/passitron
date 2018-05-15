@@ -1,7 +1,5 @@
 import {SecretKind} from 'generated/domain';
 
-{{range .RestStructsAsTypeScriptCode}}
-
-{{.}}
-
+{{range .ApplicationTypes.Structs}}
+{{.AsTypeScriptCode}}
 {{end}}

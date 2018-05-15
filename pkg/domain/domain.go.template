@@ -1,4 +1,4 @@
-package {{.GoPackage}}
+package domain
 
 // WARNING: generated file
 

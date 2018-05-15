@@ -26,21 +26,20 @@ func main() {
 	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(domainSpecs)
 
 	data := &codegen.TplData{
-		GoPackage:                   "domain",
-		Version:                     versionresolver.ResolveVersion(),
-		DomainSpecs:                 domainSpecs,
-		CommandSpecs:                commandSpecs,
-		ApplicationTypes:            applicationTypes,
-		StringEnums:                 codegen.ProcessStringEnums(domainSpecs),
-		StringConsts:                codegen.ProcessStringConsts(domainSpecs),
-		EventDefs:                   eventDefs,
-		EventStructsAsGoCode:        eventStructsAsGoCode,
-		RestStructsAsGoCode:         codegen.ProcessRestStructsAsGoCode(applicationTypes),
-		RestStructsAsTypeScriptCode: codegen.ProcessRestStructsAsTypeScriptCode(applicationTypes),
+		Version:              versionresolver.ResolveVersion(),
+		DomainSpecs:          domainSpecs,
+		CommandSpecs:         commandSpecs,
+		ApplicationTypes:     applicationTypes,
+		StringEnums:          codegen.ProcessStringEnums(domainSpecs),
+		StringConsts:         codegen.ProcessStringConsts(domainSpecs),
+		EventDefs:            eventDefs,
+		EventStructsAsGoCode: eventStructsAsGoCode,
+		RestStructsAsGoCode:  codegen.ProcessRestStructsAsGoCode(applicationTypes),
 	}
 
 	files := []string{
 		"docs/application_model/commands.md",
+		"docs/application_model/datatypes.md",
 		"docs/application_model/rest_endpoints.md",
 		"docs/domain_model/consts.md",
 		"docs/domain_model/events.md",

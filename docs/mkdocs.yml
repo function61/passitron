@@ -14,4 +14,5 @@ pages:
 
 - 'Application model':
   - 'REST endpoints': 'application_model/rest_endpoints.md'
+  - 'Datatypes': 'application_model/datatypes.md'
   - 'Commands': 'application_model/commands.md'

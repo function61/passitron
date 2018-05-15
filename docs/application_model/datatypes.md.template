@@ -1,0 +1,10 @@
+{{range .ApplicationTypes.Structs}}
+{{.Name}}
+-----
+
+| Key | Type | 
+|------|----------|
+{{range .Fields}}| {{.Key}} | `{{.Type.AsTypeScriptType}}` |
+{{end}}
+
+{{end}}

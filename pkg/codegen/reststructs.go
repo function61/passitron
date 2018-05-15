@@ -41,6 +41,20 @@ type StructDefinition struct {
 	Fields []DatatypeDefObjectField `json:"fields"`
 }
 
+func (s *StructDefinition) AsTypeScriptCode() string {
+	fieldsSerialized := []string{}
+
+	for _, field := range s.Fields {
+		fieldsSerialized = append(fieldsSerialized, field.Key+": "+field.Type.AsTypeScriptType()+";")
+	}
+
+	return fmt.Sprintf(`export interface %s {
+	%s
+}`,
+		s.Name,
+		strings.Join(fieldsSerialized, "\n\t"))
+}
+
 func StructToGoCode(s *StructDefinition) string {
 	fields := []GoStructField{}
 
@@ -86,35 +100,11 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 	return tsType
 }
 
-func StructToTypeScriptCode(s *StructDefinition) string {
-	fieldsSerialized := []string{}
-
-	for _, field := range s.Fields {
-		fieldsSerialized = append(fieldsSerialized, field.Key+": "+field.Type.AsTypeScriptType()+";")
-	}
-
-	return fmt.Sprintf(`export interface %s {
-	%s
-}`,
-		s.Name,
-		strings.Join(fieldsSerialized, "\n\t"))
-}
-
 func ProcessRestStructsAsGoCode(file *ApplicationTypesDefinition) []string {
 	ret := []string{}
 
 	for _, struct_ := range file.Structs {
 		ret = append(ret, StructToGoCode(&struct_))
-	}
-
-	return ret
-}
-
-func ProcessRestStructsAsTypeScriptCode(file *ApplicationTypesDefinition) []string {
-	ret := []string{}
-
-	for _, struct_ := range file.Structs {
-		ret = append(ret, StructToTypeScriptCode(&struct_))
 	}
 
 	return ret
