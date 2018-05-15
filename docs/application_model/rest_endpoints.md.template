@@ -6,4 +6,4 @@ REST endpoints
 {{range .ApplicationTypes.Endpoints}}| {{.Path}} | {{.Produces.AsTypeScriptType}} |
 {{end}}
 
-See [Datatypes](datatypes.md) for more info on data structures.
+See [Datatypes](datatypes.md) for more info on the above data structures.

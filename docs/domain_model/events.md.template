@@ -1,3 +1,9 @@
+Each and every `Event` additionally has the following common meta data:
+
+- Timestamp, in UTC, the event was raised on
+- ID of the user that caused that event
+
+
 {{range .DomainSpecs.Events}}
 {{.Event}}
 -------
