@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/mattetti/filebuffer"
@@ -18,6 +19,7 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -86,6 +88,21 @@ func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
 	return ciphertextBlock
 }
 
+func exportKeylistAsText(secret apitypes.Secret) string {
+	lines := []string{
+		"Keylist " + secret.Title,
+		"--------------------------",
+	}
+
+	for _, entry := range secret.KeylistKeys {
+		line := entry.Key + ": " + entry.Value
+
+		lines = append(lines, line)
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (gokeepasslib.Group, int) {
 	entriesExported := 0
 
@@ -107,11 +124,18 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 			entry := gokeepasslib.NewEntry()
 			entry.Values = append(entry.Values, mkValue("Title", title))
 			entry.Values = append(entry.Values, mkValue("UserName", wacc.Account.Username))
-			entry.Values = append(entry.Values, mkValue("Notes", wacc.Account.Description))
+
+			notes := wacc.Account.Description
 
 			switch domain.SecretKindExhaustive44d6e3(string(secret.Secret.Kind)) {
 			case domain.SecretKindKeylist:
-				panic("not implemented")
+				keylistAsText := exportKeylistAsText(secret.Secret)
+
+				if notes == "" {
+					notes = keylistAsText
+				} else {
+					notes = notes + "\n" + keylistAsText
+				}
 			case domain.SecretKindPassword:
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Secret.Password))
 
@@ -138,6 +162,8 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 			default:
 				panic("invalid secret kind: " + secret.Secret.Kind)
 			}
+
+			entry.Values = append(entry.Values, mkValue("Notes", notes))
 
 			group.Entries = append(group.Entries, entry)
 
