@@ -1,46 +1,84 @@
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
+import {defaultErrorHandler} from 'generated/restapi';
 import {httpMustBeOk} from 'httputil';
 import * as React from 'react';
 import {unrecognizedValue} from 'utils';
 
-export type CommandFieldChangeListener = (key: string, value: string | number | boolean | null) => void;
 export type CommandSubmitListener = () => void;
 
-export class CommandManager {
-	private definition: CommandDefinition;
-	private commandBody: {[key: string]: any} = {};
+interface CommandPageletProps {
+	command: CommandDefinition;
+	onSubmit: CommandSubmitListener;
+}
 
-	constructor(definition: CommandDefinition) {
-		this.definition = definition;
+interface CommandPageletState {
+	values: {[key: string]: any};
+	validationStatuses: {[key: string]: boolean};
+}
 
-		// copy default values to commandBody, because they are only updated on
+export class CommandPagelet extends React.Component<CommandPageletProps, CommandPageletState> {
+	constructor(props: CommandPageletProps) {
+		super(props);
+
+		const state: CommandPageletState = { values: {}, validationStatuses: {} };
+
+		// copy default values to values, because they are only updated on
 		// "onChange" event, and thus if user doesn't change them, they wouldn't get filled
-		this.definition.fields.forEach((field) => {
+		this.props.command.fields.forEach((field) => {
 			switch (field.Kind) {
 			case CommandFieldKind.Integer:
+				state.values[field.Key] = null;
 				break;
 			case CommandFieldKind.Password:
 			case CommandFieldKind.Text:
 			case CommandFieldKind.Multiline:
-				this.commandBody[field.Key] = field.DefaultValueString;
+				state.values[field.Key] = field.DefaultValueString;
 				break;
 			case CommandFieldKind.Checkbox:
-				this.commandBody[field.Key] = field.DefaultValueBoolean;
+				state.values[field.Key] = field.DefaultValueBoolean;
 				break;
 			default:
 				unrecognizedValue(field.Kind);
 			}
+
+			state.validationStatuses[field.Key] = this.validate(field, state.values[field.Key]);
 		});
+
+		this.state = state;
 	}
 
-	getChangeHandlerBound(): CommandFieldChangeListener {
-		return this.changeHandler.bind(this);
+	validate(field: CommandField, value: any): boolean {
+		if (field.Required && !value) {
+			return false;
+		}
+
+		return true; // if no errors found
+	}
+
+	render() {
+		const fieldGroups = this.props.command.fields.map((field) => {
+			const input = this.createInput(field);
+
+			const valid = this.state.validationStatuses[field.Key];
+
+			const validationFailedClass = valid ? '' : 'has-error';
+
+			return <div className={`form-group ${validationFailedClass}`} key={field.Key}>
+				<label>{field.Key} {field.Required ? '*' : ''}</label>
+
+				{input}
+			</div>;
+		});
+
+		return <form onSubmit={(e) => this.onInternalEnterSubmit(e)}>
+			{fieldGroups}
+		</form>;
 	}
 
 	execute(): Promise<void> {
-		const bodyToPost = JSON.stringify(this.commandBody);
+		const bodyToPost = JSON.stringify(this.state.values);
 
-		return fetch(`/command/${this.definition.key}`, {
+		return fetch(`/command/${this.props.command.key}`, {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
@@ -55,57 +93,51 @@ export class CommandManager {
 			});
 	}
 
-	private changeHandler(key: string, value: string | boolean) {
-		this.commandBody[key] = value;
-	}
-}
+	// official submit, which should trigger validation
+	submit(): Promise<void> {
+		const someInvalid = Object.keys(this.state.validationStatuses).some((key) => !this.state.validationStatuses[key]);
 
-interface CommandPageletProps {
-	command: CommandDefinition;
-	onSubmit: CommandSubmitListener;
-	fieldChanged: CommandFieldChangeListener;
-}
+		if (someInvalid) {
+			return Promise.reject(new Error('Invalid form data'));
+		}
 
-export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
-	render() {
-		const fieldGroups = this.props.command.fields.map((field, idx) => {
-			const input = this.createInput(field);
-
-			return <div className="form-group" key={idx}>
-				<label>{field.Key}</label>
-
-				{input}
-			</div>;
-		});
-
-		return <form onSubmit={(e) => this.onSubmit(e)}>
-			{fieldGroups}
-		</form>;
+		return this.execute();
 	}
 
-	private onSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		this.props.onSubmit();
+	onInternalEnterSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault(); // prevent browser-based submit
+
+		this.submit().then(() => {
+			document.location.reload();
+		}, defaultErrorHandler);
+	}
+
+	private updateFieldValue(key: string, value: any) {
+		const field = this.fieldByKey(key);
+
+		this.state.values[key] = value;
+		this.state.validationStatuses[field.Key] = this.validate(field, value);
+		this.setState(this.state);
 	}
 
 	private onInputChange(e: React.FormEvent<HTMLInputElement>) {
-		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.value);
+		this.updateFieldValue(e.currentTarget.name, e.currentTarget.value);
 	}
 
 	private onIntegerInputChange(e: React.FormEvent<HTMLInputElement>) {
 		if (e.currentTarget.value === '') {
-			this.props.fieldChanged(e.currentTarget.name, null);
+			this.updateFieldValue(e.currentTarget.name, null);
 		} else {
-			this.props.fieldChanged(e.currentTarget.name, +e.currentTarget.value);
+			this.updateFieldValue(e.currentTarget.name, +e.currentTarget.value);
 		}
 	}
 
 	private onCheckboxChange(e: React.FormEvent<HTMLInputElement>) {
-		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.checked);
+		this.updateFieldValue(e.currentTarget.name, e.currentTarget.checked);
 	}
 
 	private onTextareaChange(e: React.FormEvent<HTMLTextAreaElement>) {
-		this.props.fieldChanged(e.currentTarget.name, e.currentTarget.value);
+		this.updateFieldValue(e.currentTarget.name, e.currentTarget.value);
 	}
 
 	private createInput(field: CommandField): JSX.Element {
@@ -115,6 +147,8 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 				type="password"
 				className="form-control"
 				name={field.Key}
+				required={field.Required}
+				value={this.state.values[field.Key]}
 				onChange={this.onInputChange.bind(this)}
 			/>;
 		case CommandFieldKind.Text:
@@ -122,15 +156,17 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 				type="text"
 				className="form-control"
 				name={field.Key}
-				defaultValue={field.DefaultValueString}
+				required={field.Required}
+				value={this.state.values[field.Key]}
 				onChange={this.onInputChange.bind(this)}
 			/>;
 		case CommandFieldKind.Multiline:
 			return <textarea
 				name={field.Key}
+				required={field.Required}
 				className="form-control"
 				rows={7}
-				defaultValue={field.DefaultValueString}
+				value={this.state.values[field.Key]}
 				onChange={this.onTextareaChange.bind(this)}
 			/>;
 		case CommandFieldKind.Integer:
@@ -138,6 +174,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 				type="number"
 				className="form-control"
 				name={field.Key}
+				required={field.Required}
 				onChange={this.onIntegerInputChange.bind(this)}
 			/>;
 		case CommandFieldKind.Checkbox:
@@ -145,11 +182,21 @@ export class CommandPagelet extends React.Component<CommandPageletProps, {}> {
 				type="checkbox"
 				name={field.Key}
 				className="form-control"
-				defaultChecked={field.DefaultValueBoolean}
+				checked={this.state.values[field.Key]}
 				onChange={this.onCheckboxChange.bind(this)}
 			/>;
 		default:
 			return unrecognizedValue(field.Kind);
 		}
+	}
+
+	private fieldByKey(key: string): CommandField {
+		const matches = this.props.command.fields.filter((field) => field.Key === key);
+
+		if (matches.length !== 1) {
+			throw new Error(`Field by key ${key} not found`);
+		}
+
+		return matches[0];
 	}
 }

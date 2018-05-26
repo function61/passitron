@@ -15,6 +15,7 @@ export enum CommandFieldKind {
 
 export interface CommandField {
 	Key: string;
+	Required: boolean;
 	Kind: CommandFieldKind;
 	DefaultValueString?: string;
 	DefaultValueBoolean?: boolean;

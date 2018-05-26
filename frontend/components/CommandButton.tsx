@@ -1,7 +1,7 @@
 import {CommandDefinition} from 'commandtypes';
 import {ModalDialog} from 'components/modaldialog';
 import {defaultErrorHandler} from 'generated/restapi';
-import {CommandManager, CommandPagelet} from 'plumbing';
+import {CommandPagelet} from 'plumbing';
 import * as React from 'react';
 
 interface CommandButtonProps {
@@ -13,18 +13,13 @@ interface CommandButtonState {
 }
 
 export class CommandButton extends React.Component<CommandButtonProps, CommandButtonState> {
-	private cmdManager: CommandManager;
+	state = { dialogOpen: false };
 
-	constructor(props: CommandButtonProps, state: CommandButtonState) {
-		super(props, state);
-
-		this.state = { dialogOpen: false };
-
-		this.cmdManager = new CommandManager(this.props.command);
-	}
+	private cmdPagelet: CommandPagelet | null = null;
 
 	save() {
-		this.cmdManager.execute().then(() => {
+		// FIXME: remove duplication of this code
+		this.cmdPagelet!.submit().then(() => {
 			document.location.reload();
 		}, defaultErrorHandler);
 	}
@@ -33,7 +28,7 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 		const commandTitle = this.props.command.title;
 
 		const maybeDialog = this.state.dialogOpen ? <ModalDialog title={commandTitle} onSave={() => { this.save(); }}>
-			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} ref={(el) => { this.cmdPagelet = el; }} />
 		</ModalDialog> : null;
 
 		return <div style={{display: 'inline-block'}}>
@@ -62,18 +57,13 @@ const typeToIcon: {[key: string]: string} = {
 };
 
 export class CommandIcon extends React.Component<CommandIconProps, CommandIconState> {
-	private cmdManager: CommandManager;
+	state = { dialogOpen: false };
 
-	constructor(props: CommandIconProps, state: CommandIconState) {
-		super(props, state);
-
-		this.state = { dialogOpen: false };
-
-		this.cmdManager = new CommandManager(this.props.command);
-	}
+	private cmdPagelet: CommandPagelet | null = null;
 
 	save() {
-		this.cmdManager.execute().then(() => {
+		// FIXME: remove duplication of this code
+		this.cmdPagelet!.submit().then(() => {
 			document.location.reload();
 		}, defaultErrorHandler);
 	}
@@ -85,7 +75,7 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 		const icon = typeToIcon[type];
 
 		const maybeDialog = this.state.dialogOpen ? <ModalDialog title={commandTitle} onSave={() => { this.save(); }}>
-			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} ref={(el) => { this.cmdPagelet = el; }} />
 		</ModalDialog> : null;
 
 		return <span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => { this.setState({dialogOpen: true}); }} title={commandTitle}>
@@ -103,18 +93,13 @@ interface CommandLinkState {
 }
 
 export class CommandLink extends React.Component<CommandLinkProps, CommandLinkState> {
-	private cmdManager: CommandManager;
+	state = { dialogOpen: false };
 
-	constructor(props: CommandLinkProps, state: CommandLinkState) {
-		super(props, state);
-
-		this.state = { dialogOpen: false };
-
-		this.cmdManager = new CommandManager(this.props.command);
-	}
+	private cmdPagelet: CommandPagelet | null = null;
 
 	save() {
-		this.cmdManager.execute().then(() => {
+		// FIXME: remove duplication of this code
+		this.cmdPagelet!.submit().then(() => {
 			document.location.reload();
 		}, defaultErrorHandler);
 	}
@@ -123,10 +108,10 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 		const commandTitle = this.props.command.title;
 
 		const maybeDialog = this.state.dialogOpen ? <ModalDialog title={commandTitle} onSave={() => { this.save(); }}>
-			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} fieldChanged={this.cmdManager.getChangeHandlerBound()} />
+			<CommandPagelet command={this.props.command} onSubmit={() => { this.save(); }} ref={(el) => { this.cmdPagelet = el; }} />
 		</ModalDialog> : null;
 
-		return <a className={'fauxlink'} onClick={() => { this.setState({dialogOpen: true}); }}>
+		return <a className="fauxlink" onClick={() => { this.setState({dialogOpen: true}); }}>
 			{commandTitle}
 			{maybeDialog}
 		</a>;

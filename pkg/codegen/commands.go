@@ -151,30 +151,40 @@ func (c *CommandSpec) FieldsForTypeScript() string {
 			}
 		}
 
+		required := "true"
+		if fieldSpec.Optional {
+			required = "false"
+		}
+
 		switch fieldSpec.Type {
 		case "text":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
 				fieldSpec.Key,
+				required,
 				defVal)
 		case "multiline":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
 				fieldSpec.Key,
+				required,
 				defVal)
 		case "password":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
 				fieldSpec.Key,
+				required,
 				defVal)
 		case "checkbox":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Kind: CommandFieldKind.Checkbox },`,
-				fieldSpec.Key)
+				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Checkbox },`,
+				fieldSpec.Key,
+				required)
 		case "integer":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Kind: CommandFieldKind.Integer },`,
-				fieldSpec.Key)
+				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Integer },`,
+				fieldSpec.Key,
+				required)
 		default:
 			panic(fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type))
 		}
