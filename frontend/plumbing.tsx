@@ -48,7 +48,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 	}
 
 	validate(field: CommandField, value: any): boolean {
-		if (field.Required && !value) {
+		if (field.Required && (value === undefined || value === null || value === '')) {
 			return false;
 		}
 
