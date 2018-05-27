@@ -9,8 +9,18 @@ declare global {
 	}
 }
 
+function copyToClipboardWithAlert(text: string) {
+	if (!clipboard(text)) {
+		alert('failed to copy to clipboard');
+	}
+}
+
+export function elToClipboard(e: React.MouseEvent<HTMLElement>) {
+	copyToClipboardWithAlert(e.currentTarget.dataset.toClipboard!);
+}
+
 // thanks https://stackoverflow.com/a/33928558
-export default function(text: string): boolean {
+export default function clipboard(text: string): boolean {
 	if (window.clipboardData && window.clipboardData.setData) {
 		// IE specific code path to prevent textarea being shown while dialog is visible.
 		return window.clipboardData.setData('Text', text);

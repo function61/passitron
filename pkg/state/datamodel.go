@@ -9,6 +9,7 @@ type WrappedSecret struct {
 	Secret             apitypes.Secret
 	SshPrivateKey      string
 	OtpProvisioningUrl string
+	KeylistKeys        []apitypes.SecretKeylistKey
 }
 
 type WrappedAccount struct {

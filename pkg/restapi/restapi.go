@@ -25,6 +25,21 @@ func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
 	return false
 }
 
+func runPhysicalAuth(w http.ResponseWriter) bool {
+	authorized, err := physicalauth.Dummy()
+	if err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("technical_error_in_physical_authorization", err), http.StatusInternalServerError, w)
+		return false
+	}
+
+	if !authorized {
+		httputil.RespondHttpJson(httputil.GenericError("did_not_receive_physical_authorization", nil), http.StatusForbidden, w)
+		return false
+	}
+
+	return true
+}
+
 func Define(router *mux.Router, st *state.State) {
 	router.HandleFunc("/auditlog", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httputil.RespondHttpJson(st.State.AuditLog, http.StatusOK, w)
@@ -155,6 +170,33 @@ func Define(router *mux.Router, st *state.State) {
 		httputil.RespondHttpJson(wacc.Account, http.StatusOK, w)
 	}))
 
+	router.HandleFunc("/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		key := mux.Vars(r)["key"]
+
+		if errorIfSealed(st.IsUnsealed(), w) {
+			return
+		}
+
+		if !runPhysicalAuth(w) {
+			return // error handled internally
+		}
+
+		wsecret := st.WrappedSecretById(mux.Vars(r)["accountId"], mux.Vars(r)["secretId"])
+		if wsecret == nil {
+			httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
+			return
+		}
+
+		for _, keyEntry := range wsecret.KeylistKeys {
+			if keyEntry.Key == key {
+				httputil.RespondHttpJson(keyEntry, http.StatusOK, w)
+				return
+			}
+		}
+
+		httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
+	}))
+
 	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfSealed(st.IsUnsealed(), w) {
 			return
@@ -167,15 +209,8 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		authorized, err := physicalauth.Dummy()
-		if err != nil {
-			httputil.RespondHttpJson(httputil.GenericError("technical_error_in_physical_authorization", err), http.StatusInternalServerError, w)
-			return
-		}
-
-		if !authorized {
-			httputil.RespondHttpJson(httputil.GenericError("did_not_receive_physical_authorization", nil), http.StatusForbidden, w)
-			return
+		if !runPhysicalAuth(w) {
+			return // error handled internally
 		}
 
 		st.EventLog.Append(domain.NewAccountSecretUsed(

@@ -1,9 +1,9 @@
-import clipboard from 'clipboard';
+import {elToClipboard} from 'clipboard';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
 import {SecretReveal} from 'components/secretreveal';
-import {Account, ExposedSecret, Folder, FolderResponse} from 'generated/apitypes';
+import {Account, ExposedSecret, Folder, FolderResponse, Secret, SecretKeylistKey} from 'generated/apitypes';
 import {
 	AccountAddKeylist,
 	AccountAddPassword,
@@ -15,11 +15,55 @@ import {
 	AccountRename,
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
-import {defaultErrorHandler, getAccount, getFolder, getSecrets} from 'generated/restapi';
+import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getSecrets} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
 import {unrecognizedValue} from 'utils';
+
+interface KeylistAccessorProps {
+	account: string;
+	secret: Secret;
+}
+
+interface KeylistAccessorState {
+	input: string;
+	foundKeyItem?: SecretKeylistKey;
+}
+
+class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAccessorState> {
+	state: KeylistAccessorState = { input: '' };
+
+	render() {
+		const keyMaybe = this.state.foundKeyItem ?
+			<div>
+				<span className="label label-primary">{this.state.foundKeyItem.Value}</span>
+				<span data-to-clipboard={this.state.foundKeyItem.Value} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</span>
+			</div> : null;
+
+		return <div>
+			<input className="form-control" type="text" value={this.state.input} onChange={(e) => { this.onType(e); }} placeholder={this.props.secret.KeylistKeyPlaceholder} />
+
+			<button className="btn btn-default" type="submit" onClick={() => { this.onSubmit(); }}>Get</button>
+
+			{keyMaybe}
+		</div>;
+	}
+
+	private onSubmit() {
+		if (!this.state.input) {
+			alert('no input');
+		}
+
+		getKeylistKey(this.props.account, this.props.secret.Id, this.state.input).then((foundKeyItem) => {
+			this.setState({ foundKeyItem });
+		}, defaultErrorHandler);
+	}
+
+	private onType(e: React.ChangeEvent<HTMLInputElement>) {
+		this.setState({ input: e.target.value });
+	}
+}
 
 interface AccountPageProps {
 	id: string;
@@ -72,7 +116,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandIcon command={AccountChangeUsername(account.Id, account.Username)} />
 					</td>
 					<td>{account.Username}</td>
-					<td onClick={() => this.copyToClipboard(account.Username)} className="fauxlink">📋</td>
+					<td data-to-clipboard={account.Username} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>
 				{secretRows}
 				<tr>
@@ -108,7 +152,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td><SecretReveal secret={secret.Password} /></td>
-					<td onClick={() => this.copyToClipboard(secret.Password)} className="fauxlink">📋</td>
+					<td data-to-clipboard={secret.Password} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
 				return <tr key={secret.Id}>
@@ -117,23 +161,16 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td>{exposedSecret.OtpProof}</td>
-					<td onClick={() => this.copyToClipboard(exposedSecret.OtpProof)} className="fauxlink">📋</td>
+					<td data-to-clipboard={exposedSecret.OtpProof} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.Keylist:
-				const keyRows = secret.KeylistKeys.map((item) => <tr key={item.Key}>
-					<th>{item.Key}</th>
-					<td>{item.Value}</td>
-				</tr>);
-
 				return <tr key={secret.Id}>
 					<td>
 						Keylist
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</td>
 					<td colSpan={2}>{secret.Title}
-						<table className="table table-striped">
-						<tbody>{keyRows}</tbody>
-						</table>
+						<KeylistAccessor account={account.Id} secret={secret} />
 					</td>
 				</tr>;
 			default:
@@ -175,11 +212,5 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 		});
 
 		return breadcrumbItems;
-	}
-
-	private copyToClipboard(secretToClipboard: string) {
-		if (!clipboard(secretToClipboard)) {
-			alert('failed to copy to clipboard');
-		}
 	}
 }

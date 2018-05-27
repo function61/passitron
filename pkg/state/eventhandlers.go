@@ -121,12 +121,13 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
-					Id:          e.Id,
-					Kind:        domain.SecretKindKeylist,
-					Title:       e.Title,
-					Created:     e.Meta().Timestamp,
-					KeylistKeys: keyItems,
+					Id:                    e.Id,
+					Kind:                  domain.SecretKindKeylist,
+					Title:                 e.Title,
+					Created:               e.Meta().Timestamp,
+					KeylistKeyPlaceholder: keyItems[0].Key,
 				},
+				KeylistKeys: keyItems,
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)

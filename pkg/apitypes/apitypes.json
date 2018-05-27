@@ -1,6 +1,7 @@
 {
 	"endpoints": [
 		{ "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
+		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", "produces": {"_": "SecretKeylistKey"}, "name": "getKeylistKey" },
 		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "name": "getSecrets" },
 		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
 		{ "path": "/accounts/{id}", "produces": {"_": "Account"}, "name": "getAccount" }
@@ -50,7 +51,7 @@
 				{ "key": "Created", "type": {"_": "datetime"} },
 				{ "key": "Password", "type": {"_": "string"} },
 				{ "key": "SshPublicKeyAuthorized", "type": {"_": "string"} },
-				{ "key": "KeylistKeys", "type": {"_": "list", "of": {"_": "SecretKeylistKey"}} }
+				{ "key": "KeylistKeyPlaceholder", "type": {"_": "string"} }
 			]
 		},
 		{

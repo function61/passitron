@@ -35,6 +35,21 @@ func (s *State) WrappedAccountsByFolder(id string) []WrappedAccount {
 	return accounts
 }
 
+func (s *State) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
+	wacc := s.WrappedAccountById(accountId)
+	if wacc == nil {
+		return nil
+	}
+
+	for _, wrappedSecret := range wacc.Secrets {
+		if wrappedSecret.Secret.Id == secretId {
+			return &wrappedSecret
+		}
+	}
+
+	return nil
+}
+
 func (s *State) WrappedAccountById(id string) *WrappedAccount {
 	for _, wacc := range s.State.WrappedAccounts {
 		if wacc.Account.Id == id {

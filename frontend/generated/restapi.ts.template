@@ -4,7 +4,7 @@
 // WHY: wouldn't make sense complicating code generation to check
 // if we need template string or not in path string
 
-import {Account, AuditlogEntry, ExposedSecret, FolderResponse} from 'generated/apitypes';
+import {Account, AuditlogEntry, ExposedSecret, FolderResponse, SecretKeylistKey} from 'generated/apitypes';
 import {getJson} from 'httputil';
 import {unsealRoute} from 'routes';
 

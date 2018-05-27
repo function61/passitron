@@ -11,7 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/mattetti/filebuffer"
@@ -88,13 +87,13 @@ func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
 	return ciphertextBlock
 }
 
-func exportKeylistAsText(secret apitypes.Secret) string {
+func exportKeylistAsText(wsecret state.WrappedSecret) string {
 	lines := []string{
-		"Keylist " + secret.Title,
+		"Keylist " + wsecret.Secret.Title,
 		"--------------------------",
 	}
 
-	for _, entry := range secret.KeylistKeys {
+	for _, entry := range wsecret.KeylistKeys {
 		line := entry.Key + ": " + entry.Value
 
 		lines = append(lines, line)
@@ -129,7 +128,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 
 			switch domain.SecretKindExhaustive44d6e3(string(secret.Secret.Kind)) {
 			case domain.SecretKindKeylist:
-				keylistAsText := exportKeylistAsText(secret.Secret)
+				keylistAsText := exportKeylistAsText(secret)
 
 				if notes == "" {
 					notes = keylistAsText
