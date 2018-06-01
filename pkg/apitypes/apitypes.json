@@ -51,7 +51,7 @@
 				{ "key": "Created", "type": {"_": "datetime"} },
 				{ "key": "Password", "type": {"_": "string"} },
 				{ "key": "SshPublicKeyAuthorized", "type": {"_": "string"} },
-				{ "key": "KeylistKeyPlaceholder", "type": {"_": "string"} }
+				{ "key": "KeylistKeyExample", "type": {"_": "string"} }
 			]
 		},
 		{

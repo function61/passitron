@@ -112,7 +112,13 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 		if wacc.Account.Id == e.Account {
 			keyItems := []apitypes.SecretKeylistKey{}
 
+			keylistKeyExample := ""
+
 			for _, key := range e.Keys {
+				if keylistKeyExample == "" {
+					keylistKeyExample = key.Key
+				}
+
 				keyItems = append(keyItems, apitypes.SecretKeylistKey{
 					Key:   key.Key,
 					Value: key.Value,
@@ -121,11 +127,11 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
-					Id:                    e.Id,
-					Kind:                  domain.SecretKindKeylist,
-					Title:                 e.Title,
-					Created:               e.Meta().Timestamp,
-					KeylistKeyPlaceholder: keyItems[0].Key,
+					Id:                e.Id,
+					Kind:              domain.SecretKindKeylist,
+					Title:             e.Title,
+					Created:           e.Meta().Timestamp,
+					KeylistKeyExample: keylistKeyExample,
 				},
 				KeylistKeys: keyItems,
 			}
