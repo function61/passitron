@@ -1,4 +1,5 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
+import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {Account, FolderResponse} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
@@ -22,7 +23,7 @@ export default class SearchPage extends React.Component<SearchPageProps, SearchP
 
 	render() {
 		if (!this.state) {
-			return <h1>loading</h1>;
+			return <Loading />;
 		}
 
 		// adapt for reuse for direct use of <SecretListing> component

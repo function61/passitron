@@ -1,4 +1,5 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
+import {Loading} from 'components/loading';
 import {Timestamp} from 'components/timestamp';
 import {AuditlogEntry} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
@@ -26,7 +27,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 
 		const rows = this.state && this.state.entries ?
 			this.state.entries.map(entryToRow) :
-			<tr><td>loading</td></tr>;
+			<tr><td><Loading /></td></tr>;
 
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>{this.title}</h1>

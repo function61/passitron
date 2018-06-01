@@ -1,6 +1,7 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
+import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {AccountCreate, AccountCreateFolder, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
@@ -14,7 +15,7 @@ interface HomePageProps {
 }
 
 interface HomePageState {
-	listing?: FolderResponse;
+	listing: FolderResponse;
 }
 
 export default class HomePage extends React.Component<HomePageProps, HomePageState> {
@@ -27,8 +28,8 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 	}
 
 	render() {
-		if (!this.state || !this.state.listing) {
-			return <h1>loading</h1>;
+		if (!this.state) {
+			return <Loading />;
 		}
 
 		const listing = this.state.listing;
@@ -54,7 +55,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 	}
 
 	private fetchData(folderId: string) {
-		getFolder(folderId).then((listing: FolderResponse) => {
+		getFolder(folderId).then((listing) => {
 			this.setState({ listing });
 		}, defaultErrorHandler);
 	}

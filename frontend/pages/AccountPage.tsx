@@ -2,6 +2,7 @@ import {elToClipboard} from 'clipboard';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
+import {Loading} from 'components/loading';
 import {SecretReveal} from 'components/secretreveal';
 import {Account, ExposedSecret, Folder, FolderResponse, Secret, SecretKeylistKey} from 'generated/apitypes';
 import {
@@ -28,11 +29,12 @@ interface KeylistAccessorProps {
 
 interface KeylistAccessorState {
 	input: string;
+	loading: boolean;
 	foundKeyItem?: SecretKeylistKey;
 }
 
 class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAccessorState> {
-	state: KeylistAccessorState = { input: '' };
+	state: KeylistAccessorState = { input: '', loading: false };
 
 	render() {
 		const keyMaybe = this.state.foundKeyItem ?
@@ -46,6 +48,8 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 
 			<button className="btn btn-default" type="submit" onClick={() => { this.onSubmit(); }}>Get</button>
 
+			{this.state.loading ? <Loading /> : null}
+
 			{keyMaybe}
 		</div>;
 	}
@@ -53,10 +57,13 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 	private onSubmit() {
 		if (!this.state.input) {
 			alert('no input');
+			return;
 		}
 
+		this.setState({ loading: true });
+
 		getKeylistKey(this.props.account, this.props.secret.Id, this.state.input).then((foundKeyItem) => {
-			this.setState({ foundKeyItem });
+			this.setState({ foundKeyItem, loading: false });
 		}, defaultErrorHandler);
 	}
 
@@ -82,8 +89,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 	}
 
 	render() {
-		if (!this.state || !this.state.account) {
-			return <h1>loading</h1>;
+		if (!this.state) {
+			return <Loading />;
 		}
 
 		const account = this.state.account;

@@ -12,7 +12,7 @@ export default class UnsealPage extends React.Component<{}, {}> {
 
 	render() {
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
-			<h1>Unseal</h1>
+			<h1>{this.title}</h1>
 
 			<WarningAlert text="Database was sealed. Please unseal it." />
 

@@ -14,16 +14,18 @@ interface ImportOtpTokenState {
 }
 
 export default class ImportOtpToken extends React.Component<ImportOtpTokenProps, ImportOtpTokenState> {
+	private title = 'Import OTP token';
+
 	render() {
 		const breadcrumbs = [
-			{ url: '', title: 'Import OTP token' },
+			{ url: '', title: this.title },
 		];
 
 		const maybeSubmit = this.state && this.state.OtpProvisioningUrl ?
 			<CommandButton command={AccountAddOtpToken(this.props.account, this.state.OtpProvisioningUrl)} /> :
 			<p>button will appear here</p>;
 
-		return <DefaultLayout title="Import OTP token" breadcrumbs={breadcrumbs}>
+		return <DefaultLayout title={this.title} breadcrumbs={breadcrumbs}>
 			<h1>Import OTP token from QR code: {this.props.account}</h1>
 
 			<input type="file" id="upload" onChange={(e) => { this.fileChange(e); }} />

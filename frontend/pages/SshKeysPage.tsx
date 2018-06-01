@@ -1,3 +1,4 @@
+import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {RootFolderId} from 'generated/domain';
@@ -17,8 +18,8 @@ export default class SshKeysPage extends React.Component<{}, SshKeysPageState> {
 	}
 
 	render() {
-		if (!this.state || !this.state.listing) {
-			return <h1>loading</h1>;
+		if (!this.state) {
+			return <Loading />;
 		}
 
 		const breadcrumbs = [
