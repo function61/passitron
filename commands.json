@@ -4,7 +4,7 @@
 		"ctor": ["Account","Title"],
 		"title": "Rename account",
 		"fields": [
-			{ "key": "Account" },
+			{ "key": "Account", "hideIfDefaultValue": true },
 			{ "key": "Title" }
 		]
 	},
@@ -13,7 +13,7 @@
 		"ctor": ["Account","Username"],
 		"title": "Change username",
 		"fields": [
-			{ "key": "Account" },
+			{ "key": "Account", "hideIfDefaultValue": true },
 			{ "key": "Username" }
 		]
 	},
@@ -22,7 +22,7 @@
 		"ctor": ["Account","Description"],
 		"title": "Change description",
 		"fields": [
-			{ "key": "Account" },
+			{ "key": "Account", "hideIfDefaultValue": true },
 			{ "key": "Description", "type": "multiline", "optional": true }
 		]
 	},
@@ -31,8 +31,8 @@
 		"ctor": ["Account","Secret"],
 		"title": "Delete secret",
 		"fields": [
-			{ "key": "Account" },
-			{ "key": "Secret" }
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "Secret", "hideIfDefaultValue": true }
 		]
 	},
 	{
@@ -40,7 +40,7 @@
 		"ctor": ["Parent"],
 		"title": "+ Folder",
 		"fields": [
-			{ "key": "Parent" },
+			{ "key": "Parent", "hideIfDefaultValue": true },
 			{ "key": "Name" }
 		]
 	},
@@ -49,7 +49,7 @@
 		"ctor": ["Id","Name"],
 		"title": "Rename",
 		"fields": [
-			{ "key": "Id" },
+			{ "key": "Id", "hideIfDefaultValue": true },
 			{ "key": "Name" }
 		]
 	},
@@ -58,7 +58,7 @@
 		"ctor": ["Id"],
 		"title": "Move",
 		"fields": [
-			{ "key": "Id" },
+			{ "key": "Id", "hideIfDefaultValue": true },
 			{ "key": "NewParent" }
 		]
 	},
@@ -67,7 +67,7 @@
 		"ctor": ["FolderId"],
 		"title": "+ Account",
 		"fields": [
-			{ "key": "FolderId" },
+			{ "key": "FolderId", "hideIfDefaultValue": true },
 			{ "key": "Title" },
 			{ "key": "Username", "optional": true },
 			{ "key": "Password", "type": "password", "optional": true }
@@ -78,7 +78,7 @@
 		"ctor": ["Id"],
 		"title": "Delete",
 		"fields": [
-			{ "key": "Id" },
+			{ "key": "Id", "hideIfDefaultValue": true },
 			{ "key": "Confirm", "type": "checkbox" }
 		]
 	},
@@ -87,7 +87,7 @@
 		"ctor": ["Id"],
 		"title": "+ Password",
 		"fields": [
-			{ "key": "Id" },
+			{ "key": "Id", "hideIfDefaultValue": true },
 			{ "key": "Password", "type": "password" },
 			{ "key": "PasswordRepeat", "type": "password" }
 		]
@@ -97,7 +97,7 @@
 		"ctor": ["Account"],
 		"title": "+ Keylist",
 		"fields": [
-			{ "key": "Account" },
+			{ "key": "Account", "hideIfDefaultValue": true },
 			{ "key": "Title" },
 			{ "key": "ExpectedKeyCount", "type": "integer" },
 			{ "key": "LengthOfKeys", "type": "integer" },
@@ -110,7 +110,7 @@
 		"ctor": ["Id"],
 		"title": "+ SSH key",
 		"fields": [
-			{ "key": "Id" },
+			{ "key": "Id", "hideIfDefaultValue": true },
 			{ "key": "SshPrivateKey", "type": "multiline" }
 		]
 	},
@@ -119,7 +119,7 @@
 		"ctor": ["Account","OtpProvisioningUrl"],
 		"title": "Add OTP token",
 		"fields": [
-			{ "key": "Account" },
+			{ "key": "Account", "hideIfDefaultValue": true },
 			{ "key": "OtpProvisioningUrl" }
 		]
 	},

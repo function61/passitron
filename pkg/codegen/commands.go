@@ -47,9 +47,10 @@ func (c *CommandSpec) Validate() error {
 }
 
 type CommandFieldSpec struct {
-	Key      string `json:"key"`
-	Type     string `json:"type"`
-	Optional bool   `json:"optional"`
+	Key                string `json:"key"`
+	Type               string `json:"type"`
+	Optional           bool   `json:"optional"`
+	HideIfDefaultValue bool   `json:"hideIfDefaultValue"`
 }
 
 func (c *CommandFieldSpec) AsGoField() string {
@@ -159,32 +160,37 @@ func (c *CommandSpec) FieldsForTypeScript() string {
 		switch fieldSpec.Type {
 		case "text":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
 				fieldSpec.Key,
 				required,
+				fieldSpec.HideIfDefaultValue,
 				defVal)
 		case "multiline":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
 				fieldSpec.Key,
 				required,
+				fieldSpec.HideIfDefaultValue,
 				defVal)
 		case "password":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
 				fieldSpec.Key,
 				required,
+				fieldSpec.HideIfDefaultValue,
 				defVal)
 		case "checkbox":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Checkbox },`,
+				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Checkbox },`,
 				fieldSpec.Key,
-				required)
+				required,
+				fieldSpec.HideIfDefaultValue)
 		case "integer":
 			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, Kind: CommandFieldKind.Integer },`,
+				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Integer },`,
 				fieldSpec.Key,
-				required)
+				required,
+				fieldSpec.HideIfDefaultValue)
 		default:
 			panic(fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type))
 		}

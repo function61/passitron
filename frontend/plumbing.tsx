@@ -14,13 +14,18 @@ interface CommandPageletProps {
 interface CommandPageletState {
 	values: {[key: string]: any};
 	validationStatuses: {[key: string]: boolean};
+	fieldsThatWerePrefilled: {[key: string]: boolean};
 }
 
 export class CommandPagelet extends React.Component<CommandPageletProps, CommandPageletState> {
 	constructor(props: CommandPageletProps) {
 		super(props);
 
-		const state: CommandPageletState = { values: {}, validationStatuses: {} };
+		const state: CommandPageletState = {
+			values: {},
+			validationStatuses: {},
+			fieldsThatWerePrefilled: {},
+		};
 
 		// copy default values to values, because they are only updated on
 		// "onChange" event, and thus if user doesn't change them, they wouldn't get filled
@@ -33,6 +38,9 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			case CommandFieldKind.Text:
 			case CommandFieldKind.Multiline:
 				state.values[field.Key] = field.DefaultValueString;
+				if (field.DefaultValueString) {
+					state.fieldsThatWerePrefilled[field.Key] = true;
+				}
 				break;
 			case CommandFieldKind.Checkbox:
 				state.values[field.Key] = field.DefaultValueBoolean;
@@ -56,7 +64,10 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 	}
 
 	render() {
-		const fieldGroups = this.props.command.fields.map((field) => {
+		const shouldShow = (field: CommandField) =>
+			!field.HideIfDefaultValue || !(field.Key in this.state.fieldsThatWerePrefilled);
+
+		const fieldGroups = this.props.command.fields.filter(shouldShow).map((field) => {
 			const input = this.createInput(field);
 
 			const valid = this.state.validationStatuses[field.Key];
