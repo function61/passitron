@@ -8,6 +8,8 @@ pages:
 
 - 'index.md'
 
+- 'Internal dependencies': 'internal-dependencies.md'
+
 - 'Domain model':
   - 'Events': 'domain_model/events.md'
   - 'Constants': 'domain_model/consts.md'
