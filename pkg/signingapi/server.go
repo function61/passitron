@@ -27,7 +27,7 @@ func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
 	return false
 }
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.WrappedAccount, error) {
+func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.WrappedAccount, string, error) {
 	for _, wacc := range st.State.WrappedAccounts {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
@@ -43,12 +43,12 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, 
 
 			// TODO: is there better way to compare than marshal result?
 			if bytes.Equal(pubKeyMarshaled, publicKey.Marshal()) {
-				return signer, &wacc, nil
+				return signer, &wacc, secret.Secret.Id, nil
 			}
 		}
 	}
 
-	return nil, nil, errors.New("privkey not found by pubkey")
+	return nil, nil, "", errors.New("privkey not found by pubkey")
 }
 
 func expectedAuthHeader(st *state.State) string {
@@ -114,7 +114,7 @@ func Setup(router *mux.Router, st *state.State) {
 			return
 		}
 
-		signer, wacc, err := lookupSignerByPubKey(input.PublicKey, st)
+		signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, st)
 		if err != nil {
 			httputil.RespondHttpJson(httputil.GenericError("privkey_for_pubkey_not_found", err), http.StatusBadRequest, w)
 			return
@@ -129,7 +129,9 @@ func Setup(router *mux.Router, st *state.State) {
 		st.EventLog.Append(
 			domain.NewAccountSecretUsed(
 				wacc.Account.Id,
+				[]string{secretId},
 				domain.SecretUsedTypeSshSigning,
+				"",
 				domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
 		httputil.RespondHttpJson(signingapitypes.SignResponse{

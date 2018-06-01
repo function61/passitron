@@ -20,7 +20,8 @@
 			"type": "string",
 			"stringMembers": [
 				"SshSigning",
-				"PasswordExposed"
+				"PasswordExposed",
+				"KeylistKeyExposed"
 			]
 		}
 	],
@@ -144,13 +145,24 @@
 	},
 	{
 		"event": "account.SecretUsed",
-		"ctor": ["Account", "Type"],
+		"ctor": ["Account", "Secrets", "Type", "KeylistKey"],
+		"changelog": [
+			"Added Secrets, KeylistKey"
+		],
 		"fields": [
 			{
 				"key": "Account", "type": {"_": "string"}
 			},
 			{
+				"key": "Secrets", "type": {"_": "list", "of": {"_": "string"}},
+				"notes": "Secret IDs which were exposed"
+			},
+			{
 				"key": "Type", "type": {"_": "string"}
+			},
+			{
+				"key": "KeylistKey", "type": {"_": "string"},
+				"notes": "Only set if Type=KeylistKeyExposed"
 			}
 		]
 	},

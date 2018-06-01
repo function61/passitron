@@ -181,7 +181,9 @@ func Define(router *mux.Router, st *state.State) {
 			return // error handled internally
 		}
 
-		wsecret := st.WrappedSecretById(mux.Vars(r)["accountId"], mux.Vars(r)["secretId"])
+		accountId := mux.Vars(r)["accountId"]
+
+		wsecret := st.WrappedSecretById(accountId, mux.Vars(r)["secretId"])
 		if wsecret == nil {
 			httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
 			return
@@ -189,6 +191,13 @@ func Define(router *mux.Router, st *state.State) {
 
 		for _, keyEntry := range wsecret.KeylistKeys {
 			if keyEntry.Key == key {
+				st.EventLog.Append(domain.NewAccountSecretUsed(
+					accountId,
+					[]string{wsecret.Secret.Id},
+					domain.SecretUsedTypeKeylistKeyExposed,
+					keyEntry.Key,
+					domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+
 				httputil.RespondHttpJson(keyEntry, http.StatusOK, w)
 				return
 			}
@@ -213,11 +222,20 @@ func Define(router *mux.Router, st *state.State) {
 			return // error handled internally
 		}
 
+		secrets := state.UnwrapSecrets(wacc.Secrets)
+
+		secretIdsForAudit := []string{}
+		for _, secret := range secrets {
+			secretIdsForAudit = append(secretIdsForAudit, secret.Secret.Id)
+		}
+
 		st.EventLog.Append(domain.NewAccountSecretUsed(
 			wacc.Account.Id,
+			secretIdsForAudit,
 			domain.SecretUsedTypePasswordExposed,
+			"",
 			domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
-		httputil.RespondHttpJson(state.UnwrapSecrets(wacc.Secrets), http.StatusOK, w)
+		httputil.RespondHttpJson(secrets, http.StatusOK, w)
 	}))
 }
