@@ -47,14 +47,16 @@ type TplData struct {
 }
 
 type EventSpec struct {
-	Event    string            `json:"event"`
-	CtorArgs []string          `json:"ctor"`
-	Fields   []*EventFieldSpec `json:"fields"`
+	Event     string            `json:"event"`
+	CtorArgs  []string          `json:"ctor"`
+	Changelog []string          `json:"changelog"`
+	Fields    []*EventFieldSpec `json:"fields"`
 }
 
 type EventFieldSpec struct {
-	Key  string      `json:"key"`
-	Type DatatypeDef `json:"type"`
+	Key   string      `json:"key"`
+	Type  DatatypeDef `json:"type"`
+	Notes string      `json:"notes"`
 }
 
 type DatatypeDef struct {

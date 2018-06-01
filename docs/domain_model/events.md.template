@@ -8,8 +8,14 @@ Each and every `Event` additionally has the following common meta data:
 {{.Event}}
 -------
 
-| key | type |
-|-----|------|
-{{range .Fields}}| {{.Key}} | {{.Type.Name}} |
+{{if .Changelog}}
+Changelog:
+{{range .Changelog}}
+- {{.}}{{end}}
+{{end}}
+
+| key | type | notes |
+|-----|------|-------|
+{{range .Fields}}| {{.Key}} | {{.Type.Name}} | {{.Notes}} |
 {{end}}
 {{end}}
