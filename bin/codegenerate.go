@@ -22,7 +22,7 @@ func main() {
 	panicIfError(codegen.DeserializeJsonFile("pkg/apitypes/apitypes.json", applicationTypes))
 
 	commandSpecs := &codegen.CommandSpecFile{}
-	panicIfError(codegen.DeserializeJsonFile("commands.json", commandSpecs))
+	panicIfError(codegen.DeserializeJsonFile("pkg/commandhandlers/commands.json", commandSpecs))
 	panicIfError(commandSpecs.Validate())
 
 	eventDefs, eventStructsAsGoCode := codegen.ProcessEvents(domainSpecs)
