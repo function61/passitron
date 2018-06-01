@@ -19,7 +19,7 @@ import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getSecrets} f
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
-import {unrecognizedValue} from 'utils';
+import {relativeDateFormat, unrecognizedValue} from 'utils';
 
 interface KeylistAccessorProps {
 	account: string;
@@ -38,7 +38,7 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 		const keyMaybe = this.state.foundKeyItem ?
 			<div>
 				<span className="label label-primary">{this.state.foundKeyItem.Value}</span>
-				<span data-to-clipboard={this.state.foundKeyItem.Value} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</span>
+				<span data-to-clipboard={this.state.foundKeyItem.Value} onClick={(e) => { elToClipboard(e); }} className="fauxlink margin-left">📋</span>
 			</div> : null;
 
 		return <div>
@@ -94,7 +94,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		return <DefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
 			<h1>
-				{account.Title}
+				<span title={relativeDateFormat(account.Created)}>{account.Title}</span>
 				&nbsp;
 				<Dropdown>
 					<CommandLink command={AccountRename(account.Id, account.Title)} />
@@ -139,7 +139,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			case SecretKind.SshKey:
 				return <tr key={secret.Id}>
 					<th>
-						SSH public key
+						<span title={relativeDateFormat(secret.Created)}>SSH public key</span>
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td>{secret.SshPublicKeyAuthorized}</td>
@@ -148,7 +148,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			case SecretKind.Password:
 				return <tr key={secret.Id}>
 					<th>
-						Password
+						<span title={relativeDateFormat(secret.Created)}>Password</span>
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td><SecretReveal secret={secret.Password} /></td>
@@ -157,7 +157,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			case SecretKind.OtpToken:
 				return <tr key={secret.Id}>
 					<th>
-						OTP
+						<span title={relativeDateFormat(secret.Created)}>OTP code</span>
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td>{exposedSecret.OtpProof}</td>
@@ -166,7 +166,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 			case SecretKind.Keylist:
 				return <tr key={secret.Id}>
 					<th>
-						Keylist
+						<span title={relativeDateFormat(secret.Created)}>Keylist</span>
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td colSpan={2}>{secret.Title}

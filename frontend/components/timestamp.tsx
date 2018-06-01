@@ -1,9 +1,5 @@
-import moment = require('moment');
 import * as React from 'react';
-
-function relativeDateFormat(dateIso: string): string {
-	return moment(dateIso).fromNow();
-}
+import {relativeDateFormat} from 'utils';
 
 interface TimestampProps {
 	ts: string;
