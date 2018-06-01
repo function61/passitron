@@ -42,7 +42,7 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 			</div> : null;
 
 		return <div>
-			<input className="form-control" type="text" value={this.state.input} onChange={(e) => { this.onType(e); }} placeholder={this.props.secret.KeylistKeyExample} />
+			<input className="form-control" style={{ width: '200px', display: 'inline-block' }} type="text" value={this.state.input} onChange={(e) => { this.onType(e); }} placeholder={this.props.secret.KeylistKeyExample} />
 
 			<button className="btn btn-default" type="submit" onClick={() => { this.onSubmit(); }}>Get</button>
 
