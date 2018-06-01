@@ -23,3 +23,7 @@ body {
 .hovericon:hover {
 	opacity: 1.0
 }
+
+table.th-align-right th {
+	text-align: right;
+}

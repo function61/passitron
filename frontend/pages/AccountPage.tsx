@@ -108,22 +108,22 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				</Dropdown>
 			</h1>
 
-			<table className="table table-striped">
+			<table className="table table-striped th-align-right">
 			<tbody>
 				<tr>
-					<td>
+					<th>
 						Username
 						<CommandIcon command={AccountChangeUsername(account.Id, account.Username)} />
-					</td>
+					</th>
 					<td>{account.Username}</td>
 					<td data-to-clipboard={account.Username} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>
 				{secretRows}
 				<tr>
-					<td>
+					<th>
 						Description
 						<CommandIcon command={AccountChangeDescription(account.Id, account.Description)} />
-					</td>
+					</th>
 					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}>{account.Description}</td>
 					<td></td>
 				</tr>
@@ -138,37 +138,37 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 		switch (secret.Kind) {
 			case SecretKind.SshKey:
 				return <tr key={secret.Id}>
-					<td>
+					<th>
 						SSH public key
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</td>
+					</th>
 					<td>{secret.SshPublicKeyAuthorized}</td>
 					<td></td>
 				</tr>;
 			case SecretKind.Password:
 				return <tr key={secret.Id}>
-					<td>
+					<th>
 						Password
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</td>
+					</th>
 					<td><SecretReveal secret={secret.Password} /></td>
 					<td data-to-clipboard={secret.Password} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
 				return <tr key={secret.Id}>
-					<td>
+					<th>
 						OTP
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</td>
+					</th>
 					<td>{exposedSecret.OtpProof}</td>
 					<td data-to-clipboard={exposedSecret.OtpProof} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.Keylist:
 				return <tr key={secret.Id}>
-					<td>
+					<th>
 						Keylist
 						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</td>
+					</th>
 					<td colSpan={2}>{secret.Title}
 						<KeylistAccessor account={account.Id} secret={secret} />
 					</td>
