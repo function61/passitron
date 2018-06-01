@@ -26,7 +26,7 @@ export default class ImportOtpToken extends React.Component<ImportOtpTokenProps,
 		return <DefaultLayout title="Import OTP token" breadcrumbs={breadcrumbs}>
 			<h1>Import OTP token from QR code: {this.props.account}</h1>
 
-			<input type="file" id="upload" onChange={(e) => this.fileChange(e)} />
+			<input type="file" id="upload" onChange={(e) => { this.fileChange(e); }} />
 
 			{maybeSubmit}
 		</DefaultLayout>;

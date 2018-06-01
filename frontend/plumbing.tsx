@@ -70,7 +70,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			</div>;
 		});
 
-		return <form onSubmit={(e) => this.onInternalEnterSubmit(e)}>
+		return <form onSubmit={(e) => { this.onInternalEnterSubmit(e); }}>
 			{fieldGroups}
 		</form>;
 	}

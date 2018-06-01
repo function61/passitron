@@ -23,7 +23,7 @@ export class App extends React.Component<{}, AppState> {
 
 		// need to create create bound proxy, because this object function
 		// ref (bound one) must be used for removeEventListener()
-		this.listenerProxy = () => this.hashChanged();
+		this.listenerProxy = () => { this.hashChanged(); };
 
 		this.state = {
 			hash: document.location.hash,

@@ -9,8 +9,10 @@ interface SecretRevealState {
 }
 
 export class SecretReveal extends React.Component<SecretRevealProps, SecretRevealState> {
+	state = { open: false };
+
 	render() {
-		if (this.state && this.state.open) {
+		if (this.state.open) {
 			return <span>{this.props.secret}</span>;
 		}
 
@@ -18,7 +20,7 @@ export class SecretReveal extends React.Component<SecretRevealProps, SecretRevea
 			********
 			<span
 				className="glyphicon glyphicon-eye-open hovericon margin-left"
-				onClick={() => this.setState({open: true})} />
+				onClick={() => { this.setState({open: true}); }} />
 		</span>;
 	}
 }

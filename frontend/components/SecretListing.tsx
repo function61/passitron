@@ -32,7 +32,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 					<th></th>
 					<th>
 						Title<br />
-						<input type="text" style={{width: '250px'}} className="form-control" defaultValue={this.props.searchTerm} onKeyPress={(e) => this.onSubmit(e)} placeholder="Search .." />
+						<input type="text" style={{width: '250px'}} className="form-control" defaultValue={this.props.searchTerm} onKeyPress={(e) => { this.onSubmit(e); }} placeholder="Search .." />
 					</th>
 					<th>Username</th>
 				</tr>
