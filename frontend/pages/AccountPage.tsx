@@ -148,7 +148,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<th>
 						<span title={relativeDateFormat(secret.Created)}>SSH public key</span>
-						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td>{secret.SshPublicKeyAuthorized}</td>
 					<td></td>
@@ -157,7 +157,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<th>
 						<span title={relativeDateFormat(secret.Created)}>Password</span>
-						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td><SecretReveal secret={secret.Password} /></td>
 					<td data-to-clipboard={secret.Password} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
@@ -166,7 +166,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<th>
 						<span title={relativeDateFormat(secret.Created)}>OTP code</span>
-						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td>{exposedSecret.OtpProof}</td>
 					<td data-to-clipboard={exposedSecret.OtpProof} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
@@ -175,7 +175,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return <tr key={secret.Id}>
 					<th>
 						<span title={relativeDateFormat(secret.Created)}>Keylist</span>
-						<CommandIcon type="remove" command={AccountDeleteSecret(account.Id, secret.Id)} />
+						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
 					<td colSpan={2}>{secret.Title}
 						<KeylistAccessor account={account.Id} secret={secret} />

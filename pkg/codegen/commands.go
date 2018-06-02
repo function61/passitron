@@ -19,11 +19,12 @@ func (c *CommandSpecFile) Validate() error {
 }
 
 type CommandSpec struct {
-	Command   string              `json:"command"`
-	Title     string              `json:"title"`
-	Anonymous bool                `json:"anonymous"`
-	CtorArgs  []string            `json:"ctor"`
-	Fields    []*CommandFieldSpec `json:"fields"`
+	Command    string              `json:"command"`
+	Title      string              `json:"title"`
+	CrudNature string              `json:"crudNature"`
+	Anonymous  bool                `json:"anonymous"`
+	CtorArgs   []string            `json:"ctor"`
+	Fields     []*CommandFieldSpec `json:"fields"`
 }
 
 func (c *CommandSpec) AsGoStructName() string {
@@ -144,53 +145,35 @@ func (c *CommandSpec) FieldsForTypeScript() string {
 	for _, fieldSpec := range c.Fields {
 		fieldSerialized := ""
 
-		defVal := emptyString
-		for _, ctorArg := range c.CtorArgs {
-			if ctorArg == fieldSpec.Key {
-				defVal = fieldSpec.Key
-				break
+		fieldToTypescript := func(fieldSpec *CommandFieldSpec, tsKind string) string {
+			defVal := emptyString
+			for _, ctorArg := range c.CtorArgs {
+				if ctorArg == fieldSpec.Key {
+					defVal = fieldSpec.Key
+					break
+				}
 			}
-		}
 
-		required := "true"
-		if fieldSpec.Optional {
-			required = "false"
+			return fmt.Sprintf(
+				`{ Key: '%s', Required: %v, HideIfDefaultValue: %v, Kind: CommandFieldKind.%s, DefaultValueString: %s },`,
+				fieldSpec.Key,
+				!fieldSpec.Optional,
+				fieldSpec.HideIfDefaultValue,
+				tsKind,
+				defVal)
 		}
 
 		switch fieldSpec.Type {
 		case "text":
-			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Text, DefaultValueString: %s },`,
-				fieldSpec.Key,
-				required,
-				fieldSpec.HideIfDefaultValue,
-				defVal)
+			fieldSerialized = fieldToTypescript(fieldSpec, "Text")
 		case "multiline":
-			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Multiline, DefaultValueString: %s },`,
-				fieldSpec.Key,
-				required,
-				fieldSpec.HideIfDefaultValue,
-				defVal)
+			fieldSerialized = fieldToTypescript(fieldSpec, "Multiline")
 		case "password":
-			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Password, DefaultValueString: %s },`,
-				fieldSpec.Key,
-				required,
-				fieldSpec.HideIfDefaultValue,
-				defVal)
+			fieldSerialized = fieldToTypescript(fieldSpec, "Password")
 		case "checkbox":
-			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Checkbox },`,
-				fieldSpec.Key,
-				required,
-				fieldSpec.HideIfDefaultValue)
+			fieldSerialized = fieldToTypescript(fieldSpec, "Checkbox")
 		case "integer":
-			fieldSerialized = fmt.Sprintf(
-				`{ Key: '%s', Required: %s, HideIfDefaultValue: %v, Kind: CommandFieldKind.Integer },`,
-				fieldSpec.Key,
-				required,
-				fieldSpec.HideIfDefaultValue)
+			fieldSerialized = fieldToTypescript(fieldSpec, "Integer")
 		default:
 			panic(fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type))
 		}

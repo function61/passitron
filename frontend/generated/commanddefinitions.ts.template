@@ -1,4 +1,4 @@
-import {CommandDefinition, CommandFieldKind} from 'commandtypes';
+import {CommandDefinition, CommandFieldKind, CrudNature} from 'commandtypes';
 
 // WARNING: generated file
 
@@ -7,6 +7,7 @@ export function {{.AsGoStructName}}({{.CtorArgsForTypeScript}}): CommandDefiniti
 	return {
 		key: '{{.Command}}',
 		title: '{{.Title}}',
+		crudNature: CrudNature.{{.CrudNature}},
 		fields: [
 {{.FieldsForTypeScript}}
 		],

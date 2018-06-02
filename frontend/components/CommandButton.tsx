@@ -1,8 +1,9 @@
-import {CommandDefinition} from 'commandtypes';
+import {CommandDefinition, CrudNature} from 'commandtypes';
 import {ModalDialog} from 'components/modaldialog';
 import {defaultErrorHandler} from 'generated/restapi';
 import {CommandChangesArgs, CommandPagelet, initialCommandState} from 'plumbing';
 import * as React from 'react';
+import {unrecognizedValue} from 'utils';
 
 interface CommandButtonProps {
 	command: CommandDefinition;
@@ -33,6 +34,7 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 				title={commandTitle}
 				onSave={() => { this.save(); }}
 				loading={this.state.cmdState.processing}
+				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
 				submitEnabled={this.state.cmdState.submitEnabled}
 			>
 				<CommandPagelet
@@ -50,11 +52,8 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 	}
 }
 
-type EditType = 'add' | 'edit' | 'remove';
-
 interface CommandIconProps {
 	command: CommandDefinition;
-	type?: EditType;
 }
 
 interface CommandIconState {
@@ -62,11 +61,30 @@ interface CommandIconState {
 	cmdState: CommandChangesArgs;
 }
 
-const typeToIcon: {[key: string]: string} = {
-	add: 'glyphicon-plus',
-	edit: 'glyphicon-pencil',
-	remove: 'glyphicon-remove',
-};
+function commandCrudNatureToIcon(nature: CrudNature): string {
+	switch (nature) {
+	case CrudNature.create:
+		return 'glyphicon-plus';
+	case CrudNature.update:
+		return 'glyphicon-pencil';
+	case CrudNature.delete:
+		return 'glyphicon-remove';
+	default:
+		throw unrecognizedValue(nature);
+	}
+}
+
+function btnClassFromCrudNature(nature: CrudNature): string {
+	switch (nature) {
+	case CrudNature.create:
+	case CrudNature.update:
+		return 'btn-primary';
+	case CrudNature.delete:
+		return 'btn-danger';
+	default:
+		throw unrecognizedValue(nature);
+	}
+}
 
 export class CommandIcon extends React.Component<CommandIconProps, CommandIconState> {
 	state = { dialogOpen: false, cmdState: initialCommandState() };
@@ -83,14 +101,14 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 	render() {
 		const commandTitle = this.props.command.title;
 
-		const type = this.props.type ? this.props.type : 'edit';
-		const icon = typeToIcon[type];
+		const icon = commandCrudNatureToIcon(this.props.command.crudNature);
 
 		const maybeDialog = this.state.dialogOpen ?
 			<ModalDialog
 				title={commandTitle}
 				onSave={() => { this.save(); }}
 				loading={this.state.cmdState.processing}
+				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
 				submitEnabled={this.state.cmdState.submitEnabled}
 			>
 				<CommandPagelet
@@ -135,6 +153,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 				title={commandTitle}
 				onSave={() => { this.save(); }}
 				loading={this.state.cmdState.processing}
+				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
 				submitEnabled={this.state.cmdState.submitEnabled}
 			>
 				<CommandPagelet

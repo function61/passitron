@@ -1,7 +1,14 @@
 
+export enum CrudNature {
+	update = 'update',
+	delete = 'delete',
+	create = 'create',
+}
+
 export interface CommandDefinition {
 	title: string;
 	key: string;
+	crudNature: CrudNature;
 	fields: CommandField[];
 }
 

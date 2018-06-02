@@ -2,6 +2,7 @@
 	{
 		"command": "account.Rename",
 		"ctor": ["Account","Title"],
+		"crudNature": "update",
 		"title": "Rename account",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
@@ -11,6 +12,7 @@
 	{
 		"command": "account.ChangeUsername",
 		"ctor": ["Account","Username"],
+		"crudNature": "update",
 		"title": "Change username",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
@@ -20,6 +22,7 @@
 	{
 		"command": "account.ChangeDescription",
 		"ctor": ["Account","Description"],
+		"crudNature": "update",
 		"title": "Change description",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
@@ -29,6 +32,7 @@
 	{
 		"command": "account.DeleteSecret",
 		"ctor": ["Account","Secret"],
+		"crudNature": "delete",
 		"title": "Delete secret",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
@@ -38,6 +42,7 @@
 	{
 		"command": "account.CreateFolder",
 		"ctor": ["Parent"],
+		"crudNature": "create",
 		"title": "+ Folder",
 		"fields": [
 			{ "key": "Parent", "hideIfDefaultValue": true },
@@ -47,6 +52,7 @@
 	{
 		"command": "account.RenameFolder",
 		"ctor": ["Id","Name"],
+		"crudNature": "update",
 		"title": "Rename",
 		"fields": [
 			{ "key": "Id", "hideIfDefaultValue": true },
@@ -56,6 +62,7 @@
 	{
 		"command": "account.MoveFolder",
 		"ctor": ["Id"],
+		"crudNature": "update",
 		"title": "Move",
 		"fields": [
 			{ "key": "Id", "hideIfDefaultValue": true },
@@ -65,6 +72,7 @@
 	{
 		"command": "account.Create",
 		"ctor": ["FolderId"],
+		"crudNature": "create",
 		"title": "+ Account",
 		"fields": [
 			{ "key": "FolderId", "hideIfDefaultValue": true },
@@ -76,6 +84,7 @@
 	{
 		"command": "account.Delete",
 		"ctor": ["Id"],
+		"crudNature": "delete",
 		"title": "Delete",
 		"fields": [
 			{ "key": "Id", "hideIfDefaultValue": true },
@@ -85,6 +94,7 @@
 	{
 		"command": "account.AddPassword",
 		"ctor": ["Id"],
+		"crudNature": "create",
 		"title": "+ Password",
 		"fields": [
 			{ "key": "Id", "hideIfDefaultValue": true },
@@ -95,6 +105,7 @@
 	{
 		"command": "account.AddKeylist",
 		"ctor": ["Account"],
+		"crudNature": "create",
 		"title": "+ Keylist",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
@@ -108,6 +119,7 @@
 	{
 		"command": "account.AddSshKey",
 		"ctor": ["Id"],
+		"crudNature": "create",
 		"title": "+ SSH key",
 		"fields": [
 			{ "key": "Id", "hideIfDefaultValue": true },
@@ -117,6 +129,7 @@
 	{
 		"command": "account.AddOtpToken",
 		"ctor": ["Account","OtpProvisioningUrl"],
+		"crudNature": "create",
 		"title": "Add OTP token",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
@@ -126,6 +139,7 @@
 	{
 		"command": "database.ChangeMasterPassword",
 		"ctor": [],
+		"crudNature": "update",
 		"title": "Change master password",
 		"fields": [
 			{ "key": "NewMasterPassword", "type": "password" },
@@ -136,6 +150,7 @@
 		"command": "database.Unseal",
 		"anonymous": true,
 		"ctor": [],
+		"crudNature": "update",
 		"title": "Unseal database",
 		"fields": [
 			{ "key": "MasterPassword", "type": "password" }
@@ -144,6 +159,7 @@
 	{
 		"command": "database.ExportToKeepass",
 		"ctor": [],
+		"crudNature": "update",
 		"title": "Export to KeePass format",
 		"fields": []
 	}

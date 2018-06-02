@@ -2,8 +2,14 @@
 {{.Command}}
 ----------
 
-| key | type | optional |
-|-----|------|----------|
+| Details         |                 |
+|-----------------|-----------------|
+| Title           | {{.Title}}      |
+| Anonymous usage | {{.Anonymous}}  |
+| CRUD-nature     | {{.CrudNature}} |
+
+| Field | Type | Optional |
+|-------|------|----------|
 {{range .Fields}}| {{.Key}} | {{.Type}} | {{.Optional}} |
 {{end}}
 {{end}}
