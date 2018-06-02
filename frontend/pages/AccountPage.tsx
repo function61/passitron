@@ -3,6 +3,7 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
 import {Loading} from 'components/loading';
+import {OptionalContent} from 'components/optionalcontent';
 import {SecretReveal} from 'components/secretreveal';
 import {Account, ExposedSecret, Folder, FolderResponse, Secret, SecretKeylistKey} from 'generated/apitypes';
 import {
@@ -122,7 +123,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						Username
 						<CommandIcon command={AccountChangeUsername(account.Id, account.Username)} />
 					</th>
-					<td>{account.Username}</td>
+					<td><OptionalContent>{account.Username}</OptionalContent></td>
 					<td data-to-clipboard={account.Username} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>
 				{secretRows}
@@ -131,7 +132,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						Description
 						<CommandIcon command={AccountChangeDescription(account.Id, account.Description)} />
 					</th>
-					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}>{account.Description}</td>
+					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}><OptionalContent>{account.Description}</OptionalContent></td>
 					<td></td>
 				</tr>
 			</tbody>
