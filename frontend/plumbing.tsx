@@ -6,8 +6,19 @@ import {unrecognizedValue} from 'utils';
 
 export type CommandSubmitListener = () => void;
 
+export interface CommandChangesArgs {
+	submitEnabled: boolean;
+}
+
+export function initialCommandState(): CommandChangesArgs {
+	return { submitEnabled: false };
+}
+
+export type CommandChangesListener = (cmdState: CommandChangesArgs) => void;
+
 interface CommandPageletProps {
 	command: CommandDefinition;
+	onChanges: CommandChangesListener;
 	onSubmit: CommandSubmitListener;
 }
 
@@ -53,6 +64,12 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		});
 
 		this.state = state;
+
+		// so that initial validation state is used - otherwise only the
+		// first onchange would yield in current state
+		this.props.onChanges({
+			submitEnabled: this.isEverythingValid(),
+		});
 	}
 
 	validate(field: CommandField, value: any): boolean {
@@ -106,9 +123,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 	// official submit, which should trigger validation
 	submit(): Promise<void> {
-		const someInvalid = Object.keys(this.state.validationStatuses).some((key) => !this.state.validationStatuses[key]);
-
-		if (someInvalid) {
+		if (!this.isEverythingValid()) {
 			return Promise.reject(new Error('Invalid form data'));
 		}
 
@@ -123,12 +138,21 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		}, defaultErrorHandler);
 	}
 
+	private isEverythingValid() {
+		return Object.keys(this.state.validationStatuses).every((key) => this.state.validationStatuses[key]);
+	}
+
 	private updateFieldValue(key: string, value: any) {
 		const field = this.fieldByKey(key);
 
 		this.state.values[key] = value;
 		this.state.validationStatuses[field.Key] = this.validate(field, value);
+
 		this.setState(this.state);
+
+		this.props.onChanges({
+			submitEnabled: this.isEverythingValid(),
+		});
 	}
 
 	private onInputChange(e: React.FormEvent<HTMLInputElement>) {

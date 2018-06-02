@@ -5,6 +5,7 @@ import {uniqueDomId} from 'utils';
 interface ModalDialogProps {
 	title: string;
 	onSave: () => void;
+	submitEnabled: boolean;
 	children: JSX.Element | JSX.Element[];
 }
 
@@ -35,7 +36,7 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 					</div>
 					<div className="modal-footer">
 						<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="button" onClick={() => { this.save(); }} className="btn btn-primary">Save changes</button>
+						<button type="button" onClick={() => { this.save(); }} className="btn btn-primary" disabled={!this.props.submitEnabled}>Save changes</button>
 					</div>
 				</div>
 			</div>
