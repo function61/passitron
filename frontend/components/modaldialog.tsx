@@ -1,3 +1,4 @@
+import {Loading} from 'components/loading';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {uniqueDomId} from 'utils';
@@ -6,6 +7,7 @@ interface ModalDialogProps {
 	title: string;
 	onSave: () => void;
 	submitEnabled: boolean;
+	loading: boolean;
 	children: JSX.Element | JSX.Element[];
 }
 
@@ -35,6 +37,7 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 						{this.props.children}
 					</div>
 					<div className="modal-footer">
+						{this.props.loading ? <Loading /> : null}
 						<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
 						<button type="button" onClick={() => { this.save(); }} className="btn btn-primary" disabled={!this.props.submitEnabled}>Save changes</button>
 					</div>

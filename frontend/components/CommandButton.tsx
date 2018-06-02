@@ -29,7 +29,12 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 		const commandTitle = this.props.command.title;
 
 		const maybeDialog = this.state.dialogOpen ?
-			<ModalDialog title={commandTitle} onSave={() => { this.save(); }} submitEnabled={this.state.cmdState.submitEnabled}>
+			<ModalDialog
+				title={commandTitle}
+				onSave={() => { this.save(); }}
+				loading={this.state.cmdState.processing}
+				submitEnabled={this.state.cmdState.submitEnabled}
+			>
 				<CommandPagelet
 					command={this.props.command}
 					onSubmit={() => { this.save(); }}
@@ -82,7 +87,12 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 		const icon = typeToIcon[type];
 
 		const maybeDialog = this.state.dialogOpen ?
-			<ModalDialog title={commandTitle} onSave={() => { this.save(); }} submitEnabled={this.state.cmdState.submitEnabled}>
+			<ModalDialog
+				title={commandTitle}
+				onSave={() => { this.save(); }}
+				loading={this.state.cmdState.processing}
+				submitEnabled={this.state.cmdState.submitEnabled}
+			>
 				<CommandPagelet
 					command={this.props.command}
 					onSubmit={() => { this.save(); }}
@@ -121,7 +131,12 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 		const commandTitle = this.props.command.title;
 
 		const maybeDialog = this.state.dialogOpen ?
-			<ModalDialog title={commandTitle} onSave={() => { this.save(); }} submitEnabled={this.state.cmdState.submitEnabled}>
+			<ModalDialog
+				title={commandTitle}
+				onSave={() => { this.save(); }}
+				loading={this.state.cmdState.processing}
+				submitEnabled={this.state.cmdState.submitEnabled}
+			>
 				<CommandPagelet
 					command={this.props.command}
 					onSubmit={() => { this.save(); }}

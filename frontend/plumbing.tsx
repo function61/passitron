@@ -8,10 +8,12 @@ export type CommandSubmitListener = () => void;
 
 export interface CommandChangesArgs {
 	submitEnabled: boolean;
+	// server is currently processing this request?
+	processing: boolean;
 }
 
 export function initialCommandState(): CommandChangesArgs {
-	return { submitEnabled: false };
+	return { submitEnabled: false, processing: false };
 }
 
 export type CommandChangesListener = (cmdState: CommandChangesArgs) => void;
@@ -67,9 +69,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 		// so that initial validation state is used - otherwise only the
 		// first onchange would yield in current state
-		this.props.onChanges({
-			submitEnabled: this.isEverythingValid(),
-		});
+		this.broadcastChanges();
 	}
 
 	validate(field: CommandField, value: any): boolean {
@@ -127,10 +127,29 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			return Promise.reject(new Error('Invalid form data'));
 		}
 
-		return this.execute();
+		// disable submit button while server is processing
+		this.props.onChanges({
+			processing: true,
+			submitEnabled: false,
+		});
+
+		const execResult = this.execute();
+
+		// whether fulfilled or rejected, return submitEnabled
+		// state back to what it should be
+		execResult.then(() => { this.broadcastChanges(); }, () => { this.broadcastChanges(); });
+
+		return execResult;
 	}
 
-	onInternalEnterSubmit(e: React.FormEvent<HTMLFormElement>) {
+	private broadcastChanges() {
+		this.props.onChanges({
+			submitEnabled: this.isEverythingValid(),
+			processing: false,
+		});
+	}
+
+	private onInternalEnterSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault(); // prevent browser-based submit
 
 		this.submit().then(() => {
@@ -150,9 +169,9 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 		this.setState(this.state);
 
-		this.props.onChanges({
-			submitEnabled: this.isEverythingValid(),
-		});
+		// TODO: this sets processing: false. this should not be
+		// done while the server is actually processing
+		this.broadcastChanges();
 	}
 
 	private onInputChange(e: React.FormEvent<HTMLInputElement>) {
