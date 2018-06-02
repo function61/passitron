@@ -1,6 +1,6 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
-import {DatabaseChangeMasterPassword, DatabaseExportToKeepass, DatabaseUnseal} from 'generated/commanddefinitions';
+import {DatabaseChangeMasterPassword, DatabaseExportToKeepass} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
@@ -13,7 +13,6 @@ export default class SettingsPage extends React.Component<{}, {}> {
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>{this.title}</h1>
 
-			<CommandButton command={DatabaseUnseal()}></CommandButton>
 			<CommandButton command={DatabaseChangeMasterPassword()}></CommandButton>
 
 			<h2>Export / import</h2>
