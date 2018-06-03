@@ -1,22 +1,45 @@
-import {WarningAlert} from 'components/alerts';
+import {SuccessAlert, WarningAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
+import {Loading} from 'components/loading';
 import {DatabaseUnseal} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
+import {RootFolderId} from 'generated/domain';
+import {coerceToStructuredErrorResponse, defaultErrorHandler, getFolder, isSealedError} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';
 
-export default class UnsealPage extends React.Component<{}, {}> {
+interface UnsealPageState {
+	unsealed: boolean;
+}
+
+export default class UnsealPage extends React.Component<{}, UnsealPageState> {
 	private title = 'Unseal';
 
+	componentDidMount() {
+		this.fetchData();
+	}
+
 	render() {
+		let content = <Loading />;
+
+		if (this.state) {
+			if (this.state.unsealed) {
+				content = <SuccessAlert text="Unsealed successfully." />;
+			} else {
+				content = <div>
+					<WarningAlert text="Database was sealed. Please unseal it." />
+
+					<CommandButton command={DatabaseUnseal()}></CommandButton>
+				</div>;
+			}
+		}
+
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<h1>{this.title}</h1>
 
-			<WarningAlert text="Database was sealed. Please unseal it." />
-
-			<CommandButton command={DatabaseUnseal()}></CommandButton>
+			{content}
 
 		</DefaultLayout>;
 	}
@@ -26,5 +49,20 @@ export default class UnsealPage extends React.Component<{}, {}> {
 			{url: indexRoute.buildUrl({}), title: RootFolderName},
 			{url: '', title: this.title},
 		];
+	}
+
+	private fetchData() {
+		// dummy request just to identify unsealed status
+		getFolder(RootFolderId).then(() => {
+			this.setState({ unsealed: true });
+		}, (err) => {
+			if (isSealedError(coerceToStructuredErrorResponse(err))) {
+				this.setState({ unsealed: false });
+				return;
+			}
+
+			// some other error
+			defaultErrorHandler(err);
+		});
 	}
 }

@@ -30,8 +30,12 @@ export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	alert(`${ser.error_code}: ${ser.error_description}`);
 }
 
+export function isSealedError(err: StructuredErrorResponse): boolean {
+	return err.error_code === 'database_is_sealed';
+}
+
 export function handleDatabaseSealed(err: StructuredErrorResponse): boolean {
-	if (err.error_code === 'database_is_sealed') {
+	if (isSealedError(err)) {
 		document.location.assign(unsealRoute.buildUrl({}));
 		return true;
 	}
@@ -41,7 +45,7 @@ export function handleDatabaseSealed(err: StructuredErrorResponse): boolean {
 
 export function coerceToStructuredErrorResponse(err: Error | StructuredErrorResponse): StructuredErrorResponse {
 	if (isStructuredErrorResponse(err)) {
-		return err
+		return err;
 	}
 
 	return { error_code: 'generic_error', error_description: err.toString() };
