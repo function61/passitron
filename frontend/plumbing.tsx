@@ -92,8 +92,13 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			</div>;
 		});
 
-		return <form onSubmit={(e) => { this.onInternalEnterSubmit(e); }}>
+		// hidden submit included because otherwise onSubmit does not work except if form has only one input
+		// https://stackoverflow.com/a/40400840
+
+		return <form onSubmit={(e) => { e.preventDefault(); this.onInternalEnterSubmit(e); }}>
 			{fieldGroups}
+
+			<input type="submit" style={{display: 'none'}} />
 
 			{this.state.submitError ? <p className="bg-danger">{this.state.submitError}</p> : null}
 		</form>;
