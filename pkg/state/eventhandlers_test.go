@@ -58,25 +58,31 @@ func addPassword(t *testing.T, st *State) {
 }
 
 func addKeylist(t *testing.T, st *State) {
-	event(st, domain.NewAccountKeylistAdded("acc1", "sec2", "Keylist 1234", []domain.AccountKeylistAddedKeysItem{
+	keyItems := []domain.AccountKeylistAddedKeysItem{
 		{Key: "01", Value: "9765"},
 		{Key: "02", Value: "8421"},
 		{Key: "03", Value: "1298"},
-	}, meta()))
+	}
+
+	event(st, domain.NewAccountKeylistAdded("acc1", "sec2", "Keylist 1234", keyItems, meta()))
 
 	wacc := st.WrappedAccountById("acc1")
 
 	ass.EqualInt(t, len(wacc.Secrets), 2)
 
-	ass.EqualString(t, wacc.Secrets[1].Secret.Id, "sec2")
-	ass.EqualString(t, string(wacc.Secrets[1].Secret.Kind), domain.SecretKindKeylist)
-	ass.EqualInt(t, len(wacc.Secrets[1].KeylistKeys), 3)
-	ass.EqualString(t, wacc.Secrets[1].KeylistKeys[0].Key, "01")
-	ass.EqualString(t, wacc.Secrets[1].KeylistKeys[0].Value, "9765")
-	ass.EqualString(t, wacc.Secrets[1].KeylistKeys[1].Key, "02")
-	ass.EqualString(t, wacc.Secrets[1].KeylistKeys[1].Value, "8421")
-	ass.EqualString(t, wacc.Secrets[1].KeylistKeys[2].Key, "03")
-	ass.EqualString(t, wacc.Secrets[1].KeylistKeys[2].Value, "1298")
+	wsecret := wacc.Secrets[1]
+
+	assertKeyItem := func (idx int, key string, value string) {
+		ass.EqualString(t, wsecret.KeylistKeys[idx].Key, key)
+		ass.EqualString(t, wsecret.KeylistKeys[idx].Value, value)
+	}
+
+	ass.EqualString(t, wsecret.Secret.Id, "sec2")
+	ass.EqualString(t, string(wsecret.Secret.Kind), domain.SecretKindKeylist)
+	ass.EqualInt(t, len(wsecret.KeylistKeys), 3)
+	assertKeyItem(0, "01", "9765")
+	assertKeyItem(1, "02", "8421")
+	assertKeyItem(2, "03", "1298")
 }
 
 func renameAccount(t *testing.T, st *State) {
@@ -85,9 +91,7 @@ func renameAccount(t *testing.T, st *State) {
 
 	event(st, domain.NewAccountRenamed("acc1", "Renamed example account", meta()))
 
-	wacc := st.WrappedAccountById("acc1")
-
-	ass.EqualString(t, wacc.Account.Title, "Renamed example account")
+	ass.EqualString(t, st.WrappedAccountById("acc1").Account.Title, "Renamed example account")
 }
 
 func deleteAccount(t *testing.T, st *State) {
