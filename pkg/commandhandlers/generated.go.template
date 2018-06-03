@@ -28,7 +28,7 @@ func (x *{{.AsGoStructName}}) Validate() error {
 // authentication
 
 {{range .CommandSpecs}}
-func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return !{{.Anonymous}} }{{end}}
+func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return {{not .Anonymous}} }{{end}}
 
 // builders
 
