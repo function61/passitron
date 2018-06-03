@@ -1,5 +1,5 @@
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
-import {coerceToStructuredErrorResponse, defaultErrorHandler, handleDatabaseSealed, StructuredErrorResponse} from 'generated/restapi';
+import {coerceToStructuredErrorResponse, handleDatabaseSealed, StructuredErrorResponse} from 'generated/restapi';
 import {httpMustBeOk} from 'httputil';
 import * as React from 'react';
 import {unrecognizedValue} from 'utils';
@@ -171,9 +171,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 	private onInternalEnterSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault(); // prevent browser-based submit
 
-		this.submit().then(() => {
-			document.location.reload();
-		}, defaultErrorHandler);
+		this.props.onSubmit();
 	}
 
 	private isEverythingValid() {
