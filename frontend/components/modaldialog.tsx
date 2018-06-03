@@ -39,7 +39,7 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 					</div>
 					<div className="modal-footer">
 						{this.props.loading ? <Loading /> : null}
-						<button type="button" className="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" className="btn btn-default" data-dismiss="modal" disabled={!this.props.submitEnabled}>Cancel</button>
 						<button type="button" onClick={() => { this.save(); }} className={`btn ${this.props.submitBtnClass}`} disabled={!this.props.submitEnabled}>{this.props.title}</button>
 					</div>
 				</div>
