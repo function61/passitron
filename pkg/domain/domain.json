@@ -76,7 +76,7 @@
 	},
 	{
 		"event": "account.OtpTokenAdded",
-		"ctor": ["Id", "Account", "OtpProvisioningUrl"],
+		"ctor": ["Account", "Id", "OtpProvisioningUrl"],
 		"fields": [
 			{
 				"key": "Id", "type": {"_": "string"}
