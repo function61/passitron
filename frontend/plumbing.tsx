@@ -74,14 +74,6 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		this.broadcastChanges();
 	}
 
-	validate(field: CommandField, value: any): boolean {
-		if (field.Required && (value === undefined || value === null || value === '')) {
-			return false;
-		}
-
-		return true; // if no errors found
-	}
-
 	render() {
 		const shouldShow = (field: CommandField) =>
 			!field.HideIfDefaultValue || !(field.Key in this.state.fieldsThatWerePrefilled);
@@ -135,6 +127,14 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		});
 
 		return execResult;
+	}
+
+	private validate(field: CommandField, value: any): boolean {
+		if (field.Required && (value === undefined || value === null || value === '')) {
+			return false;
+		}
+
+		return true; // if no errors found
 	}
 
 	private execute(): Promise<void> {
