@@ -20,6 +20,18 @@ type State struct {
 	S3ExportSecret string
 }
 
+func NewTesting() *State {
+	s := &State{
+		masterPassword: "",
+		State:          NewStatefile(),
+		sealed:         false,
+	}
+	s.EventLog = eventlog.NewForTesting(func(event domain.Event) error {
+		return domain.DispatchEvent(event, s)
+	})
+	return s
+}
+
 func New() *State {
 	// state from the event log is computed & populated here
 	s := &State{

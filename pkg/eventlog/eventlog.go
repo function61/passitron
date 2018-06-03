@@ -51,6 +51,10 @@ type EventLog struct {
 	eventAdded func(domain.Event) error
 }
 
+func NewForTesting(eventAdded func(domain.Event) error) *EventLog {
+	return New("/dev/null", eventAdded)
+}
+
 func New(filename string, eventAdded func(domain.Event) error) *EventLog {
 	log.Printf("Opening stream log from %s", filename)
 
