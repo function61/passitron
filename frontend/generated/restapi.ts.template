@@ -21,20 +21,38 @@ export function searchAccounts(query: string): Promise<Account[]> {
 }
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
-	if (isStructuredErrorResponse(err) && err.error_code === 'database_is_sealed') {
-		document.location.assign(unsealRoute.buildUrl({}));
+	const ser = coerceToStructuredErrorResponse(err);
+
+	if (handleDatabaseSealed(ser)) {
 		return;
 	}
 
-	alert('Error: ' + err.toString());
+	alert(`${ser.error_code}: ${ser.error_description}`);
 }
 
-interface StructuredErrorResponse {
+export function handleDatabaseSealed(err: StructuredErrorResponse): boolean {
+	if (err.error_code === 'database_is_sealed') {
+		document.location.assign(unsealRoute.buildUrl({}));
+		return true;
+	}
+
+	return false;
+}
+
+export function coerceToStructuredErrorResponse(err: Error | StructuredErrorResponse): StructuredErrorResponse {
+	if (isStructuredErrorResponse(err)) {
+		return err
+	}
+
+	return { error_code: 'generic_error', error_description: err.toString() };
+}
+
+export interface StructuredErrorResponse {
 	error_code: string;
 	error_description: string;
 }
 
-function isStructuredErrorResponse(err: StructuredErrorResponse | {}): err is StructuredErrorResponse {
+export function isStructuredErrorResponse(err: StructuredErrorResponse | {}): err is StructuredErrorResponse {
 	return 'error_code' in (err as StructuredErrorResponse);
 }
 

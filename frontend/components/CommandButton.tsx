@@ -1,6 +1,5 @@
 import {CommandDefinition, CrudNature} from 'commandtypes';
 import {ModalDialog} from 'components/modaldialog';
-import {defaultErrorHandler} from 'generated/restapi';
 import {CommandChangesArgs, CommandPagelet, initialCommandState} from 'plumbing';
 import * as React from 'react';
 import {unrecognizedValue} from 'utils';
@@ -23,7 +22,7 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 		// FIXME: remove duplication of this code
 		this.cmdPagelet!.submit().then(() => {
 			document.location.reload();
-		}, defaultErrorHandler);
+		}, () => { /* noop */ });
 	}
 
 	render() {
@@ -95,7 +94,7 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 		// FIXME: remove duplication of this code
 		this.cmdPagelet!.submit().then(() => {
 			document.location.reload();
-		}, defaultErrorHandler);
+		}, () => { /* noop */ });
 	}
 
 	render() {
@@ -142,7 +141,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 		// FIXME: remove duplication of this code
 		this.cmdPagelet!.submit().then(() => {
 			document.location.reload();
-		}, defaultErrorHandler);
+		}, () => { /* noop */ });
 	}
 
 	render() {

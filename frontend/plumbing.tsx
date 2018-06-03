@@ -1,5 +1,5 @@
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
-import {defaultErrorHandler} from 'generated/restapi';
+import {coerceToStructuredErrorResponse, defaultErrorHandler, handleDatabaseSealed, StructuredErrorResponse} from 'generated/restapi';
 import {httpMustBeOk} from 'httputil';
 import * as React from 'react';
 import {unrecognizedValue} from 'utils';
@@ -27,6 +27,7 @@ interface CommandPageletProps {
 interface CommandPageletState {
 	values: {[key: string]: any};
 	validationStatuses: {[key: string]: boolean};
+	submitError: string;
 	fieldsThatWerePrefilled: {[key: string]: boolean};
 }
 
@@ -37,6 +38,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		const state: CommandPageletState = {
 			values: {},
 			validationStatuses: {},
+			submitError: '',
 			fieldsThatWerePrefilled: {},
 		};
 
@@ -100,10 +102,46 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 		return <form onSubmit={(e) => { this.onInternalEnterSubmit(e); }}>
 			{fieldGroups}
+
+			{this.state.submitError ? <p className="bg-danger">{this.state.submitError}</p> : null}
 		</form>;
 	}
 
-	execute(): Promise<void> {
+	// official submit, which should trigger validation
+	submit(): Promise<void> {
+		// disable submit button while server is processing
+		this.props.onChanges({
+			processing: true,
+			submitEnabled: false,
+		});
+
+		this.setState({ submitError: '' });
+
+		const execResult = this.execute();
+
+		// whether fulfilled or rejected, return submitEnabled
+		// state back to what it should be
+		execResult.then(() => {
+			this.broadcastChanges();
+		}, (err: Error | StructuredErrorResponse) => {
+			const ser = coerceToStructuredErrorResponse(err);
+			if (handleDatabaseSealed(ser)) {
+				return;
+			}
+
+			this.setState({ submitError: `${ser.error_code}: ${ser.error_description}` });
+
+			this.broadcastChanges();
+		});
+
+		return execResult;
+	}
+
+	private execute(): Promise<void> {
+		if (!this.isEverythingValid()) {
+			return Promise.reject(new Error('Invalid form data'));
+		}
+
 		const bodyToPost = JSON.stringify(this.state.values);
 
 		return fetch(`/command/${this.props.command.key}`, {
@@ -115,31 +153,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			body: bodyToPost,
 		})
 			.then(httpMustBeOk)
-			.then((res) => res.json())
-			.then((_) => {
-				return;
-			});
-	}
-
-	// official submit, which should trigger validation
-	submit(): Promise<void> {
-		if (!this.isEverythingValid()) {
-			return Promise.reject(new Error('Invalid form data'));
-		}
-
-		// disable submit button while server is processing
-		this.props.onChanges({
-			processing: true,
-			submitEnabled: false,
-		});
-
-		const execResult = this.execute();
-
-		// whether fulfilled or rejected, return submitEnabled
-		// state back to what it should be
-		execResult.then(() => { this.broadcastChanges(); }, () => { this.broadcastChanges(); });
-
-		return execResult;
+			.then((res) => res.json());
 	}
 
 	private broadcastChanges() {
