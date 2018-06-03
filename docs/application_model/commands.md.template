@@ -6,7 +6,6 @@
 |-----------------|-----------------|
 | Title           | {{.Title}}      |
 | Anonymous usage | {{.Anonymous}}  |
-| CRUD-nature     | {{.CrudNature}} |
 
 | Field | Type | Optional |
 |-------|------|----------|
