@@ -25,7 +25,8 @@ staticAnalysis() {
 }
 
 buildPublicFiles() {
-	(cd frontend/ && npm install)
+	# --no-bin-links to work across filesystems, possibly on Win-Linux development with fileshares
+	(cd frontend/ && npm install --no-bin-links)
 
 	bin/tsc.sh
 
