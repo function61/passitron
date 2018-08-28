@@ -29,7 +29,7 @@ buildPublicFiles() {
 	(cd frontend/ && npm install --no-bin-links)
 
 	# apparently --no-bin-links leaves executable bits off of these o_O
-	chmod +x node_modules/typescript/bin/tsc node_modules/tslint/bin/tslint
+	chmod +x frontend/node_modules/typescript/bin/tsc frontend/node_modules/tslint/bin/tslint
 
 	bin/tsc.sh
 
