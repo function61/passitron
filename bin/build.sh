@@ -28,6 +28,9 @@ buildPublicFiles() {
 	# --no-bin-links to work across filesystems, possibly on Win-Linux development with fileshares
 	(cd frontend/ && npm install --no-bin-links)
 
+	# apparently --no-bin-links leaves executable bits off of these o_O
+	chmod +x node_modules/typescript/bin/tsc node_modules/tslint/bin/tslint
+
 	bin/tsc.sh
 
 	bin/tslint.sh
