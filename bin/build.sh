@@ -90,4 +90,6 @@ run buildLinuxAmd64
 
 run buildAndDeployDocs
 
-run uploadBuildArtefacts
+if [ "${PUBLISH_ARTEFACTS:-''}" = "true" ]; then
+	run uploadBuildArtefacts
+fi

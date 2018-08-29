@@ -1,0 +1,17 @@
+{
+	"for_description_of_this_file_see": "https://github.com/function61/turbobob",
+	"version_major": 1,
+	"project_name": "pi-security-module",
+	"builders": [
+		{
+			"name": "default",
+			"mount_destination": "/go/src/github.com/function61/pi-security-module",
+			"dev_command": [],
+			"pass_envs": [
+				"BINTRAY_APIKEY",
+				"AWS_ACCESS_KEY_ID",
+				"AWS_SECRET_ACCESS_KEY"
+			]
+		}
+	]
+}
