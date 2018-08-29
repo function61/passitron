@@ -51,9 +51,11 @@ buildLinuxAmd64() {
 buildAndDeployDocs() {
 	bin/generate_docs.sh
 
-	mc config host add s3 https://s3.amazonaws.com "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" S3v4
+	if [ "${PUBLISH_ARTEFACTS:-''}" = "true" ]; then
+		mc config host add s3 https://s3.amazonaws.com "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" S3v4
 
-	mc cp --json --no-color docs_ready/docs.tar.gz s3/docs.function61.com/_packages/pi-security-module.tar.gz
+		mc cp --json --no-color docs_ready/docs.tar.gz s3/docs.function61.com/_packages/pi-security-module.tar.gz
+	fi
 }
 
 uploadBuildArtefacts() {
