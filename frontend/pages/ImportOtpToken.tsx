@@ -31,6 +31,11 @@ export default class ImportOtpToken extends React.Component<ImportOtpTokenProps,
 			<input type="file" id="upload" onChange={(e) => { this.fileChange(e); }} />
 
 			{maybeSubmit}
+
+			<h2>Or import manually</h2>
+
+			<CommandButton command={AccountAddOtpToken(this.props.account, '')} />
+
 		</DefaultLayout>;
 	}
 
