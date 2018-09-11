@@ -59,7 +59,7 @@ func New(filename string, eventAdded func(domain.Event) error) *EventLog {
 	log.Printf("Opening stream log from %s", filename)
 
 	if err := readOldEvents(filename, eventAdded); err != nil {
-		panic(err)
+		log.Fatalf("readOldEvents: %s", err.Error())
 	}
 
 	logHandle, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

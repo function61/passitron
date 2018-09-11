@@ -11,6 +11,10 @@ var (
 	errRecordNotFound = errors.New("record not found")
 )
 
+func ewrap(msg string, inner error) error {
+	return errors.New(msg + ": " + inner.Error())
+}
+
 func (s *State) ApplyAccountCreated(e *domain.AccountCreated) error {
 	wrappedAccount := WrappedAccount{
 		Account: apitypes.Account{
@@ -38,7 +42,7 @@ func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) error {
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountDeleted", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
@@ -50,7 +54,7 @@ func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountRenamed", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) error {
@@ -62,7 +66,7 @@ func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChang
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountDescriptionChanged", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error {
@@ -83,7 +87,7 @@ func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error 
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountOtpTokenAdded", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error {
@@ -104,7 +108,7 @@ func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error 
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountPasswordAdded", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
@@ -142,7 +146,7 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountKeylistAdded", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error {
@@ -160,7 +164,7 @@ func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error 
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountSecretDeleted", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountSecretUsed(e *domain.AccountSecretUsed) error {
@@ -188,7 +192,7 @@ func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountSshKeyAdded", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) error {
@@ -200,7 +204,7 @@ func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) er
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountUsernameChanged", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) error {
@@ -223,7 +227,7 @@ func (s *State) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountFolderMoved", errRecordNotFound)
 }
 
 func (s *State) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) error {
@@ -235,7 +239,7 @@ func (s *State) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) error 
 		}
 	}
 
-	return errRecordNotFound
+	return ewrap("ApplyAccountFolderRenamed", errRecordNotFound)
 }
 
 func (s *State) ApplyDatabaseUnsealed(e *domain.DatabaseUnsealed) error {
