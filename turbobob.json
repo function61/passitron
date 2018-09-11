@@ -6,7 +6,7 @@
 		{
 			"name": "default",
 			"mount_destination": "/go/src/github.com/function61/pi-security-module",
-			"dev_command": [],
+			"dev_command": ["bash"],
 			"pass_envs": [
 				"BINTRAY_APIKEY",
 				"AWS_ACCESS_KEY_ID",
