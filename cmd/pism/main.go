@@ -38,17 +38,17 @@ func runMain() {
 	// this most generic one has to be introduced last
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
-	log.Printf("Version %s listening in port 80", version.Version)
+	log.Printf("Version %s listening in port 443", version.Version)
 
 	srv := &http.Server{
-		Addr:    ":80",
+		Addr:    ":443",
 		Handler: router,
 	}
 
 	httpStopped := make(chan bool)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServeTLS("cert.pem", "key.pem"); err != nil {
 			log.Printf("ListenAndServe() returned: %s", err.Error())
 		}
 

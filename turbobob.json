@@ -7,7 +7,7 @@
 			"name": "default",
 			"mount_destination": "/go/src/github.com/function61/pi-security-module",
 			"dev_command": ["bash"],
-			"dev_ports": ["8091:80"],
+			"dev_ports": ["8091:443"],
 			"pass_envs": [
 				"BINTRAY_APIKEY",
 				"AWS_ACCESS_KEY_ID",

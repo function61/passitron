@@ -174,7 +174,7 @@ func Run(args []string) {
 	checkSocketExistence()
 
 	if len(args) != 2 {
-		log.Fatal("Usage: <baseurl> <token>\n example: http://localhost:8080 f4da14612d5eb55e429ac5..")
+		log.Fatal("Usage: <baseurl> <token>\n example: https://localhost f4da14612d5eb55e429ac5..")
 	}
 
 	agentServer := AgentServer{
