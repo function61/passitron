@@ -5,22 +5,26 @@ interface SecretRevealProps {
 }
 
 interface SecretRevealState {
-	open: boolean;
+	visible: boolean;
 }
 
 export class SecretReveal extends React.Component<SecretRevealProps, SecretRevealState> {
-	state = { open: false };
+	state = { visible: false };
 
 	render() {
-		if (this.state.open) {
-			return <span>{this.props.secret}</span>;
-		}
+		const secretVisibleOrNot = this.state.visible ?
+			this.props.secret :
+			'********';
+
+		const className = this.state.visible ?
+			'glyphicon glyphicon-eye-close hovericon margin-left' :
+			'glyphicon glyphicon-eye-open hovericon margin-left';
 
 		return <span>
-			********
+			{secretVisibleOrNot}
 			<span
-				className="glyphicon glyphicon-eye-open hovericon margin-left"
-				onClick={() => { this.setState({open: true}); }} />
+				className={className}
+				onClick={() => { this.setState({visible: !this.state.visible}); }} />
 		</span>;
 	}
 }
