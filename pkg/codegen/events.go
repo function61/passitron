@@ -130,6 +130,8 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 		visitor.AppendStruct(supportStructDef)
 
 		return supportStructDef.Name
+	case "integer":
+		return "int"
 	case "string":
 		return "string"
 	case "boolean":
