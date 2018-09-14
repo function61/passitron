@@ -24,7 +24,7 @@ interface CommandPageletProps {
 	onSubmit: CommandSubmitListener;
 }
 
-type CommandValueCollection = {[key: string]: any};
+interface CommandValueCollection {[key: string]: any; }
 
 interface CommandPageletState {
 	values: CommandValueCollection;
