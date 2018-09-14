@@ -1,6 +1,6 @@
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
 import {coerceToStructuredErrorResponse, handleDatabaseSealed, StructuredErrorResponse} from 'generated/restapi';
-import {httpMustBeOk} from 'httputil';
+import {postJson} from 'httputil';
 import * as React from 'react';
 import {unrecognizedValue} from 'utils';
 
@@ -24,8 +24,10 @@ interface CommandPageletProps {
 	onSubmit: CommandSubmitListener;
 }
 
+type CommandValueCollection = {[key: string]: any};
+
 interface CommandPageletState {
-	values: {[key: string]: any};
+	values: CommandValueCollection;
 	validationStatuses: {[key: string]: boolean};
 	submitError: string;
 	fieldsThatWerePrefilled: {[key: string]: boolean};
@@ -147,18 +149,10 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			return Promise.reject(new Error('Invalid form data'));
 		}
 
-		const bodyToPost = JSON.stringify(this.state.values);
-
-		return fetch(`/command/${this.props.command.key}`, {
-			method: 'POST',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-			},
-			body: bodyToPost,
-		})
-			.then(httpMustBeOk)
-			.then((res) => res.json());
+		// FIXME: this doesn't actually return void
+		return postJson<CommandValueCollection, void>(
+			`/command/${this.props.command.key}`,
+			this.state.values);
 	}
 
 	private broadcastChanges() {

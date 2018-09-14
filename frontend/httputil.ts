@@ -5,6 +5,21 @@ export function getJson<T>(url: string): Promise<T> {
 		.then((response) => response.json());
 }
 
+export function postJson<I, O>(url: string, body: I): Promise<O> {
+	const bodyToPost = JSON.stringify(body);
+
+	return fetch(url, {
+		method: 'POST',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: bodyToPost,
+	})
+		.then(httpMustBeOk)
+		.then((res) => res.json());
+}
+
 export function httpMustBeOk(response: Response): Promise<Response> {
 	if (!response.ok) {
 		return new Promise<Response>((_: any, reject: any) => {
