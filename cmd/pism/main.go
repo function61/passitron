@@ -85,6 +85,22 @@ func main() {
 			log.Fatalf("Installation failed: %s", errInstall)
 		}
 		return
+	} else if os.Args[1] == "install-ssh-agent" && len(os.Args) == 4 {
+		baseurl := os.Args[2]
+		token := os.Args[3]
+
+		errInstall := systemdinstaller.InstallSystemdServiceFile(
+			"pi-security-module-ssh-agent",
+			[]string{
+				"agent",
+				baseurl,
+				token},
+			"Pi security module SSH-agent")
+
+		if errInstall != nil {
+			log.Fatalf("Installation failed: %s", errInstall)
+		}
+		return
 	} else if os.Args[1] == "run" {
 		runMain()
 		return
