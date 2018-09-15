@@ -94,6 +94,12 @@
   revision = "1f6a74895d9bcde6571704ed41bc9bea181861dc"
 
 [[projects]]
+  name = "github.com/tstranex/u2f"
+  packages = ["."]
+  revision = "d21a03e0b1d9fc1df59ff54e7a513655c1748b0c"
+  version = "v1.0.0"
+
+[[projects]]
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -111,6 +117,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "171f761021da84e4ab205fb6f90158cf3d779c3845d3c7494160a3525b33825f"
+  inputs-digest = "ecd13e15111ca987914688adb84055c6d95389ee8e8572f6480864f3100c06f0"
   solver-name = "gps-cdcl"
   solver-version = 1

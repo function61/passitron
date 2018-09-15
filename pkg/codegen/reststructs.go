@@ -12,9 +12,10 @@ type ApplicationTypesDefinition struct {
 }
 
 type EndpointDefinition struct {
-	Path     string      `json:"path"`
-	Name     string      `json:"name"`
-	Produces DatatypeDef `json:"produces"`
+	Path     string       `json:"path"`
+	Name     string       `json:"name"`
+	Produces DatatypeDef  `json:"produces"`
+	Consumes *DatatypeDef `json:"consumes"`
 }
 
 // "/users/{id}" => "/users/${id}"
@@ -27,13 +28,17 @@ var routePlaceholderParseRe = regexp.MustCompile("\\{([a-zA-Z0-9]+)\\}")
 // "/users/{id}/addresses/{idx}" => "id: string, idx: string"
 func (e *EndpointDefinition) TypescriptArgs() string {
 	parsed := routePlaceholderParseRe.FindAllStringSubmatch(e.Path, -1)
-	typescripted := []string{}
+	typescriptedArgs := []string{}
 
 	for _, item := range parsed {
-		typescripted = append(typescripted, item[1]+": string")
+		typescriptedArgs = append(typescriptedArgs, item[1]+": string")
 	}
 
-	return strings.Join(typescripted, ", ")
+	if e.Consumes != nil {
+		typescriptedArgs = append(typescriptedArgs, "body: "+e.Consumes.AsTypeScriptType())
+	}
+
+	return strings.Join(typescriptedArgs, ", ")
 }
 
 type StructDefinition struct {

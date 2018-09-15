@@ -162,5 +162,14 @@
 		"crudNature": "update",
 		"title": "Export to KeePass format",
 		"fields": []
+	},
+	{
+		"command": "user.RegisterU2FToken",
+		"ctor": ["Request"],
+		"crudNature": "create",
+		"title": "Register U2F token",
+		"fields": [
+			{ "key": "Request" }
+		]
 	}
 ]

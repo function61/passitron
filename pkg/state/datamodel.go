@@ -17,10 +17,19 @@ type WrappedAccount struct {
 	Secrets []WrappedSecret
 }
 
+type U2FToken struct {
+	KeyHandle        string
+	RegistrationData string
+	ClientData       string
+	Version          string
+	Counter          uint32
+}
+
 type Statefile struct {
 	WrappedAccounts []WrappedAccount
 	Folders         []apitypes.Folder
 	AuditLog        []apitypes.AuditlogEntry
+	U2FTokens       map[string]*U2FToken
 }
 
 const maxAuditLogEntries = 10
@@ -52,5 +61,6 @@ func NewStatefile() *Statefile {
 		WrappedAccounts: []WrappedAccount{},
 		Folders:         []apitypes.Folder{rootFolder},
 		AuditLog:        []apitypes.AuditlogEntry{},
+		U2FTokens:       map[string]*U2FToken{},
 	}
 }

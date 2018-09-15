@@ -1,7 +1,9 @@
 package restapi
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
@@ -9,7 +11,9 @@ import (
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/physicalauth"
 	"github.com/function61/pi-security-module/pkg/state"
+	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/gorilla/mux"
+	"github.com/tstranex/u2f"
 	"log"
 	"net/http"
 	"strings"
@@ -41,6 +45,34 @@ func runPhysicalAuth(w http.ResponseWriter) bool {
 }
 
 func Define(router *mux.Router, st *state.State) {
+	router.HandleFunc("/u2f/enrollment/challenge", func(w http.ResponseWriter, r *http.Request) {
+		c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.GetTrustedFacets())
+		if err != nil {
+			log.Printf("u2f.NewChallenge error: %v", err)
+			http.Error(w, "error", http.StatusInternalServerError)
+			return
+		}
+
+		req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(st))
+
+		registerRequests := []apitypes.U2FRegisterRequest{}
+		for _, r := range req.RegisterRequests {
+			registerRequests = append(registerRequests, apitypes.U2FRegisterRequest{
+				Version:   r.Version,
+				Challenge: r.Challenge,
+			})
+		}
+
+		json.NewEncoder(w).Encode(apitypes.U2FEnrollmentChallenge{
+			Challenge: u2futil.ChallengeToApiType(*c),
+			RegisterRequest: apitypes.U2FWebRegisterRequest{
+				AppID:            req.AppID,
+				RegisterRequests: registerRequests,
+				RegisteredKeys:   u2futil.RegisteredKeysToApiType(req.RegisteredKeys),
+			},
+		})
+	})
+
 	router.HandleFunc("/auditlog", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httputil.RespondHttpJson(st.State.AuditLog, http.StatusOK, w)
 	}))
@@ -167,7 +199,32 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		httputil.RespondHttpJson(wacc.Account, http.StatusOK, w)
+		u2fTokens := u2futil.GrabUsersU2FTokens(st)
+
+		if len(u2fTokens) == 0 {
+			http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
+			return
+		}
+
+		challenge, err := u2futil.NewU2FCustomChallenge(
+			u2futil.GetAppIdHostname(),
+			u2futil.GetTrustedFacets(),
+			u2futil.ChallengeHashForAccountSecrets(wacc.Account))
+		if err != nil {
+			log.Printf("u2f.NewChallenge error: %v", err)
+			http.Error(w, "error", http.StatusInternalServerError)
+			return
+		}
+
+		signRequest := challenge.SignRequest(u2fTokens)
+
+		output := apitypes.WrappedAccount{
+			Challenge:   u2futil.ChallengeToApiType(*challenge),
+			SignRequest: u2futil.SignRequestToApiType(*signRequest),
+			Account:     wacc.Account,
+		}
+
+		httputil.RespondHttpJson(output, http.StatusOK, w)
 	}))
 
 	router.HandleFunc("/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -211,6 +268,11 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
+		var input apitypes.GetSecretsInput
+		if errJson := json.NewDecoder(r.Body).Decode(&input); errJson != nil {
+			panic(errJson)
+		}
+
 		wacc := st.WrappedAccountById(mux.Vars(r)["accountId"])
 
 		if wacc == nil {
@@ -218,8 +280,9 @@ func Define(router *mux.Router, st *state.State) {
 			return
 		}
 
-		if !runPhysicalAuth(w) {
-			return // error handled internally
+		if err := exposeSecretsChallengeResponseOk(input.Challenge, input.SignResult, wacc.Account, st); err != nil {
+			httputil.RespondHttpJson(httputil.GenericError("challenge_failed", err), http.StatusForbidden, w)
+			return
 		}
 
 		secrets := state.UnwrapSecrets(wacc.Secrets)
@@ -238,4 +301,41 @@ func Define(router *mux.Router, st *state.State) {
 
 		httputil.RespondHttpJson(secrets, http.StatusOK, w)
 	}))
+}
+
+func exposeSecretsChallengeResponseOk(
+	challenge apitypes.U2FChallenge,
+	signResult apitypes.U2FSignResult,
+	account apitypes.Account,
+	st *state.State,
+) error {
+	expectedHash := u2futil.ChallengeHashForAccountSecrets(account)
+
+	nativeChallenge := u2futil.ChallengeFromApiType(challenge)
+
+	if bytes.Compare(nativeChallenge.Challenge, expectedHash[:]) != 0 {
+		return errors.New("invalid challenge hash")
+	}
+
+	u2ftoken := u2futil.GrabUsersU2FTokenByKeyHandle(st, signResult.KeyHandle)
+	if u2ftoken == nil {
+		return errors.New("U2F token not found by KeyHandle")
+	}
+
+	reg := u2futil.U2ftokenToRegistration(u2ftoken)
+
+	newCounter, authErr := reg.Authenticate(
+		u2futil.SignResponseFromApiType(signResult),
+		nativeChallenge,
+		u2ftoken.Counter)
+	if authErr != nil {
+		return authErr
+	}
+
+	st.EventLog.Append(domain.NewUserU2FTokenUsed(
+		signResult.KeyHandle,
+		int(newCounter),
+		domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+
+	return nil
 }

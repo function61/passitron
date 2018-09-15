@@ -1,3 +1,5 @@
+// WARNING: generated file
+
 import {SecretKind} from 'generated/domain';
 
 {{range .ApplicationTypes.Structs}}

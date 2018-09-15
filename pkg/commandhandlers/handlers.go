@@ -3,14 +3,18 @@ package commandhandlers
 import (
 	"crypto/subtle"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/keepassexport"
 	"github.com/function61/pi-security-module/pkg/randompassword"
+	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/pquerna/otp"
+	"github.com/tstranex/u2f"
 	"golang.org/x/crypto/ssh"
 	"regexp"
 )
@@ -328,6 +332,39 @@ func (a *DatabaseUnseal) Invoke(ctx *command.Ctx) error {
 	ctx.State.SetSealed(false)
 
 	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
+
+	return nil
+}
+
+func (a *UserRegisterU2FToken) Invoke(ctx *command.Ctx) error {
+	var input apitypes.RegisterResponse
+	if err := json.Unmarshal([]byte(a.Request), &input); err != nil {
+		return err
+	}
+
+	regResp := u2f.RegisterResponse{
+		Version:          input.RegisterResponse.Version,
+		RegistrationData: input.RegisterResponse.RegistrationData,
+		ClientData:       input.RegisterResponse.ClientData,
+	}
+
+	registration, err := u2f.Register(regResp, u2futil.ChallengeFromApiType(input.Challenge), &u2f.Config{
+		// Chrome 66+ doesn't return the device's attestation
+		// certificate by default.
+		SkipAttestationVerify: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	registeredKey := u2futil.RegisteredKeyFromRegistration(*registration)
+
+	ctx.RaisesEvent(domain.NewUserU2FTokenRegistered(
+		registeredKey.KeyHandle, // KeyHandle in Registration is binary for some reason..
+		input.RegisterResponse.RegistrationData,
+		input.RegisterResponse.ClientData,
+		input.RegisterResponse.Version,
+		ctx.Meta))
 
 	return nil
 }

@@ -72,7 +72,7 @@ func addKeylist(t *testing.T, st *State) {
 
 	wsecret := wacc.Secrets[1]
 
-	assertKeyItem := func (idx int, key string, value string) {
+	assertKeyItem := func(idx int, key string, value string) {
 		ass.EqualString(t, wsecret.KeylistKeys[idx].Key, key)
 		ass.EqualString(t, wsecret.KeylistKeys[idx].Value, value)
 	}

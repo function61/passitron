@@ -262,6 +262,26 @@ func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3Integra
 	return nil
 }
 
+func (s *State) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
+	s.State.U2FTokens[e.KeyHandle] = &U2FToken{
+		KeyHandle:        e.KeyHandle,
+		RegistrationData: e.RegistrationData,
+		ClientData:       e.ClientData,
+		Version:          e.Version,
+		Counter:          0,
+	}
+
+	return nil
+}
+
+func (s *State) ApplyUserU2FTokenUsed(e *domain.UserU2FTokenUsed) error {
+	token := s.State.U2FTokens[e.KeyHandle]
+
+	token.Counter = uint32(e.Counter)
+
+	return nil
+}
+
 func (s *State) HandleUnknownEvent(e domain.Event) error {
 	return errors.New("unknown event: " + e.MetaType())
 }

@@ -6,6 +6,11 @@ export function getJson<T>(url: string): Promise<T> {
 }
 
 export function postJson<I, O>(url: string, body: I): Promise<O> {
+	return postJsonReturningVoid<I>(url, body)
+		.then((res) => res.json());
+}
+
+export function postJsonReturningVoid<T>(url: string, body: T): Promise<Response> {
 	const bodyToPost = JSON.stringify(body);
 
 	return fetch(url, {
@@ -15,9 +20,7 @@ export function postJson<I, O>(url: string, body: I): Promise<O> {
 			'Content-Type': 'application/json',
 		},
 		body: bodyToPost,
-	})
-		.then(httpMustBeOk)
-		.then((res) => res.json());
+	}).then(httpMustBeOk);
 }
 
 export function httpMustBeOk(response: Response): Promise<Response> {

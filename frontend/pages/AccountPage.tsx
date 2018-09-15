@@ -5,7 +5,15 @@ import {Dropdown} from 'components/dropdown';
 import {Loading} from 'components/loading';
 import {OptionalContent} from 'components/optionalcontent';
 import {SecretReveal} from 'components/secretreveal';
-import {Account, ExposedSecret, Folder, FolderResponse, Secret, SecretKeylistKey} from 'generated/apitypes';
+import {
+	Account,
+	ExposedSecret,
+	Folder,
+	FolderResponse,
+	Secret,
+	SecretKeylistKey,
+	WrappedAccount,
+} from 'generated/apitypes';
 import {
 	AccountAddKeylist,
 	AccountAddPassword,
@@ -21,7 +29,72 @@ import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getSecrets} f
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
+import {isU2FError, U2FStdRegisteredKey, U2FStdSignResult} from 'u2ftypes';
 import {relativeDateFormat, unrecognizedValue} from 'utils';
+
+interface SecretsFetcherProps {
+	wrappedAccount: WrappedAccount;
+	fetched: (secrets: ExposedSecret[]) => void;
+}
+
+interface SecretsFetcherState {
+	authing: boolean;
+}
+
+class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcherState> {
+	state: SecretsFetcherState = { authing: false };
+
+	render() {
+		if (this.state.authing) {
+			return <div>
+				<p>Please swipe your U2F token now ...</p>
+
+				<Loading />
+			</div>;
+		}
+
+		return <a className="btn btn-default" onClick={() => { this.startSigning(); }}>Start</a>;
+	}
+
+	startSigning() {
+		const sr = this.props.wrappedAccount.SignRequest;
+
+		const signResult = (result: U2FStdSignResult) => {
+			if (isU2FError(result)) {
+				this.setState({ authing: false });
+				return;
+			}
+
+			getSecrets(this.props.wrappedAccount.Account.Id, {
+				Challenge: this.props.wrappedAccount.Challenge,
+				SignResult: {
+					KeyHandle: result.keyHandle,
+					SignatureData: result.signatureData,
+					ClientData: result.clientData,
+				},
+			}).then((secrets) => {
+				this.props.fetched(secrets);
+			}, defaultErrorHandler);
+		};
+
+		const keysTransformed: U2FStdRegisteredKey[] = sr.RegisteredKeys.map((key) => {
+			return {
+				version: key.Version,
+				keyHandle: key.KeyHandle,
+				appId: key.AppID,
+			};
+		});
+
+		u2f.sign(
+			sr.AppID,
+			sr.Challenge, // serialized (not in structural form)
+			keysTransformed,
+			signResult,
+			10);
+
+		this.setState({ authing: true });
+	}
+}
 
 interface KeylistAccessorProps {
 	account: string;
@@ -78,8 +151,9 @@ interface AccountPageProps {
 }
 
 interface AccountPageState {
+	wrappedAccount: WrappedAccount;
 	account: Account;
-	secrets: ExposedSecret[];
+	secrets?: ExposedSecret[];
 	folderresponse: FolderResponse;
 }
 
@@ -96,7 +170,17 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		const account = this.state.account;
 
-		const secretRows = this.state.secrets.map((secret) => this.secretToRow(secret, account));
+		const secretRows = this.state.secrets ?
+			this.state.secrets.map((secret) => this.secretToRow(secret, account)) :
+			<tr>
+				<th>Secrets</th>
+				<td>
+					<SecretsFetcher
+						wrappedAccount={this.state.wrappedAccount}
+						fetched={(secrets) => { this.setState({ secrets }); }} />
+				</td>
+				<td></td>
+			</tr>;
 
 		const breadcrumbItems = this.getBreadcrumbItems();
 
@@ -187,17 +271,17 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 	}
 
 	private fetchData() {
-		const accountProm = getAccount(this.props.id);
+		const wrappedAccountProm = getAccount(this.props.id);
+
+		const accountProm = wrappedAccountProm.then((wacc) => wacc.Account);
 
 		const folderProm = accountProm.then((acc) => getFolder(acc.FolderId));
 
-		const secretsProm = accountProm.then((acc) => getSecrets(acc.Id));
-
-		Promise.all([accountProm, folderProm, secretsProm]).then(([account, folderresponse, secrets]) => {
+		Promise.all([wrappedAccountProm, accountProm, folderProm]).then(([wrappedAccount, account, folderresponse]) => {
 			this.setState({
+				wrappedAccount,
 				account,
 				folderresponse,
-				secrets,
 			});
 		}, defaultErrorHandler);
 	}

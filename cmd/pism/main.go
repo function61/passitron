@@ -9,11 +9,18 @@ import (
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/systemdinstaller"
+	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+)
+
+const (
+	certFile = "cert.pem"
+	keyFile  = "key.pem"
 )
 
 func runMain() {
@@ -30,6 +37,16 @@ func runMain() {
 	defer st.Close()
 
 	router := mux.NewRouter()
+
+	// FIXME: remove this crap bubblegum (uses global state)
+	certBytes, errReadCertBytes := ioutil.ReadFile(certFile)
+	if errReadCertBytes != nil {
+		panic(errReadCertBytes)
+	}
+
+	if err := u2futil.InjectCommonNameFromSslCertificate(certBytes); err != nil {
+		panic(err)
+	}
 
 	restapi.Define(router, st)
 
@@ -48,7 +65,7 @@ func runMain() {
 	httpStopped := make(chan bool)
 
 	go func() {
-		if err := srv.ListenAndServeTLS("cert.pem", "key.pem"); err != nil {
+		if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil {
 			log.Printf("ListenAndServe() returned: %s", err.Error())
 		}
 

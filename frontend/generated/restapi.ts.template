@@ -1,17 +1,28 @@
 // WARNING: generated file
 
-// tslint:disable:quotemark
+// tslint:disable
 // WHY: wouldn't make sense complicating code generation to check
 // if we need template string or not in path string
 
-import {Account, AuditlogEntry, ExposedSecret, FolderResponse, SecretKeylistKey} from 'generated/apitypes';
-import {getJson} from 'httputil';
+import {
+	Account,
+	AuditlogEntry,
+	ExposedSecret,
+	FolderResponse,
+	SecretKeylistKey,
+	WrappedAccount,
+	GetSecretsInput,
+	U2FEnrollmentChallenge,
+} from 'generated/apitypes';
+import {getJson, postJson} from 'httputil';
 import {unsealRoute} from 'routes';
 
 {{range .ApplicationTypes.Endpoints}}
-export function {{.Name}}({{.TypescriptArgs}}): Promise<{{.Produces.AsTypeScriptType}}> {
+export function {{.Name}}({{.TypescriptArgs}}): Promise<{{.Produces.AsTypeScriptType}}> { {{if .Consumes}}
+	return postJson<{{.Consumes.AsTypeScriptType}}, {{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`, body);
+{{else}}
 	return getJson<{{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`);
-}
+{{end}} }
 {{end}}
 
 export function searchAccounts(query: string): Promise<Account[]> {

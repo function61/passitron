@@ -263,6 +263,24 @@
 				"key": "Secret", "type": {"_": "string"}
 			}
 		]
+	},
+	{
+		"event": "user.U2FTokenRegistered",
+		"ctor": ["KeyHandle", "RegistrationData", "ClientData", "Version"],
+		"fields": [
+			{ "key": "KeyHandle", "type": {"_": "string"} },
+			{ "key": "RegistrationData", "type": {"_": "string"} },
+			{ "key": "ClientData", "type": {"_": "string"} },
+			{ "key": "Version", "type": {"_": "string"} }
+		]
+	},
+	{
+		"event": "user.U2FTokenUsed",
+		"ctor": ["KeyHandle", "Counter"],
+		"fields": [
+			{ "key": "KeyHandle", "type": {"_": "string"} },
+			{ "key": "Counter", "type": {"_": "integer"} }
+		]
 	}
 ]
 }
