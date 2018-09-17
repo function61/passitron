@@ -1,5 +1,6 @@
 import {Breadcrumb, BreadcrumbTrail} from 'components/breadcrumbtrail';
 import Navigation from 'components/Navigation';
+import {SearchBox} from 'components/SearchBox';
 import {version} from 'generated/version';
 import * as React from 'react';
 import {indexRoute} from 'routes';
@@ -21,6 +22,8 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 						<a href={indexRoute.buildUrl({})}>PiLockBox</a>
 					</h3>
 				</div>
+
+				<div className="pull-left" style={{padding: '14px 0 0 20px'}}><SearchBox /></div>
 
 				<nav className="pull-right">
 					<Navigation />

@@ -1,6 +1,7 @@
+import {SearchBox} from 'components/SearchBox';
 import {FolderResponse} from 'generated/apitypes';
 import * as React from 'react';
-import {credviewRoute, folderRoute, indexRoute, searchRoute} from 'routes';
+import {credviewRoute, folderRoute} from 'routes';
 
 interface SecretListingProps {
 	searchTerm?: string;
@@ -32,7 +33,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 					<th></th>
 					<th>
 						Title<br />
-						<input type="text" style={{width: '250px'}} className="form-control" defaultValue={this.props.searchTerm} onKeyPress={(e) => { this.onSubmit(e); }} placeholder="Search .." />
+						<SearchBox searchTerm={this.props.searchTerm} />
 					</th>
 					<th>Username</th>
 				</tr>
@@ -43,20 +44,5 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 			</tbody>
 			</table>
 		</div>;
-	}
-
-	// onSubmit(e: KeyboardEvent<HTMLInputElement>) {
-	onSubmit(e: any) {
-		if (e.charCode !== 13) {
-			return;
-		}
-
-		const searchTerm = e.target.value;
-
-		if (searchTerm !== '') {
-			document.location.hash = searchRoute.buildUrl({searchTerm});
-		} else {
-			document.location.hash = indexRoute.buildUrl({});
-		}
 	}
 }
