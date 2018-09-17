@@ -12,6 +12,16 @@ downloadDependencies() {
 	dep ensure
 }
 
+checkFormatting() {
+	# unfortunately we need to list formattable directories because "." would include vendor/
+	local offenders=$(gofmt -l cmd/ pkg/)
+
+	if [ ! -z "$offenders" ]; then
+		>&2 echo "formatting errors: $offenders"
+		exit 1
+	fi
+}
+
 codeGeneration() {
 	go generate ./...
 }
@@ -75,6 +85,8 @@ rm -rf rel
 mkdir rel
 
 run downloadDependencies
+
+run checkFormatting
 
 run codeGeneration
 
