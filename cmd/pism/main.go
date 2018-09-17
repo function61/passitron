@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/keepassimport"
 	"github.com/function61/pi-security-module/pkg/osinterrupt"
@@ -12,6 +13,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -83,45 +85,50 @@ func runMain() {
 	log.Printf("Bye")
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		log.Fatalf("Usage: %s <run>", os.Args[0])
-	} else if os.Args[1] == "keepassimport" {
-		keepassimport.Run(os.Args[2:])
-		return
-	} else if os.Args[1] == "agent" {
-		sshagent.Run(os.Args[2:])
-		return
-	} else if os.Args[1] == "install" {
-		errInstall := systemdinstaller.InstallSystemdServiceFile(
-			"pi-security-module",
-			[]string{"run"},
-			"Pi security module")
-
-		if errInstall != nil {
-			log.Fatalf("Installation failed: %s", errInstall)
-		}
-		return
-	} else if os.Args[1] == "install-ssh-agent" && len(os.Args) == 4 {
-		baseurl := os.Args[2]
-		token := os.Args[3]
-
-		errInstall := systemdinstaller.InstallSystemdServiceFile(
-			"pi-security-module-ssh-agent",
-			[]string{
-				"agent",
-				baseurl,
-				token},
-			"Pi security module SSH-agent")
-
-		if errInstall != nil {
-			log.Fatalf("Installation failed: %s", errInstall)
-		}
-		return
-	} else if os.Args[1] == "run" {
-		runMain()
-		return
+func serverEntrypoint() *cobra.Command {
+	server := &cobra.Command{
+		Use:   "server",
+		Short: "Starts the server",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			runMain()
+		},
 	}
 
-	log.Fatalf("Invalid command: %v", os.Args[1])
+	server.AddCommand(&cobra.Command{
+		Use:   "install",
+		Short: "Installs systemd unit file to make pi-security-module start on system boot",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			errInstall := systemdinstaller.InstallSystemdServiceFile(
+				"pi-security-module",
+				[]string{"server"},
+				"Pi security module")
+
+			if errInstall != nil {
+				log.Fatalf("Installation failed: %s", errInstall)
+			}
+		},
+	})
+
+	return server
+}
+
+func main() {
+	rootCmd := &cobra.Command{
+		Use:     os.Args[0],
+		Short:   "Software for a hardware security module",
+		Version: version.Version,
+	}
+
+	rootCmd.AddCommand(serverEntrypoint())
+
+	rootCmd.AddCommand(sshagent.Entrypoint())
+
+	rootCmd.AddCommand(keepassimport.Entrypoint())
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

@@ -68,6 +68,12 @@
   revision = "ac112f7d75a0714af1bd86ab17749b31f7809640"
 
 [[projects]]
+  name = "github.com/inconshreveable/mousetrap"
+  packages = ["."]
+  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+  version = "v1.0"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
@@ -86,6 +92,18 @@
     "totp"
   ]
   revision = "9e1935374bc73ffe011187dafed51a412b90fe43"
+
+[[projects]]
+  name = "github.com/spf13/cobra"
+  packages = ["."]
+  revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
+  version = "v0.0.3"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
+  version = "v1.0.2"
 
 [[projects]]
   branch = "master"
@@ -117,6 +135,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ecd13e15111ca987914688adb84055c6d95389ee8e8572f6480864f3100c06f0"
+  inputs-digest = "2b6555cc0ff5e09ce0577a64dd0a0a18e2bf15e356d9b1dfd747548562b64d8d"
   solver-name = "gps-cdcl"
   solver-version = 1

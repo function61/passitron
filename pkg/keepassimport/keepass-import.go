@@ -32,18 +32,14 @@ import (
 	Replace \" with ""
 */
 
-func Run(args []string) {
-	if len(args) != 1 {
-		log.Fatalf("Usage: <csv path>")
-		return
-	}
-
-	csvPath := args[0]
-
+func Run(csvPath string) {
 	st := state.New()
 	defer st.Close()
 
-	result := parseGenericCsv(csvPath)
+	result, err := parseGenericCsv(csvPath)
+	if err != nil {
+		log.Fatalf("parseGenericCsv failed: %s", err.Error())
+	}
 
 	foldersJustCreated := map[string]string{}
 
@@ -136,17 +132,18 @@ func Run(args []string) {
 	log.Printf("%d event(s) applied", len(events))
 }
 
-func parseGenericCsv(filename string) []map[string]string {
-	in, err := os.Open(filename)
+func parseGenericCsv(filename string) ([]map[string]string, error) {
+	csvFile, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+	defer csvFile.Close()
 
-	r := csv.NewReader(in)
+	csvReader := csv.NewReader(csvFile)
 
-	records, err := r.ReadAll()
+	records, err := csvReader.ReadAll()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	result := []map[string]string{}
@@ -165,5 +162,5 @@ func parseGenericCsv(filename string) []map[string]string {
 		result = append(result, res)
 	}
 
-	return result
+	return result, nil
 }

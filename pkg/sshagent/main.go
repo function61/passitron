@@ -170,16 +170,12 @@ func handleOneClient(client net.Conn, server *AgentServer) {
 	agent.ServeAgent(server, client)
 }
 
-func Run(args []string) {
+func Run(baseurl string, token string) {
 	checkSocketExistence()
 
-	if len(args) != 2 {
-		log.Fatal("Usage: <baseurl> <token>\n example: https://localhost f4da14612d5eb55e429ac5..")
-	}
-
 	agentServer := AgentServer{
-		baseUrl:     args[0],
-		bearerToken: args[1],
+		baseUrl:     baseurl,
+		bearerToken: token,
 	}
 
 	log.Printf("sshagent: listening at %s", sourceSocket)
