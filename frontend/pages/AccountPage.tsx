@@ -53,7 +53,7 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 			</div>;
 		}
 
-		return <a className="btn btn-default" onClick={() => { this.startSigning(); }}>Start</a>;
+		return <a className="btn btn-default" onClick={() => { this.startSigning(); }}>Reveal</a>;
 	}
 
 	startSigning() {
