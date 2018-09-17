@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/mattetti/filebuffer"
@@ -102,6 +103,32 @@ func exportKeylistAsText(wsecret state.WrappedSecret) string {
 	return strings.Join(lines, "\n")
 }
 
+func entryForAccount(account apitypes.Account, idx int, notesAppend string) *gokeepasslib.Entry {
+	entry := gokeepasslib.NewEntry()
+	title := account.Title
+
+	if idx > 0 { // append index, if many secrets in account
+		title = title + " " + strconv.Itoa(idx)
+	}
+
+	entry.Values = append(entry.Values, mkValue("Title", title))
+	entry.Values = append(entry.Values, mkValue("UserName", account.Username))
+
+	notes := account.Description
+
+	if notesAppend != "" {
+		if notes == "" {
+			notes = notesAppend
+		} else {
+			notes = notes + "\n" + notesAppend
+		}
+	}
+
+	entry.Values = append(entry.Values, mkValue("Notes", notes))
+
+	return &entry
+}
+
 func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (gokeepasslib.Group, int) {
 	entriesExported := 0
 
@@ -114,31 +141,15 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 
 	for _, wacc := range waccs {
 		for idx, secret := range wacc.Secrets {
-			title := wacc.Account.Title
-
-			if idx > 0 { // append index, if many secrets in account
-				title = title + " " + strconv.Itoa(idx)
-			}
-
-			entry := gokeepasslib.NewEntry()
-			entry.Values = append(entry.Values, mkValue("Title", title))
-			entry.Values = append(entry.Values, mkValue("UserName", wacc.Account.Username))
-
-			notes := wacc.Account.Description
-
+			var entry *gokeepasslib.Entry = nil
 			switch domain.SecretKindExhaustive44d6e3(string(secret.Secret.Kind)) {
 			case domain.SecretKindKeylist:
-				keylistAsText := exportKeylistAsText(secret)
-
-				if notes == "" {
-					notes = keylistAsText
-				} else {
-					notes = notes + "\n" + keylistAsText
-				}
+				entry = entryForAccount(wacc.Account, idx, exportKeylistAsText(secret))
 			case domain.SecretKindPassword:
+				entry = entryForAccount(wacc.Account, idx, "")
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Secret.Password))
-
 			case domain.SecretKindSshKey:
+				entry = entryForAccount(wacc.Account, idx, "")
 				filename := wacc.Account.Id + ".id_rsa"
 
 				plaintextSshBlock, rest := pem.Decode([]byte(secret.SshPrivateKey))
@@ -154,18 +165,21 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 				binaryReference := binary.CreateReference(filename)
 
 				entry.Binaries = append(entry.Binaries, binaryReference)
-
 			case domain.SecretKindOtpToken:
+				entry = entryForAccount(wacc.Account, idx, "")
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))
-
 			default:
 				panic("invalid secret kind: " + secret.Secret.Kind)
 			}
 
-			entry.Values = append(entry.Values, mkValue("Notes", notes))
+			group.Entries = append(group.Entries, *entry)
+			entriesExported++
+		}
 
-			group.Entries = append(group.Entries, entry)
-
+		// our datamodel differs somewhat from Keepass's (0-1 secrets per one account, keepass has exactly one),
+		// so make sure entry gets created even if account doesn't have any secrets
+		if len(wacc.Secrets) == 0 {
+			group.Entries = append(group.Entries, *entryForAccount(wacc.Account, 0, ""))
 			entriesExported++
 		}
 	}
