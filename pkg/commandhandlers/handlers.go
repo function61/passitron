@@ -14,9 +14,11 @@ import (
 	"github.com/function61/pi-security-module/pkg/randompassword"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"github.com/tstranex/u2f"
 	"golang.org/x/crypto/ssh"
 	"regexp"
+	"time"
 )
 
 var (
@@ -291,9 +293,8 @@ func (a *AccountAddOtpToken) Invoke(ctx *command.Ctx) error {
 	}
 
 	// just validate key
-	_, errOtpParse := otp.NewKeyFromURL(a.OtpProvisioningUrl)
-	if errOtpParse != nil {
-		return fmt.Errorf("Failed to parse OtpProvisioningUrl: %s", errOtpParse.Error())
+	if err := validateTotpProvisioningUrl(a.OtpProvisioningUrl); err != nil {
+		return fmt.Errorf("invalid OtpProvisioningUrl: %s", err)
 	}
 
 	ctx.RaisesEvent(domain.NewAccountOtpTokenAdded(
@@ -365,6 +366,21 @@ func (a *UserRegisterU2FToken) Invoke(ctx *command.Ctx) error {
 		input.RegisterResponse.ClientData,
 		input.RegisterResponse.Version,
 		ctx.Meta))
+
+	return nil
+}
+
+func validateTotpProvisioningUrl(provisioningUrl string) error {
+	key, err := otp.NewKeyFromURL(provisioningUrl)
+	if err != nil {
+		return err
+	}
+
+	// apparently NewKeyFromURL() can succeed even if GenerateCode() could fail,
+	// so that's why we must actually go this far as to verify this
+	if _, err := totp.GenerateCode(key.Secret(), time.Now()); err != nil {
+		return err
+	}
 
 	return nil
 }
