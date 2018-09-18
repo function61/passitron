@@ -15,6 +15,7 @@
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
     "aws/credentials/stscreds",
+    "aws/csm",
     "aws/defaults",
     "aws/ec2metadata",
     "aws/endpoints",
@@ -23,8 +24,11 @@
     "aws/signer/v4",
     "internal/sdkio",
     "internal/sdkrand",
+    "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
@@ -33,7 +37,7 @@
     "service/s3",
     "service/sts"
   ]
-  revision = "12fe7d35f8ad5f7f2715d414624b0723737de1f7"
+  revision = "28f0242cb7e6c6d68ce3c4571f9841231d42e459"
 
 [[projects]]
   name = "github.com/boombuler/barcode"
@@ -42,30 +46,32 @@
     "qr",
     "utils"
   ]
-  revision = "56ef0af91246fb5279df4f87bc3daf1bf7cb9e89"
+  revision = "3cfea5ab600ae37946be2b763b8ec2c1cf2d272d"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/function61/eventhorizon"
   packages = ["util/ass"]
-  revision = "80d6429f334b3fb0040bfd07633e473c8adbde21"
+  revision = "acb65158e9f1a54b2522e38eb6435ccdd94a0c22"
 
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "6333e38ac20b8949a8dd68baa3650f4dee8f39f0"
-  version = "v1.33.0"
+  revision = "5cf292cae48347c2490ac1a58fe36735fb78df7e"
+  version = "v1.38.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/gorilla/context"
   packages = ["."]
   revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/gorilla/mux"
   packages = ["."]
-  revision = "ac112f7d75a0714af1bd86ab17749b31f7809640"
+  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
+  version = "v1.6.2"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -85,13 +91,14 @@
   revision = "3a1e8e5a6548ea21cce597660d0c0dcc8c77a520"
 
 [[projects]]
+  branch = "master"
   name = "github.com/pquerna/otp"
   packages = [
     ".",
     "hotp",
     "totp"
   ]
-  revision = "9e1935374bc73ffe011187dafed51a412b90fe43"
+  revision = "be78767b3e392ce45ea73444451022a6fc32ad0d"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -106,10 +113,10 @@
   version = "v1.0.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/tobischo/gokeepasslib"
   packages = ["."]
-  revision = "1f6a74895d9bcde6571704ed41bc9bea181861dc"
+  revision = "6f72869804c7f7f8408939871abddfa633ee6204"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/tstranex/u2f"
@@ -118,11 +125,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
     "ed25519",
     "ed25519/internal/edwards25519",
+    "internal/chacha20",
+    "internal/subtle",
     "nacl/secretbox",
     "pbkdf2",
     "poly1305",
@@ -130,11 +140,11 @@
     "ssh",
     "ssh/agent"
   ]
-  revision = "6914964337150723782436d56b3f21610a74ce7b"
+  revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2b6555cc0ff5e09ce0577a64dd0a0a18e2bf15e356d9b1dfd747548562b64d8d"
+  inputs-digest = "bb62ae6bf1a2ec9c170f71c7916471854129d4656e281c641c7880b41a3320a4"
   solver-name = "gps-cdcl"
   solver-version = 1
