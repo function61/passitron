@@ -1,37 +1,20 @@
 #!/bin/bash -eu
 
-run() {
-	fn="$1"
+source /build-common.sh
 
-	echo "# $fn"
+COMPILE_IN_DIRECTORY="cmd/pism"
+BINARY_NAME="pism"
+BINTRAY_PROJECT="function61/pi-security-module"
+GOFMT_TARGETS="cmd/ pkg/"
 
-	"$fn"
-}
-
-downloadDependencies() {
-	dep ensure
-}
-
-checkFormatting() {
-	# unfortunately we need to list formattable directories because "." would include vendor/
-	local offenders=$(gofmt -l cmd/ pkg/)
-
-	if [ ! -z "$offenders" ]; then
-		>&2 echo "formatting errors: $offenders"
-		exit 1
-	fi
-}
-
-codeGeneration() {
-	go generate ./...
-}
-
-unitTests() {
-	go test ./...
-}
-
-staticAnalysis() {
-	go vet ./...
+# clean slate, because generated files rarely pass formatting check
+cleanupGeneratedFiles() {
+	rm -rf \
+		docs_ready/ \
+		pkg/apitypes/apitypes.go \
+		pkg/commandhandlers/generated.go \
+		pkg/domain/domain.go \
+		pkg/domain/events.go
 }
 
 buildPublicFiles() {
@@ -50,14 +33,6 @@ packagePublicFiles() {
 	tar -czf rel/public.tar.gz public/
 }
 
-buildLinuxArm() {
-	(cd cmd/pism && GOOS=linux GOARCH=arm go build -o ../../rel/pism_linux-arm)
-}
-
-buildLinuxAmd64() {
-	(cd cmd/pism && GOOS=linux GOARCH=amd64 go build -o ../../rel/pism_linux-amd64)
-}
-
 buildAndDeployDocs() {
 	bin/generate_docs.sh
 
@@ -68,42 +43,14 @@ buildAndDeployDocs() {
 	fi
 }
 
-uploadBuildArtefacts() {
-	# the CLI breaks automation unless opt-out..
-	export JFROG_CLI_OFFER_CONFIG=false
+hook_unitTests_after() {
+	buildstep buildPublicFiles
 
-	jfrog-cli bt upload \
-		"--user=joonas" \
-		"--key=$BINTRAY_APIKEY" \
-		--publish=true \
-		'rel/*' \
-		"function61/pi-security-module/main/$FRIENDLY_REV_ID" \
-		"$FRIENDLY_REV_ID/"
+	buildstep packagePublicFiles
 }
 
-rm -rf rel
-mkdir rel
+cleanupGeneratedFiles
 
-run downloadDependencies
+standardBuildProcess
 
-run checkFormatting
-
-run codeGeneration
-
-run staticAnalysis
-
-run unitTests
-
-run buildPublicFiles
-
-run packagePublicFiles
-
-run buildLinuxArm
-
-run buildLinuxAmd64
-
-run buildAndDeployDocs
-
-if [ "${PUBLISH_ARTEFACTS:-''}" = "true" ]; then
-	run uploadBuildArtefacts
-fi
+buildAndDeployDocs

@@ -1,4 +1,4 @@
-FROM fn61/buildkit-golang:20180830_1321_5e3ef8bc40a3b5e4
+FROM fn61/buildkit-golang:20181005_1708_d902a8e33c48a76f
 
 WORKDIR /go/src/github.com/function61/pi-security-module
 

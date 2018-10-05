@@ -3,6 +3,7 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:8fbc2e1f7d74b6a75816f6c9d397c5b5ad150f2f1123d1708c3a21c07c34ff7e"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -35,97 +36,125 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/s3",
-    "service/sts"
+    "service/sts",
   ]
+  pruneopts = "UT"
   revision = "28f0242cb7e6c6d68ce3c4571f9841231d42e459"
 
 [[projects]]
+  digest = "1:7b94d37d65c0445053c6f3e73090e3966c1c29127035492c349e14f25c440359"
   name = "github.com/boombuler/barcode"
   packages = [
     ".",
     "qr",
-    "utils"
+    "utils",
   ]
+  pruneopts = "UT"
   revision = "3cfea5ab600ae37946be2b763b8ec2c1cf2d272d"
   version = "v1.0.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:239a9b1ac09e7cfbfda9ab92103039bda1a10010d37f1e16ba40e954b89cfa12"
   name = "github.com/function61/eventhorizon"
   packages = ["util/ass"]
+  pruneopts = "UT"
   revision = "acb65158e9f1a54b2522e38eb6435ccdd94a0c22"
 
 [[projects]]
+  digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
   name = "github.com/go-ini/ini"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5cf292cae48347c2490ac1a58fe36735fb78df7e"
   version = "v1.38.2"
 
 [[projects]]
+  digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
   name = "github.com/gorilla/context"
   packages = ["."]
+  pruneopts = "UT"
   revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:e73f5b0152105f18bc131fba127d9949305c8693f8a762588a82a48f61756f5f"
   name = "github.com/gorilla/mux"
   packages = ["."]
+  pruneopts = "UT"
   revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
   version = "v1.6.2"
 
 [[projects]]
+  digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
+  pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
 
 [[projects]]
+  digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0b12d6b5"
 
 [[projects]]
   branch = "master"
+  digest = "1:fcc8d0b2ab941115e8745485eed510ef4983324a6c42824193a1b0f9d3677bd4"
   name = "github.com/mattetti/filebuffer"
   packages = ["."]
+  pruneopts = "UT"
   revision = "3a1e8e5a6548ea21cce597660d0c0dcc8c77a520"
 
 [[projects]]
   branch = "master"
+  digest = "1:dc56e7178a82f8e84960ed9efa7d4ebd0a6d7864894bfc46f8a35ee5eae7153a"
   name = "github.com/pquerna/otp"
   packages = [
     ".",
     "hotp",
-    "totp"
+    "totp",
   ]
+  pruneopts = "UT"
   revision = "be78767b3e392ce45ea73444451022a6fc32ad0d"
 
 [[projects]]
+  digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
   name = "github.com/spf13/cobra"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:dab83a1bbc7ad3d7a6ba1a1cc1760f25ac38cdf7d96a5cdd55cd915a4f5ceaf9"
   name = "github.com/spf13/pflag"
   packages = ["."]
+  pruneopts = "UT"
   revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
   version = "v1.0.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:7d234d4f8223364f6887586e21b828c7f27e184a8ddaa719a3a3d96e45919be5"
   name = "github.com/tobischo/gokeepasslib"
   packages = ["."]
+  pruneopts = "UT"
   revision = "6f72869804c7f7f8408939871abddfa633ee6204"
-  version = "v1.0.0"
 
 [[projects]]
+  digest = "1:4fdf6ca0e13fc1ffc273e70ce16827feb5e3bdecfba33c55ac7f8cc46c2e061a"
   name = "github.com/tstranex/u2f"
   packages = ["."]
+  pruneopts = "UT"
   revision = "d21a03e0b1d9fc1df59ff54e7a513655c1748b0c"
   version = "v1.0.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:6bb97682ef8aeb9c7c23d58714cd426d2ed0057d4d931e810c21ea9f0c2866c1"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -138,13 +167,32 @@
     "poly1305",
     "salsa20/salsa",
     "ssh",
-    "ssh/agent"
+    "ssh/agent",
   ]
+  pruneopts = "UT"
   revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bb62ae6bf1a2ec9c170f71c7916471854129d4656e281c641c7880b41a3320a4"
+  input-imports = [
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/credentials",
+    "github.com/aws/aws-sdk-go/aws/endpoints",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/function61/eventhorizon/util/ass",
+    "github.com/gorilla/mux",
+    "github.com/mattetti/filebuffer",
+    "github.com/pquerna/otp",
+    "github.com/pquerna/otp/totp",
+    "github.com/spf13/cobra",
+    "github.com/tobischo/gokeepasslib",
+    "github.com/tstranex/u2f",
+    "golang.org/x/crypto/nacl/secretbox",
+    "golang.org/x/crypto/pbkdf2",
+    "golang.org/x/crypto/ssh",
+    "golang.org/x/crypto/ssh/agent",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
