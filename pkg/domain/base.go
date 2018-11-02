@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/function61/pi-security-module/pkg/cryptorandombytes"
+	"github.com/function61/gokit/cryptorandombytes"
 	"time"
 )
 

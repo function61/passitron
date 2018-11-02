@@ -62,6 +62,20 @@
   revision = "acb65158e9f1a54b2522e38eb6435ccdd94a0c22"
 
 [[projects]]
+  branch = "master"
+  digest = "1:82a2dc5afdddc51893c588dde6a822219adf9622ff3daa6192107f65b0e46f55"
+  name = "github.com/function61/gokit"
+  packages = [
+    "cryptorandombytes",
+    "logger",
+    "ossignal",
+    "stopper",
+    "systemdinstaller",
+  ]
+  pruneopts = "UT"
+  revision = "7ebb89b12d11832f207f64673a1fe8fff4f61362"
+
+[[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
   name = "github.com/go-ini/ini"
   packages = ["."]
@@ -182,6 +196,11 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/function61/eventhorizon/util/ass",
+    "github.com/function61/gokit/cryptorandombytes",
+    "github.com/function61/gokit/logger",
+    "github.com/function61/gokit/ossignal",
+    "github.com/function61/gokit/stopper",
+    "github.com/function61/gokit/systemdinstaller",
     "github.com/gorilla/mux",
     "github.com/mattetti/filebuffer",
     "github.com/pquerna/otp",

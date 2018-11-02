@@ -2,20 +2,21 @@ package main
 
 import (
 	"fmt"
+	"github.com/function61/gokit/logger"
+	"github.com/function61/gokit/ossignal"
+	"github.com/function61/gokit/stopper"
+	"github.com/function61/gokit/systemdinstaller"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/keepassimport"
-	"github.com/function61/pi-security-module/pkg/osinterrupt"
 	"github.com/function61/pi-security-module/pkg/restapi"
 	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
-	"github.com/function61/pi-security-module/pkg/systemdinstaller"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 )
@@ -25,29 +26,19 @@ const (
 	keyFile  = "key.pem"
 )
 
-func runMain() {
-	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
-	if version.IsDevVersion() {
-		downloadUrl = ""
-	}
-
-	if err := extractpublicfiles.Run(downloadUrl); err != nil {
-		panic(err)
-	}
-
-	st := state.New()
-	defer st.Close()
+func startHttp(st *state.State, stop *stopper.Stopper) error {
+	log := logger.New("startHttp")
 
 	router := mux.NewRouter()
 
 	// FIXME: remove this crap bubblegum (uses global state)
 	certBytes, errReadCertBytes := ioutil.ReadFile(certFile)
 	if errReadCertBytes != nil {
-		panic(errReadCertBytes)
+		return errReadCertBytes
 	}
 
 	if err := u2futil.InjectCommonNameFromSslCertificate(certBytes); err != nil {
-		panic(err)
+		return err
 	}
 
 	restapi.Define(router, st)
@@ -57,32 +48,60 @@ func runMain() {
 	// this most generic one has to be introduced last
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
-	log.Printf("Version %s listening in port 443", version.Version)
-
 	srv := &http.Server{
 		Addr:    ":443",
 		Handler: router,
 	}
 
-	httpStopped := make(chan bool)
-
 	go func() {
-		if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil {
-			log.Printf("ListenAndServe() returned: %s", err.Error())
-		}
+		log.Info(fmt.Sprintf("serving @ %s", srv.Addr))
+		defer log.Info("stopped")
 
-		httpStopped <- true
+		if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil {
+			log.Error(fmt.Sprintf("ListenAndServeTLS(): %s", err.Error()))
+		}
 	}()
 
-	log.Printf("Received signal %s; shutting down", osinterrupt.WaitForIntOrTerm())
+	go func() {
+		defer stop.Done()
+		<-stop.Signal
 
-	if err := srv.Shutdown(nil); err != nil {
-		log.Printf("Error shutting down HTTP server: %s", err.Error())
+		if err := srv.Shutdown(nil); err != nil {
+			log.Error(fmt.Sprintf("Shutdown(): %s", err.Error()))
+		}
+	}()
+
+	return nil
+}
+
+func server() error {
+	log := logger.New("server")
+	log.Info(fmt.Sprintf("%s starting", version.Version))
+	defer log.Info("stopped")
+
+	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
+	if version.IsDevVersion() {
+		downloadUrl = ""
 	}
 
-	<-httpStopped
+	if err := extractpublicfiles.Run(downloadUrl); err != nil {
+		return err
+	}
 
-	log.Printf("Bye")
+	st := state.New()
+	defer st.Close()
+
+	workers := stopper.NewManager()
+
+	if err := startHttp(st, workers.Stopper()); err != nil {
+		return err
+	}
+
+	log.Info(fmt.Sprintf("Received signal %s; stopping", <-ossignal.InterruptOrTerminate()))
+
+	workers.StopAllWorkersAndWait()
+
+	return nil
 }
 
 func serverEntrypoint() *cobra.Command {
@@ -91,7 +110,9 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Starts the server",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			runMain()
+			if err := server(); err != nil {
+				panic(err)
+			}
 		},
 	}
 
@@ -100,13 +121,15 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Installs systemd unit file to make pi-security-module start on system boot",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			errInstall := systemdinstaller.InstallSystemdServiceFile(
+			hints, err := systemdinstaller.InstallSystemdServiceFile(
 				"pi-security-module",
 				[]string{"server"},
 				"Pi security module")
 
-			if errInstall != nil {
-				log.Fatalf("Installation failed: %s", errInstall)
+			if err != nil {
+				panic(err)
+			} else {
+				fmt.Println(hints)
 			}
 		},
 	})

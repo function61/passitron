@@ -1,7 +1,8 @@
 package sshagent
 
 import (
-	"github.com/function61/pi-security-module/pkg/systemdinstaller"
+	"fmt"
+	"github.com/function61/gokit/systemdinstaller"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -27,7 +28,7 @@ func Entrypoint() *cobra.Command {
 			baseurl := args[0]
 			token := args[1]
 
-			errInstall := systemdinstaller.InstallSystemdServiceFile(
+			hints, err := systemdinstaller.InstallSystemdServiceFile(
 				"pi-security-module-ssh-agent",
 				[]string{
 					"ssh-agent-proxy",
@@ -35,8 +36,10 @@ func Entrypoint() *cobra.Command {
 					token},
 				"Pi security module SSH-agent")
 
-			if errInstall != nil {
-				log.Fatalf("Installation failed: %s", errInstall)
+			if err != nil {
+				log.Fatalf("Installation failed: %s", err)
+			} else {
+				fmt.Println(hints)
 			}
 		},
 	})
