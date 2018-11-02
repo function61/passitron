@@ -95,22 +95,11 @@ Mar 19 12:44:53 raspberrypi pism[15626]: 2018/03/19 12:44:53 Starting in port 80
 Looks good. You should now be able to access the web interface at `http://<ip of your pi>`.
 
 
-Building
---------
+How to build & develop
+----------------------
 
-See [bin/build.sh](bin/build.sh) for the compilation steps that are done on the CI.
-
-To easily get all the tools required, build the builder image
-(see [bin/ci-build.sh](bin/ci-build.sh)) and get a Bash session in it:
-
-```
-$ docker build -t pism-builder -f Dockerfile.build .
-$ docker run --rm -it -p 8080:80 -v "$(pwd):/go/src/github.com/function61/pi-security-module" pism-builder bash
-
-# you can now interactively run the build commands mentioned in build.sh
-```
-
-(the Docker build container is optional, but it makes everything easier and doesn't install anything in your host system)
+[How to build & develop](https://github.com/function61/turbobob/blob/master/docs/external-how-to-build-and-dev.md)
+(with Turbo Bob, our build tool). It's easy and simple!
 
 
 TODO
