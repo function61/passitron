@@ -76,20 +76,12 @@ $ chmod +x pism
 Installation & running:
 
 ```
-# this only writes a Systemd unit file
-$ sudo ./pism install
-
-# configure Systemd to start this on system reboot
-$ sudo systemctl enable pi-security-module
-
-# start it manually (reboot would have the same effect)
-$ sudo systemctl start pi-security-module
-
-# check logs for succesful start
-$ sudo systemctl status pi-security-module
-Mar 19 12:44:52 raspberrypi systemd[1]: Started Pi security module.
-Mar 19 12:44:52 raspberrypi pism[15626]: 2018/03/19 12:44:52 extractPublicFiles: extracting public files from public.tar.gz
-Mar 19 12:44:53 raspberrypi pism[15626]: 2018/03/19 12:44:53 Starting in port 80
+$ ./pism server install
+Wrote unit file to /etc/systemd/system/pi-security-module.service
+Run to enable on boot & to start now:
+        $ systemctl enable pi-security-module
+        $ systemctl start pi-security-module
+        $ systemctl status pi-security-module
 ```
 
 Looks good. You should now be able to access the web interface at `http://<ip of your pi>`.
