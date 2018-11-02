@@ -5,6 +5,7 @@
 	"builders": [
 		{
 			"name": "default",
+			"dockerfile_path": "build-default.Dockerfile",
 			"mount_destination": "/go/src/github.com/function61/pi-security-module",
 			"dev_command": ["bash"],
 			"dev_ports": ["8091:443"],
@@ -12,7 +13,8 @@
 				"BINTRAY_CREDS",
 				"AWS_ACCESS_KEY_ID",
 				"AWS_SECRET_ACCESS_KEY"
-			]
+			],
+			"contextless_build": true
 		}
 	]
 }
