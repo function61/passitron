@@ -6,7 +6,8 @@
 		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
 		{ "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
 		{ "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
-		{ "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" }
+		{ "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
+		{ "path": "/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" }
 	],
 	"structs": [
 		{
@@ -124,6 +125,14 @@
 			"fields": [
 				{ "key": "Challenge", "type": {"_": "U2FChallenge"} },
 				{ "key": "RegisterResponse", "type": {"_": "U2FRegisterResponse"} }
+			]
+		},
+		{
+			"name": "U2FEnrolledToken",
+			"fields": [
+				{ "key": "EnrolledAt", "type": {"_": "datetime"} },
+				{ "key": "Name", "type": {"_": "string"} },
+				{ "key": "Version", "type": {"_": "string"} }
 			]
 		},
 		{

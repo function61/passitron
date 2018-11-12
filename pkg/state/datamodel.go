@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"time"
 )
 
 type WrappedSecret struct {
@@ -18,6 +19,7 @@ type WrappedAccount struct {
 }
 
 type U2FToken struct {
+	EnrolledAt       time.Time
 	KeyHandle        string
 	RegistrationData string
 	ClientData       string

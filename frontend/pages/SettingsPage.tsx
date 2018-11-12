@@ -1,9 +1,12 @@
+import {Panel} from 'components/bootstrap';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
-import {RegisterResponse} from 'generated/apitypes';
+import {Loading} from 'components/loading';
+import {Timestamp} from 'components/timestamp';
+import {RegisterResponse, U2FEnrolledToken} from 'generated/apitypes';
 import {DatabaseChangeMasterPassword, DatabaseExportToKeepass, UserRegisterU2FToken} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
-import {defaultErrorHandler, u2fEnrollmentChallenge} from 'generated/restapi';
+import {defaultErrorHandler, u2fEnrolledTokens, u2fEnrollmentChallenge} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';
@@ -11,29 +14,55 @@ import {isU2FError, U2FStdRegisteredKey, U2FStdRegisterRequest, U2FStdRegisterRe
 
 interface SettingsPageState {
 	u2fregistrationrequest?: string;
+	enrolledTokens?: U2FEnrolledToken[];
 }
 
 export default class SettingsPage extends React.Component<{}, SettingsPageState> {
 	state: SettingsPageState = {};
 	private title = 'Settings';
 
+	componentDidMount() {
+		this.fetchData();
+	}
+
 	render() {
 		const enrollOrFinish = this.state.u2fregistrationrequest ?
 			<CommandButton command={UserRegisterU2FToken(this.state.u2fregistrationrequest)}></CommandButton> :
 			<p><a className="btn btn-default" onClick={() => {this.startTokenEnrollment(); }}>Enroll token</a></p>;
 
+		const enrolledTokensList = this.state.enrolledTokens ?
+			<table className="table">
+			<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>EnrolledAt</th>
+			</tr>
+			</thead>
+			<tbody>{this.state.enrolledTokens.map((token) =>
+			<tr key={token.EnrolledAt}>
+				<td>{token.Name}</td>
+				<td>{token.Version}</td>
+				<td><Timestamp ts={token.EnrolledAt} /></td>
+			</tr>)}
+			</tbody>
+			</table> :
+			<Loading />;
+
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
-			<h1>{this.title}</h1>
+			<Panel heading="Actions">
+				<p><CommandButton command={DatabaseChangeMasterPassword()}></CommandButton></p>
 
-			<CommandButton command={DatabaseChangeMasterPassword()}></CommandButton>
+				<p><CommandButton command={DatabaseExportToKeepass()}></CommandButton></p>
+			</Panel>
 
-			<h2>Export / import</h2>
+			<Panel heading="U2F tokens">
+				<h3>Enrolled tokens</h3>
 
-			<CommandButton command={DatabaseExportToKeepass()}></CommandButton>
+				{enrolledTokensList}
 
-			<h2>U2F token</h2>
-
-			{enrollOrFinish}
+				{enrollOrFinish}
+			</Panel>
 		</DefaultLayout>;
 	}
 
@@ -89,5 +118,11 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 			{url: indexRoute.buildUrl({}), title: RootFolderName},
 			{url: '', title: this.title },
 		];
+	}
+
+	private fetchData() {
+		u2fEnrolledTokens().then((enrolledTokens) => {
+			this.setState({ enrolledTokens });
+		}, defaultErrorHandler);
 	}
 }

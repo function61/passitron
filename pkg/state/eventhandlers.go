@@ -264,6 +264,7 @@ func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3Integra
 
 func (s *State) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
 	s.State.U2FTokens[e.KeyHandle] = &U2FToken{
+		EnrolledAt:       e.Meta().Timestamp,
 		KeyHandle:        e.KeyHandle,
 		RegistrationData: e.RegistrationData,
 		ClientData:       e.ClientData,

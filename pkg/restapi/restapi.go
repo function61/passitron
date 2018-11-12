@@ -182,6 +182,24 @@ func Define(router *mux.Router, st *state.State) {
 		}, http.StatusOK, w)
 	}))
 
+	router.HandleFunc("/u2f/enrolled_tokens", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if errorIfSealed(st.IsUnsealed(), w) {
+			return
+		}
+
+		tokens := []apitypes.U2FEnrolledToken{}
+
+		for _, token := range st.State.U2FTokens {
+			tokens = append(tokens, apitypes.U2FEnrolledToken{
+				EnrolledAt: token.EnrolledAt,
+				Name:       "TODO: naming U2F tokens",
+				Version:    token.Version,
+			})
+		}
+
+		httputil.RespondHttpJson(tokens, http.StatusOK, w)
+	}))
+
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfSealed(st.IsUnsealed(), w) {
 			return

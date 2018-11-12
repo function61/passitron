@@ -12,6 +12,7 @@ import {
 	WrappedAccount,
 	GetSecretsInput,
 	U2FEnrollmentChallenge,
+	U2FEnrolledToken,
 } from 'generated/apitypes';
 import {getJson, postJson} from 'httputil';
 import {unsealRoute} from 'routes';
