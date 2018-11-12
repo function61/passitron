@@ -134,7 +134,9 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 			return;
 		}
 
-		this.setState({ loading: true });
+		// resetting foundKeyItem so if fetching multiple items, the old one does not
+		// stay visible (which would confuse the user if it's the old or the new)
+		this.setState({ loading: true, foundKeyItem: undefined });
 
 		getKeylistKey(this.props.account, this.props.secret.Id, this.state.input).then((foundKeyItem) => {
 			this.setState({ foundKeyItem, loading: false });
