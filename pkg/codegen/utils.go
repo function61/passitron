@@ -27,8 +27,10 @@ func DeserializeJsonFile(path string, data interface{}) error {
 	}
 	defer file.Close()
 
-	if jsonErr := json.NewDecoder(file).Decode(data); jsonErr != nil {
-		return jsonErr
+	decoder := json.NewDecoder(file)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(data); err != nil {
+		return err
 	}
 
 	return nil
