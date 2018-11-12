@@ -184,7 +184,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 		}
 	}
 
-	subFolders := st.SubfoldersById(folder.Id)
+	subFolders := st.SubfoldersByParentId(folder.Id)
 
 	for _, subFolder := range subFolders {
 		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta, st)

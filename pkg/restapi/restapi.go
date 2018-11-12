@@ -130,7 +130,7 @@ func Define(router *mux.Router, st *state.State) {
 		folder := st.FolderById(mux.Vars(r)["folderId"])
 
 		accounts := state.UnwrapAccounts(st.WrappedAccountsByFolder(folder.Id))
-		subFolders := st.SubfoldersById(folder.Id)
+		subFolders := st.SubfoldersByParentId(folder.Id)
 		parentFolders := []apitypes.Folder{}
 
 		parentId := folder.ParentId

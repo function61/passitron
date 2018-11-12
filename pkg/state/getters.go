@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (s *State) SubfoldersById(id string) []apitypes.Folder {
+func (s *State) SubfoldersByParentId(id string) []apitypes.Folder {
 	subFolders := []apitypes.Folder{}
 
 	for _, f := range s.State.Folders {
