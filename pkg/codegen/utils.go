@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"text/template"
@@ -30,7 +31,7 @@ func DeserializeJsonFile(path string, data interface{}) error {
 	decoder := json.NewDecoder(file)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(data); err != nil {
-		return err
+		return fmt.Errorf("DeserializeJsonFile: %s: %s", path, err.Error())
 	}
 
 	return nil
