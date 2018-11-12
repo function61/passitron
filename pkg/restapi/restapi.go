@@ -191,8 +191,8 @@ func Define(router *mux.Router, st *state.State) {
 
 		for _, token := range st.State.U2FTokens {
 			tokens = append(tokens, apitypes.U2FEnrolledToken{
+				Name:       token.Name,
 				EnrolledAt: token.EnrolledAt,
-				Name:       "TODO: naming U2F tokens",
 				Version:    token.Version,
 			})
 		}

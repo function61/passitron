@@ -361,6 +361,7 @@ func (a *UserRegisterU2FToken) Invoke(ctx *command.Ctx) error {
 	registeredKey := u2futil.RegisteredKeyFromRegistration(*registration)
 
 	ctx.RaisesEvent(domain.NewUserU2FTokenRegistered(
+		a.Name,
 		registeredKey.KeyHandle, // KeyHandle in Registration is binary for some reason..
 		input.RegisterResponse.RegistrationData,
 		input.RegisterResponse.ClientData,

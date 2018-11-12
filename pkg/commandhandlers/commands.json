@@ -169,7 +169,8 @@
 		"crudNature": "create",
 		"title": "Register U2F token",
 		"fields": [
-			{ "key": "Request" }
+			{ "key": "Request" },
+			{ "key": "Name" }
 		]
 	}
 ]

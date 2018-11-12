@@ -266,8 +266,9 @@
 	},
 	{
 		"event": "user.U2FTokenRegistered",
-		"ctor": ["KeyHandle", "RegistrationData", "ClientData", "Version"],
+		"ctor": ["Name", "KeyHandle", "RegistrationData", "ClientData", "Version"],
 		"fields": [
+			{ "key": "Name", "type": {"_": "string"} },
 			{ "key": "KeyHandle", "type": {"_": "string"} },
 			{ "key": "RegistrationData", "type": {"_": "string"} },
 			{ "key": "ClientData", "type": {"_": "string"} },

@@ -19,6 +19,7 @@ type WrappedAccount struct {
 }
 
 type U2FToken struct {
+	Name             string
 	EnrolledAt       time.Time
 	KeyHandle        string
 	RegistrationData string
