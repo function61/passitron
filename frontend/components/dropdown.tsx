@@ -2,14 +2,18 @@ import * as React from 'react';
 
 interface DropdownProps {
 	label?: string;
-	children: JSX.Element[];
+	children: any | any[]; // FIXME: JSX.Element or React.ReactElement didn't work
 }
 
 export class Dropdown extends React.Component<DropdownProps, {}> {
 	render() {
 		const maybeLabel = this.props.label ? this.props.label + ' ' : '';
 
-		const items = this.props.children.map((child, idx) => {
+		const children: any[] = this.props.children instanceof Array ?
+			this.props.children :
+			[ this.props.children ];
+
+		const items = children.map((child, idx) => {
 			return <li key={idx}>{child}</li>;
 		});
 

@@ -40,6 +40,19 @@ func (a *AccountRename) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
+func (a *AccountMove) Invoke(ctx *command.Ctx) error {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	ctx.RaisesEvent(domain.NewAccountMoved(
+		a.Account,
+		a.NewParentFolder,
+		ctx.Meta))
+
+	return nil
+}
+
 func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
 	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound

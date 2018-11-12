@@ -10,6 +10,16 @@
 		]
 	},
 	{
+		"command": "account.Move",
+		"ctor": ["Account"],
+		"crudNature": "update",
+		"title": "Move account to different folder",
+		"fields": [
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "NewParentFolder" }
+		]
+	},
+	{
 		"command": "account.ChangeUsername",
 		"ctor": ["Account","Username"],
 		"crudNature": "update",

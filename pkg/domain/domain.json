@@ -63,6 +63,18 @@
 		]
 	},
 	{
+		"event": "account.Moved",
+		"ctor": ["Id", "NewParentFolder"],
+		"fields": [
+			{
+				"key": "Id", "type": {"_": "string"}
+			},
+			{
+				"key": "NewParentFolder", "type": {"_": "string"}
+			}
+		]
+	},
+	{
 		"event": "account.DescriptionChanged",
 		"ctor": ["Id", "Description"],
 		"fields": [

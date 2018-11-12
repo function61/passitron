@@ -1,5 +1,8 @@
+import {CommandLink} from 'components/CommandButton';
+import {Dropdown} from 'components/dropdown';
 import {SearchBox} from 'components/SearchBox';
 import {FolderResponse} from 'generated/apitypes';
+import {AccountMove} from 'generated/commanddefinitions';
 import * as React from 'react';
 import {credviewRoute, folderRoute} from 'routes';
 
@@ -15,6 +18,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 				<td><span className="glyphicon glyphicon-folder-open"></span></td>
 				<td><a href={folderRoute.buildUrl({folderId: folder.Id})}>{folder.Name}</a></td>
 				<td></td>
+				<td></td>
 			</tr>;
 		});
 
@@ -23,6 +27,9 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 				<td></td>
 				<td><a href={credviewRoute.buildUrl({id: account.Id})}>{account.Title}</a></td>
 				<td>{account.Username}</td>
+				<td><Dropdown>
+					<CommandLink command={AccountMove(account.Id)}></CommandLink>
+				</Dropdown></td>
 			</tr>;
 		});
 
@@ -36,6 +43,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 						<SearchBox searchTerm={this.props.searchTerm} />
 					</th>
 					<th>Username</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>

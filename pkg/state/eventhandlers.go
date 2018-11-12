@@ -57,6 +57,18 @@ func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
 	return ewrap("ApplyAccountRenamed", errRecordNotFound)
 }
 
+func (s *State) ApplyAccountMoved(e *domain.AccountMoved) error {
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Id {
+			wacc.Account.FolderId = e.NewParentFolder
+			s.State.WrappedAccounts[idx] = wacc
+			return nil
+		}
+	}
+
+	return ewrap("ApplyAccountMoved", errRecordNotFound)
+}
+
 func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) error {
 	for idx, wacc := range s.State.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
