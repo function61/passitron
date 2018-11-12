@@ -1,4 +1,5 @@
 import {elToClipboard} from 'clipboard';
+import {DangerAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
@@ -31,7 +32,7 @@ import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getSecrets} f
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
-import {isU2FError, U2FStdRegisteredKey, U2FStdSignResult} from 'u2ftypes';
+import {isU2FError, u2fErrorMsg, U2FStdRegisteredKey, U2FStdSignResult} from 'u2ftypes';
 import {relativeDateFormat, unrecognizedValue} from 'utils';
 
 interface SecretsFetcherProps {
@@ -41,10 +42,18 @@ interface SecretsFetcherProps {
 
 interface SecretsFetcherState {
 	authing: boolean;
+	authError?: string;
 }
 
 class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcherState> {
 	state: SecretsFetcherState = { authing: false };
+
+	componentDidMount() {
+		// start fetching process automatically. in some rare cases the user might not
+		// want this, but failed auth attempt timeouts are not dangerous and this reduces
+		// extra clicks in the majority case
+		this.startSigning();
+	}
 
 	render() {
 		if (this.state.authing) {
@@ -55,7 +64,17 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 			</div>;
 		}
 
-		return <a className="btn btn-default" onClick={() => { this.startSigning(); }}>Reveal</a>;
+		const authErrorNode = this.state.authError ?
+			<DangerAlert text={this.state.authError} /> :
+			'';
+
+		return <div>
+			<a className="btn btn-default" onClick={() => { this.startSigning(); }}>
+				Authenticate
+			</a>
+
+			{authErrorNode}
+		</div>;
 	}
 
 	startSigning() {
@@ -63,7 +82,7 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 
 		const signResult = (result: U2FStdSignResult) => {
 			if (isU2FError(result)) {
-				this.setState({ authing: false });
+				this.setState({ authing: false, authError: u2fErrorMsg(result) });
 				return;
 			}
 
@@ -92,9 +111,9 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 			sr.Challenge, // serialized (not in structural form)
 			keysTransformed,
 			signResult,
-			10);
+			5);
 
-		this.setState({ authing: true });
+		this.setState({ authing: true, authError: undefined });
 	}
 }
 

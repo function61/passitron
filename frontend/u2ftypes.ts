@@ -24,13 +24,7 @@ export interface U2FStdRegisterResponse {
 	clientData: string;
 }
 
-export function isU2FError(resp: any): boolean {
-	if (!('errorCode' in resp)) {
-		return false;
-	}
-	if (resp.errorCode === u2f.ErrorCodes.OK) {
-		return false;
-	}
+export function u2fErrorMsg(resp: any): string {
 	let msg = 'U2F error code ' + resp.errorCode;
 	for (const name in u2f.ErrorCodes) {
 		if (u2f.ErrorCodes[name] === resp.errorCode) {
@@ -42,6 +36,16 @@ export function isU2FError(resp: any): boolean {
 		msg += ': ' + resp.errorMessage;
 	}
 
-	alert(msg);
+	return msg;
+}
+
+export function isU2FError(resp: any): boolean {
+	if (!('errorCode' in resp)) {
+		return false;
+	}
+	if (resp.errorCode === u2f.ErrorCodes.OK) {
+		return false;
+	}
+
 	return true;
 }
