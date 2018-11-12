@@ -27,4 +27,5 @@ export interface CommandField {
 	Kind: CommandFieldKind;
 	DefaultValueString?: string;
 	DefaultValueBoolean?: boolean;
+	Help?: string;
 }

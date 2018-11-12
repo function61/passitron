@@ -52,6 +52,7 @@ type CommandFieldSpec struct {
 	Type               string `json:"type"`
 	Optional           bool   `json:"optional"`
 	HideIfDefaultValue bool   `json:"hideIfDefaultValue"`
+	Help               string `json:"help"`
 }
 
 func (c *CommandFieldSpec) AsGoField() string {
@@ -155,12 +156,13 @@ func (c *CommandSpec) FieldsForTypeScript() string {
 			}
 
 			return fmt.Sprintf(
-				`{ Key: '%s', Required: %v, HideIfDefaultValue: %v, Kind: CommandFieldKind.%s, DefaultValueString: %s },`,
+				`{ Key: '%s', Required: %v, HideIfDefaultValue: %v, Kind: CommandFieldKind.%s, DefaultValueString: %s, Help: '%s' },`,
 				fieldSpec.Key,
 				!fieldSpec.Optional,
 				fieldSpec.HideIfDefaultValue,
 				tsKind,
-				defVal)
+				defVal,
+				fieldSpec.Help)
 		}
 
 		switch fieldSpec.Type {

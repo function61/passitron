@@ -87,8 +87,12 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 			const validationFailedClass = valid ? '' : 'has-error';
 
+			const possiblyHelp = field.Help ?
+				<span title={field.Help} className="glyphicon glyphicon-question-sign" style={{marginLeft: '8px'}} /> :
+				'';
+
 			return <div className={`form-group ${validationFailedClass}`} key={field.Key}>
-				<label>{field.Key} {field.Required ? '*' : ''}</label>
+				<div><label>{field.Key} {field.Required ? '*' : ''}</label>{possiblyHelp}</div>
 
 				{input}
 			</div>;

@@ -98,7 +98,7 @@
 		"title": "+ Password",
 		"fields": [
 			{ "key": "Id", "hideIfDefaultValue": true },
-			{ "key": "Password", "type": "password" },
+			{ "key": "Password", "type": "password", "help": "Enter \"_auto\" to autogenerate one" },
 			{ "key": "PasswordRepeat", "type": "password" }
 		]
 	},
