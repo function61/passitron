@@ -60,6 +60,15 @@
 		]
 	},
 	{
+		"command": "account.DeleteFolder",
+		"ctor": ["Id"],
+		"crudNature": "delete",
+		"title": "Delete folder",
+		"fields": [
+			{ "key": "Id", "hideIfDefaultValue": true }
+		]
+	},
+	{
 		"command": "account.RenameFolder",
 		"ctor": ["Id","Name"],
 		"crudNature": "update",

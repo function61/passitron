@@ -224,6 +224,15 @@
 		]
 	},
 	{
+		"event": "account.FolderDeleted",
+		"ctor": ["Id"],
+		"fields": [
+			{
+				"key": "Id", "type": {"_": "string"}
+			}
+		]
+	},
+	{
 		"event": "account.FolderMoved",
 		"ctor": ["Id", "ParentId"],
 		"fields": [

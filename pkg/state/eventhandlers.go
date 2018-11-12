@@ -230,6 +230,20 @@ func (s *State) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) error 
 	return nil
 }
 
+func (s *State) ApplyAccountFolderDeleted(e *domain.AccountFolderDeleted) error {
+	for idx, folder := range s.State.Folders {
+		if folder.Id == e.Id {
+			// https://github.com/golang/go/wiki/SliceTricks
+			s.State.Folders = append(
+				s.State.Folders[:idx],
+				s.State.Folders[idx+1:]...)
+			return nil
+		}
+	}
+
+	return ewrap("ApplyAccountFolderDeleted", errRecordNotFound)
+}
+
 func (s *State) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
 	for idx, acc := range s.State.Folders {
 		if acc.Id == e.Id {

@@ -108,6 +108,25 @@ func (a *AccountCreateFolder) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
+func (a *AccountDeleteFolder) Invoke(ctx *command.Ctx) error {
+	if ctx.State.FolderById(a.Id) == nil {
+		return errFolderNotFound
+	}
+
+	subFolders := ctx.State.SubfoldersByParentId(a.Id)
+	accounts := ctx.State.WrappedAccountsByFolder(a.Id)
+
+	if len(subFolders) > 0 || len(accounts) > 0 {
+		return errors.New("folder not empty")
+	}
+
+	ctx.RaisesEvent(domain.NewAccountFolderDeleted(
+		a.Id,
+		ctx.Meta))
+
+	return nil
+}
+
 func (a *AccountRenameFolder) Invoke(ctx *command.Ctx) error {
 	if ctx.State.FolderById(a.Id) == nil {
 		return errFolderNotFound
