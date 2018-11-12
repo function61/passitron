@@ -117,6 +117,18 @@ func serverEntrypoint() *cobra.Command {
 	}
 
 	server.AddCommand(&cobra.Command{
+		Use:   "print-signingapi-auth-token",
+		Short: "Displays the auth token required to use the signing API",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			st := state.New()
+			defer st.Close()
+
+			fmt.Printf("%s\n", signingapi.ExpectedAuthHeader(st))
+		},
+	})
+
+	server.AddCommand(&cobra.Command{
 		Use:   "install",
 		Short: "Installs systemd unit file to make pi-security-module start on system boot",
 		Args:  cobra.NoArgs,
