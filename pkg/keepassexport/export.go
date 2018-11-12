@@ -142,7 +142,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 	for _, wacc := range waccs {
 		for idx, secret := range wacc.Secrets {
 			var entry *gokeepasslib.Entry = nil
-			switch domain.SecretKindExhaustive44d6e3(string(secret.Secret.Kind)) {
+			switch domain.SecretKindExhaustiveff1746(string(secret.Secret.Kind)) {
 			case domain.SecretKindKeylist:
 				entry = entryForAccount(wacc.Account, idx, exportKeylistAsText(secret))
 			case domain.SecretKindPassword:
@@ -165,6 +165,8 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 				binaryReference := binary.CreateReference(filename)
 
 				entry.Binaries = append(entry.Binaries, binaryReference)
+			case domain.SecretKindNote:
+				entry = entryForAccount(wacc.Account, idx, secret.Secret.Note)
 			case domain.SecretKindOtpToken:
 				entry = entryForAccount(wacc.Account, idx, "")
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))

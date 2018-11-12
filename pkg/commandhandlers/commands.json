@@ -146,6 +146,17 @@
 		]
 	},
 	{
+		"command": "account.AddSecretNote",
+		"ctor": ["Account"],
+		"crudNature": "create",
+		"title": "+ Secret note",
+		"fields": [
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "Title" },
+			{ "key": "Note", "type": "multiline" }
+		]
+	},
+	{
 		"command": "account.AddOtpToken",
 		"ctor": ["Account","OtpProvisioningUrl"],
 		"crudNature": "create",

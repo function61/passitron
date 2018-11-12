@@ -225,6 +225,21 @@ func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
+func (a *AccountAddSecretNote) Invoke(ctx *command.Ctx) error {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	ctx.RaisesEvent(domain.NewAccountSecretNoteAdded(
+		a.Account,
+		domain.RandomId(),
+		a.Title,
+		a.Note,
+		ctx.Meta))
+
+	return nil
+}
+
 func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
 	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound

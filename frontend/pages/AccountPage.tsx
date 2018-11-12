@@ -3,6 +3,7 @@ import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandIcon, CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
 import {Loading} from 'components/loading';
+import {MonospaceContent} from 'components/monospacecontent';
 import {OptionalContent} from 'components/optionalcontent';
 import {SecretReveal} from 'components/secretreveal';
 import {
@@ -17,6 +18,7 @@ import {
 import {
 	AccountAddKeylist,
 	AccountAddPassword,
+	AccountAddSecretNote,
 	AccountAddSshKey,
 	AccountChangeDescription,
 	AccountChangeUsername,
@@ -197,6 +199,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<CommandLink command={AccountAddSshKey(account.Id)} />
 					<CommandLink command={AccountAddKeylist(account.Id)} />
 					<CommandLink command={AccountAddPassword(account.Id)} />
+					<CommandLink command={AccountAddSecretNote(account.Id)} />
 
 					<a href={importotptokenRoute.buildUrl({account: account.Id})}>+ OTP token</a>
 				</Dropdown>
@@ -218,7 +221,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						Description
 						<CommandIcon command={AccountChangeDescription(account.Id, account.Description)} />
 					</th>
-					<td style={{fontFamily: 'monospace', whiteSpace: 'pre'}}><OptionalContent>{account.Description}</OptionalContent></td>
+					<td>
+						<MonospaceContent><OptionalContent>{account.Description}</OptionalContent></MonospaceContent>
+					</td>
 					<td></td>
 				</tr>
 			</tbody>
@@ -265,6 +270,16 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					</th>
 					<td colSpan={2}>{secret.Title}
 						<KeylistAccessor account={account.Id} secret={secret} />
+					</td>
+				</tr>;
+			case SecretKind.Note:
+				return <tr key={secret.Id}>
+					<th>
+						<span title={relativeDateFormat(secret.Created)}>Note</span>
+						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+					</th>
+					<td colSpan={2}>{secret.Title}
+						<MonospaceContent>{secret.Note}</MonospaceContent>
 					</td>
 				</tr>;
 			default:
