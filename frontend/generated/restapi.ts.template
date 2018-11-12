@@ -18,6 +18,7 @@ import {getJson, postJson} from 'httputil';
 import {unsealRoute} from 'routes';
 
 {{range .ApplicationTypes.Endpoints}}
+// {{.Path}}
 export function {{.Name}}({{.TypescriptArgs}}): Promise<{{.Produces.AsTypeScriptType}}> { {{if .Consumes}}
 	return postJson<{{.Consumes.AsTypeScriptType}}, {{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`, body);
 {{else}}

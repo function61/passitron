@@ -18,9 +18,18 @@ type EndpointDefinition struct {
 	Consumes *DatatypeDef `json:"consumes"`
 }
 
-// "/users/{id}" => "/users/${id}"
+// "/users/{id}" => "/users/${encodeURIComponent(id)}"
+// "/search?q={query}" => "/search?query=${encodeURIComponent(query)}"
 func (e *EndpointDefinition) TypescriptPath() string {
-	return strings.Replace(e.Path, "{", "${", -1)
+	replacements := []string{}
+
+	for _, item := range routePlaceholderParseRe.FindAllStringSubmatch(e.Path, -1) {
+		replacements = append(replacements,
+			item[0],
+			"${encodeURIComponent("+item[1]+")}")
+	}
+
+	return strings.NewReplacer(replacements...).Replace(e.Path)
 }
 
 var routePlaceholderParseRe = regexp.MustCompile("\\{([a-zA-Z0-9]+)\\}")
