@@ -1,9 +1,9 @@
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
-import {Account, FolderResponse} from 'generated/apitypes';
+import {FolderResponse} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
-import {defaultErrorHandler, searchAccounts} from 'generated/restapi';
+import {defaultErrorHandler, search} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';
@@ -13,7 +13,7 @@ interface SearchPageProps {
 }
 
 interface SearchPageState {
-	matches: Account[];
+	searchResult: FolderResponse;
 }
 
 export default class SearchPage extends React.Component<SearchPageProps, SearchPageState> {
@@ -26,27 +26,19 @@ export default class SearchPage extends React.Component<SearchPageProps, SearchP
 			return <Loading />;
 		}
 
-		// adapt for reuse for direct use of <SecretListing> component
-		const dummyResult: FolderResponse = {
-			Folder: null,
-			SubFolders: [],
-			ParentFolders: [],
-			Accounts: this.state.matches,
-		};
-
 		const breadcrumbs: Breadcrumb[] = [
 			{ url: indexRoute.buildUrl({}), title: RootFolderName },
 			{ url: '', title: `Search: ${this.props.searchTerm}` },
 		];
 
 		return <DefaultLayout title="Search" breadcrumbs={breadcrumbs}>
-			<SecretListing searchTerm={this.props.searchTerm} listing={dummyResult} />
+			<SecretListing searchTerm={this.props.searchTerm} listing={this.state.searchResult} />
 		</DefaultLayout>;
 	}
 
 	private fetchData() {
-		searchAccounts(this.props.searchTerm).then((matches: Account[]) => {
-			this.setState({ matches });
+		search(this.props.searchTerm).then((searchResult) => {
+			this.setState({ searchResult });
 		}, defaultErrorHandler);
 	}
 }

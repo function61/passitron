@@ -150,12 +150,43 @@ func Define(router *mux.Router, st *state.State) {
 		}, http.StatusOK, w)
 	}))
 
+	router.HandleFunc("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if errorIfSealed(st.IsUnsealed(), w) {
+			return
+		}
+
+		query := strings.ToLower(r.URL.Query().Get("q"))
+
+		accounts := []apitypes.Account{}
+		folders := []apitypes.Folder{}
+
+		for _, folder := range st.State.Folders {
+			if !strings.Contains(strings.ToLower(folder.Name), query) {
+				continue
+			}
+
+			folders = append(folders, folder)
+		}
+
+		for _, wacc := range st.State.WrappedAccounts {
+			if !strings.Contains(strings.ToLower(wacc.Account.Title), query) {
+				continue
+			}
+
+			accounts = append(accounts, wacc.Account)
+		}
+
+		httputil.RespondHttpJson(apitypes.FolderResponse{
+			SubFolders: folders,
+			Accounts:   accounts,
+		}, http.StatusOK, w)
+	}))
+
 	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
-		search := strings.ToLower(r.URL.Query().Get("search"))
 		sshkey := strings.ToLower(r.URL.Query().Get("sshkey"))
 
 		matches := []apitypes.Account{}
@@ -170,16 +201,8 @@ func Define(router *mux.Router, st *state.State) {
 					matches = append(matches, wacc.Account)
 				}
 			}
-		} else if search == "" { // no filter => return all
+		} else { // return all
 			for _, wacc := range st.State.WrappedAccounts {
-				matches = append(matches, wacc.Account)
-			}
-		} else { // search filter
-			for _, wacc := range st.State.WrappedAccounts {
-				if !strings.Contains(strings.ToLower(wacc.Account.Title), search) {
-					continue
-				}
-
 				matches = append(matches, wacc.Account)
 			}
 		}

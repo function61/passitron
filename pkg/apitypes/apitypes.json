@@ -5,6 +5,7 @@
 		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "GetSecretsInput"}, "name": "getSecrets" },
 		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
 		{ "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
+		{ "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
 		{ "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" }
 	],
 	"structs": [

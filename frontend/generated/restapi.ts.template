@@ -5,7 +5,6 @@
 // if we need template string or not in path string
 
 import {
-	Account,
 	AuditlogEntry,
 	ExposedSecret,
 	FolderResponse,
@@ -25,12 +24,6 @@ export function {{.Name}}({{.TypescriptArgs}}): Promise<{{.Produces.AsTypeScript
 	return getJson<{{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`);
 {{end}} }
 {{end}}
-
-export function searchAccounts(query: string): Promise<Account[]> {
-	const searchEscaped = encodeURIComponent(query);
-
-	return getJson<Account[]>(`/accounts?search=${searchEscaped}`);
-}
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	const ser = coerceToStructuredErrorResponse(err);
