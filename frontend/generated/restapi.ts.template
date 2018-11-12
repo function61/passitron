@@ -42,7 +42,7 @@ export function isSealedError(err: StructuredErrorResponse): boolean {
 
 export function handleDatabaseSealed(err: StructuredErrorResponse): boolean {
 	if (isSealedError(err)) {
-		document.location.assign(unsealRoute.buildUrl({}));
+		document.location.assign(unsealRoute.buildUrl({ redirect: document.location.hash }));
 		return true;
 	}
 

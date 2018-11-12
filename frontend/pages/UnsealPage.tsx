@@ -1,4 +1,4 @@
-import {SuccessAlert, WarningAlert} from 'components/alerts';
+import {WarningAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
 import {Loading} from 'components/loading';
@@ -10,11 +10,15 @@ import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';
 
+interface UnsealPageProps {
+	redirect: string;
+}
+
 interface UnsealPageState {
 	unsealed: boolean;
 }
 
-export default class UnsealPage extends React.Component<{}, UnsealPageState> {
+export default class UnsealPage extends React.Component<UnsealPageProps, UnsealPageState> {
 	private title = 'Unseal';
 
 	componentDidMount() {
@@ -25,14 +29,15 @@ export default class UnsealPage extends React.Component<{}, UnsealPageState> {
 		let content = <Loading />;
 
 		if (this.state) {
-			if (this.state.unsealed) {
-				content = <SuccessAlert text="Unsealed successfully." />;
-			} else {
+			if (!this.state.unsealed) {
 				content = <div>
 					<WarningAlert text="Database was sealed. Please unseal it." />
 
 					<CommandButton command={DatabaseUnseal()}></CommandButton>
 				</div>;
+			} else {
+				// content = <SuccessAlert text="Unsealed successfully." />;
+				throw new Error('This should not happen anymore');
 			}
 		}
 
@@ -54,7 +59,7 @@ export default class UnsealPage extends React.Component<{}, UnsealPageState> {
 	private fetchData() {
 		// dummy request just to identify unsealed status
 		getFolder(RootFolderId).then(() => {
-			this.setState({ unsealed: true });
+			window.location.assign(this.props.redirect);
 		}, (err) => {
 			if (isSealedError(coerceToStructuredErrorResponse(err))) {
 				this.setState({ unsealed: false });

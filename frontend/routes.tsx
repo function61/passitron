@@ -16,7 +16,7 @@ export const searchRoute = makeRoute('search', {searchTerm: 'string'});
 export const credviewRoute = makeRoute('credview', {id: 'string'});
 export const sshkeysRoute = makeRoute('sshkeys', {});
 export const settingsRoute = makeRoute('settings', {});
-export const unsealRoute = makeRoute('unseal', {});
+export const unsealRoute = makeRoute('unseal', {redirect: 'string'});
 export const auditlogRoute = makeRoute('auditlog', {});
 export const importotptokenRoute = makeRoute('importotptoken', {account: 'string'});
 
@@ -26,6 +26,6 @@ export const router = makeRouter(indexRoute, () => <HomePage key={RootFolderId} 
 	.registerRoute(credviewRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)
 	.registerRoute(sshkeysRoute, () => <SshKeysPage />)
 	.registerRoute(settingsRoute, () => <SettingsPage />)
-	.registerRoute(unsealRoute, () => <UnsealPage />)
+	.registerRoute(unsealRoute, (opts) => <UnsealPage redirect={opts.redirect} />)
 	.registerRoute(auditlogRoute, () => <AuditLogPage />)
 	.registerRoute(importotptokenRoute, (opts) => <ImportOtpToken key={opts.account} account={opts.account} />);
