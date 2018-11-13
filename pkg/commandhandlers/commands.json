@@ -97,7 +97,8 @@
 			{ "key": "FolderId", "hideIfDefaultValue": true },
 			{ "key": "Title" },
 			{ "key": "Username", "optional": true },
-			{ "key": "Password", "type": "password", "optional": true }
+			{ "key": "Password", "type": "password", "optional": true },
+			{ "key": "PasswordRepeat", "type": "password", "optional": true }
 		]
 	},
 	{

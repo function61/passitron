@@ -173,7 +173,9 @@ func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 	}
 
 	if a.Password != "" {
-		// TODO: repeat password, but optional
+		if a.PasswordRepeat != "" && a.Password != a.PasswordRepeat {
+			return errors.New("password and repeated password different")
+		}
 
 		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 			accountId,
