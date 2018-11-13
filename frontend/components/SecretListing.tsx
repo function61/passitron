@@ -2,7 +2,7 @@ import {CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
 import {SearchBox} from 'components/SearchBox';
 import {FolderResponse} from 'generated/apitypes';
-import {AccountDeleteFolder, AccountMove} from 'generated/commanddefinitions';
+import {AccountDeleteFolder, AccountMove, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
 import * as React from 'react';
 import {credviewRoute, folderRoute} from 'routes';
 
@@ -19,6 +19,8 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 				<td><a href={folderRoute.buildUrl({folderId: folder.Id})}>{folder.Name}</a></td>
 				<td></td>
 				<td><Dropdown>
+					<CommandLink command={AccountRenameFolder(folder.Id, folder.Name)}></CommandLink>
+					<CommandLink command={AccountMoveFolder(folder.Id)}></CommandLink>
 					<CommandLink command={AccountDeleteFolder(folder.Id)}></CommandLink>
 				</Dropdown></td>
 			</tr>;

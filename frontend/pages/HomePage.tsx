@@ -4,7 +4,7 @@ import {Dropdown} from 'components/dropdown';
 import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
-import {AccountCreate, AccountCreateFolder, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
+import {AccountCreate, AccountCreateFolder} from 'generated/commanddefinitions';
 import {defaultErrorHandler, getFolder} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
@@ -45,11 +45,9 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 		return <DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
 			<SecretListing listing={listing} />
 
-			<Dropdown label="Actions">
+			<Dropdown label="New ..">
 				<CommandLink command={AccountCreate(this.props.folderId)}></CommandLink>
 				<CommandLink command={AccountCreateFolder(this.props.folderId)}></CommandLink>
-				<CommandLink command={AccountRenameFolder(this.props.folderId, listing.Folder!.Name)}></CommandLink>
-				<CommandLink command={AccountMoveFolder(this.props.folderId)}></CommandLink>
 			</Dropdown>
 		</DefaultLayout>;
 	}
