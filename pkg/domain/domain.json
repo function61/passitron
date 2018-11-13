@@ -64,6 +64,18 @@
 		]
 	},
 	{
+		"event": "account.UrlChanged",
+		"ctor": ["Id", "Url"],
+		"fields": [
+			{
+				"key": "Id", "type": {"_": "string"}
+			},
+			{
+				"key": "Url", "type": {"_": "string"}
+			}
+		]
+	},
+	{
 		"event": "account.Moved",
 		"ctor": ["Id", "NewParentFolder"],
 		"fields": [

@@ -1,10 +1,6 @@
 import * as React from 'react';
 
-interface OptionalContentProps {
-	children: string;
-}
-
-export class OptionalContent extends React.Component<OptionalContentProps, {}> {
+export class OptionalContent extends React.Component<{}, {}> {
 	render() {
 		return this.props.children ?
 			<span>{this.props.children}</span> :

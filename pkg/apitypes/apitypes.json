@@ -26,6 +26,7 @@
 				{ "key": "Created", "type": {"_": "datetime"} },
 				{ "key": "FolderId", "type": {"_": "string"} },
 				{ "key": "Title", "type": {"_": "string"} },
+				{ "key": "Url", "type": {"_": "string"} },
 				{ "key": "Username", "type": {"_": "string"} },
 				{ "key": "Description", "type": {"_": "string"} }
 			]

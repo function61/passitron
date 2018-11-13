@@ -40,6 +40,16 @@
 		]
 	},
 	{
+		"command": "account.ChangeUrl",
+		"ctor": ["Account","Url"],
+		"crudNature": "update",
+		"title": "Change URL",
+		"fields": [
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "Url", "optional": true }
+		]
+	},
+	{
 		"command": "account.DeleteSecret",
 		"ctor": ["Account","Secret"],
 		"crudNature": "delete",
@@ -95,7 +105,8 @@
 		"title": "+ Account",
 		"fields": [
 			{ "key": "FolderId", "hideIfDefaultValue": true },
-			{ "key": "Title" },
+			{ "key": "Url", "optional": true },
+			{ "key": "Title", "optional": true },
 			{ "key": "Username", "optional": true },
 			{ "key": "Password", "type": "password", "optional": true },
 			{ "key": "PasswordRepeat", "type": "password", "optional": true }

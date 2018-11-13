@@ -17,6 +17,7 @@ import (
 	"github.com/pquerna/otp/totp"
 	"github.com/tstranex/u2f"
 	"golang.org/x/crypto/ssh"
+	"net/url"
 	"regexp"
 	"time"
 )
@@ -61,6 +62,25 @@ func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
 	ctx.RaisesEvent(domain.NewAccountUsernameChanged(
 		a.Account,
 		a.Username,
+		ctx.Meta))
+
+	return nil
+}
+
+func (a *AccountChangeUrl) Invoke(ctx *command.Ctx) error {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	if a.Url != "" {
+		if _, err := url.Parse(a.Url); err != nil {
+			return err
+		}
+	}
+
+	ctx.RaisesEvent(domain.NewAccountUrlChanged(
+		a.Account,
+		a.Url,
 		ctx.Meta))
 
 	return nil
@@ -159,10 +179,25 @@ func (a *AccountMoveFolder) Invoke(ctx *command.Ctx) error {
 func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 	accountId := domain.RandomId()
 
+	title := a.Title
+
+	if title == "" && a.Url != "" {
+		urlParsed, err := url.Parse(a.Url)
+		if err != nil {
+			return err
+		}
+
+		title = urlParsed.Hostname()
+	}
+
+	if title == "" {
+		return errors.New("you must specify at least Title or the Url")
+	}
+
 	ctx.RaisesEvent(domain.NewAccountCreated(
 		accountId,
 		a.FolderId,
-		a.Title,
+		title,
 		ctx.Meta))
 
 	if a.Username != "" {
@@ -181,6 +216,17 @@ func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 			accountId,
 			domain.RandomId(),
 			a.Password,
+			ctx.Meta))
+	}
+
+	if a.Url != "" {
+		if _, err := url.Parse(a.Url); err != nil {
+			return err
+		}
+
+		ctx.RaisesEvent(domain.NewAccountUrlChanged(
+			accountId,
+			a.Url,
 			ctx.Meta))
 	}
 

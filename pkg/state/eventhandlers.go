@@ -81,6 +81,18 @@ func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChang
 	return ewrap("ApplyAccountDescriptionChanged", errRecordNotFound)
 }
 
+func (s *State) ApplyAccountUrlChanged(e *domain.AccountUrlChanged) error {
+	for idx, wacc := range s.State.WrappedAccounts {
+		if wacc.Account.Id == e.Id {
+			wacc.Account.Url = e.Url
+			s.State.WrappedAccounts[idx] = wacc
+			return nil
+		}
+	}
+
+	return ewrap("ApplyAccountUrlChanged", errRecordNotFound)
+}
+
 func (s *State) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded) error {
 	for idx, wacc := range s.State.WrappedAccounts {
 		if wacc.Account.Id == e.Account {

@@ -22,6 +22,7 @@ import {
 	AccountAddSecretNote,
 	AccountAddSshKey,
 	AccountChangeDescription,
+	AccountChangeUrl,
 	AccountChangeUsername,
 	AccountDelete,
 	AccountDeleteSecret,
@@ -226,6 +227,14 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 			<table className="table table-striped th-align-right">
 			<tbody>
+				<tr>
+					<th>
+						URL
+						<CommandIcon command={AccountChangeUrl(account.Id, account.Url)} />
+					</th>
+					<td>{account.Url ? <a href={account.Url} target="_blank">{account.Url}</a> : <OptionalContent />}</td>
+					<td></td>
+				</tr>
 				<tr>
 					<th>
 						Username
