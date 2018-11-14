@@ -37,6 +37,8 @@ func main() {
 		EventStructsAsGoCode: eventStructsAsGoCode,
 	}
 
+	// for each of these files their corresponding .template file will be rendered which
+	// will end up as the filename below
 	files := []string{
 		"docs/application_model/commands.md",
 		"docs/application_model/datatypes.md",
