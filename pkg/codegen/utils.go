@@ -16,7 +16,10 @@ func WriteTemplateFile(filename string, data interface{}, templateString string)
 
 	defer file.Close()
 
-	tpl, _ := template.New("").Parse(templateString)
+	tpl, err := template.New("").Parse(templateString)
+	if err != nil {
+		return err
+	}
 
 	return tpl.Execute(file, data)
 }
