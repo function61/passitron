@@ -98,7 +98,9 @@ func Define(router *mux.Router, st *state.State) {
 		}
 
 		// FIXME: assert application/json
-		if errJson := json.NewDecoder(r.Body).Decode(cmdStruct); errJson != nil {
+		jsonDecoder := json.NewDecoder(r.Body)
+		jsonDecoder.DisallowUnknownFields()
+		if errJson := jsonDecoder.Decode(cmdStruct); errJson != nil {
 			httputil.RespondHttpJson(httputil.GenericError("json_parsing_failed", errJson), http.StatusBadRequest, w)
 			return
 		}
