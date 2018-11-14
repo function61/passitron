@@ -5,10 +5,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/function61/eventhorizon"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/mattetti/filebuffer"
 
 [[constraint]]

@@ -55,14 +55,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:239a9b1ac09e7cfbfda9ab92103039bda1a10010d37f1e16ba40e954b89cfa12"
-  name = "github.com/function61/eventhorizon"
-  packages = ["util/ass"]
-  pruneopts = "UT"
-  revision = "acb65158e9f1a54b2522e38eb6435ccdd94a0c22"
-
-[[projects]]
-  branch = "master"
   digest = "1:164c6588971e58b76cbe337969c3d81f5be6600907901c0b7d214c48fee80baa"
   name = "github.com/function61/gokit"
   packages = [
@@ -198,7 +190,6 @@
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/boombuler/barcode",
     "github.com/boombuler/barcode/qr",
-    "github.com/function61/eventhorizon/util/ass",
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/cryptorandombytes",
     "github.com/function61/gokit/logger",
