@@ -79,7 +79,7 @@ func VisitForGoStructs(e *EventSpec, visitor *Visitor) *GoStruct {
 	for _, fieldSpec := range e.Fields {
 		eventFields = append(eventFields, GoStructField{
 			Name: fieldSpec.Key,
-			Type: AsGoType(&fieldSpec.Type, EventNameAsGoStructName(e)+fieldSpec.Key, visitor),
+			Type: AsGoTypeWithInlineSupport(&fieldSpec.Type, EventNameAsGoStructName(e)+fieldSpec.Key, visitor),
 			Tags: "json:\"" + fieldSpec.Key + "\"",
 		})
 	}
@@ -120,7 +120,7 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 		for _, objectKeyDefinition := range e.Keys {
 			field := GoStructField{
 				Name: objectKeyDefinition.Key,
-				Type: AsGoType(objectKeyDefinition.Type, supportStructDef.Name, visitor),
+				Type: AsGoTypeWithInlineSupport(objectKeyDefinition.Type, supportStructDef.Name, visitor),
 				Tags: "json:\"" + objectKeyDefinition.Key + "\"",
 			}
 
@@ -139,13 +139,17 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 	case "datetime":
 		return "time.Time"
 	case "list":
-		return "[]" + AsGoType(e.Of, parentGoName, visitor)
+		return "[]" + AsGoTypeWithInlineSupport(e.Of, parentGoName, visitor)
 	default:
 		panic("unsupported type: " + e.Name)
 	}
 }
 
-func AsGoType(e *DatatypeDef, parentGoName string, visitor *Visitor) string {
+func (e *DatatypeDef) AsGoType() string {
+	return AsGoTypeWithInlineSupport(e, "", &Visitor{})
+}
+
+func AsGoTypeWithInlineSupport(e *DatatypeDef, parentGoName string, visitor *Visitor) string {
 	typ := asGoTypeInternal(e, parentGoName, visitor)
 
 	if e.Nullable {

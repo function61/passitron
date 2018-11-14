@@ -15,7 +15,7 @@ type EndpointDefinition struct {
 	Path     string       `json:"path"`
 	Name     string       `json:"name"`
 	Produces DatatypeDef  `json:"produces"`
-	Consumes *DatatypeDef `json:"consumes"`
+	Consumes *DatatypeDef `json:"consumes"` // optional
 }
 
 // "/users/{id}" => "/users/${encodeURIComponent(id)}"
@@ -77,7 +77,7 @@ func (s *StructDefinition) AsToGoCode() string {
 	for _, field := range s.Fields {
 		fields = append(fields, GoStructField{
 			Name: field.Key,
-			Type: AsGoType(field.Type, field.Key, visitor),
+			Type: AsGoTypeWithInlineSupport(field.Type, field.Key, visitor),
 			Tags: "json:\"" + field.Key + "\"",
 		})
 	}
