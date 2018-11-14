@@ -16,7 +16,11 @@ func WriteTemplateFile(filename string, data interface{}, templateString string)
 
 	defer file.Close()
 
-	tpl, err := template.New("").Parse(templateString)
+	templateFuncs := template.FuncMap{
+		"UppercaseFirst": func(input string) string { return strings.ToUpper(input[0:1]) + input[1:] },
+	}
+
+	tpl, err := template.New("").Funcs(templateFuncs).Parse(templateString)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package restqueryapi
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -43,258 +42,233 @@ func runPhysicalAuth(w http.ResponseWriter) bool {
 }
 
 func Register(router *mux.Router, st *state.State) {
-	router.HandleFunc("/u2f/enrollment/challenge", func(w http.ResponseWriter, r *http.Request) {
-		c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.GetTrustedFacets())
-		if err != nil {
-			log.Printf("u2f.NewChallenge error: %v", err)
-			http.Error(w, "error", http.StatusInternalServerError)
-			return
-		}
-
-		req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(st))
-
-		registerRequests := []apitypes.U2FRegisterRequest{}
-		for _, r := range req.RegisterRequests {
-			registerRequests = append(registerRequests, apitypes.U2FRegisterRequest{
-				Version:   r.Version,
-				Challenge: r.Challenge,
-			})
-		}
-
-		json.NewEncoder(w).Encode(apitypes.U2FEnrollmentChallenge{
-			Challenge: u2futil.ChallengeToApiType(*c),
-			RegisterRequest: apitypes.U2FWebRegisterRequest{
-				AppID:            req.AppID,
-				RegisterRequests: registerRequests,
-				RegisteredKeys:   u2futil.RegisteredKeysToApiType(req.RegisteredKeys),
-			},
-		})
+	apitypes.RegisterRoutes(&queryHandlers{
+		st: st,
+	}, func(path string, fn http.HandlerFunc) {
+		router.HandleFunc(path, fn)
 	})
+}
 
-	router.HandleFunc("/auditlog", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		httputil.RespondHttpJson(st.State.AuditLog, http.StatusOK, w)
-	}))
+type queryHandlers struct {
+	st *state.State
+}
 
-	router.HandleFunc("/folder/{folderId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
+func (a *queryHandlers) GetFolder(w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
+	if errorIfSealed(a.st.IsUnsealed(), w) {
+		return nil
+	}
 
-		folder := st.FolderById(mux.Vars(r)["folderId"])
+	folder := a.st.FolderById(mux.Vars(r)["folderId"])
 
-		accounts := state.UnwrapAccounts(st.WrappedAccountsByFolder(folder.Id))
-		subFolders := st.SubfoldersByParentId(folder.Id)
-		parentFolders := []apitypes.Folder{}
+	accounts := state.UnwrapAccounts(a.st.WrappedAccountsByFolder(folder.Id))
+	subFolders := a.st.SubfoldersByParentId(folder.Id)
+	parentFolders := []apitypes.Folder{}
 
-		parentId := folder.ParentId
-		for parentId != "" {
-			parent := st.FolderById(parentId)
+	parentId := folder.ParentId
+	for parentId != "" {
+		parent := a.st.FolderById(parentId)
 
-			parentFolders = append(parentFolders, *parent)
+		parentFolders = append(parentFolders, *parent)
 
-			parentId = parent.ParentId
-		}
+		parentId = parent.ParentId
+	}
 
-		httputil.RespondHttpJson(apitypes.FolderResponse{
-			Folder:        folder,
-			SubFolders:    subFolders,
-			ParentFolders: parentFolders,
-			Accounts:      accounts,
-		}, http.StatusOK, w)
-	}))
+	return &apitypes.FolderResponse{
+		Folder:        folder,
+		SubFolders:    subFolders,
+		ParentFolders: parentFolders,
+		Accounts:      accounts,
+	}
+}
 
-	router.HandleFunc("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
+func (a *queryHandlers) GetKeylistKey(w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
+	key := mux.Vars(r)["key"]
 
-		query := strings.ToLower(r.URL.Query().Get("q"))
+	if errorIfSealed(a.st.IsUnsealed(), w) {
+		return nil
+	}
 
-		accounts := []apitypes.Account{}
-		folders := []apitypes.Folder{}
+	if !runPhysicalAuth(w) {
+		return nil // error handled internally
+	}
 
-		for _, folder := range st.State.Folders {
-			if !strings.Contains(strings.ToLower(folder.Name), query) {
-				continue
-			}
+	accountId := mux.Vars(r)["accountId"]
 
-			folders = append(folders, folder)
-		}
-
-		for _, wacc := range st.State.WrappedAccounts {
-			if !strings.Contains(strings.ToLower(wacc.Account.Title), query) {
-				continue
-			}
-
-			accounts = append(accounts, wacc.Account)
-		}
-
-		httputil.RespondHttpJson(apitypes.FolderResponse{
-			SubFolders: folders,
-			Accounts:   accounts,
-		}, http.StatusOK, w)
-	}))
-
-	router.HandleFunc("/u2f/enrolled_tokens", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
-
-		tokens := []apitypes.U2FEnrolledToken{}
-
-		for _, token := range st.State.U2FTokens {
-			tokens = append(tokens, apitypes.U2FEnrolledToken{
-				Name:       token.Name,
-				EnrolledAt: token.EnrolledAt,
-				Version:    token.Version,
-			})
-		}
-
-		httputil.RespondHttpJson(tokens, http.StatusOK, w)
-	}))
-
-	router.HandleFunc("/accounts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
-
-		sshkey := strings.ToLower(r.URL.Query().Get("sshkey"))
-
-		matches := []apitypes.Account{}
-
-		if sshkey == "y" {
-			for _, wacc := range st.State.WrappedAccounts {
-				for _, secret := range wacc.Secrets {
-					if secret.Secret.SshPublicKeyAuthorized == "" {
-						continue
-					}
-
-					matches = append(matches, wacc.Account)
-				}
-			}
-		} else { // return all
-			for _, wacc := range st.State.WrappedAccounts {
-				matches = append(matches, wacc.Account)
-			}
-		}
-
-		httputil.RespondHttpJson(matches, http.StatusOK, w)
-	}))
-
-	router.HandleFunc("/accounts/{accountId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
-
-		wacc := st.WrappedAccountById(mux.Vars(r)["accountId"])
-
-		if wacc == nil {
-			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
-			return
-		}
-
-		u2fTokens := u2futil.GrabUsersU2FTokens(st)
-
-		if len(u2fTokens) == 0 {
-			http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
-			return
-		}
-
-		challenge, err := u2futil.NewU2FCustomChallenge(
-			u2futil.GetAppIdHostname(),
-			u2futil.GetTrustedFacets(),
-			u2futil.ChallengeHashForAccountSecrets(wacc.Account))
-		if err != nil {
-			log.Printf("u2f.NewChallenge error: %v", err)
-			http.Error(w, "error", http.StatusInternalServerError)
-			return
-		}
-
-		signRequest := challenge.SignRequest(u2fTokens)
-
-		output := apitypes.WrappedAccount{
-			Challenge:   u2futil.ChallengeToApiType(*challenge),
-			SignRequest: u2futil.SignRequestToApiType(*signRequest),
-			Account:     wacc.Account,
-		}
-
-		httputil.RespondHttpJson(output, http.StatusOK, w)
-	}))
-
-	router.HandleFunc("/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		key := mux.Vars(r)["key"]
-
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
-		}
-
-		if !runPhysicalAuth(w) {
-			return // error handled internally
-		}
-
-		accountId := mux.Vars(r)["accountId"]
-
-		wsecret := st.WrappedSecretById(accountId, mux.Vars(r)["secretId"])
-		if wsecret == nil {
-			httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
-			return
-		}
-
-		for _, keyEntry := range wsecret.KeylistKeys {
-			if keyEntry.Key == key {
-				st.EventLog.Append(domain.NewAccountSecretUsed(
-					accountId,
-					[]string{wsecret.Secret.Id},
-					domain.SecretUsedTypeKeylistKeyExposed,
-					keyEntry.Key,
-					domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
-
-				httputil.RespondHttpJson(keyEntry, http.StatusOK, w)
-				return
-			}
-		}
-
+	wsecret := a.st.WrappedSecretById(accountId, mux.Vars(r)["secretId"])
+	if wsecret == nil {
 		httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
-	}))
+		return nil
+	}
 
-	router.HandleFunc("/accounts/{accountId}/secrets", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if errorIfSealed(st.IsUnsealed(), w) {
-			return
+	for _, keyEntry := range wsecret.KeylistKeys {
+		if keyEntry.Key == key {
+			a.st.EventLog.Append(domain.NewAccountSecretUsed(
+				accountId,
+				[]string{wsecret.Secret.Id},
+				domain.SecretUsedTypeKeylistKeyExposed,
+				keyEntry.Key,
+				domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+
+			return &keyEntry
+		}
+	}
+
+	httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
+	return nil
+}
+
+func (a *queryHandlers) GetSecrets(input apitypes.GetSecretsInput, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
+	if errorIfSealed(a.st.IsUnsealed(), w) {
+		return nil
+	}
+
+	wacc := a.st.WrappedAccountById(mux.Vars(r)["accountId"])
+
+	if wacc == nil {
+		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
+		return nil
+	}
+
+	if err := exposeSecretsChallengeResponseOk(input.Challenge, input.SignResult, wacc.Account, a.st); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("challenge_failed", err), http.StatusForbidden, w)
+		return nil
+	}
+
+	secrets := state.UnwrapSecrets(wacc.Secrets)
+
+	secretIdsForAudit := []string{}
+	for _, secret := range secrets {
+		secretIdsForAudit = append(secretIdsForAudit, secret.Secret.Id)
+	}
+
+	a.st.EventLog.Append(domain.NewAccountSecretUsed(
+		wacc.Account.Id,
+		secretIdsForAudit,
+		domain.SecretUsedTypePasswordExposed,
+		"",
+		domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+
+	return &secrets
+}
+
+func (a *queryHandlers) AuditLogEntries(w http.ResponseWriter, r *http.Request) *[]apitypes.AuditlogEntry {
+	return &a.st.State.AuditLog
+}
+
+func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
+	if errorIfSealed(a.st.IsUnsealed(), w) {
+		return nil
+	}
+
+	wacc := a.st.WrappedAccountById(mux.Vars(r)["id"])
+
+	if wacc == nil {
+		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
+		return nil
+	}
+
+	u2fTokens := u2futil.GrabUsersU2FTokens(a.st)
+
+	if len(u2fTokens) == 0 {
+		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
+		return nil
+	}
+
+	challenge, err := u2futil.NewU2FCustomChallenge(
+		u2futil.GetAppIdHostname(),
+		u2futil.GetTrustedFacets(),
+		u2futil.ChallengeHashForAccountSecrets(wacc.Account))
+	if err != nil {
+		log.Printf("u2f.NewChallenge error: %v", err)
+		http.Error(w, "error", http.StatusInternalServerError)
+		return nil
+	}
+
+	signRequest := challenge.SignRequest(u2fTokens)
+
+	return &apitypes.WrappedAccount{
+		Challenge:   u2futil.ChallengeToApiType(*challenge),
+		SignRequest: u2futil.SignRequestToApiType(*signRequest),
+		Account:     wacc.Account,
+	}
+}
+
+func (a *queryHandlers) Search(w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
+	if errorIfSealed(a.st.IsUnsealed(), w) {
+		return nil
+	}
+
+	query := strings.ToLower(r.URL.Query().Get("q"))
+
+	accounts := []apitypes.Account{}
+	folders := []apitypes.Folder{}
+
+	for _, folder := range a.st.State.Folders {
+		if !strings.Contains(strings.ToLower(folder.Name), query) {
+			continue
 		}
 
-		var input apitypes.GetSecretsInput
-		if errJson := json.NewDecoder(r.Body).Decode(&input); errJson != nil {
-			panic(errJson)
+		folders = append(folders, folder)
+	}
+
+	for _, wacc := range a.st.State.WrappedAccounts {
+		if !strings.Contains(strings.ToLower(wacc.Account.Title), query) {
+			continue
 		}
 
-		wacc := st.WrappedAccountById(mux.Vars(r)["accountId"])
+		accounts = append(accounts, wacc.Account)
+	}
 
-		if wacc == nil {
-			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
-			return
-		}
+	return &apitypes.FolderResponse{
+		SubFolders: folders,
+		Accounts:   accounts,
+	}
+}
 
-		if err := exposeSecretsChallengeResponseOk(input.Challenge, input.SignResult, wacc.Account, st); err != nil {
-			httputil.RespondHttpJson(httputil.GenericError("challenge_failed", err), http.StatusForbidden, w)
-			return
-		}
+func (a *queryHandlers) U2fEnrollmentChallenge(w http.ResponseWriter, r *http.Request) *apitypes.U2FEnrollmentChallenge {
+	c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.GetTrustedFacets())
+	if err != nil {
+		log.Printf("u2f.NewChallenge error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return nil
+	}
 
-		secrets := state.UnwrapSecrets(wacc.Secrets)
+	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.st))
 
-		secretIdsForAudit := []string{}
-		for _, secret := range secrets {
-			secretIdsForAudit = append(secretIdsForAudit, secret.Secret.Id)
-		}
+	registerRequests := []apitypes.U2FRegisterRequest{}
+	for _, r := range req.RegisterRequests {
+		registerRequests = append(registerRequests, apitypes.U2FRegisterRequest{
+			Version:   r.Version,
+			Challenge: r.Challenge,
+		})
+	}
 
-		st.EventLog.Append(domain.NewAccountSecretUsed(
-			wacc.Account.Id,
-			secretIdsForAudit,
-			domain.SecretUsedTypePasswordExposed,
-			"",
-			domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+	return &apitypes.U2FEnrollmentChallenge{
+		Challenge: u2futil.ChallengeToApiType(*c),
+		RegisterRequest: apitypes.U2FWebRegisterRequest{
+			AppID:            req.AppID,
+			RegisterRequests: registerRequests,
+			RegisteredKeys:   u2futil.RegisteredKeysToApiType(req.RegisteredKeys),
+		},
+	}
+}
 
-		httputil.RespondHttpJson(secrets, http.StatusOK, w)
-	}))
+func (a *queryHandlers) U2fEnrolledTokens(w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
+	if errorIfSealed(a.st.IsUnsealed(), w) {
+		return nil
+	}
+
+	tokens := []apitypes.U2FEnrolledToken{}
+
+	for _, token := range a.st.State.U2FTokens {
+		tokens = append(tokens, apitypes.U2FEnrolledToken{
+			Name:       token.Name,
+			EnrolledAt: token.EnrolledAt,
+			Version:    token.Version,
+		})
+	}
+
+	return &tokens
 }
 
 func exposeSecretsChallengeResponseOk(

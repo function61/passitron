@@ -51,6 +51,7 @@ func main() {
 		"frontend/generated/restapi.ts",
 		"frontend/generated/version.ts",
 		"pkg/apitypes/apitypes.go",
+		"pkg/apitypes/endpointcontract.go",
 		"pkg/commandhandlers/generated.go",
 		"pkg/domain/domain.go",
 		"pkg/domain/events.go",

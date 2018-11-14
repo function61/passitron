@@ -1,0 +1,54 @@
+package apitypes
+
+import (
+	"net/http"
+	"encoding/json"
+)
+
+type Handlers interface { {{range .ApplicationTypes.Endpoints}}{{if .Consumes}}
+	{{UppercaseFirst .Name}}(input {{.Consumes.AsGoType}}, w http.ResponseWriter, r *http.Request) *{{.Produces.AsGoType}}{{else}}
+	{{UppercaseFirst .Name}}(w http.ResponseWriter, r *http.Request) *{{.Produces.AsGoType}}{{end}}{{end}}
+}
+
+// the following generated code brings type safety from all the way to the
+// backend-frontend path (input/output structs and endpoint URLs) to the REST API
+// TODO: middlewares like auth
+func RegisterRoutes(handlers Handlers, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}{{if .Consumes}}
+	register("{{.Path}}", func(w http.ResponseWriter, r *http.Request) {
+		input := &{{.Consumes.AsGoType}}{}
+		if ok := parseJsonInput(w, r, input); !ok {
+			return // parseJsonInput handled error message
+		}
+
+		if out := handlers.{{UppercaseFirst .Name}}(*input, w, r); out != nil { handleJsonOutput(w, out) }
+	}){{else}}
+	register("{{.Path}}", func(w http.ResponseWriter, r *http.Request) {
+		if out := handlers.{{UppercaseFirst .Name}}(w, r); out != nil { handleJsonOutput(w, out) }
+	}){{end}}
+{{end}}
+}
+
+func handleJsonOutput(w http.ResponseWriter, output interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(output); err != nil {
+		panic(err)
+	}
+}
+
+func parseJsonInput(w http.ResponseWriter, r *http.Request, input interface{}) bool {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "expecting Content-Type with application/json header", http.StatusBadRequest)
+		return false
+	}
+
+	if err := decoder.Decode(input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return false
+	}
+
+	return true
+}
