@@ -97,7 +97,11 @@ func Define(router *mux.Router, st *state.State) {
 			Meta:  domain.Meta(time.Now(), domain.DefaultUserIdTODO),
 		}
 
-		// FIXME: assert application/json
+		if r.Header.Get("Content-Type") != "application/json" {
+			httputil.RespondHttpJson(httputil.GenericError("expecting_content_type_json", errors.New("expecting Content-Type header with application/json")), http.StatusBadRequest, w)
+			return
+		}
+
 		jsonDecoder := json.NewDecoder(r.Body)
 		jsonDecoder.DisallowUnknownFields()
 		if errJson := jsonDecoder.Decode(cmdStruct); errJson != nil {
