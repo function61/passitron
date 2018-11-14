@@ -9,26 +9,23 @@ import (
 	"io"
 )
 
-func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
+func DeriveKey100k(masterKey []byte, salt []byte) []byte {
 	// 1.4sec @ 100k on Raspberry Pi 2
 	// https://github.com/borgbackup/borg/issues/77#issuecomment-130459726
 	iterationCount := 100 * 1000
 
-	encryptionKey := pbkdf2.Key(
-		[]byte(pwd),
+	derivedKey := pbkdf2.Key(
+		masterKey,
 		salt,
 		iterationCount,
 		256/8,
 		sha256.New)
 
-	if len(encryptionKey) != 32 {
-		panic("returned pbkdf2 key not 32 bytes")
+	if len(derivedKey) != 32 {
+		panic("pbkdf2 derived key not 32 bytes")
 	}
 
-	var ret [32]byte
-	copy(ret[:], encryptionKey)
-
-	return ret
+	return derivedKey
 }
 
 // envelope = <24 bytes of nonce> <ciphertext>
@@ -42,7 +39,7 @@ func Encrypt(plaintext []byte, password string) ([]byte, error) {
 	}
 
 	// using Seal() nonce as PBKDF2 salt
-	encryptionKey := passwordTo256BitEncryptionKey(password, nonce[:])
+	encryptionKey := passwordTo256BitEncryptionKey100k(password, nonce[:])
 
 	nonceAndCiphertextEnvelope := []byte{}
 	nonceAndCiphertextEnvelope = secretbox.Seal(nonce[:], plaintext, &nonce, &encryptionKey)
@@ -60,7 +57,7 @@ func Decrypt(nonceAndCiphertextEnvelope []byte, password string) ([]byte, error)
 	copy(decryptNonce[:], nonceAndCiphertextEnvelope[:24])
 
 	// using Seal() nonce as PBKDF2 salt
-	encryptionKey := passwordTo256BitEncryptionKey(password, decryptNonce[:])
+	encryptionKey := passwordTo256BitEncryptionKey100k(password, decryptNonce[:])
 
 	plaintextBytes, ok := secretbox.Open(nil, nonceAndCiphertextEnvelope[24:], &decryptNonce, &encryptionKey)
 	if !ok {
@@ -68,4 +65,11 @@ func Decrypt(nonceAndCiphertextEnvelope []byte, password string) ([]byte, error)
 	}
 
 	return plaintextBytes, nil
+}
+
+func passwordTo256BitEncryptionKey100k(masterKey string, salt []byte) [32]byte {
+	var ret [32]byte
+	copy(ret[:], DeriveKey100k([]byte(masterKey), salt))
+
+	return ret
 }

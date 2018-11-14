@@ -97,6 +97,7 @@
 			"fields": [
 				{ "key": "Secret", "type": {"_": "Secret"} },
 				{ "key": "OtpProof", "type": {"_": "string"} },
+				{ "key": "OtpKeyExportMac", "type": {"_": "string"} },
 				{ "key": "OtpProofTime", "type": {"_": "datetime"} }
 			]
 		},

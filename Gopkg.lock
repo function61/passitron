@@ -63,9 +63,10 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:82a2dc5afdddc51893c588dde6a822219adf9622ff3daa6192107f65b0e46f55"
+  digest = "1:164c6588971e58b76cbe337969c3d81f5be6600907901c0b7d214c48fee80baa"
   name = "github.com/function61/gokit"
   packages = [
+    "assert",
     "cryptorandombytes",
     "logger",
     "ossignal",
@@ -195,7 +196,10 @@
     "github.com/aws/aws-sdk-go/aws/endpoints",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/boombuler/barcode",
+    "github.com/boombuler/barcode/qr",
     "github.com/function61/eventhorizon/util/ass",
+    "github.com/function61/gokit/assert",
     "github.com/function61/gokit/cryptorandombytes",
     "github.com/function61/gokit/logger",
     "github.com/function61/gokit/ossignal",

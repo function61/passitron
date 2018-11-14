@@ -2,6 +2,7 @@ package state
 
 import (
 	"github.com/function61/pi-security-module/pkg/apitypes"
+	"github.com/function61/pi-security-module/pkg/mac"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"time"
@@ -80,7 +81,7 @@ func UnwrapAccounts(waccs []WrappedAccount) []apitypes.Account {
 	return ret
 }
 
-func UnwrapSecrets(secrets []WrappedSecret) []apitypes.ExposedSecret {
+func UnwrapSecrets(secrets []WrappedSecret, st *State) []apitypes.ExposedSecret {
 	ret := []apitypes.ExposedSecret{}
 
 	otpProofTime := time.Now()
@@ -101,9 +102,10 @@ func UnwrapSecrets(secrets []WrappedSecret) []apitypes.ExposedSecret {
 		}
 
 		es := apitypes.ExposedSecret{
-			OtpProof:     otpProof,
-			OtpProofTime: otpProofTime,
-			Secret:       psecret.Secret,
+			OtpProof:        otpProof,
+			OtpProofTime:    otpProofTime,
+			OtpKeyExportMac: mac.New(st.GetMacSigningKey(), psecret.Secret.Id).Sign(),
+			Secret:          psecret.Secret,
 		}
 
 		ret = append(ret, es)

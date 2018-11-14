@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventlog"
 )
@@ -12,6 +14,7 @@ const (
 
 type State struct {
 	masterPassword string
+	macSigningKey  string // derived from masterPassword
 	sealed         bool
 	State          *Statefile
 	EventLog       *eventlog.EventLog
@@ -57,8 +60,19 @@ func (s *State) GetMasterPassword() string {
 	return s.masterPassword
 }
 
+func (s *State) GetMacSigningKey() string {
+	return s.macSigningKey
+}
+
 func (s *State) SetMasterPassword(password string) {
 	s.masterPassword = password
+
+	// FIXME: if we scan entire event log at startup, and there's 100x
+	// "master password changed" events, that's going to yield N amount of calls to here
+	// and due to nature of a KDFs are designed to be slow, that'd be real slow
+	s.macSigningKey = fmt.Sprintf("%x", crypto.DeriveKey100k(
+		[]byte(s.masterPassword),
+		[]byte("macSalt")))
 }
 
 func (s *State) IsUnsealed() bool {

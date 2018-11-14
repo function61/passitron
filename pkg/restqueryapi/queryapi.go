@@ -3,14 +3,18 @@ package restqueryapi
 import (
 	"bytes"
 	"errors"
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httputil"
+	"github.com/function61/pi-security-module/pkg/mac"
 	"github.com/function61/pi-security-module/pkg/physicalauth"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/gorilla/mux"
 	"github.com/tstranex/u2f"
+	"image/png"
 	"log"
 	"net/http"
 	"strings"
@@ -46,6 +50,56 @@ func Register(router *mux.Router, st *state.State) {
 		st: st,
 	}, func(path string, fn http.HandlerFunc) {
 		router.HandleFunc(path, fn)
+	})
+
+	// TODO: this should be part of apitypes.json (need produces-nothing first)
+	router.HandleFunc("/accounts/{accountId}/secrets/{secretId}/totp_barcode", func(w http.ResponseWriter, r *http.Request) {
+		accountId := mux.Vars(r)["accountId"]
+		secretId := mux.Vars(r)["secretId"]
+
+		account := st.WrappedAccountById(accountId)
+		if account == nil {
+			httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
+			return
+		}
+
+		var secret *state.WrappedSecret = nil
+		for _, secretItem := range account.Secrets {
+			if secretItem.Secret.Id == secretId {
+				secret = &secretItem
+				break
+			}
+		}
+
+		if secret == nil {
+			httputil.RespondHttpJson(httputil.GenericError("secret_not_found", nil), http.StatusNotFound, w)
+			return
+		}
+
+		exportMac := mac.New(st.GetMacSigningKey(), secret.Secret.Id)
+
+		if err := exportMac.Authenticate(r.URL.Query().Get("mac")); err != nil {
+			httputil.RespondHttpJson(httputil.GenericError("invalid_mac", err), http.StatusForbidden, w)
+			return
+		}
+
+		qrCode, err := qr.Encode(secret.OtpProvisioningUrl, qr.M, qr.Auto)
+		if err != nil {
+			httputil.RespondHttpJson(httputil.GenericError("qr_encode", err), http.StatusInternalServerError, w)
+			return
+		}
+
+		qrCode, err = barcode.Scale(qrCode, 200, 200)
+		if err != nil {
+			httputil.RespondHttpJson(httputil.GenericError("barcode_scale", err), http.StatusInternalServerError, w)
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/png")
+		if err := png.Encode(w, qrCode); err != nil {
+			httputil.RespondHttpJson(httputil.GenericError("png_encode", err), http.StatusInternalServerError, w)
+			return
+		}
 	})
 }
 
@@ -134,7 +188,7 @@ func (a *queryHandlers) GetSecrets(input apitypes.GetSecretsInput, w http.Respon
 		return nil
 	}
 
-	secrets := state.UnwrapSecrets(wacc.Secrets)
+	secrets := state.UnwrapSecrets(wacc.Secrets, a.st)
 
 	secretIdsForAudit := []string{}
 	for _, secret := range secrets {

@@ -282,12 +282,21 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<td data-to-clipboard={secret.Password} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
+				const exportUrl = `/accounts/${account.Id}/secrets/${secret.Id}/totp_barcode?mac=${exposedSecret.OtpKeyExportMac}`;
+
 				return <tr key={secret.Id}>
 					<th>
 						<span title={relativeDateFormat(secret.Created)}>OTP code</span>
 						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 					</th>
-					<td>{exposedSecret.OtpProof}</td>
+					<td>
+						{exposedSecret.OtpProof}
+						<a
+							style={{marginLeft: '16px'}}
+							title="Export to Google Authenticator"
+							href={exportUrl}
+							target="_blank"><span className="glyphicon glyphicon-barcode" /></a>
+					</td>
 					<td data-to-clipboard={exposedSecret.OtpProof} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.Keylist:
