@@ -7,13 +7,9 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 	"golang.org/x/crypto/pbkdf2"
 	"io"
-	"log"
-	"time"
 )
 
 func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
-	started := time.Now()
-
 	// 1.4sec @ 100k on Raspberry Pi 2
 	// https://github.com/borgbackup/borg/issues/77#issuecomment-130459726
 	iterationCount := 100 * 1000
@@ -31,8 +27,6 @@ func passwordTo256BitEncryptionKey(pwd string, salt []byte) [32]byte {
 
 	var ret [32]byte
 	copy(ret[:], encryptionKey)
-
-	log.Printf("Encryption key derived from password in %s", time.Since(started))
 
 	return ret
 }
