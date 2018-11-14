@@ -8,7 +8,8 @@ import (
 	"github.com/function61/gokit/systemdinstaller"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/keepassimport"
-	"github.com/function61/pi-security-module/pkg/restapi"
+	"github.com/function61/pi-security-module/pkg/restcommandapi"
+	"github.com/function61/pi-security-module/pkg/restqueryapi"
 	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -41,7 +42,8 @@ func startHttp(st *state.State, stop *stopper.Stopper) error {
 		return err
 	}
 
-	restapi.Define(router, st)
+	restqueryapi.Register(router, st)
+	restcommandapi.Register(router, st)
 
 	signingapi.Setup(router, st)
 
