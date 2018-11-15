@@ -1,6 +1,6 @@
 import {WarningAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
-import {CommandButton} from 'components/CommandButton';
+import {CommandInlineForm} from 'components/CommandButton';
 import {Loading} from 'components/loading';
 import {DatabaseUnseal} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
@@ -33,7 +33,7 @@ export default class UnsealPage extends React.Component<UnsealPageProps, UnsealP
 				content = <div>
 					<WarningAlert text="Database was sealed. Please unseal it." />
 
-					<CommandButton command={DatabaseUnseal()}></CommandButton>
+					<CommandInlineForm command={DatabaseUnseal()} />
 				</div>;
 			} else {
 				// content = <SuccessAlert text="Unsealed successfully." />;
