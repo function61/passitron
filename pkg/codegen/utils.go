@@ -3,6 +3,7 @@ package codegen
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 	"text/template"
@@ -17,7 +18,8 @@ func WriteTemplateFile(filename string, data interface{}, templateString string)
 	defer file.Close()
 
 	templateFuncs := template.FuncMap{
-		"UppercaseFirst": func(input string) string { return strings.ToUpper(input[0:1]) + input[1:] },
+		"StripQueryFromUrl": stripQueryFromUrl,
+		"UppercaseFirst":    func(input string) string { return strings.ToUpper(input[0:1]) + input[1:] },
 	}
 
 	tpl, err := template.New("").Funcs(templateFuncs).Parse(templateString)
@@ -50,4 +52,14 @@ func isUppercase(input string) bool {
 
 func isCustomType(typeName string) bool {
 	return isUppercase(typeName[0:1])
+}
+
+// "/search?q={stuff}" => "/search"
+func stripQueryFromUrl(input string) string {
+	u, err := url.Parse(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.Path
 }

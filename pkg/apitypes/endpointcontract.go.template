@@ -14,7 +14,7 @@ type Handlers interface { {{range .ApplicationTypes.Endpoints}}{{if .Consumes}}
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
 // TODO: middlewares like auth
 func RegisterRoutes(handlers Handlers, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}{{if .Consumes}}
-	register("{{.Path}}", func(w http.ResponseWriter, r *http.Request) {
+	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
 		input := &{{.Consumes.AsGoType}}{}
 		if ok := parseJsonInput(w, r, input); !ok {
 			return // parseJsonInput handled error message
@@ -22,7 +22,7 @@ func RegisterRoutes(handlers Handlers, register func(path string, fn http.Handle
 
 		if out := handlers.{{UppercaseFirst .Name}}(*input, w, r); out != nil { handleJsonOutput(w, out) }
 	}){{else}}
-	register("{{.Path}}", func(w http.ResponseWriter, r *http.Request) {
+	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
 		if out := handlers.{{UppercaseFirst .Name}}(w, r); out != nil { handleJsonOutput(w, out) }
 	}){{end}}
 {{end}}
