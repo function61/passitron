@@ -13,6 +13,7 @@ type WrappedSecret struct {
 	KeylistKeys        []apitypes.SecretKeylistKey
 }
 
+// FIXME: this has the same name as with apitypes.WrappedAccount
 type WrappedAccount struct {
 	Account apitypes.Account
 	Secrets []WrappedSecret
