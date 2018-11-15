@@ -15,6 +15,8 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 	render() {
 		document.title = `${this.props.title} - PiLockBox`;
 
+		const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
+
 		return <div>
 			<div className="header clearfix">
 				<div className="pull-left">
@@ -34,11 +36,13 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 
 			{ this.props.children }
 
-			<div className="panel panel-default" style={{marginTop: '16px'}}>
-				<div className="panel-footer">
+			<div className="panel panel-default panel-footer" style={{marginTop: '16px'}}>
+				<div className="pull-left">
 					<a href="https://github.com/function61/pi-security-module" target="_blank">PiLockBox</a>
-					&nbsp;
-					{version}</div>
+					&nbsp;{version}&nbsp;by <a href="https://function61.com/" target="_blank">function61.com</a>
+				</div>
+				<div className="pull-right">Enjoy your {dayOfWeek}! :)</div>
+				<div className="clearfix"></div>
 			</div>
 		</div>;
 	}
