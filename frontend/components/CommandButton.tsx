@@ -1,4 +1,5 @@
 import {CommandDefinition, CrudNature} from 'commandtypes';
+import {Loading} from 'components/loading';
 import {ModalDialog} from 'components/modaldialog';
 import {CommandChangesArgs, CommandPagelet, initialCommandState} from 'plumbing';
 import * as React from 'react';
@@ -157,5 +158,39 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 			{commandTitle}
 			{maybeDialog}
 		</a>;
+	}
+}
+
+interface CommandInlineFormProps {
+	command: CommandDefinition;
+}
+
+interface CommandInlineFormState {
+	cmdState?: CommandChangesArgs;
+}
+
+export class CommandInlineForm extends React.Component<CommandInlineFormProps, CommandInlineFormState> {
+	public state: CommandInlineFormState = {};
+	private cmdPagelet: CommandPagelet | null = null;
+
+	render() {
+		const submitEnabled = this.state.cmdState && this.state.cmdState.submitEnabled;
+		const maybeLoading = this.state.cmdState && this.state.cmdState.processing ? <Loading /> : '';
+
+		return <div>
+			<CommandPagelet
+				command={this.props.command}
+				onSubmit={() => { this.save(); }}
+				onChanges={(cmdState) => { this.setState({ cmdState }); }}
+				ref={(el) => { this.cmdPagelet = el; }} />
+
+			<button className="btn btn-primary" onClick={() => { this.save(); }} disabled={!submitEnabled}>{this.props.command.title}</button>
+
+			{maybeLoading}
+		</div>;
+	}
+
+	save() {
+		this.cmdPagelet!.submitAndReloadOnSuccess();
 	}
 }
