@@ -2,10 +2,10 @@
 {{.Command}}
 ----------
 
-| Details         |                 |
-|-----------------|-----------------|
-| Title           | {{.Title}}      |
-| Anonymous usage | {{.Anonymous}}  |
+| Details             |                 |
+|---------------------|-----------------|
+| Title               | {{.Title}}      |
+| Unauthenticated use | {{.Anonymous}}  |
 
 | Field | Type | Optional |
 |-------|------|----------|
