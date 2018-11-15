@@ -19,10 +19,7 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 	private cmdPagelet: CommandPagelet | null = null;
 
 	save() {
-		// FIXME: remove duplication of this code
-		this.cmdPagelet!.submit().then(() => {
-			document.location.reload();
-		}, () => { /* noop */ });
+		this.cmdPagelet!.submitAndReloadOnSuccess();
 	}
 
 	render() {
@@ -91,10 +88,7 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 	private cmdPagelet: CommandPagelet | null = null;
 
 	save() {
-		// FIXME: remove duplication of this code
-		this.cmdPagelet!.submit().then(() => {
-			document.location.reload();
-		}, () => { /* noop */ });
+		this.cmdPagelet!.submitAndReloadOnSuccess();
 	}
 
 	render() {
@@ -138,10 +132,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 	private cmdPagelet: CommandPagelet | null = null;
 
 	save() {
-		// FIXME: remove duplication of this code
-		this.cmdPagelet!.submit().then(() => {
-			document.location.reload();
-		}, () => { /* noop */ });
+		this.cmdPagelet!.submitAndReloadOnSuccess();
 	}
 
 	render() {

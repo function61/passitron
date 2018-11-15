@@ -140,6 +140,12 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		return execResult;
 	}
 
+	submitAndReloadOnSuccess(): void {
+		this.submit().then(() => {
+			document.location.reload();
+		}, () => { /* noop */ });
+	}
+
 	private validate(field: CommandField, value: any): boolean {
 		if (field.Required && (value === undefined || value === null || value === '')) {
 			return false;
