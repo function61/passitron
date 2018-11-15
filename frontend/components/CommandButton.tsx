@@ -29,6 +29,7 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 		const maybeDialog = this.state.dialogOpen ?
 			<ModalDialog
 				title={commandTitle}
+				onClose={() => { this.setState({ dialogOpen: false }); }}
 				onSave={() => { this.save(); }}
 				loading={this.state.cmdState.processing}
 				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
@@ -100,6 +101,7 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 		const maybeDialog = this.state.dialogOpen ?
 			<ModalDialog
 				title={commandTitle}
+				onClose={() => { this.setState({ dialogOpen: false }); }}
 				onSave={() => { this.save(); }}
 				loading={this.state.cmdState.processing}
 				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
@@ -142,6 +144,7 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 		const maybeDialog = this.state.dialogOpen ?
 			<ModalDialog
 				title={commandTitle}
+				onClose={() => { this.setState({ dialogOpen: false }); }}
 				onSave={() => { this.save(); }}
 				loading={this.state.cmdState.processing}
 				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}

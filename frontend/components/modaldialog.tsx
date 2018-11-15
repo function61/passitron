@@ -6,6 +6,7 @@ import {uniqueDomId} from 'utils';
 interface ModalDialogProps {
 	title: string;
 	onSave: () => void;
+	onClose: () => void;
 	submitBtnClass: string;
 	submitEnabled: boolean;
 	loading: boolean;
@@ -14,6 +15,7 @@ interface ModalDialogProps {
 
 export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 	private dialogRef: HTMLDivElement | null = null;
+	private modalId = 'mdl' + uniqueDomId().toString();
 
 	save() {
 		this.props.onSave();
@@ -21,13 +23,20 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 
 	componentDidMount() {
 		$(this.dialogRef!).modal('toggle');
+
+		// we need to let parent know of dialog close, so parent can destroy us,
+		// because after dialog has been closed, we are pretty much useless
+		$(this.dialogRef!).on('hidden.bs.modal', () => {
+			if (this.props.onClose) {
+				this.props.onClose();
+			}
+		});
 	}
 
 	render() {
-		const modalId = 'cmdModal' + uniqueDomId().toString();
-		const labelName = modalId + 'Label';
+		const labelName = this.modalId + 'Label';
 
-		const dialogContent = <div className="modal" ref={(input) => { this.dialogRef = input; }} id={modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
+		const dialogContent = <div className="modal" ref={(input) => { this.dialogRef = input; }} id={this.modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
 			<div className="modal-dialog" role="document">
 				<div className="modal-content">
 					<div className="modal-header">
