@@ -4,7 +4,7 @@
 		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistItem" },
 		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistItemChallenge" },
 		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport" },
+		{ "path": "/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport", "description": "Gets QR code of TOTP token for exporting to Google Authenticator" },
 		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
 		{ "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
 		{ "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
