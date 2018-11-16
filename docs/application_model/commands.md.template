@@ -7,8 +7,9 @@
 | Title               | {{.Title}}      |
 | Unauthenticated use | {{.Anonymous}}  |
 
-| Field | Type | Required |
-|-------|------|----------|
-{{range .Fields}}| {{.Key}} | {{.Type}} | {{not .Optional}} |
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+{{range .Fields}}| {{.Key}} | {{.Type}} | {{not .Optional}} | {{.Help}} |
 {{end}}
 {{end}}
