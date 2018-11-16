@@ -1,10 +1,11 @@
+import {coerceToStructuredErrorResponse, defaultErrorHandler, isSealedError} from 'backenderrors';
 import {WarningAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandInlineForm} from 'components/CommandButton';
 import {Loading} from 'components/loading';
 import {DatabaseUnseal} from 'generated/commanddefinitions';
 import {RootFolderId, RootFolderName} from 'generated/domain';
-import {coerceToStructuredErrorResponse, defaultErrorHandler, getFolder, isSealedError} from 'generated/restapi';
+import {getFolder} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';

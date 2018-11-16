@@ -1,4 +1,4 @@
-import {defaultErrorHandler} from 'generated/restapi';
+import {defaultErrorHandler} from 'backenderrors';
 import moment = require('moment');
 
 export function unrecognizedValue(value: never): never {

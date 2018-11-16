@@ -1,3 +1,4 @@
+import {defaultErrorHandler} from 'backenderrors';
 import {Panel} from 'components/bootstrap';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandButton} from 'components/CommandButton';
@@ -6,7 +7,7 @@ import {Timestamp} from 'components/timestamp';
 import {RegisterResponse, U2FEnrolledToken} from 'generated/apitypes';
 import {DatabaseChangeMasterPassword, DatabaseExportToKeepass, UserRegisterU2FToken} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
-import {defaultErrorHandler, u2fEnrolledTokens, u2fEnrollmentChallenge} from 'generated/restapi';
+import {u2fEnrolledTokens, u2fEnrollmentChallenge} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';

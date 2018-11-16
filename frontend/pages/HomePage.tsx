@@ -1,3 +1,4 @@
+import {defaultErrorHandler} from 'backenderrors';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandLink} from 'components/CommandButton';
 import {Dropdown} from 'components/dropdown';
@@ -5,7 +6,7 @@ import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {AccountCreate, AccountCreateFolder} from 'generated/commanddefinitions';
-import {defaultErrorHandler, getFolder} from 'generated/restapi';
+import {getFolder} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute} from 'routes';

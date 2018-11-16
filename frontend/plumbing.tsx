@@ -1,5 +1,5 @@
+import {coerceToStructuredErrorResponse, handleDatabaseSealed, StructuredErrorResponse} from 'backenderrors';
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
-import {coerceToStructuredErrorResponse, handleDatabaseSealed, StructuredErrorResponse} from 'generated/restapi';
 import {postJson} from 'httputil';
 import * as React from 'react';
 import {unrecognizedValue} from 'utils';

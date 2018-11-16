@@ -1,9 +1,10 @@
+import {defaultErrorHandler} from 'backenderrors';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {Loading} from 'components/loading';
 import {Timestamp} from 'components/timestamp';
 import {AuditlogEntry} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
-import {auditLogEntries, defaultErrorHandler} from 'generated/restapi';
+import {auditLogEntries} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';

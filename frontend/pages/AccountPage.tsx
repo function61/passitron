@@ -1,3 +1,4 @@
+import {defaultErrorHandler} from 'backenderrors';
 import {elToClipboard} from 'clipboard';
 import {DangerAlert} from 'components/alerts';
 import {Breadcrumb} from 'components/breadcrumbtrail';
@@ -32,7 +33,7 @@ import {
 	AccountRename,
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
-import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getKeylistKeyChallenge, getSecrets} from 'generated/restapi';
+import {getAccount, getFolder, getKeylistKey, getKeylistKeyChallenge, getSecrets} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';

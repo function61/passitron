@@ -1,9 +1,10 @@
+import {defaultErrorHandler} from 'backenderrors';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {RootFolderName} from 'generated/domain';
-import {defaultErrorHandler, search} from 'generated/restapi';
+import {search} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {indexRoute} from 'routes';

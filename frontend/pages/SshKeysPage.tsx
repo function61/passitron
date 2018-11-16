@@ -1,8 +1,9 @@
+import {defaultErrorHandler} from 'backenderrors';
 import {Loading} from 'components/loading';
 import {SecretListing} from 'components/SecretListing';
 import {FolderResponse} from 'generated/apitypes';
 import {RootFolderId} from 'generated/domain';
-import {defaultErrorHandler, getFolder} from 'generated/restapi';
+import {getFolder} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 
