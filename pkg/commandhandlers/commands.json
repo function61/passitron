@@ -106,7 +106,7 @@
 		"fields": [
 			{ "key": "FolderId", "hideIfDefaultValue": true },
 			{ "key": "Title", "optional": true, "help": "If you don`t specify this, then URL is required" },
-			{ "key": "Url", "optional": true },
+			{ "key": "Url", "optional": true, "help": "If you don`t specify this, then Title is required" },
 			{ "key": "Username", "optional": true },
 			{ "key": "Password", "type": "password", "optional": true },
 			{ "key": "PasswordRepeat", "type": "password", "optional": true }
