@@ -17,12 +17,10 @@ func (x *{{.AsGoStructName}}) Validate() error {
 
 	return nil
 }
+
+func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return {{not .Anonymous}} }
+func (x *{{.AsGoStructName}}) Key() string { return "{{.Command}}" }
 {{end}}
-
-// authentication
-
-{{range .CommandSpecs}}
-func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return {{not .Anonymous}} }{{end}}
 
 // builders
 
