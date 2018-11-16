@@ -19,9 +19,7 @@ import {getJson, postJson} from 'httputil';
 
 {{range .ApplicationTypes.Endpoints}}
 // {{.Path}}
-export function {{.Name}}({{.TypescriptArgs}}): Promise<{{.Produces.AsTypeScriptType}}> { {{if .Consumes}}
-	return postJson<{{.Consumes.AsTypeScriptType}}, {{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`, body);
-{{else}}
-	return getJson<{{.Produces.AsTypeScriptType}}>(`{{.TypescriptPath}}`);
-{{end}} }
+export function {{.Name}}({{.TypescriptArgs}}) {
+	return {{if .Consumes}}postJson<{{if .Consumes}}{{.Consumes.AsTypeScriptType}}{{else}}void{{end}}, {{if .Produces}}{{.Produces.AsTypeScriptType}}{{else}}void{{end}}>{{else}}getJson<{{if .Produces}}{{.Produces.AsTypeScriptType}}{{else}}void{{end}}>{{end}}(`{{.TypescriptPath}}`{{if .Consumes}}, body{{end}});
+}
 {{end}}

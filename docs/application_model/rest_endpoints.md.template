@@ -1,9 +1,9 @@
 REST endpoints
 --------------
 
-| path | consumes | produces | 
+| path | consumes | produces |
 |------|----------|----------|
-{{range .ApplicationTypes.Endpoints}}| {{.Path}} | {{if not .Consumes}} {{else}}{{.Consumes.AsTypeScriptType}}{{end}} | {{.Produces.AsTypeScriptType}} |
+{{range .ApplicationTypes.Endpoints}}| {{.Path}} | {{if .Consumes}}{{.Consumes.AsTypeScriptType}}{{end}} | {{if .Produces}}{{.Produces.AsTypeScriptType}}{{end}} |
 {{end}}
 
 See [Datatypes](datatypes.md) for more info on the above data structures.

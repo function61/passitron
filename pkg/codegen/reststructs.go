@@ -14,7 +14,7 @@ type ApplicationTypesDefinition struct {
 type EndpointDefinition struct {
 	Path     string       `json:"path"`
 	Name     string       `json:"name"`
-	Produces DatatypeDef  `json:"produces"`
+	Produces *DatatypeDef `json:"produces"` // optional
 	Consumes *DatatypeDef `json:"consumes"` // optional
 }
 

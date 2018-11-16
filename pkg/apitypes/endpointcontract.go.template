@@ -5,26 +5,23 @@ import (
 	"encoding/json"
 )
 
-type Handlers interface { {{range .ApplicationTypes.Endpoints}}{{if .Consumes}}
-	{{UppercaseFirst .Name}}(input {{.Consumes.AsGoType}}, w http.ResponseWriter, r *http.Request) *{{.Produces.AsGoType}}{{else}}
-	{{UppercaseFirst .Name}}(w http.ResponseWriter, r *http.Request) *{{.Produces.AsGoType}}{{end}}{{end}}
+type Handlers interface { {{range .ApplicationTypes.Endpoints}}
+	{{UppercaseFirst .Name}}({{if .Consumes}}input {{.Consumes.AsGoType}}, {{end}}w http.ResponseWriter, r *http.Request){{if .Produces}} *{{.Produces.AsGoType}}{{end}}{{end}}
 }
 
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
 // TODO: middlewares like auth
-func RegisterRoutes(handlers Handlers, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}{{if .Consumes}}
-	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
+func RegisterRoutes(handlers Handlers, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
+	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) { {{if .Consumes}}
 		input := &{{.Consumes.AsGoType}}{}
 		if ok := parseJsonInput(w, r, input); !ok {
 			return // parseJsonInput handled error message
-		}
-
-		if out := handlers.{{UppercaseFirst .Name}}(*input, w, r); out != nil { handleJsonOutput(w, out) }
-	}){{else}}
-	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
-		if out := handlers.{{UppercaseFirst .Name}}(w, r); out != nil { handleJsonOutput(w, out) }
-	}){{end}}
+		} {{end}}
+{{if .Produces}}
+		if out := handlers.{{UppercaseFirst .Name}}({{if .Consumes}}*input, {{end}}w, r); out != nil { handleJsonOutput(w, out) } {{else}}
+		handlers.{{UppercaseFirst .Name}}({{if .Consumes}}*input, {{end}}w, r) {{end}}
+	})
 {{end}}
 }
 
