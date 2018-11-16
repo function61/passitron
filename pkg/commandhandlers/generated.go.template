@@ -7,12 +7,6 @@ import (
 	"github.com/function61/pi-security-module/pkg/command"
 )
 
-// util functions
-
-func fieldEmptyValidationError(fieldName string) error {
-	return errors.New("field " + fieldName + " cannot be empty")
-}
-
 // structs
 
 {{range .CommandSpecs}}
@@ -35,4 +29,10 @@ func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return {{not .Anon
 var StructBuilders = map[string]func() command.Command{
 {{range .CommandSpecs}}
 	"{{.Command}}": func() command.Command { return &{{.AsGoStructName}}{} },{{end}}
+}
+
+// util functions
+
+func fieldEmptyValidationError(fieldName string) error {
+	return errors.New("field " + fieldName + " cannot be empty")
 }
