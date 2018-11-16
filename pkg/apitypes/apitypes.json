@@ -1,8 +1,8 @@
 {
 	"endpoints": [
 		{ "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistKey" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistKeyChallenge" },
+		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistItem" },
+		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistItemChallenge" },
 		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
 		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
 		{ "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },

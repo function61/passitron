@@ -135,7 +135,7 @@ func (a *queryHandlers) GetFolder(w http.ResponseWriter, r *http.Request) *apity
 	}
 }
 
-func (a *queryHandlers) GetKeylistKey(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
+func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
 	key := mux.Vars(r)["key"]
@@ -177,7 +177,7 @@ func (a *queryHandlers) GetKeylistKey(u2fResponse apitypes.U2FResponseBundle, w 
 	return nil
 }
 
-func (a *queryHandlers) GetKeylistKeyChallenge(w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
+func (a *queryHandlers) GetKeylistItemChallenge(w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
 	challengeHash := u2futil.ChallengeHashForKeylistKey(
 		mux.Vars(r)["accountId"],
 		mux.Vars(r)["secretId"],

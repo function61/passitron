@@ -33,7 +33,7 @@ import {
 	AccountRename,
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
-import {getAccount, getFolder, getKeylistKey, getKeylistKeyChallenge, getSecrets} from 'generated/restapi';
+import {getAccount, getFolder, getKeylistItem, getKeylistItemChallenge, getSecrets} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
@@ -175,7 +175,7 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 		this.setState({ loading: true, foundKeyItem: undefined, authError: undefined });
 
 		try {
-			const challengeBundle = await getKeylistKeyChallenge(this.props.account, this.props.secret.Id, this.state.keylistKey);
+			const challengeBundle = await getKeylistItemChallenge(this.props.account, this.props.secret.Id, this.state.keylistKey);
 
 			const signResult = await u2fSign(challengeBundle.SignRequest);
 
@@ -189,7 +189,7 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 				Challenge: challengeBundle.Challenge,
 			};
 
-			const foundKeyItem = await getKeylistKey(
+			const foundKeyItem = await getKeylistItem(
 				this.props.account,
 				this.props.secret.Id,
 				this.state.keylistKey,
