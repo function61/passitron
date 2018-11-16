@@ -51,9 +51,9 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 			<Panel heading="Actions">
-				<p><CommandButton command={DatabaseChangeMasterPassword()}></CommandButton></p>
+				<div><CommandButton command={DatabaseChangeMasterPassword()}></CommandButton></div>
 
-				<p><CommandButton command={DatabaseExportToKeepass()}></CommandButton></p>
+				<div className="margin-top"><CommandButton command={DatabaseExportToKeepass()}></CommandButton></div>
 			</Panel>
 
 			<Panel heading="U2F tokens">

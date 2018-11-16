@@ -11,6 +11,10 @@ body {
 	margin-left: 8px;
 }
 
+.margin-top {
+	margin-top: 8px;
+}
+
 .fauxlink {
 	cursor: pointer;
 }
