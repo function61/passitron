@@ -153,7 +153,7 @@ vD2QakbdLBUy2JF2E2GHmGyTXQ6yp4rWgcCVPeeFRw==
 
 func addPasswordAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountAddPassword{
-		Id:             tstate.firstAccountId,
+		Account:        tstate.firstAccountId,
 		Password:       "foobar",
 		PasswordRepeat: "foobar",
 	})

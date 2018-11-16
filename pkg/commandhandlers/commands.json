@@ -124,11 +124,11 @@
 	},
 	{
 		"command": "account.AddPassword",
-		"ctor": ["Id"],
+		"ctor": ["Account"],
 		"crudNature": "create",
 		"title": "+ Password",
 		"fields": [
-			{ "key": "Id", "hideIfDefaultValue": true },
+			{ "key": "Account", "hideIfDefaultValue": true },
 			{ "key": "Password", "type": "password", "help": "Enter \"_auto\" to autogenerate one" },
 			{ "key": "PasswordRepeat", "type": "password" }
 		]

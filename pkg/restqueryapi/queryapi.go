@@ -280,7 +280,7 @@ func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apit
 			Challenge:   u2futil.ChallengeToApiType(*challenge),
 			SignRequest: u2futil.SignRequestToApiType(*signRequest),
 		},
-		Account:     wacc.Account,
+		Account: wacc.Account,
 	}
 }
 

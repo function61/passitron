@@ -250,7 +250,7 @@ func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Id) == nil {
+	if ctx.State.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -265,7 +265,7 @@ func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
 	}
 
 	ctx.RaisesEvent(domain.NewAccountPasswordAdded(
-		a.Id,
+		a.Account,
 		domain.RandomId(),
 		password,
 		ctx.Meta))
