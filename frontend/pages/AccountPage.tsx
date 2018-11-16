@@ -33,7 +33,7 @@ import {
 	AccountRename,
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
-import {getAccount, getFolder, getKeylistItem, getKeylistItemChallenge, getSecrets} from 'generated/restapi';
+import {getAccount, getFolder, getKeylistItem, getKeylistItemChallenge, getSecrets, totpBarcodeExportUrl} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
@@ -319,7 +319,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<td data-to-clipboard={secret.Password} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
 				</tr>;
 			case SecretKind.OtpToken:
-				const exportUrl = `/accounts/${account.Id}/secrets/${secret.Id}/totp_barcode?mac=${exposedSecret.OtpKeyExportMac}`;
+				const exportUrl = totpBarcodeExportUrl(account.Id, secret.Id, exposedSecret.OtpKeyExportMac);
 
 				return <tr key={secret.Id}>
 					<th>
