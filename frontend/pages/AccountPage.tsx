@@ -14,6 +14,9 @@ import {
 	FolderResponse,
 	Secret,
 	SecretKeylistKey,
+	U2FResponseBundle,
+	U2FSignRequest,
+	U2FSignResult,
 	WrappedAccount,
 } from 'generated/apitypes';
 import {
@@ -29,12 +32,12 @@ import {
 	AccountRename,
 } from 'generated/commanddefinitions';
 import {SecretKind} from 'generated/domain';
-import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getSecrets} from 'generated/restapi';
+import {defaultErrorHandler, getAccount, getFolder, getKeylistKey, getKeylistKeyChallenge, getSecrets} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import {folderRoute, importotptokenRoute} from 'routes';
 import {isU2FError, u2fErrorMsg, U2FStdRegisteredKey, U2FStdSignResult} from 'u2ftypes';
-import {relativeDateFormat, unrecognizedValue} from 'utils';
+import {relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue} from 'utils';
 
 interface SecretsFetcherProps {
 	wrappedAccount: WrappedAccount;
@@ -53,7 +56,7 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 		// start fetching process automatically. in some rare cases the user might not
 		// want this, but failed auth attempt timeouts are not dangerous and this reduces
 		// extra clicks in the majority case
-		this.startSigning();
+		shouldAlwaysSucceed(this.startSigning());
 	}
 
 	render() {
@@ -70,7 +73,7 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 			'';
 
 		return <div>
-			<a className="btn btn-default" onClick={() => { this.startSigning(); }}>
+			<a className="btn btn-default" onClick={() => { shouldAlwaysSucceed(this.startSigning()); }}>
 				Authenticate
 			</a>
 
@@ -78,28 +81,33 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 		</div>;
 	}
 
-	startSigning() {
-		const sr = this.props.wrappedAccount.SignRequest;
+	private async startSigning() {
+		this.setState({ authing: true, authError: undefined });
 
-		const signResult = (result: U2FStdSignResult) => {
+		try {
+			const result = await u2fSign(this.props.wrappedAccount.ChallengeBundle.SignRequest);
+
 			if (isU2FError(result)) {
 				this.setState({ authing: false, authError: u2fErrorMsg(result) });
 				return;
 			}
 
-			getSecrets(this.props.wrappedAccount.Account.Id, {
-				Challenge: this.props.wrappedAccount.Challenge,
-				SignResult: {
-					KeyHandle: result.keyHandle,
-					SignatureData: result.signatureData,
-					ClientData: result.clientData,
-				},
-			}).then((secrets) => {
-				this.props.fetched(secrets);
-			}, defaultErrorHandler);
-		};
+			const secrets = await getSecrets(this.props.wrappedAccount.Account.Id, {
+				Challenge: this.props.wrappedAccount.ChallengeBundle.Challenge,
+				SignResult: nativeSignResultToApiType(result),
+			});
 
-		const keysTransformed: U2FStdRegisteredKey[] = sr.RegisteredKeys.map((key) => {
+			this.props.fetched(secrets);
+		} catch (e) {
+			defaultErrorHandler(e);
+		}
+	}
+}
+
+// sign() errors are also resolved, but the value is an error value
+async function u2fSign(req: U2FSignRequest): Promise<U2FStdSignResult> {
+	return new Promise<U2FStdSignResult>((resolve) => {
+		const keysTransformed: U2FStdRegisteredKey[] = req.RegisteredKeys.map((key) => {
 			return {
 				version: key.Version,
 				keyHandle: key.KeyHandle,
@@ -108,14 +116,12 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 		});
 
 		u2f.sign(
-			sr.AppID,
-			sr.Challenge, // serialized (not in structural form)
+			req.AppID,
+			req.Challenge, // serialized (not in structural form)
 			keysTransformed,
-			signResult,
+			(res: U2FStdSignResult) => { resolve(res); },
 			5);
-
-		this.setState({ authing: true, authError: undefined });
-	}
+	});
 }
 
 interface KeylistAccessorProps {
@@ -124,15 +130,20 @@ interface KeylistAccessorProps {
 }
 
 interface KeylistAccessorState {
-	input: string;
+	keylistKey: string;
 	loading: boolean;
+	authError?: string;
 	foundKeyItem?: SecretKeylistKey;
 }
 
 class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAccessorState> {
-	state: KeylistAccessorState = { input: '', loading: false };
+	state: KeylistAccessorState = { keylistKey: '', loading: false };
 
 	render() {
+		const authErrorNode = this.state.authError ?
+			<DangerAlert text={this.state.authError} /> :
+			'';
+
 		const keyMaybe = this.state.foundKeyItem ?
 			<div>
 				<span className="label label-primary">{this.state.foundKeyItem.Value}</span>
@@ -140,9 +151,11 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 			</div> : null;
 
 		return <div>
-			<input className="form-control" style={{ width: '200px', display: 'inline-block' }} type="text" value={this.state.input} onChange={(e) => { this.onType(e); }} placeholder={this.props.secret.KeylistKeyExample} />
+			<input className="form-control" style={{ width: '200px', display: 'inline-block' }} type="text" value={this.state.keylistKey} onChange={(e) => { this.onType(e); }} placeholder={this.props.secret.KeylistKeyExample} />
 
-			<button className="btn btn-default" type="submit" onClick={() => { this.onSubmit(); }}>Get</button>
+			<button className="btn btn-default" type="submit" onClick={() => { shouldAlwaysSucceed(this.onSubmit()); }}>Get</button>
+
+			{authErrorNode}
 
 			{this.state.loading ? <Loading /> : null}
 
@@ -150,23 +163,46 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 		</div>;
 	}
 
-	private onSubmit() {
-		if (!this.state.input) {
+	private async onSubmit() {
+		if (!this.state.keylistKey) {
 			alert('no input');
 			return;
 		}
 
 		// resetting foundKeyItem so if fetching multiple items, the old one does not
 		// stay visible (which would confuse the user if it's the old or the new)
-		this.setState({ loading: true, foundKeyItem: undefined });
+		this.setState({ loading: true, foundKeyItem: undefined, authError: undefined });
 
-		getKeylistKey(this.props.account, this.props.secret.Id, this.state.input).then((foundKeyItem) => {
+		try {
+			const challengeBundle = await getKeylistKeyChallenge(this.props.account, this.props.secret.Id, this.state.keylistKey);
+
+			const signResult = await u2fSign(challengeBundle.SignRequest);
+
+			if (isU2FError(signResult)) {
+				this.setState({ loading: false, authError: u2fErrorMsg(signResult) });
+				return;
+			}
+
+			const challengeResponse: U2FResponseBundle = {
+				SignResult: nativeSignResultToApiType(signResult),
+				Challenge: challengeBundle.Challenge,
+			};
+
+			const foundKeyItem = await getKeylistKey(
+				this.props.account,
+				this.props.secret.Id,
+				this.state.keylistKey,
+				challengeResponse);
+
 			this.setState({ foundKeyItem, loading: false });
-		}, defaultErrorHandler);
+		} catch (ex) {
+			this.setState({ loading: false });
+			defaultErrorHandler(ex);
+		}
 	}
 
 	private onType(e: React.ChangeEvent<HTMLInputElement>) {
-		this.setState({ input: e.target.value });
+		this.setState({ keylistKey: e.target.value });
 	}
 }
 
@@ -184,7 +220,7 @@ interface AccountPageState {
 export default class AccountPage extends React.Component<AccountPageProps, AccountPageState> {
 	// https://developmentarc.gitbooks.io/react-indepth/content/life_cycle/the_life_cycle_recap.html
 	componentDidMount() {
-		this.fetchData();
+		shouldAlwaysSucceed(this.fetchData());
 	}
 
 	render() {
@@ -324,20 +360,20 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 		}
 	}
 
-	private fetchData() {
+	private async fetchData() {
 		const wrappedAccountProm = getAccount(this.props.id);
 
 		const accountProm = wrappedAccountProm.then((wacc) => wacc.Account);
 
 		const folderProm = accountProm.then((acc) => getFolder(acc.FolderId));
 
-		Promise.all([wrappedAccountProm, accountProm, folderProm]).then(([wrappedAccount, account, folderresponse]) => {
-			this.setState({
-				wrappedAccount,
-				account,
-				folderresponse,
-			});
-		}, defaultErrorHandler);
+		const [wrappedAccount, account, folderresponse] = await Promise.all([wrappedAccountProm, accountProm, folderProm]);
+
+		this.setState({
+			wrappedAccount,
+			account,
+			folderresponse,
+		});
 	}
 
 	private getBreadcrumbItems(): Breadcrumb[] {
@@ -359,4 +395,12 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		return breadcrumbItems;
 	}
+}
+
+function nativeSignResultToApiType(sr: U2FStdSignResult): U2FSignResult {
+	return {
+		KeyHandle: sr.keyHandle,
+		SignatureData: sr.signatureData,
+		ClientData: sr.clientData,
+	};
 }

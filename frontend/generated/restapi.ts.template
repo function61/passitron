@@ -10,9 +10,10 @@ import {
 	FolderResponse,
 	SecretKeylistKey,
 	WrappedAccount,
-	GetSecretsInput,
+	U2FResponseBundle,
 	U2FEnrollmentChallenge,
 	U2FEnrolledToken,
+	U2FChallengeBundle,
 } from 'generated/apitypes';
 import {getJson, postJson} from 'httputil';
 import {unsealRoute} from 'routes';

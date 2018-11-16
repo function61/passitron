@@ -1,8 +1,9 @@
 {
 	"endpoints": [
 		{ "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", "produces": {"_": "SecretKeylistKey"}, "name": "getKeylistKey" },
-		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "GetSecretsInput"}, "name": "getSecrets" },
+		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistKey" },
+		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist_keys/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistKeyChallenge" },
+		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
 		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
 		{ "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
 		{ "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
@@ -35,8 +36,14 @@
 			"name": "WrappedAccount",
 			"fields": [
 				{ "key": "Account", "type": {"_": "Account"} },
-				{ "key": "Challenge", "type": {"_": "U2FChallenge"} },
-				{ "key": "SignRequest", "type": {"_": "U2FSignRequest"} }
+				{ "key": "ChallengeBundle", "type": {"_": "U2FChallengeBundle"} }
+			]
+		},
+		{
+			"name": "U2FChallengeBundle",
+			"fields": [
+				{ "key": "SignRequest", "type": {"_": "U2FSignRequest"} },
+				{ "key": "Challenge", "type": {"_": "U2FChallenge"} }
 			]
 		},
 		{
@@ -109,7 +116,7 @@
 			]
 		},
 		{
-			"name": "GetSecretsInput",
+			"name": "U2FResponseBundle",
 			"fields": [
 				{ "key": "SignResult", "type": {"_": "U2FSignResult"} },
 				{ "key": "Challenge", "type": {"_": "U2FChallenge"} }

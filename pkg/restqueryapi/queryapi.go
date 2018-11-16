@@ -135,22 +135,28 @@ func (a *queryHandlers) GetFolder(w http.ResponseWriter, r *http.Request) *apity
 	}
 }
 
-func (a *queryHandlers) GetKeylistKey(w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
+func (a *queryHandlers) GetKeylistKey(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
+	accountId := mux.Vars(r)["accountId"]
+	secretId := mux.Vars(r)["secretId"]
 	key := mux.Vars(r)["key"]
 
 	if errorIfSealed(a.st.IsUnsealed(), w) {
 		return nil
 	}
 
-	if !runPhysicalAuth(w) {
-		return nil // error handled internally
-	}
+	u2fChallengeHash := u2futil.ChallengeHashForKeylistKey(
+		accountId,
+		secretId,
+		key)
 
-	accountId := mux.Vars(r)["accountId"]
-
-	wsecret := a.st.WrappedSecretById(accountId, mux.Vars(r)["secretId"])
+	wsecret := a.st.WrappedSecretById(accountId, secretId)
 	if wsecret == nil {
 		httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
+		return nil
+	}
+
+	if err := u2fSignatureOk(u2fResponse, u2fChallengeHash, a.st); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
 
@@ -171,7 +177,36 @@ func (a *queryHandlers) GetKeylistKey(w http.ResponseWriter, r *http.Request) *a
 	return nil
 }
 
-func (a *queryHandlers) GetSecrets(input apitypes.GetSecretsInput, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
+func (a *queryHandlers) GetKeylistKeyChallenge(w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
+	challengeHash := u2futil.ChallengeHashForKeylistKey(
+		mux.Vars(r)["accountId"],
+		mux.Vars(r)["secretId"],
+		mux.Vars(r)["key"])
+
+	u2fTokens := u2futil.GrabUsersU2FTokens(a.st)
+
+	if len(u2fTokens) == 0 {
+		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
+		return nil
+	}
+
+	challenge, err := u2futil.NewU2FCustomChallenge(
+		u2futil.GetAppIdHostname(),
+		u2futil.GetTrustedFacets(),
+		challengeHash)
+	if err != nil {
+		log.Printf("u2f.NewChallenge error: %v", err)
+		http.Error(w, "error", http.StatusInternalServerError)
+		return nil
+	}
+
+	return &apitypes.U2FChallengeBundle{
+		Challenge:   u2futil.ChallengeToApiType(*challenge),
+		SignRequest: u2futil.SignRequestToApiType(*challenge.SignRequest(u2fTokens)),
+	}
+}
+
+func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
 	if errorIfSealed(a.st.IsUnsealed(), w) {
 		return nil
 	}
@@ -183,8 +218,8 @@ func (a *queryHandlers) GetSecrets(input apitypes.GetSecretsInput, w http.Respon
 		return nil
 	}
 
-	if err := exposeSecretsChallengeResponseOk(input.Challenge, input.SignResult, wacc.Account, a.st); err != nil {
-		httputil.RespondHttpJson(httputil.GenericError("challenge_failed", err), http.StatusForbidden, w)
+	if err := u2fSignatureOk(u2fResponse, u2futil.ChallengeHashForAccountSecrets(wacc.Account), a.st); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
 
@@ -241,8 +276,10 @@ func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apit
 	signRequest := challenge.SignRequest(u2fTokens)
 
 	return &apitypes.WrappedAccount{
-		Challenge:   u2futil.ChallengeToApiType(*challenge),
-		SignRequest: u2futil.SignRequestToApiType(*signRequest),
+		ChallengeBundle: apitypes.U2FChallengeBundle{
+			Challenge:   u2futil.ChallengeToApiType(*challenge),
+			SignRequest: u2futil.SignRequestToApiType(*signRequest),
+		},
 		Account:     wacc.Account,
 	}
 }
@@ -325,21 +362,18 @@ func (a *queryHandlers) U2fEnrolledTokens(w http.ResponseWriter, r *http.Request
 	return &tokens
 }
 
-func exposeSecretsChallengeResponseOk(
-	challenge apitypes.U2FChallenge,
-	signResult apitypes.U2FSignResult,
-	account apitypes.Account,
+func u2fSignatureOk(
+	response apitypes.U2FResponseBundle,
+	expectedHash [32]byte,
 	st *state.State,
 ) error {
-	expectedHash := u2futil.ChallengeHashForAccountSecrets(account)
-
-	nativeChallenge := u2futil.ChallengeFromApiType(challenge)
+	nativeChallenge := u2futil.ChallengeFromApiType(response.Challenge)
 
 	if bytes.Compare(nativeChallenge.Challenge, expectedHash[:]) != 0 {
 		return errors.New("invalid challenge hash")
 	}
 
-	u2ftoken := u2futil.GrabUsersU2FTokenByKeyHandle(st, signResult.KeyHandle)
+	u2ftoken := u2futil.GrabUsersU2FTokenByKeyHandle(st, response.SignResult.KeyHandle)
 	if u2ftoken == nil {
 		return errors.New("U2F token not found by KeyHandle")
 	}
@@ -347,7 +381,7 @@ func exposeSecretsChallengeResponseOk(
 	reg := u2futil.U2ftokenToRegistration(u2ftoken)
 
 	newCounter, authErr := reg.Authenticate(
-		u2futil.SignResponseFromApiType(signResult),
+		u2futil.SignResponseFromApiType(response.SignResult),
 		nativeChallenge,
 		u2ftoken.Counter)
 	if authErr != nil {
@@ -355,7 +389,7 @@ func exposeSecretsChallengeResponseOk(
 	}
 
 	st.EventLog.Append(domain.NewUserU2FTokenUsed(
-		signResult.KeyHandle,
+		response.SignResult.KeyHandle,
 		int(newCounter),
 		domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
 

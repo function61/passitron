@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/tstranex/u2f"
@@ -170,6 +171,10 @@ func NewU2FCustomChallenge(appID string, trustedFacets []string, challenge [32]b
 
 func ChallengeHashForAccountSecrets(account apitypes.Account) [32]byte {
 	return stringToU2FChallengeHash("accountsecrets:" + account.Id)
+}
+
+func ChallengeHashForKeylistKey(accountId, secretId, keylistKey string) [32]byte {
+	return stringToU2FChallengeHash(fmt.Sprintf("keylistkey:%s:%s:%s", accountId, secretId, keylistKey))
 }
 
 func stringToU2FChallengeHash(input string) [32]byte {
