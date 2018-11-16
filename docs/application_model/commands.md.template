@@ -2,7 +2,7 @@
 {{.Command}}
 ----------
 
-| Details             |                 |
+|                     |                 |
 |---------------------|-----------------|
 | Title               | {{.Title}}      |
 | Unauthenticated use | {{.Anonymous}}  |
