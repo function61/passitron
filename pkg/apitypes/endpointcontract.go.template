@@ -12,8 +12,11 @@ type Handlers interface { {{range .ApplicationTypes.Endpoints}}
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
 // TODO: middlewares like auth
-func RegisterRoutes(handlers Handlers, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
-	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) { {{if .Consumes}}
+func RegisterRoutes(handlers Handlers, authenticator func (http.ResponseWriter, *http.Request) bool, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
+	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) { {{if not .Unauthenticated}}
+		if !authenticator(w, r) {
+			return // auth error response already handled
+		} {{end}}{{if .Consumes}}
 		input := &{{.Consumes.AsGoType}}{}
 		if ok := parseJsonInput(w, r, input); !ok {
 			return // parseJsonInput handled error message

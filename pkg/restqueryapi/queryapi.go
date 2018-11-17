@@ -46,9 +46,13 @@ func runPhysicalAuth(w http.ResponseWriter) bool {
 }
 
 func Register(router *mux.Router, st *state.State) {
+	authenticator := func(w http.ResponseWriter, r *http.Request) bool {
+		return true // currently unimplemented
+	}
+
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
-	}, func(path string, fn http.HandlerFunc) {
+	}, authenticator, func(path string, fn http.HandlerFunc) {
 		router.HandleFunc(path, fn)
 	})
 }
