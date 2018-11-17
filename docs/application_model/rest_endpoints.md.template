@@ -2,7 +2,7 @@ REST endpoints
 --------------
 
 | path | auth | consumes | produces | description |
-|------|----------|----------|-------------|
+|------|------|----------|----------|-------------|
 {{range .ApplicationTypes.Endpoints}}| {{.Path}} | {{if not .Unauthenticated}}✔{{end}} | {{if .Consumes}}{{.Consumes.AsTypeScriptType}}{{end}} | {{if .Produces}}{{.Produces.AsTypeScriptType}}{{end}} | {{.Description}} |
 {{end}}
 
