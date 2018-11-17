@@ -9,10 +9,8 @@ essentially acts just like [Keepass](http://keepass.info/) and only serves the
 function of storing secrets.
 
 If you use Keepass on your PC and your PC gets compromised by a virus or a hacker,
-it's game over.
-
-If you use a separate device for storing secrets, your PC compromise does not
-expose your secrets. This software only exposes your secret when you physically
+it's game over. But if you use a separate device for storing secrets, your PC compromise
+does not expose your secrets. This software only exposes your secret when you physically
 press a button on the device - and only exposes one secret per push acknowledge.
 
 
@@ -20,16 +18,20 @@ Links
 -----
 
 - [Developer docs](https://docs.function61.com/pi-security-module)
+- [Comparison to alternatives](https://docs.function61.com/pi-security-module/comparison-to-alternatives/)
 
 
 Features
 --------
 
+- No cloud
+- Physical acknowledgement to expose a password by pressing a button on a U2F key (YubiKey for example)
 - Supported secrets:
 	* Passwords
 	* OTP tokens (Google Authenticator)
 	* SSH keys (via SSH agent protocol)
 	* Keylists (["printed OTP list"](https://en.wikipedia.org/wiki/One-time_password#Hardcopy))
+	* Freetext (any text content is treated as secret data)
 - Create, view and list secrets in a folder hierarchy.
 - Export database to Keepass format (for viewing in mobile devices when traveling etc.)
 - Import data from Keepass format
