@@ -1,5 +1,6 @@
 import {coerceToStructuredErrorResponse, defaultErrorHandler, isSealedError} from 'backenderrors';
 import {WarningAlert} from 'components/alerts';
+import {Panel} from 'components/bootstrap';
 import {Breadcrumb} from 'components/breadcrumbtrail';
 import {CommandInlineForm} from 'components/CommandButton';
 import {Loading} from 'components/loading';
@@ -30,11 +31,11 @@ export default class UnsealPage extends React.Component<UnsealPageProps, UnsealP
 
 		if (this.state) {
 			if (!this.state.unsealed) {
-				content = <div>
+				content = <Panel heading="Unseal">
 					<WarningAlert text="Database was sealed. Please unseal it." />
 
 					<CommandInlineForm command={DatabaseUnseal()} />
-				</div>;
+				</Panel>;
 			} else {
 				// content = <SuccessAlert text="Unsealed successfully." />;
 				throw new Error('This should not happen anymore');
@@ -42,10 +43,7 @@ export default class UnsealPage extends React.Component<UnsealPageProps, UnsealP
 		}
 
 		return <DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
-			<h1>{this.title}</h1>
-
 			{content}
-
 		</DefaultLayout>;
 	}
 
