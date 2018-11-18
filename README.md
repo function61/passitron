@@ -17,8 +17,11 @@ press a button on the device - and only exposes one secret per push acknowledge.
 Links
 -----
 
-- [Developer docs](https://docs.function61.com/pi-security-module)
+- [Architecture summary](https://docs.function61.com/pi-security-module/architecture/)
 - [Comparison to alternatives](https://docs.function61.com/pi-security-module/comparison-to-alternatives/)
+- [All documentation](https://docs.function61.com/pi-security-module) - everything you
+  seek is probably here. The above links were just some of the most important links to
+  this documentation site.
 
 
 Features

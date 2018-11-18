@@ -8,6 +8,8 @@ pages:
 
 - 'index.md'
 
+- 'Architecture': 'architecture.md'
+
 - 'Comparison to alternatives': 'comparison-to-alternatives.md'
 
 - 'Internal dependencies': 'internal-dependencies.md'

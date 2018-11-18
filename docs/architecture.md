@@ -1,0 +1,80 @@
+This is an CQRS + EventSourcing application.
+
+CQRS applied here means that there are totally separate REST endpoints for
+[reading](https://docs.function61.com/pi-security-module/application_model/rest_endpoints/)
+and [writing](https://docs.function61.com/pi-security-module/application_model/commands/)
+data.
+
+EventSourcing applied here means that all writes to the database are stored as events, and
+the events are the only source of data used to derive the read model in the database.
+
+To best understand the big picture, here's a journey of a write request, with source code
+locations:
+
+- [UI invokes](https://github.com/function61/pi-security-module/blob/153991ffb0bb/frontend/pages/AccountPage.tsx#L287)
+  HTTP `POST /command/account.ChangeDescription` with body
+  `{"Account": 13, "Description": "This is an example"}`
+- [Generic command HTTP handler](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/restcommandapi/commandapi.go#L18)
+  intercepts this request. This handler knows about this command because the command was
+  defined [here](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/commandhandlers/commands.json#L33).
+- It deserializes the JSON, performs basic validations (like is this input field required
+  etc.), and invokes the [command handler](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/commandhandlers/handlers.go#L89)
+- The command handler raises `account.DescriptionChanged` event
+  (defined [here](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/domain/domain.json#L91))
+- Control is returned to the generic command HTTP handler, which
+  [appends](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/restcommandapi/commandapi.go#L64)
+  any raised events to the event log.
+- Event log appending eventually means that an event handler will be invoked in the
+  [state package](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/state/eventhandlers.go#L72)
+
+Here's the most important source code locations:
+
+
+cmd/
+----
+
+Contains the entrypoint for the single binary that makes up the backend and also serves
+frontend resources.
+
+
+frontend/
+---------
+
+Contains the source code for the frontend, which is written in React + TypeScript.
+
+
+pkg/
+----
+
+Contains the backend packages.
+
+
+pkg/apitypes/apitypes.json
+--------------------------
+
+Contains HTTP endpoint definitions and their input/output data structures for the query
+layer. This is used to autogenerate code for the frontend and backend. This makes both the
+frontend and the backend typesafe, i.e. Go or TypeScript compilers guarantee that you HTTP
+call URLs, input and output data structures are kept in-sync with all the code.
+
+Implementations for the endpoints are found in `pkg/restqueryapi`. Calls come from the UI.
+
+
+pkg/domain/domain.json
+----------------------
+
+Contains all the event definitions (names and their payload data) that can be raised in
+this domain.
+
+Implementations for the event listeners are found in `pkg/state`. These events are mainly
+raised from `pkg/commandhandlers`.
+
+
+pkg/commandhandlers/commands.json
+---------------------------------
+
+This file essentially contains all the actions that can be done from the UI. This is used
+to code generate as much as possible in frontend and backend, so the code should be
+typesafe at both sides of the HTTP layer.
+
+Implementations for the command handlers are found in `pkg/commandhandlers`
