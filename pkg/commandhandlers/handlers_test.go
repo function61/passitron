@@ -311,8 +311,7 @@ func moveAccount(t *testing.T, tstate *testScenarioState) {
 
 func deleteAccount(t *testing.T, tstate *testScenarioState) {
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDelete{
-		Id:      tstate.firstAccountId,
-		Confirm: true,
+		Id: tstate.firstAccountId,
 	})
 
 	assert.True(t, len(tstate.st.State.WrappedAccounts) == 0)

@@ -28,6 +28,7 @@ interface CommandValueCollection {[key: string]: any; }
 
 interface CommandPageletState {
 	values: CommandValueCollection;
+	additional_confirmation?: boolean;
 	validationStatuses: {[key: string]: boolean};
 	submitError: string;
 	fieldsThatWerePrefilled: {[key: string]: boolean};
@@ -93,12 +94,18 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 				<span title={field.Help} className="glyphicon glyphicon-question-sign" style={{marginLeft: '8px'}} /> :
 				'';
 
+			// TODO: label[for]
 			return <div className={`form-group ${validationFailedClass}`} key={field.Key}>
 				<div><label>{field.Key} {field.Required ? '*' : ''}</label>{possiblyHelp}</div>
 
 				{input}
 			</div>;
 		});
+
+		if (this.props.command.additional_confirmation) {
+			fieldGroups.push(this.createAdditionalConfirmationFormGroup(
+				this.props.command.additional_confirmation));
+		}
 
 		// hidden submit included because otherwise onSubmit does not work except if form has only one input
 		// https://stackoverflow.com/a/40400840
@@ -148,6 +155,18 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		}, () => { /* noop */ });
 	}
 
+	private createAdditionalConfirmationFormGroup(question: string) {
+		return <div className="form-group" key="additional_confirmation">
+			<div><label>{question} *</label></div>
+
+			<input
+				type="checkbox"
+				className="form-control"
+				onChange={(e) => { this.setState({ additional_confirmation: e.currentTarget.checked }, () => { this.broadcastChanges(); }); }}
+			/>
+		</div>;
+	}
+
 	private validate(field: CommandField, value: any): boolean {
 		if (field.Required && (value === undefined || value === null || value === '')) {
 			return false;
@@ -180,7 +199,11 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		this.props.onSubmit();
 	}
 
-	private isEverythingValid() {
+	private isEverythingValid(): boolean {
+		if (this.props.command.additional_confirmation !== undefined && this.state.additional_confirmation !== true) {
+			return false;
+		}
+
 		return Object.keys(this.state.validationStatuses).every((key) => this.state.validationStatuses[key]);
 	}
 

@@ -23,9 +23,8 @@ import (
 )
 
 var (
-	errAccountNotFound         = errors.New("Account not found")
-	errFolderNotFound          = errors.New("Folder not found")
-	errDeleteNeedsConfirmation = errors.New("Delete needs confirmation")
+	errAccountNotFound = errors.New("Account not found")
+	errFolderNotFound  = errors.New("Folder not found")
 )
 
 func (a *AccountRename) Invoke(ctx *command.Ctx) error {
@@ -236,10 +235,6 @@ func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
 	if ctx.State.WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
-	}
-
-	if !a.Confirm {
-		return errDeleteNeedsConfirmation
 	}
 
 	ctx.RaisesEvent(domain.NewAccountDeleted(

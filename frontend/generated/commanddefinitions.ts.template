@@ -5,8 +5,9 @@ import {CommandDefinition, CommandFieldKind, CrudNature} from 'commandtypes';
 {{range .CommandSpecs}}
 export function {{.AsGoStructName}}({{.CtorArgsForTypeScript}}): CommandDefinition {
 	return {
-		key: '{{.Command}}',
-		title: '{{.Title}}',
+		key: '{{.Command}}',{{if .AdditionalConfirmation}}
+		additional_confirmation: '{{.AdditionalConfirmation}}',
+{{end}}		title: '{{.Title}}',
 		crudNature: CrudNature.{{.CrudNature}},
 		fields: [
 {{.FieldsForTypeScript}}

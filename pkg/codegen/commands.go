@@ -19,12 +19,13 @@ func (c *CommandSpecFile) Validate() error {
 }
 
 type CommandSpec struct {
-	Command    string              `json:"command"`
-	Title      string              `json:"title"`
-	CrudNature string              `json:"crudNature"`
-	Anonymous  bool                `json:"anonymous"`
-	CtorArgs   []string            `json:"ctor"`
-	Fields     []*CommandFieldSpec `json:"fields"`
+	Command                string              `json:"command"`
+	Title                  string              `json:"title"`
+	CrudNature             string              `json:"crudNature"`
+	AdditionalConfirmation string              `json:"additional_confirmation"`
+	Anonymous              bool                `json:"anonymous"`
+	CtorArgs               []string            `json:"ctor"`
+	Fields                 []*CommandFieldSpec `json:"fields"`
 }
 
 func (c *CommandSpec) AsGoStructName() string {

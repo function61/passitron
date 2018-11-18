@@ -8,6 +8,7 @@ export enum CrudNature {
 export interface CommandDefinition {
 	title: string;
 	key: string;
+	additional_confirmation?: string;
 	crudNature: CrudNature;
 	fields: CommandField[];
 }
