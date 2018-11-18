@@ -22,3 +22,14 @@ export function relativeDateFormat(dateIso: string): string {
 export function shouldAlwaysSucceed(prom: Promise<any>): void {
 	prom.then(() => { /* noop */ }, defaultErrorHandler);
 }
+
+export function focusRetainer(logicThatMessesUpFocus: () => void) {
+	const activeElementBefore = document.activeElement;
+
+	logicThatMessesUpFocus();
+
+	if (activeElementBefore instanceof HTMLElement) {
+		activeElementBefore.focus();
+	}
+}
+

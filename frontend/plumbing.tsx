@@ -80,8 +80,10 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		const shouldShow = (field: CommandField) =>
 			!field.HideIfDefaultValue || !(field.Key in this.state.fieldsThatWerePrefilled);
 
-		const fieldGroups = this.props.command.fields.filter(shouldShow).map((field) => {
-			const input = this.createInput(field);
+		const fieldGroups = this.props.command.fields.filter(shouldShow).map((field, idx) => {
+			const shouldAutofocus = idx === 0;
+
+			const input = this.createInput(field, shouldAutofocus);
 
 			const valid = this.state.validationStatuses[field.Key];
 
@@ -215,13 +217,14 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		this.updateFieldValue(e.currentTarget.name, e.currentTarget.value);
 	}
 
-	private createInput(field: CommandField): JSX.Element {
+	private createInput(field: CommandField, autoFocus: boolean): JSX.Element {
 		switch (field.Kind) {
 		case CommandFieldKind.Password:
 			return <input
 				type="password"
 				className="form-control"
 				name={field.Key}
+				autoFocus={autoFocus}
 				required={field.Required}
 				value={this.state.values[field.Key]}
 				onChange={this.onInputChange.bind(this)}
@@ -231,6 +234,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 				type="text"
 				className="form-control"
 				name={field.Key}
+				autoFocus={autoFocus}
 				required={field.Required}
 				value={this.state.values[field.Key]}
 				onChange={this.onInputChange.bind(this)}
@@ -238,6 +242,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		case CommandFieldKind.Multiline:
 			return <textarea
 				name={field.Key}
+				autoFocus={autoFocus}
 				required={field.Required}
 				className="form-control"
 				rows={7}
@@ -249,6 +254,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 				type="number"
 				className="form-control"
 				name={field.Key}
+				autoFocus={autoFocus}
 				required={field.Required}
 				onChange={this.onIntegerInputChange.bind(this)}
 			/>;
@@ -256,6 +262,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			return <input
 				type="checkbox"
 				name={field.Key}
+				autoFocus={autoFocus}
 				className="form-control"
 				checked={this.state.values[field.Key]}
 				onChange={this.onCheckboxChange.bind(this)}

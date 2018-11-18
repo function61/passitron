@@ -1,7 +1,7 @@
 import {Loading} from 'components/loading';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {uniqueDomId} from 'utils';
+import {focusRetainer, uniqueDomId} from 'utils';
 
 interface ModalDialogProps {
 	title: string;
@@ -22,7 +22,11 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 	}
 
 	componentDidMount() {
-		$(this.dialogRef!).modal('toggle');
+		// modal showing loses the focus if the focus was already inside the modal content,
+		// so we use this hack to retain the focused element
+		focusRetainer(() => {
+			$(this.dialogRef!).modal('show');
+		});
 
 		// we need to let parent know of dialog close, so parent can destroy us,
 		// because after dialog has been closed, we are pretty much useless
@@ -36,7 +40,11 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 	render() {
 		const labelName = this.modalId + 'Label';
 
-		const dialogContent = <div className="modal" ref={(input) => { this.dialogRef = input; }} id={this.modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
+		// abusing modal normal usage by having display:block already applied, because
+		// otherwise any autofocused inputs inside this modal won't work
+		// (.focus() doesn't work on non-visible inputs)
+
+		const dialogContent = <div className="modal" style={{display: 'block'}} ref={(input) => { this.dialogRef = input; }} id={this.modalId} tabIndex={-1} role="dialog" aria-labelledby={labelName}>
 			<div className="modal-dialog" role="document">
 				<div className="modal-content">
 					<div className="modal-header">
