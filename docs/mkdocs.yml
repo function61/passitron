@@ -18,7 +18,6 @@ pages:
   - 'Events': 'domain_model/events.md'
   - 'Constants': 'domain_model/consts.md'
 
-- 'Application model':
-  - 'REST endpoints': 'application_model/rest_endpoints.md'
-  - 'Datatypes': 'application_model/datatypes.md'
-  - 'Commands': 'application_model/commands.md'
+- 'Application model (REST API)':
+  - 'Queries (for reading data)': 'application_model/rest_endpoints.md'
+  - 'Commands (for writing data)': 'application_model/commands.md'

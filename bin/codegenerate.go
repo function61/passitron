@@ -41,7 +41,6 @@ func main() {
 	// will end up as the filename below
 	files := []string{
 		"docs/application_model/commands.md",
-		"docs/application_model/datatypes.md",
 		"docs/application_model/rest_endpoints.md",
 		"docs/domain_model/consts.md",
 		"docs/domain_model/events.md",

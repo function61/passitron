@@ -1,9 +1,22 @@
 REST endpoints
---------------
+==============
 
 | path | auth | consumes | produces | description |
 |------|------|----------|----------|-------------|
 {{range .ApplicationTypes.Endpoints}}| {{.Path}} | {{if not .Unauthenticated}}✔{{end}} | {{if .Consumes}}{{.Consumes.AsTypeScriptType}}{{end}} | {{if .Produces}}{{.Produces.AsTypeScriptType}}{{end}} | {{.Description}} |
 {{end}}
 
-See [Datatypes](datatypes.md) for more info on the above data structures.
+Datatypes are as follows:
+
+
+{{range .ApplicationTypes.Structs}}
+type {{.Name}}
+-----
+
+| Key | Type | 
+|------|----------|
+{{range .Fields}}| {{.Key}} | `{{.Type.AsTypeScriptType}}` |
+{{end}}
+
+{{end}}
+
