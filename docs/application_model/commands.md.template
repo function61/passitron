@@ -2,10 +2,11 @@
 {{.Command}}
 ----------
 
-|                     |                 |
-|---------------------|-----------------|
-| Title               | {{.Title}}      |
-| Unauthenticated use | {{.Anonymous}}  |
+|                     |                              |
+|---------------------|------------------------------|
+| Endpoint            | `POST /command/{{.Command}}` |
+| Title               | {{.Title}}                   |
+| Unauthenticated use | {{.Anonymous}}               |
 
 
 | Field | Type | Required | Notes |
