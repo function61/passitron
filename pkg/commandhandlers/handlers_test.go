@@ -16,6 +16,8 @@ func TestScenario(t *testing.T) {
 
 	tstate.firstAccountId = createAccount(t, tstate)
 
+	signIn(t, tstate)
+
 	renameAccount(t, tstate)
 
 	changeUsername(t, tstate)
@@ -70,6 +72,17 @@ func createAccount(t *testing.T, tstate *testScenarioState) string {
 	assert.EqualString(t, wacc.Account.Username, "AzureDiamond")
 
 	return wacc.Account.Id
+}
+
+func signIn(t *testing.T, tstate *testScenarioState) {
+	ctx := tstate.DefaultCmdCtx()
+
+	tstate.InvokeSucceeds(t, ctx, &SessionSignIn{
+		Username: "joonas",
+		Password: "poop",
+	})
+
+	assert.EqualString(t, ctx.SendLoginCookieUserId, domain.DefaultUserIdTODO)
 }
 
 func renameAccount(t *testing.T, tstate *testScenarioState) {

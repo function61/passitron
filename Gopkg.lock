@@ -54,19 +54,28 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   branch = "master"
-  digest = "1:164c6588971e58b76cbe337969c3d81f5be6600907901c0b7d214c48fee80baa"
+  digest = "1:5e96a3bae6866f6426dd44d160a2ad161bd2b4adb75e19e2b002fe0e6104ce94"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "cryptorandombytes",
+    "fileexists",
     "logger",
     "ossignal",
     "stopper",
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "7ebb89b12d11832f207f64673a1fe8fff4f61362"
+  revision = "5590520346d86339e5e972aa29fff01194cbcad0"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -190,8 +199,10 @@
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/boombuler/barcode",
     "github.com/boombuler/barcode/qr",
+    "github.com/dgrijalva/jwt-go",
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/cryptorandombytes",
+    "github.com/function61/gokit/fileexists",
     "github.com/function61/gokit/logger",
     "github.com/function61/gokit/ossignal",
     "github.com/function61/gokit/stopper",

@@ -9,6 +9,11 @@ type Ctx struct {
 	State *state.State
 	Meta  domain.EventMeta
 
+	RemoteAddr string
+	UserAgent  string
+
+	SendLoginCookieUserId string
+
 	raisedEvents []domain.Event
 }
 

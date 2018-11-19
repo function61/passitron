@@ -1,4 +1,4 @@
-import {coerceToStructuredErrorResponse, handleDatabaseSealed, StructuredErrorResponse} from 'backenderrors';
+import {coerceToStructuredErrorResponse, handleKnownGlobalErrors, StructuredErrorResponse} from 'backenderrors';
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
 import {postJson} from 'httputil';
 import * as React from 'react';
@@ -137,7 +137,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			this.broadcastChanges();
 		}, (err: Error | StructuredErrorResponse) => {
 			const ser = coerceToStructuredErrorResponse(err);
-			if (handleDatabaseSealed(ser)) {
+			if (handleKnownGlobalErrors(ser)) {
 				return;
 			}
 

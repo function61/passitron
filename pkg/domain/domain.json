@@ -317,6 +317,14 @@
 		]
 	},
 	{
+		"event": "session.SignedIn",
+		"ctor": ["IpAddress", "UserAgent"],
+		"fields": [
+			{ "key": "IpAddress", "type": {"_": "string"} },
+			{ "key": "UserAgent", "type": {"_": "string"} }
+		]
+	},
+	{
 		"event": "user.U2FTokenRegistered",
 		"ctor": ["Name", "KeyHandle", "RegistrationData", "ClientData", "Version"],
 		"fields": [

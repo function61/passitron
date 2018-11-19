@@ -3,6 +3,7 @@ package restcommandapi
 import (
 	"encoding/json"
 	"errors"
+	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -14,7 +15,17 @@ import (
 	"time"
 )
 
-func Register(router *mux.Router, st *state.State) {
+func Register(router *mux.Router, st *state.State) error {
+	jwtAuth, err := auth.NewJwtAuthenticator(st.GetJwtValidationKey())
+	if err != nil {
+		return err
+	}
+
+	jwtSigner, err := auth.NewJwtSigner(st.GetJwtSigningKey())
+	if err != nil {
+		return err
+	}
+
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
@@ -26,13 +37,40 @@ func Register(router *mux.Router, st *state.State) {
 
 		cmdStruct := cmdStructBuilder()
 
-		if cmdStruct.RequiresAuthentication() && errorIfSealed(st.IsUnsealed(), w) {
-			return
+		userId := ""
+
+		if cmdStruct.RequiresAuthentication() {
+			if !st.IsUnsealed() {
+				httputil.RespondHttpJson(
+					httputil.GenericError(
+						"database_is_sealed",
+						nil),
+					http.StatusForbidden,
+					w)
+
+				return
+			}
+
+			authDetails := jwtAuth.Authenticate(r)
+			if authDetails == nil {
+				httputil.RespondHttpJson(
+					httputil.GenericError(
+						"not_signed_in",
+						errors.New("You must sign in before accessing this resource")),
+					http.StatusForbidden,
+					w)
+
+				return
+			}
+
+			userId = authDetails.UserId
 		}
 
 		ctx := &command.Ctx{
-			State: st,
-			Meta:  domain.Meta(time.Now(), domain.DefaultUserIdTODO),
+			RemoteAddr: r.RemoteAddr,
+			UserAgent:  r.Header.Get("User-Agent"),
+			State:      st,
+			Meta:       domain.Meta(time.Now(), userId),
 		}
 
 		if r.Header.Get("Content-Type") != "application/json" {
@@ -63,15 +101,15 @@ func Register(router *mux.Router, st *state.State) {
 
 		st.EventLog.AppendBatch(raisedEvents)
 
+		if ctx.SendLoginCookieUserId != "" {
+			token := jwtSigner.Sign(auth.UserDetails{
+				UserId: ctx.SendLoginCookieUserId,
+			})
+			http.SetCookie(w, auth.ToCookie(token))
+		}
+
 		httputil.RespondHttpJson(httputil.GenericSuccess(), http.StatusOK, w)
-	}))
-}
+	})).Methods(http.MethodPost)
 
-func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
-	if !unsealed {
-		httputil.RespondHttpJson(httputil.GenericError("database_is_sealed", nil), http.StatusForbidden, w)
-		return true
-	}
-
-	return false
+	return nil
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/keepassexport"
 	"github.com/function61/pi-security-module/pkg/randompassword"
 	"github.com/function61/pi-security-module/pkg/u2futil"
+	"github.com/function61/pi-security-module/pkg/useraccounts"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/tstranex/u2f"
@@ -404,6 +405,27 @@ func (a *DatabaseChangeMasterPassword) Invoke(ctx *command.Ctx) error {
 	ctx.RaisesEvent(domain.NewDatabaseMasterPasswordChanged(
 		a.NewMasterPassword,
 		ctx.Meta))
+
+	return nil
+}
+
+func (a *SessionSignIn) Invoke(ctx *command.Ctx) error {
+	user, err := useraccounts.DummyRepository.FindByUsername(a.Username)
+	if err != nil {
+		return err // maybe error contacting DB
+	}
+
+	if user == nil || subtle.ConstantTimeCompare([]byte(user.Password), []byte(a.Password)) != 1 {
+		time.Sleep(2 * time.Second) // to lessen efficacy of brute forcing
+		return errors.New("bad username or password")
+	}
+
+	ctx.SendLoginCookieUserId = user.Id
+
+	ctx.RaisesEvent(domain.NewSessionSignedIn(
+		ctx.RemoteAddr,
+		ctx.UserAgent,
+		domain.Meta(time.Now(), user.Id)))
 
 	return nil
 }

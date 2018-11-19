@@ -31,6 +31,10 @@ func (s *State) ApplyAccountCreated(e *domain.AccountCreated) error {
 	return nil
 }
 
+func (s *State) ApplySessionSignedIn(e *domain.SessionSignedIn) error {
+	return nil
+}
+
 func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) error {
 	for idx, wacc := range s.State.WrappedAccounts {
 		if wacc.Account.Id == e.Id {

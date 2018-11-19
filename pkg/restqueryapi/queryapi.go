@@ -6,10 +6,10 @@ import (
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/function61/pi-security-module/pkg/apitypes"
+	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/mac"
-	"github.com/function61/pi-security-module/pkg/physicalauth"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/gorilla/mux"
@@ -21,33 +21,37 @@ import (
 	"time"
 )
 
-func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
-	if !unsealed {
-		httputil.RespondHttpJson(httputil.GenericError("database_is_sealed", nil), http.StatusForbidden, w)
-		return true
-	}
-
-	return false
-}
-
-func runPhysicalAuth(w http.ResponseWriter) bool {
-	authorized, err := physicalauth.Dummy()
-	if err != nil {
-		httputil.RespondHttpJson(httputil.GenericError("technical_error_in_physical_authorization", err), http.StatusInternalServerError, w)
-		return false
-	}
-
-	if !authorized {
-		httputil.RespondHttpJson(httputil.GenericError("did_not_receive_physical_authorization", nil), http.StatusForbidden, w)
-		return false
-	}
-
-	return true
-}
-
 func Register(router *mux.Router, st *state.State) {
-	authenticator := func(w http.ResponseWriter, r *http.Request) bool {
-		return true // currently unimplemented
+	jwtAuth, err := auth.NewJwtAuthenticator(st.GetJwtValidationKey())
+	if err != nil {
+		panic(err)
+	}
+
+	unsealedCheckAndAuthenticationMiddleware := func(w http.ResponseWriter, r *http.Request) bool {
+		if !st.IsUnsealed() {
+			httputil.RespondHttpJson(
+				httputil.GenericError(
+					"database_is_sealed",
+					nil),
+				http.StatusForbidden,
+				w)
+
+			return false
+		}
+
+		authDetails := jwtAuth.Authenticate(r)
+		if authDetails == nil {
+			httputil.RespondHttpJson(
+				httputil.GenericError(
+					"not_signed_in",
+					errors.New("You must sign in before accessing this resource")),
+				http.StatusForbidden,
+				w)
+
+			return false
+		}
+
+		return true
 	}
 
 	apitypes.RegisterRoutes(&queryHandlers{
@@ -62,10 +66,6 @@ type queryHandlers struct {
 }
 
 func (a *queryHandlers) GetFolder(w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
-	if errorIfSealed(a.st.IsUnsealed(), w) {
-		return nil
-	}
-
 	folder := a.st.FolderById(mux.Vars(r)["folderId"])
 
 	accounts := state.UnwrapAccounts(a.st.WrappedAccountsByFolder(folder.Id))
@@ -93,10 +93,6 @@ func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
 	key := mux.Vars(r)["key"]
-
-	if errorIfSealed(a.st.IsUnsealed(), w) {
-		return nil
-	}
 
 	u2fChallengeHash := u2futil.ChallengeHashForKeylistKey(
 		accountId,
@@ -161,10 +157,6 @@ func (a *queryHandlers) GetKeylistItemChallenge(w http.ResponseWriter, r *http.R
 }
 
 func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
-	if errorIfSealed(a.st.IsUnsealed(), w) {
-		return nil
-	}
-
 	wacc := a.st.WrappedAccountById(mux.Vars(r)["accountId"])
 
 	if wacc == nil {
@@ -199,10 +191,6 @@ func (a *queryHandlers) AuditLogEntries(w http.ResponseWriter, r *http.Request) 
 }
 
 func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
-	if errorIfSealed(a.st.IsUnsealed(), w) {
-		return nil
-	}
-
 	wacc := a.st.WrappedAccountById(mux.Vars(r)["id"])
 
 	if wacc == nil {
@@ -239,10 +227,6 @@ func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apit
 }
 
 func (a *queryHandlers) Search(w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
-	if errorIfSealed(a.st.IsUnsealed(), w) {
-		return nil
-	}
-
 	query := strings.ToLower(r.URL.Query().Get("q"))
 
 	accounts := []apitypes.Account{}
@@ -299,10 +283,6 @@ func (a *queryHandlers) U2fEnrollmentChallenge(w http.ResponseWriter, r *http.Re
 }
 
 func (a *queryHandlers) U2fEnrolledTokens(w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
-	if errorIfSealed(a.st.IsUnsealed(), w) {
-		return nil
-	}
-
 	tokens := []apitypes.U2FEnrolledToken{}
 
 	for _, token := range a.st.State.U2FTokens {

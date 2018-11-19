@@ -1,9 +1,9 @@
-import {unsealRoute} from 'routes';
+import {signInRoute} from 'routes';
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	const ser = coerceToStructuredErrorResponse(err);
 
-	if (handleDatabaseSealed(ser)) {
+	if (handleKnownGlobalErrors(ser)) {
 		return;
 	}
 
@@ -14,9 +14,13 @@ export function isSealedError(err: StructuredErrorResponse): boolean {
 	return err.error_code === 'database_is_sealed';
 }
 
-export function handleDatabaseSealed(err: StructuredErrorResponse): boolean {
-	if (isSealedError(err)) {
-		document.location.assign(unsealRoute.buildUrl({ redirect: document.location.hash }));
+export function isNotSignedInError(err: StructuredErrorResponse): boolean {
+	return err.error_code === 'not_signed_in';
+}
+
+export function handleKnownGlobalErrors(err: StructuredErrorResponse): boolean {
+	if (isSealedError(err) || isNotSignedInError(err)) {
+		document.location.assign(signInRoute.buildUrl({ redirect: document.location.hash }));
 		return true;
 	}
 

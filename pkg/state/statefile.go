@@ -1,6 +1,7 @@
 package state
 
 import (
+	"errors"
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -16,6 +17,7 @@ type State struct {
 	masterPassword string
 	macSigningKey  string // derived from masterPassword
 	sealed         bool
+	conf           *Config
 	State          *Statefile
 	EventLog       *eventlog.EventLog
 	S3ExportBucket string
@@ -36,11 +38,17 @@ func NewTesting() *State {
 }
 
 func New() *State {
-	// state from the event log is computed & populated here
+	conf, err := readConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	// state from the event log is computed & populated mainly under State field
 	s := &State{
 		masterPassword: "",
 		State:          NewStatefile(),
 		sealed:         true,
+		conf:           conf,
 	}
 
 	// needs to be instantiated later, because handleEvent requires access to State
@@ -62,6 +70,22 @@ func (s *State) GetMasterPassword() string {
 
 func (s *State) GetMacSigningKey() string {
 	return s.macSigningKey
+}
+
+func (s *State) GetJwtValidationKey() []byte {
+	if s.conf.JwtPublicKey == "" {
+		panic(errors.New("JwtPublicKey not set"))
+	}
+
+	return []byte(s.conf.JwtPublicKey)
+}
+
+func (s *State) GetJwtSigningKey() []byte {
+	if s.conf.JwtPrivateKey == "" {
+		panic(errors.New("JwtPrivateKey not set"))
+	}
+
+	return []byte(s.conf.JwtPrivateKey)
 }
 
 func (s *State) SetMasterPassword(password string) {

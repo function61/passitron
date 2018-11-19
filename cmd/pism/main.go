@@ -43,7 +43,10 @@ func startHttp(st *state.State, stop *stopper.Stopper) error {
 	}
 
 	restqueryapi.Register(router, st)
-	restcommandapi.Register(router, st)
+
+	if err := restcommandapi.Register(router, st); err != nil {
+		return err
+	}
 
 	signingapi.Setup(router, st)
 
@@ -117,6 +120,17 @@ func serverEntrypoint() *cobra.Command {
 			}
 		},
 	}
+
+	server.AddCommand(&cobra.Command{
+		Use:   "init-config",
+		Short: "Initialized configuration",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := state.InitConfig(); err != nil {
+				panic(err)
+			}
+		},
+	})
 
 	server.AddCommand(&cobra.Command{
 		Use:   "print-signingapi-auth-token",
