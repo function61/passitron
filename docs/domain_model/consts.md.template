@@ -1,7 +1,0 @@
-Domain consts
--------------
-
-| const | value |
-|-------|-------|
-{{range .DomainSpecs.StringConsts}}| {{.Key}} | {{.Value}} |
-{{end}}

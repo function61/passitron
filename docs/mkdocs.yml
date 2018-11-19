@@ -16,7 +16,7 @@ pages:
 
 - 'Domain model':
   - 'Events': 'domain_model/events.md'
-  - 'Constants': 'domain_model/consts.md'
+  - 'Constants and enums': 'domain_model/consts-and-enums.md'
 
 - 'Application model (REST API)':
   - 'Queries (for reading data)': 'application_model/rest_endpoints.md'

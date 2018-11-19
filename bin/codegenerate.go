@@ -42,7 +42,7 @@ func main() {
 	files := []string{
 		"docs/application_model/commands.md",
 		"docs/application_model/rest_endpoints.md",
-		"docs/domain_model/consts.md",
+		"docs/domain_model/consts-and-enums.md",
 		"docs/domain_model/events.md",
 		"frontend/generated/apitypes.ts",
 		"frontend/generated/commanddefinitions.ts",
