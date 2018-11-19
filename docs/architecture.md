@@ -1,3 +1,19 @@
+Domain model vs. application model?
+-----------------------------------
+
+Domain model is the data as close to how it appears in real life, e.g. `User registered`.
+
+Application model is how the application chooses to interpret this data, perhaps even
+optimized for a narrower use case, e.g. `INSERT INTO users SET (username, password) VALUES ...`.
+That `User registered` event had a timestamp associated with it (all events in the domain
+have a timestamp), but our application model might not care about it. The data and how the
+application uses the data are two different things - they are decoupled from each other.
+
+Why separate models? The domain is supposed to outlive the application model. We could
+rewrite this application in a different programming language and use a different database,
+but the domain model should not change in any way - only the application model changes.
+
+
 Overview
 --------
 
