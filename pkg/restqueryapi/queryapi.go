@@ -56,7 +56,7 @@ func Register(router *mux.Router, st *state.State) {
 
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
-	}, authenticator, func(path string, fn http.HandlerFunc) {
+	}, unsealedCheckAndAuthenticationMiddleware, func(path string, fn http.HandlerFunc) {
 		router.HandleFunc(path, fn)
 	})
 }
