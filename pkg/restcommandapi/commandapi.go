@@ -11,7 +11,6 @@ import (
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"time"
 )
@@ -73,8 +72,6 @@ func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.
 		}
 
 		raisedEvents := ctx.GetRaisedEvents()
-
-		log.Printf("Command %s raised %d event(s)", commandName, len(raisedEvents))
 
 		st.EventLog.AppendBatch(raisedEvents)
 
