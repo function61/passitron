@@ -23,8 +23,8 @@ type MiddlewareChainMap map[string]MiddlewareChain
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
 // TODO: middlewares like auth
-func RegisterRoutes(handlers Handlers, mwares MiddlewareChainMap, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
-	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
+func RegisterRoutes(handlers Handlers, mwares MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
+	register("{{.HttpMethod}}", "{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
 		if mwares["{{.MiddlewareChain}}"](w, r) == nil {
 			return // middleware aborted request handing and handled error response itself
 		}

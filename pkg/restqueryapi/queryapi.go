@@ -23,8 +23,8 @@ import (
 func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.State) {
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
-	}, mwares, func(path string, fn http.HandlerFunc) {
-		router.HandleFunc(path, fn)
+	}, mwares, func(method string, path string, fn http.HandlerFunc) {
+		router.HandleFunc(path, fn).Methods(method)
 	})
 }
 

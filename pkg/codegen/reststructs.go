@@ -13,6 +13,7 @@ type ApplicationTypesDefinition struct {
 
 type EndpointDefinition struct {
 	Path            string       `json:"path"`
+	HttpMethod      string       `json:"method"`
 	Name            string       `json:"name"`
 	MiddlewareChain string       `json:"chain"`
 	Description     string       `json:"description"`
