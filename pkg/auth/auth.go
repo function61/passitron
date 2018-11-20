@@ -14,7 +14,7 @@ import (
 )
 
 type UserDetails struct {
-	UserId string
+	Id string
 }
 
 type HttpRequestAuthenticator interface {
@@ -22,7 +22,7 @@ type HttpRequestAuthenticator interface {
 }
 
 type Signer interface {
-	Sign(details UserDetails) string
+	Sign(userDetails UserDetails) string
 }
 
 type jwtSigner struct {
@@ -40,9 +40,9 @@ func NewJwtSigner(privateKey []byte) (Signer, error) {
 	}, nil
 }
 
-func (j *jwtSigner) Sign(details UserDetails) string {
+func (j *jwtSigner) Sign(userDetails UserDetails) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodES512, jwt.MapClaims{
-		"sub": details.UserId,
+		"sub": userDetails.Id,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -81,7 +81,7 @@ func (j *jwtAuthenticator) Authenticate(r *http.Request) *UserDetails {
 	}
 
 	return &UserDetails{
-		UserId: claims["sub"].(string),
+		Id: claims["sub"].(string),
 	}
 }
 

@@ -6,135 +6,15 @@ import (
 	"github.com/function61/gokit/ossignal"
 	"github.com/function61/gokit/stopper"
 	"github.com/function61/gokit/systemdinstaller"
-	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
+	"github.com/function61/pi-security-module/pkg/httpserver"
 	"github.com/function61/pi-security-module/pkg/keepassimport"
-	"github.com/function61/pi-security-module/pkg/restcommandapi"
-	"github.com/function61/pi-security-module/pkg/restqueryapi"
 	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
-	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/function61/pi-security-module/pkg/version"
-	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"strings"
 )
-
-const (
-	certFile = "cert.pem"
-	keyFile  = "key.pem"
-)
-
-func startHttp(st *state.State, stop *stopper.Stopper) error {
-	log := logger.New("startHttp")
-
-	router := mux.NewRouter()
-
-	// FIXME: remove this crap bubblegum (uses global state)
-	certBytes, errReadCertBytes := ioutil.ReadFile(certFile)
-	if errReadCertBytes != nil {
-		return errReadCertBytes
-	}
-
-	if err := u2futil.InjectCommonNameFromSslCertificate(certBytes); err != nil {
-		return err
-	}
-
-	restqueryapi.Register(router, st)
-
-	if err := restcommandapi.Register(router, st); err != nil {
-		return err
-	}
-
-	signingapi.Setup(router, st)
-
-	// this most generic catch-all route has to be introduced last
-	if err := setupStaticFilesRouting(router, st); err != nil {
-		return err
-	}
-
-	srv := &http.Server{
-		Addr:    ":443",
-		Handler: router,
-	}
-
-	go func() {
-		log.Info(fmt.Sprintf("serving @ %s", srv.Addr))
-		defer log.Info("stopped")
-
-		if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil {
-			log.Error(fmt.Sprintf("ListenAndServeTLS(): %s", err.Error()))
-		}
-	}()
-
-	go func() {
-		defer stop.Done()
-		<-stop.Signal
-
-		if err := srv.Shutdown(nil); err != nil {
-			log.Error(fmt.Sprintf("Shutdown(): %s", err.Error()))
-		}
-	}()
-
-	return nil
-}
-
-func setupStaticFilesRouting(router *mux.Router, st *state.State) error {
-	indexTemplate, err := ioutil.ReadFile("public/index.html.template")
-	if err != nil {
-		return err
-	}
-
-	index := strings.Replace(
-		string(indexTemplate),
-		"[$csrf_token]",
-		st.GetCsrfToken(),
-		-1)
-
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if _, err := w.Write([]byte(index)); err != nil {
-			panic(err)
-		}
-	})
-
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
-
-	return nil
-}
-
-func server() error {
-	log := logger.New("server")
-	log.Info(fmt.Sprintf("%s starting", version.Version))
-	defer log.Info("stopped")
-
-	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
-	if version.IsDevVersion() {
-		downloadUrl = ""
-	}
-
-	if err := extractpublicfiles.Run(downloadUrl); err != nil {
-		return err
-	}
-
-	st := state.New()
-	defer st.Close()
-
-	workers := stopper.NewManager()
-
-	if err := startHttp(st, workers.Stopper()); err != nil {
-		return err
-	}
-
-	log.Info(fmt.Sprintf("Received signal %s; stopping", <-ossignal.InterruptOrTerminate()))
-
-	workers.StopAllWorkersAndWait()
-
-	return nil
-}
 
 func serverEntrypoint() *cobra.Command {
 	server := &cobra.Command{
@@ -142,7 +22,19 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Starts the server",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := server(); err != nil {
+			log := logger.New("serverEntrypoint")
+			log.Info(fmt.Sprintf("%s starting", version.Version))
+			defer log.Info("stopped")
+
+			workers := stopper.NewManager()
+
+			go func() {
+				log.Info(fmt.Sprintf("Received signal %s; stopping", <-ossignal.InterruptOrTerminate()))
+
+				workers.StopAllWorkersAndWait()
+			}()
+
+			if err := httpserver.Run(workers.Stopper()); err != nil {
 				panic(err)
 			}
 		},

@@ -28,6 +28,6 @@ func (c *Ctx) RaisesEvent(event domain.Event) {
 type Command interface {
 	Key() string
 	Validate() error
-	RequiresAuthentication() bool
+	MiddlewareChain() string
 	Invoke(*Ctx) error
 }

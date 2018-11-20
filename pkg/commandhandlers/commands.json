@@ -1,6 +1,7 @@
 [
 	{
 		"command": "account.Rename",
+		"chain": "authdWrite",
 		"ctor": ["Account","Title"],
 		"crudNature": "update",
 		"title": "Rename account",
@@ -11,6 +12,7 @@
 	},
 	{
 		"command": "account.Move",
+		"chain": "authdWrite",
 		"ctor": ["Account"],
 		"crudNature": "update",
 		"title": "Move account to different folder",
@@ -21,6 +23,7 @@
 	},
 	{
 		"command": "account.ChangeUsername",
+		"chain": "authdWrite",
 		"ctor": ["Account","Username"],
 		"crudNature": "update",
 		"title": "Change username",
@@ -31,6 +34,7 @@
 	},
 	{
 		"command": "account.ChangeDescription",
+		"chain": "authdWrite",
 		"ctor": ["Account","Description"],
 		"crudNature": "update",
 		"title": "Change description",
@@ -41,6 +45,7 @@
 	},
 	{
 		"command": "account.ChangeUrl",
+		"chain": "authdWrite",
 		"ctor": ["Account","Url"],
 		"crudNature": "update",
 		"title": "Change URL",
@@ -51,6 +56,7 @@
 	},
 	{
 		"command": "account.DeleteSecret",
+		"chain": "authdWrite",
 		"ctor": ["Account","Secret"],
 		"crudNature": "delete",
 		"title": "Delete secret",
@@ -61,6 +67,7 @@
 	},
 	{
 		"command": "account.CreateFolder",
+		"chain": "authdWrite",
 		"ctor": ["Parent"],
 		"crudNature": "create",
 		"title": "+ Folder",
@@ -71,6 +78,7 @@
 	},
 	{
 		"command": "account.DeleteFolder",
+		"chain": "authdWrite",
 		"ctor": ["Id"],
 		"crudNature": "delete",
 		"title": "Delete folder",
@@ -80,6 +88,7 @@
 	},
 	{
 		"command": "account.RenameFolder",
+		"chain": "authdWrite",
 		"ctor": ["Id","Name"],
 		"crudNature": "update",
 		"title": "Rename",
@@ -90,6 +99,7 @@
 	},
 	{
 		"command": "account.MoveFolder",
+		"chain": "authdWrite",
 		"ctor": ["Id"],
 		"crudNature": "update",
 		"title": "Move",
@@ -100,6 +110,7 @@
 	},
 	{
 		"command": "account.Create",
+		"chain": "authdWrite",
 		"ctor": ["FolderId"],
 		"crudNature": "create",
 		"title": "+ Account",
@@ -114,6 +125,7 @@
 	},
 	{
 		"command": "account.Delete",
+		"chain": "authdWrite",
 		"ctor": ["Id"],
 		"crudNature": "delete",
 		"title": "Delete",
@@ -124,6 +136,7 @@
 	},
 	{
 		"command": "account.AddPassword",
+		"chain": "authdWrite",
 		"ctor": ["Account"],
 		"crudNature": "create",
 		"title": "+ Password",
@@ -135,6 +148,7 @@
 	},
 	{
 		"command": "account.AddKeylist",
+		"chain": "authdWrite",
 		"ctor": ["Account"],
 		"crudNature": "create",
 		"title": "+ Keylist",
@@ -149,6 +163,7 @@
 	},
 	{
 		"command": "account.AddSshKey",
+		"chain": "authdWrite",
 		"ctor": ["Id"],
 		"crudNature": "create",
 		"title": "+ SSH key",
@@ -159,6 +174,7 @@
 	},
 	{
 		"command": "account.AddSecretNote",
+		"chain": "authdWrite",
 		"ctor": ["Account"],
 		"crudNature": "create",
 		"title": "+ Secret note",
@@ -170,6 +186,7 @@
 	},
 	{
 		"command": "account.AddOtpToken",
+		"chain": "authdWrite",
 		"ctor": ["Account","OtpProvisioningUrl"],
 		"crudNature": "create",
 		"title": "Add OTP token",
@@ -180,6 +197,7 @@
 	},
 	{
 		"command": "database.ChangeMasterPassword",
+		"chain": "authdWrite",
 		"ctor": [],
 		"crudNature": "update",
 		"title": "Change master password",
@@ -190,7 +208,7 @@
 	},
 	{
 		"command": "session.SignIn",
-		"anonymous": true,
+		"chain": "public",
 		"ctor": [],
 		"crudNature": "update",
 		"title": "Sign in",
@@ -201,7 +219,7 @@
 	},
 	{
 		"command": "database.Unseal",
-		"anonymous": true,
+		"chain": "public",
 		"ctor": [],
 		"crudNature": "update",
 		"title": "Unseal database",
@@ -211,6 +229,7 @@
 	},
 	{
 		"command": "database.ExportToKeepass",
+		"chain": "authdWrite",
 		"ctor": [],
 		"crudNature": "update",
 		"title": "Export to KeePass format",
@@ -218,6 +237,7 @@
 	},
 	{
 		"command": "user.RegisterU2FToken",
+		"chain": "authdWrite",
 		"ctor": ["Request"],
 		"crudNature": "create",
 		"title": "Register U2F token",

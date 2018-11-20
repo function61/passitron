@@ -23,7 +23,7 @@ type CommandSpec struct {
 	Title                  string              `json:"title"`
 	CrudNature             string              `json:"crudNature"`
 	AdditionalConfirmation string              `json:"additional_confirmation"`
-	Anonymous              bool                `json:"anonymous"`
+	MiddlewareChain        string              `json:"chain"`
 	CtorArgs               []string            `json:"ctor"`
 	Fields                 []*CommandFieldSpec `json:"fields"`
 }

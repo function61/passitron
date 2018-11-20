@@ -14,7 +14,7 @@ type ApplicationTypesDefinition struct {
 type EndpointDefinition struct {
 	Path            string       `json:"path"`
 	Name            string       `json:"name"`
-	Unauthenticated bool         `json:"unauthenticated"`
+	MiddlewareChain string       `json:"chain"`
 	Description     string       `json:"description"`
 	Produces        *DatatypeDef `json:"produces"` // optional
 	Consumes        *DatatypeDef `json:"consumes"` // optional

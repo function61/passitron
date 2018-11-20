@@ -18,7 +18,7 @@ func (x *{{.AsGoStructName}}) Validate() error {
 	return nil
 }
 
-func (x *{{.AsGoStructName}}) RequiresAuthentication() bool { return {{not .Anonymous}} }
+func (x *{{.AsGoStructName}}) MiddlewareChain() string { return "{{.MiddlewareChain}}" }
 func (x *{{.AsGoStructName}}) Key() string { return "{{.Command}}" }
 {{end}}
 

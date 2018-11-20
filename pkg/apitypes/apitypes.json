@@ -1,15 +1,15 @@
 {
 	"endpoints": [
-		{ "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistItem" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistItemChallenge" },
-		{ "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
-		{ "path": "/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport", "description": "Gets QR code of TOTP token for exporting to Google Authenticator" },
-		{ "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
-		{ "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
-		{ "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
-		{ "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
-		{ "path": "/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" }
+		{ "chain": "authdQuery", "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
+		{ "chain": "authdQuery", "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistItem" },
+		{ "chain": "authdQuery", "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistItemChallenge" },
+		{ "chain": "authdQuery", "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
+		{ "chain": "authdQuery", "path": "/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport", "description": "Gets QR code of TOTP token for exporting to Google Authenticator" },
+		{ "chain": "authdQuery", "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
+		{ "chain": "authdQuery", "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
+		{ "chain": "authdQuery", "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
+		{ "chain": "authdQuery", "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
+		{ "chain": "authdQuery", "path": "/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" }
 	],
 	"structs": [
 		{

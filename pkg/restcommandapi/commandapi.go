@@ -3,6 +3,7 @@ package restcommandapi
 import (
 	"encoding/json"
 	"errors"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
@@ -15,12 +16,7 @@ import (
 	"time"
 )
 
-func Register(router *mux.Router, st *state.State) error {
-	jwtAuth, err := auth.NewJwtAuthenticator(st.GetJwtValidationKey())
-	if err != nil {
-		return err
-	}
-
+func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.State) error {
 	jwtSigner, err := auth.NewJwtSigner(st.GetJwtSigningKey())
 	if err != nil {
 		return err
@@ -37,44 +33,14 @@ func Register(router *mux.Router, st *state.State) error {
 
 		cmdStruct := cmdStructBuilder()
 
+		reqCtx := mwares[cmdStruct.MiddlewareChain()](w, r)
+		if reqCtx == nil {
+			return // middleware dealt with error response
+		}
+
 		userId := ""
-
-		if cmdStruct.RequiresAuthentication() {
-			if !st.IsUnsealed() {
-				httputil.RespondHttpJson(
-					httputil.GenericError(
-						"database_is_sealed",
-						nil),
-					http.StatusForbidden,
-					w)
-
-				return
-			}
-
-			authDetails := jwtAuth.Authenticate(r)
-			if authDetails == nil {
-				httputil.RespondHttpJson(
-					httputil.GenericError(
-						"not_signed_in",
-						errors.New("You must sign in before accessing this resource")),
-					http.StatusForbidden,
-					w)
-
-				return
-			}
-
-			if r.Header.Get("x-csrf-token") != st.GetCsrfToken() {
-				httputil.RespondHttpJson(
-					httputil.GenericError(
-						"invalid_csrf_token",
-						errors.New("CSRF token is invalid or missing. Do you happen to be wearing a hoodie?")),
-					http.StatusForbidden,
-					w)
-
-				return
-			}
-
-			userId = authDetails.UserId
+		if reqCtx.User != nil {
+			userId = reqCtx.User.Id
 		}
 
 		ctx := &command.Ctx{
@@ -114,7 +80,7 @@ func Register(router *mux.Router, st *state.State) error {
 
 		if ctx.SendLoginCookieUserId != "" {
 			token := jwtSigner.Sign(auth.UserDetails{
-				UserId: ctx.SendLoginCookieUserId,
+				Id: ctx.SendLoginCookieUserId,
 			})
 			http.SetCookie(w, auth.ToCookie(token))
 		}

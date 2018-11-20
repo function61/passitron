@@ -6,7 +6,6 @@ import (
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/function61/pi-security-module/pkg/apitypes"
-	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/mac"
@@ -21,42 +20,10 @@ import (
 	"time"
 )
 
-func Register(router *mux.Router, st *state.State) {
-	jwtAuth, err := auth.NewJwtAuthenticator(st.GetJwtValidationKey())
-	if err != nil {
-		panic(err)
-	}
-
-	unsealedCheckAndAuthenticationMiddleware := func(w http.ResponseWriter, r *http.Request) bool {
-		if !st.IsUnsealed() {
-			httputil.RespondHttpJson(
-				httputil.GenericError(
-					"database_is_sealed",
-					nil),
-				http.StatusForbidden,
-				w)
-
-			return false
-		}
-
-		authDetails := jwtAuth.Authenticate(r)
-		if authDetails == nil {
-			httputil.RespondHttpJson(
-				httputil.GenericError(
-					"not_signed_in",
-					errors.New("You must sign in before accessing this resource")),
-				http.StatusForbidden,
-				w)
-
-			return false
-		}
-
-		return true
-	}
-
+func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.State) {
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
-	}, unsealedCheckAndAuthenticationMiddleware, func(path string, fn http.HandlerFunc) {
+	}, mwares, func(path string, fn http.HandlerFunc) {
 		router.HandleFunc(path, fn)
 	})
 }

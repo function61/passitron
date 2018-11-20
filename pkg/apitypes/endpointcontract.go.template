@@ -3,25 +3,32 @@ package apitypes
 import (
 	"net/http"
 	"encoding/json"
+	"github.com/function61/pi-security-module/pkg/auth"
 )
 
 type Handlers interface { {{range .ApplicationTypes.Endpoints}}
 	{{UppercaseFirst .Name}}({{if .Consumes}}input {{.Consumes.AsGoType}}, {{end}}w http.ResponseWriter, r *http.Request){{if .Produces}} *{{.Produces.AsGoType}}{{end}}{{end}}
 }
 
-// if returns false, request handling is aborted.
-// in return=false case middleware is responsible for error response.
-type MiddlewareChainFunc func(w http.ResponseWriter, r *http.Request) bool
+type RequestContext struct {
+	User *auth.UserDetails
+}
+
+// if returns nul, request handling is aborted.
+// in return=nil case middleware is responsible for error response.
+type MiddlewareChain func(w http.ResponseWriter, r *http.Request) *RequestContext
+
+type MiddlewareChainMap map[string]MiddlewareChain
 
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
 // TODO: middlewares like auth
-func RegisterRoutes(handlers Handlers, middleware MiddlewareChainFunc, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
-	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) { {{if not .Unauthenticated}}
-		if !middleware(w, r) {
+func RegisterRoutes(handlers Handlers, mwares MiddlewareChainMap, register func(path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
+	register("{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
+		if mwares["{{.MiddlewareChain}}"](w, r) == nil {
 			return // middleware aborted request handing and handled error response itself
-		} {{end}}{{if .Consumes}}
-		input := &{{.Consumes.AsGoType}}{}
+		}
+{{if .Consumes}}		input := &{{.Consumes.AsGoType}}{}
 		if ok := parseJsonInput(w, r, input); !ok {
 			return // parseJsonInput handled error message
 		} {{end}}
