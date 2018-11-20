@@ -17,7 +17,9 @@
 		},
 		deps: ["app"],
 		callback: function(app) {
-			app.main(document.getElementById('app'));
+			app.main(document.getElementById('app'), {
+				csrf_token: '[$csrf_token]',
+			});
 		},
 	};
 	</script>

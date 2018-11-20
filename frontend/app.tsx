@@ -1,11 +1,18 @@
 import {DangerAlert} from 'components/alerts';
+import { configureCsrfToken } from 'httputil';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { router } from 'routes';
 
+interface Config {
+	csrf_token: string;
+}
+
 // entrypoint for the app. this is called when DOM is loaded
-export function main(appElement: HTMLElement): void {
+export function main(appElement: HTMLElement, config: Config): void {
+	configureCsrfToken(config.csrf_token);
+
 	ReactDOM.render(
 		<App />,
 		appElement);

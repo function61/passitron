@@ -72,6 +72,10 @@ func (s *State) GetMacSigningKey() string {
 	return s.macSigningKey
 }
 
+func (s *State) GetCsrfToken() string {
+	return "TODO"
+}
+
 func (s *State) GetJwtValidationKey() []byte {
 	if s.conf.JwtPublicKey == "" {
 		panic(errors.New("JwtPublicKey not set"))

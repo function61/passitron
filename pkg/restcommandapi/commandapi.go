@@ -63,6 +63,17 @@ func Register(router *mux.Router, st *state.State) error {
 				return
 			}
 
+			if r.Header.Get("x-csrf-token") != st.GetCsrfToken() {
+				httputil.RespondHttpJson(
+					httputil.GenericError(
+						"invalid_csrf_token",
+						errors.New("CSRF token is invalid or missing. Do you happen to be wearing a hoodie?")),
+					http.StatusForbidden,
+					w)
+
+				return
+			}
+
 			userId = authDetails.UserId
 		}
 

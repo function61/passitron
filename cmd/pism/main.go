@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 const (
@@ -50,8 +51,10 @@ func startHttp(st *state.State, stop *stopper.Stopper) error {
 
 	signingapi.Setup(router, st)
 
-	// this most generic one has to be introduced last
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+	// this most generic catch-all route has to be introduced last
+	if err := setupStaticFilesRouting(router, st); err != nil {
+		return err
+	}
 
 	srv := &http.Server{
 		Addr:    ":443",
@@ -75,6 +78,30 @@ func startHttp(st *state.State, stop *stopper.Stopper) error {
 			log.Error(fmt.Sprintf("Shutdown(): %s", err.Error()))
 		}
 	}()
+
+	return nil
+}
+
+func setupStaticFilesRouting(router *mux.Router, st *state.State) error {
+	indexTemplate, err := ioutil.ReadFile("public/index.html.template")
+	if err != nil {
+		return err
+	}
+
+	index := strings.Replace(
+		string(indexTemplate),
+		"[$csrf_token]",
+		st.GetCsrfToken(),
+		-1)
+
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		if _, err := w.Write([]byte(index)); err != nil {
+			panic(err)
+		}
+	})
+
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
 	return nil
 }
