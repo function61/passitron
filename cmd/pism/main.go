@@ -123,7 +123,7 @@ func serverEntrypoint() *cobra.Command {
 
 	server.AddCommand(&cobra.Command{
 		Use:   "init-config",
-		Short: "Initialized configuration",
+		Short: "Initializes configuration file",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := state.InitConfig(); err != nil {
