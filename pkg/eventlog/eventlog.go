@@ -28,10 +28,10 @@ func readOldEvents(logReader io.Reader, eventAdded func(domain.Event) error) err
 	}
 
 	if logLineScanner.Err() != nil {
-		log.Fatalf("logLineScanner error: %s", logLineScanner.Err().Error())
+		log.Fatalf("readOldEvents: %s", logLineScanner.Err().Error())
 	}
 
-	log.Printf("ReadOldEvents(): read %d event(s)", eventsRead)
+	log.Printf("readOldEvents: read %d event(s)", eventsRead)
 
 	return nil
 }
