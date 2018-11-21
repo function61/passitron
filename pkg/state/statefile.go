@@ -35,6 +35,10 @@ func NewTesting() *State {
 		masterPassword: "",
 		State:          NewStatefile(),
 		sealed:         false,
+		conf: &Config{ // don't worry, these aren't used anywhere else
+			JwtPrivateKey: "-----BEGIN PRIVATE KEY-----\nMIHcAgEBBEIB2tjp2EsS8/3zluTu9BD2iO7CgSLW/4SbE3QP+agvZ4gqfX+bfUqv\nOIGJ2QXWnNUdoa959SMk16X3g/8hhV36M/CgBwYFK4EEACOhgYkDgYYABAEdq+Bc\n07oizVlgGglR3W7YaGy9X1aRQKwmz8fkGxjSnvh59rWKrRuEf/Y0YkqsvbZ57WYH\nJ6VG+zWcdGwKrsbXaAAsUs6ublzftJUDLNWhFTF3s4YzT2h3A8ClGjKhsoqRR6YC\n3U4taAsc2GqLUf+ElReqfUiCkQSHVJ2OjxNyKCAMqg==\n-----END PRIVATE KEY-----\n",
+			JwtPublicKey:  "-----BEGIN PUBLIC KEY-----\nMIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBHavgXNO6Is1ZYBoJUd1u2GhsvV9W\nkUCsJs/H5BsY0p74efa1iq0bhH/2NGJKrL22ee1mByelRvs1nHRsCq7G12gALFLO\nrm5c37SVAyzVoRUxd7OGM09odwPApRoyobKKkUemAt1OLWgLHNhqi1H/hJUXqn1I\ngpEEh1Sdjo8TciggDKo=\n-----END PUBLIC KEY-----\n",
+		},
 	}
 
 	emptyLogReader := &bytes.Buffer{}
