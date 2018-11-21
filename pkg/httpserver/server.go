@@ -44,6 +44,16 @@ func Run(stop *stopper.Stopper) error {
 		return err
 	}
 
+	// FIXME: remove this crap bubblegum (uses global state)
+	certBytes, errReadCertBytes := ioutil.ReadFile(certFile)
+	if errReadCertBytes != nil {
+		return errReadCertBytes
+	}
+
+	if err := u2futil.InjectCommonNameFromSslCertificate(certBytes); err != nil {
+		return err
+	}
+
 	srv := &http.Server{
 		Addr:    ":443",
 		Handler: handler,
@@ -69,16 +79,6 @@ func Run(stop *stopper.Stopper) error {
 
 func createHandler(st *state.State) (http.Handler, error) {
 	router := mux.NewRouter()
-
-	// FIXME: remove this crap bubblegum (uses global state)
-	certBytes, errReadCertBytes := ioutil.ReadFile(certFile)
-	if errReadCertBytes != nil {
-		return nil, errReadCertBytes
-	}
-
-	if err := u2futil.InjectCommonNameFromSslCertificate(certBytes); err != nil {
-		return nil, err
-	}
 
 	middlewareChains, err := createMiddlewares(st)
 	if err != nil {
