@@ -28,15 +28,10 @@ const (
 	testUserId = "99"
 )
 
-func TestMain(t *testing.T) {
+func TestScenario(t *testing.T) {
 	st := state.NewTesting()
 
-	// seed the database with one account
-	st.EventLog.Append(domain.NewAccountCreated(
-		"14",
-		domain.RootFolderId,
-		"My test account",
-		domain.Meta(time.Now(), testUserId)))
+	seedDatabase(st)
 
 	handler, err := createHandlerWithWorkdirHack(st)
 	if err != nil {
@@ -53,11 +48,12 @@ func TestMain(t *testing.T) {
 		t.Fatalf("NewJwtSigner: %v", err)
 	}
 
-	auth := func(req *http.Request) {
-		jwtToken := auther.Sign(auth.UserDetails{
-			Id: testUserId,
-		})
+	// somewhat expensive operation, so cache this here to do this only once
+	jwtToken := auther.Sign(auth.UserDetails{
+		Id: testUserId,
+	})
 
+	auth := func(req *http.Request) {
 		req.AddCookie(auth.ToCookie(jwtToken))
 	}
 
@@ -143,6 +139,19 @@ func TestMain(t *testing.T) {
 			runOne(t, test)
 		})
 	}
+}
+
+func seedDatabase(st *state.State) {
+	st.EventLog.Append(domain.NewAccountCreated(
+		"14",
+		domain.RootFolderId,
+		"My test account",
+		domain.Meta(time.Now(), testUserId)))
+
+	// many crypto tokens are derived from master password
+	st.EventLog.Append(domain.NewDatabaseMasterPasswordChanged(
+		"greatpassword",
+		domain.Meta(time.Now(), testUserId)))
 }
 
 type reqMutator func(*http.Request)

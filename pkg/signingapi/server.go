@@ -3,8 +3,6 @@ package signingapi
 import (
 	"bytes"
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -51,9 +49,7 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, 
 }
 
 func ExpectedAuthHeader(st *state.State) string {
-	bearerHash := sha256.Sum256([]byte(st.GetMasterPassword() + ":sshagent"))
-
-	return "Bearer " + hex.EncodeToString(bearerHash[:])
+	return "Bearer " + st.GetAgentToken()
 }
 
 func Setup(router *mux.Router, st *state.State) {
