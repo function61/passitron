@@ -1,11 +1,15 @@
 package state
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventlog"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 const (
@@ -20,6 +24,7 @@ type State struct {
 	conf           *Config
 	State          *Statefile
 	EventLog       *eventlog.EventLog
+	eventLogFile   *os.File
 	S3ExportBucket string
 	S3ExportApiKey string
 	S3ExportSecret string
@@ -31,9 +36,16 @@ func NewTesting() *State {
 		State:          NewStatefile(),
 		sealed:         false,
 	}
-	s.EventLog = eventlog.NewForTesting(func(event domain.Event) error {
-		return domain.DispatchEvent(event, s)
-	})
+
+	emptyLogReader := &bytes.Buffer{}
+
+	s.EventLog = eventlog.New(
+		emptyLogReader, // no existing data in the log
+		ioutil.Discard, // do not write to disk
+		func(event domain.Event) error {
+			return domain.DispatchEvent(event, s)
+		})
+
 	return s
 }
 
@@ -43,16 +55,22 @@ func New() *State {
 		panic(err)
 	}
 
+	eventLogFile, err := os.OpenFile(logfilePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		log.Fatalf("OpenFile: %s", err.Error())
+	}
+
 	// state from the event log is computed & populated mainly under State field
 	s := &State{
 		masterPassword: "",
 		State:          NewStatefile(),
 		sealed:         true,
 		conf:           conf,
+		eventLogFile:   eventLogFile,
 	}
 
 	// needs to be instantiated later, because handleEvent requires access to State
-	s.EventLog = eventlog.New(logfilePath, func(event domain.Event) error {
+	s.EventLog = eventlog.New(eventLogFile, eventLogFile, func(event domain.Event) error {
 		return domain.DispatchEvent(event, s)
 	})
 
@@ -60,7 +78,9 @@ func New() *State {
 }
 
 func (s *State) Close() {
-	s.EventLog.Close()
+	if s.eventLogFile != nil {
+		s.eventLogFile.Close()
+	}
 }
 
 // for Keepass export

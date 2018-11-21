@@ -4,22 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"io"
 	"log"
-	"os"
 )
 
-func readOldEvents(filename string, eventAdded func(domain.Event) error) error {
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		log.Fatal("events.log not present. Either create it or resolve the problem.")
-	}
-
-	logFile, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer logFile.Close()
-
-	logLineScanner := bufio.NewScanner(logFile)
+func readOldEvents(logReader io.Reader, eventAdded func(domain.Event) error) error {
+	logLineScanner := bufio.NewScanner(logReader)
 	logLineScanner.Split(bufio.ScanLines)
 
 	eventsRead := 0
@@ -47,41 +37,23 @@ func readOldEvents(filename string, eventAdded func(domain.Event) error) error {
 }
 
 type EventLog struct {
-	logHandle  *os.File
+	logWriter  io.Writer
 	eventAdded func(domain.Event) error
 }
 
-func NewForTesting(eventAdded func(domain.Event) error) *EventLog {
-	return New("/dev/null", eventAdded)
-}
-
-func New(filename string, eventAdded func(domain.Event) error) *EventLog {
-	log.Printf("Opening stream log from %s", filename)
-
-	if err := readOldEvents(filename, eventAdded); err != nil {
+func New(logReader io.Reader, logWriter io.Writer, eventAdded func(domain.Event) error) *EventLog {
+	if err := readOldEvents(logReader, eventAdded); err != nil {
 		log.Fatalf("readOldEvents: %s", err.Error())
 	}
 
-	logHandle, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatalf("InitStreamLog: failure: %s", err.Error())
-	}
-
 	return &EventLog{
-		logHandle:  logHandle,
+		logWriter:  logWriter,
 		eventAdded: eventAdded,
 	}
 }
 
-func (e *EventLog) Close() {
-	log.Printf("Closing stream log")
-
-	if err := e.logHandle.Close(); err != nil {
-		log.Printf("Error closing stream log: %s", err.Error())
-	}
-}
 func (e *EventLog) Append(event domain.Event) {
-	if _, err := e.logHandle.Write([]byte(event.Serialize() + "\n")); err != nil {
+	if _, err := e.logWriter.Write([]byte(event.Serialize() + "\n")); err != nil {
 		log.Fatalf("Append: failure: %s", err.Error())
 	}
 
