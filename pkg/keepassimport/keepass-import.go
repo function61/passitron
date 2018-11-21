@@ -14,7 +14,7 @@ import (
 
 	In Keepass 1.31 file > Export > CSV
 
-	DO NOT Encode/replace newline characters by \n
+	DO NOT "Encode/replace newline characters by \n"
 
 	Fields to export:
 
