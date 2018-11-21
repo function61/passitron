@@ -1,9 +1,35 @@
 #!/bin/bash -eu
 
-go generate ./...
-
 export LC_ALL="C.UTF-8"
 export LANG="C.UTF-8"
+
+commandlineUserguide() {
+	# because help text self reflects its binary name
+	cp rel/pism_linux-amd64 pism
+
+	cat << EOF > docs/user-guides/command-line.md
+To receive help, just run:
+
+\`\`\`
+./pism --help
+$(./pism --help)
+\`\`\`
+
+Any subcommand will also give you help:
+
+\`\`\`
+./pism server --help
+$(./pism server --help)
+\`\`\`
+
+EOF
+
+	# cleanup
+	rm -f pism
+}
+
+commandlineUserguide
+
 
 # internal dependencies
 

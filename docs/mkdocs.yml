@@ -8,11 +8,13 @@ pages:
 
 - 'index.md'
 
-- 'Architecture': 'architecture.md'
-
-- 'Comparison to alternatives': 'comparison-to-alternatives.md'
-
-- 'Internal dependencies': 'internal-dependencies.md'
+- 'For users':
+  - 'Command line': 'user-guides/command-line.md'
+  - 'Comparison to alternatives': 'user-guides/comparison-to-alternatives.md'
+  
+- 'General':
+  - 'Architecture': 'architecture.md'
+  - 'Internal dependencies': 'internal-dependencies.md'
 
 - 'Domain model':
   - 'Events': 'domain_model/events.md'

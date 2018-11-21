@@ -18,7 +18,7 @@ Links
 -----
 
 - [Architecture summary](https://docs.function61.com/pi-security-module/architecture/)
-- [Comparison to alternatives](https://docs.function61.com/pi-security-module/comparison-to-alternatives/)
+- [Comparison to alternatives](https://docs.function61.com/pi-security-module/user-guides/comparison-to-alternatives/)
 - [All documentation](https://docs.function61.com/pi-security-module) - everything you
   seek is probably here. The above links were just some of the most important links to
   this documentation site.
