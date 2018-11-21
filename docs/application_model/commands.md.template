@@ -1,20 +1,13 @@
 Overview
 --------
 
-| Command | Middleware |
-|---------|------------| {{range .CommandSpecs}}
-| {{.Command}} | {{.MiddlewareChain}} | {{end}}
+| Endpoint | Middleware | Title |
+|----------|------------|-------| {{range .CommandSpecs}}
+| POST /command/{{.Command}} | {{.MiddlewareChain}} | {{.Title}} | {{end}}
 
 {{range .CommandSpecs}}
 {{.Command}}
-----------
-
-|                     |                              |
-|---------------------|------------------------------|
-| Endpoint            | `POST /command/{{.Command}}` |
-| Title               | {{.Title}}                   |
-| Middleware          | {{.MiddlewareChain}}         |
-
+------------
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
