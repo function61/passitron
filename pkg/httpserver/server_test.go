@@ -188,7 +188,7 @@ func chdirTemporarily(to string) (revert func(), err error) {
 		return nil, err
 	}
 
-	// returns rever func which changes the dir back to what it used to be before
+	// returns revert func which changes the dir back to what it used to be before
 	return func() {
 		if err := os.Chdir(wdBefore); err != nil {
 			panic(err)
