@@ -73,8 +73,8 @@ pkg/apitypes/apitypes.json
 
 Contains HTTP endpoint definitions and their input/output data structures for the query
 layer. This is used to autogenerate code for the frontend and backend. This makes both the
-frontend and the backend typesafe, i.e. Go or TypeScript compilers guarantee that you HTTP
-call URLs, input and output data structures are kept in-sync with all the code.
+frontend and the backend typesafe, i.e. Go or TypeScript compilers guarantee that your HTTP
+endpoint URLs, input and output data structures are kept in-sync with all the code.
 
 Implementations for the endpoints are found in `pkg/restqueryapi`. Calls come from the UI.
 
