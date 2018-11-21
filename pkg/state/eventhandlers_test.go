@@ -25,7 +25,7 @@ func TestScenario(t *testing.T) {
 }
 
 func meta() domain.EventMeta {
-	return domain.Meta(time.Now(), domain.DefaultUserIdTODO)
+	return domain.Meta(time.Now(), "2")
 }
 
 func event(st *State, ev domain.Event) {

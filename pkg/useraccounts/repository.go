@@ -1,9 +1,5 @@
 package useraccounts
 
-import (
-	"github.com/function61/pi-security-module/pkg/domain"
-)
-
 type Account struct {
 	Id       string
 	Password string // TODO: PBKDF2 love
@@ -26,7 +22,7 @@ func (d *dummyRepository) FindByUsername(username string) (*Account, error) {
 	}
 
 	return &Account{
-		Id:       domain.DefaultUserIdTODO,
+		Id:       "2",
 		Password: "poop",
 	}, nil
 }
