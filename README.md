@@ -28,7 +28,8 @@ Features
 --------
 
 - No cloud
-- Physical acknowledgement to expose a password by pressing a button on a U2F key (YubiKey for example)
+- Physical acknowledgement to expose a password by pressing a button on a U2F key
+  (YubiKey for example), so a hacker would need local, physical, access to steal your secrets.
 - Supported secrets:
 	* Passwords
 	* OTP tokens (Google Authenticator)
@@ -46,8 +47,7 @@ Recommended hardware
 ![](docs/pi-zero-in-wood-case.png)
 
 I'm using [Raspberry Zero W](https://www.raspberrypi.org/products/pi-zero-w/)
-with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zero-wood)
-and a [capacitive pushbutton](http://www.ebay.com/sch/?_nkw=ttp223).
+with [wooden case](https://thepihut.com/products/zebra-zero-for-raspberry-pi-zero-wood).
 
 It doesn't matter much which hardware you use, as long as you don't run anything else on
 that system - to minimize the attack surface. For such a light use Raspberry Pi is
