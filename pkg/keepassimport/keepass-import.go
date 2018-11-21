@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -36,7 +37,13 @@ func Run(csvPath string) {
 	st := state.New()
 	defer st.Close()
 
-	result, err := parseGenericCsv(csvPath)
+	csvFile, err := os.Open(csvPath)
+	if err != nil {
+		panic(err)
+	}
+	defer csvFile.Close()
+
+	result, err := parseGenericCsv(csvFile)
 	if err != nil {
 		log.Fatalf("parseGenericCsv failed: %s", err.Error())
 	}
@@ -132,14 +139,8 @@ func Run(csvPath string) {
 	log.Printf("%d event(s) applied", len(events))
 }
 
-func parseGenericCsv(filename string) ([]map[string]string, error) {
-	csvFile, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer csvFile.Close()
-
-	csvReader := csv.NewReader(csvFile)
+func parseGenericCsv(input io.Reader) ([]map[string]string, error) {
+	csvReader := csv.NewReader(input)
 
 	records, err := csvReader.ReadAll()
 	if err != nil {
