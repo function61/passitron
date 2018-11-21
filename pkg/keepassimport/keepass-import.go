@@ -33,7 +33,7 @@ import (
 	Replace \" with ""
 */
 
-func Run(csvPath string) {
+func Run(csvPath string, userId string) {
 	st := state.New()
 	defer st.Close()
 
@@ -88,7 +88,7 @@ func Run(csvPath string) {
 				folderId,
 				domain.RootFolderId,
 				groupPath,
-				domain.Meta(importStartedTime, domain.DefaultUserIdTODO)))
+				domain.Meta(importStartedTime, userId)))
 
 			foldersJustCreated[groupPath] = folderId
 		}
@@ -109,13 +109,13 @@ func Run(csvPath string) {
 			accountId,
 			folderId,
 			res["Account"],
-			domain.Meta(creationTime, domain.DefaultUserIdTODO)))
+			domain.Meta(creationTime, userId)))
 
 		if res["Login Name"] != "" {
 			pushEvent(domain.NewAccountUsernameChanged(
 				accountId,
 				res["Login Name"],
-				domain.Meta(modificationTime, domain.DefaultUserIdTODO)))
+				domain.Meta(modificationTime, userId)))
 		}
 
 		if res["Password"] != "" {
@@ -123,14 +123,14 @@ func Run(csvPath string) {
 				accountId,
 				domain.RandomId(),
 				res["Password"],
-				domain.Meta(modificationTime, domain.DefaultUserIdTODO)))
+				domain.Meta(modificationTime, userId)))
 		}
 
 		if res["Comments"] != "" {
 			pushEvent(domain.NewAccountDescriptionChanged(
 				accountId,
 				res["Comments"],
-				domain.Meta(modificationTime, domain.DefaultUserIdTODO)))
+				domain.Meta(modificationTime, userId)))
 		}
 	}
 
