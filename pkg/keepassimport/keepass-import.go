@@ -2,6 +2,7 @@ package keepassimport
 
 import (
 	"encoding/csv"
+	"fmt"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -34,19 +35,19 @@ import (
 	Replace \" with ""
 */
 
-func Run(csvPath string, userId string) {
+func Run(csvPath string, userId string) error {
 	st := state.New()
 	defer st.Close()
 
 	csvFile, err := os.Open(csvPath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer csvFile.Close()
 
 	result, err := parseGenericCsv(csvFile)
 	if err != nil {
-		log.Fatalf("parseGenericCsv failed: %s", err.Error())
+		return fmt.Errorf("parseGenericCsv failed: %s", err.Error())
 	}
 
 	foldersJustCreated := map[string]string{}
@@ -98,12 +99,12 @@ func Run(csvPath string, userId string) {
 
 		creationTime, err := time.Parse("2006-01-02T15:04:05", res["Creation Time"])
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		modificationTime, err := time.Parse("2006-01-02T15:04:05", res["Last Modification"])
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		pushEvent(domain.NewAccountCreated(
@@ -135,9 +136,13 @@ func Run(csvPath string, userId string) {
 		}
 	}
 
-	st.EventLog.AppendBatch(events)
+	if err := st.EventLog.Append(events); err != nil {
+		return err
+	}
 
 	log.Printf("%d event(s) applied", len(events))
+
+	return nil
 }
 
 func parseGenericCsv(input io.Reader) ([]map[string]string, error) {

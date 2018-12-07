@@ -383,7 +383,9 @@ func (tstate *testScenarioState) InvokeSucceeds(t *testing.T, ctx *command.Ctx, 
 		t.Errorf("Command invoke failed: %s", err.Error())
 	}
 
-	ctx.State.EventLog.AppendBatch(ctx.GetRaisedEvents())
+	if err := ctx.State.EventLog.Append(ctx.GetRaisedEvents()); err != nil {
+		panic(err)
+	}
 
 	tstate.MarkCommandTested(cmd)
 }

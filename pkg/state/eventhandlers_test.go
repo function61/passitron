@@ -29,8 +29,8 @@ func meta() event.EventMeta {
 	return event.Meta(time.Now(), "2")
 }
 
-func ev(st *State, ev event.Event) {
-	st.EventLog.Append(ev)
+func ev(st *State, e event.Event) {
+	st.EventLog.Append([]event.Event{e})
 }
 
 func firstAccountCreated(t *testing.T, st *State) {

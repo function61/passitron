@@ -120,13 +120,16 @@ func Setup(router *mux.Router, st *state.State) {
 			return
 		}
 
-		st.EventLog.Append(
-			domain.NewAccountSecretUsed(
-				wacc.Account.Id,
-				[]string{secretId},
-				domain.SecretUsedTypeSshSigning,
-				"",
-				event.Meta(time.Now(), domain.DefaultUserIdTODO)))
+		secretUsedEvent := domain.NewAccountSecretUsed(
+			wacc.Account.Id,
+			[]string{secretId},
+			domain.SecretUsedTypeSshSigning,
+			"",
+			event.Meta(time.Now(), domain.DefaultUserIdTODO))
+
+		if err := st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
+			panic(err)
+		}
 
 		httputil.RespondHttpJson(signingapitypes.SignResponse{
 			Signature: signature,

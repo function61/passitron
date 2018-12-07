@@ -10,7 +10,9 @@ func Entrypoint() *cobra.Command {
 		Short: "Imports data from Keepass format",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			Run(args[0], args[1])
+			if err := Run(args[0], args[1]); err != nil {
+				panic(err)
+			}
 		},
 	}
 }

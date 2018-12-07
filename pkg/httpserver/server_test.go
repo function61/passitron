@@ -143,16 +143,23 @@ func TestScenario(t *testing.T) {
 }
 
 func seedDatabase(st *state.State) {
-	st.EventLog.Append(domain.NewAccountCreated(
+	accCreated := domain.NewAccountCreated(
 		"14",
 		domain.RootFolderId,
 		"My test account",
-		event.Meta(time.Now(), testUserId)))
+		event.Meta(time.Now(), testUserId))
 
 	// many crypto tokens are derived from master password
-	st.EventLog.Append(domain.NewDatabaseMasterPasswordChanged(
+	masterPwdChanged := domain.NewDatabaseMasterPasswordChanged(
 		"greatpassword",
-		event.Meta(time.Now(), testUserId)))
+		event.Meta(time.Now(), testUserId))
+
+	if err := st.EventLog.Append([]event.Event{
+		accCreated,
+		masterPwdChanged,
+	}); err != nil {
+		panic(err)
+	}
 }
 
 type reqMutator func(*http.Request)

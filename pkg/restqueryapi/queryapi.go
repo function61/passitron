@@ -80,12 +80,16 @@ func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w
 
 	for _, keyEntry := range wsecret.KeylistKeys {
 		if keyEntry.Key == key {
-			a.st.EventLog.Append(domain.NewAccountSecretUsed(
+			secretUsedEvent := domain.NewAccountSecretUsed(
 				accountId,
 				[]string{wsecret.Secret.Id},
 				domain.SecretUsedTypeKeylistKeyExposed,
 				keyEntry.Key,
-				event.Meta(time.Now(), domain.DefaultUserIdTODO)))
+				event.Meta(time.Now(), domain.DefaultUserIdTODO))
+
+			if err := a.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
+				panic(err)
+			}
 
 			return &keyEntry
 		}
@@ -144,12 +148,16 @@ func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w htt
 		secretIdsForAudit = append(secretIdsForAudit, secret.Secret.Id)
 	}
 
-	a.st.EventLog.Append(domain.NewAccountSecretUsed(
+	secretUsedEvent := domain.NewAccountSecretUsed(
 		wacc.Account.Id,
 		secretIdsForAudit,
 		domain.SecretUsedTypePasswordExposed,
 		"",
-		event.Meta(time.Now(), domain.DefaultUserIdTODO)))
+		event.Meta(time.Now(), domain.DefaultUserIdTODO))
+
+	if err := a.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
+		panic(err)
+	}
 
 	return &secrets
 }
@@ -339,10 +347,10 @@ func u2fSignatureOk(
 		return authErr
 	}
 
-	st.EventLog.Append(domain.NewUserU2FTokenUsed(
+	u2fTokenUsedEvent := domain.NewUserU2FTokenUsed(
 		response.SignResult.KeyHandle,
 		int(newCounter),
-		event.Meta(time.Now(), domain.DefaultUserIdTODO))) // TODO: remove TODO user
+		event.Meta(time.Now(), domain.DefaultUserIdTODO))
 
-	return nil
+	return st.EventLog.Append([]event.Event{u2fTokenUsedEvent})
 }

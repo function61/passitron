@@ -26,7 +26,7 @@ type State struct {
 	sealed         bool
 	conf           *Config
 	State          *Statefile
-	EventLog       *eventlog.SimpleLogFile
+	EventLog       eventlog.Log
 	eventLogFile   *os.File
 	S3ExportBucket string
 	S3ExportApiKey string

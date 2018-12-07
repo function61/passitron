@@ -73,7 +73,10 @@ func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.
 
 		raisedEvents := ctx.GetRaisedEvents()
 
-		st.EventLog.AppendBatch(raisedEvents)
+		if err := st.EventLog.Append(raisedEvents); err != nil {
+			httputil.RespondHttpJson(httputil.GenericError("event_append_failed", err), http.StatusInternalServerError, w)
+			return
+		}
 
 		if ctx.SendLoginCookieUserId != "" {
 			token := jwtSigner.Sign(auth.UserDetails{
