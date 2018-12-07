@@ -3,26 +3,32 @@ package eventlog
 import (
 	"bufio"
 	"fmt"
-	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/event"
 	"io"
 	"log"
 	"strings"
 )
 
-func readOldEvents(logReader io.Reader, eventAdded func(event.Event) error) (int, error) {
+type eventDeserializer func(serialized string) (event.Event, error)
+type eventHandler func(ev event.Event) error
+
+func readOldEvents(
+	logReader io.Reader,
+	handleEvent eventHandler,
+	deserializeEvent eventDeserializer,
+) (int, error) {
 	logLineScanner := bufio.NewScanner(logReader)
 	logLineScanner.Split(bufio.ScanLines)
 
 	eventsRead := 0
 
 	for logLineScanner.Scan() {
-		event, err := domain.Deserialize(logLineScanner.Text())
+		event, err := deserializeEvent(logLineScanner.Text())
 		if err != nil {
-			return eventsRead, fmt.Errorf("domain.Deserialize: %s", err.Error())
+			return eventsRead, fmt.Errorf("deserializeEvent: %s", err.Error())
 		}
 
-		if err := eventAdded(event); err != nil {
+		if err := handleEvent(event); err != nil {
 			return eventsRead, err
 		}
 
@@ -37,12 +43,17 @@ func readOldEvents(logReader io.Reader, eventAdded func(event.Event) error) (int
 }
 
 type SimpleLogFile struct {
-	logWriter  io.Writer
-	eventAdded func(event.Event) error
+	logWriter   io.Writer
+	handleEvent eventHandler
 }
 
-func NewSimpleLogFile(logReader io.Reader, logWriter io.Writer, eventAdded func(event.Event) error) (Log, error) {
-	eventsRead, err := readOldEvents(logReader, eventAdded)
+func NewSimpleLogFile(
+	logReader io.Reader,
+	logWriter io.Writer,
+	handleEvent eventHandler,
+	deserializeEvent eventDeserializer,
+) (Log, error) {
+	eventsRead, err := readOldEvents(logReader, handleEvent, deserializeEvent)
 	if err != nil {
 		return nil, fmt.Errorf("readOldEvents: %s", err.Error())
 	}
@@ -50,8 +61,8 @@ func NewSimpleLogFile(logReader io.Reader, logWriter io.Writer, eventAdded func(
 	log.Printf("readOldEvents: succesfully read %d event(s)", eventsRead)
 
 	return &SimpleLogFile{
-		logWriter:  logWriter,
-		eventAdded: eventAdded,
+		logWriter:   logWriter,
+		handleEvent: handleEvent,
 	}, nil
 }
 
@@ -76,8 +87,8 @@ func (e *SimpleLogFile) Append(events []event.Event) error {
 	// TODO: fsync()?
 
 	for _, event := range events {
-		if err := e.eventAdded(event); err != nil {
-			return fmt.Errorf("eventAdded(): %v", err)
+		if err := e.handleEvent(event); err != nil {
+			return fmt.Errorf("handleEvent(): %v", err)
 		}
 	}
 

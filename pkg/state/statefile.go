@@ -51,7 +51,8 @@ func NewTesting() *State {
 		ioutil.Discard, // do not write to disk
 		func(event event.Event) error {
 			return domain.DispatchEvent(event, s)
-		})
+		},
+		eventDeserializer)
 	if err != nil {
 		panic(err)
 	}
@@ -84,7 +85,7 @@ func New() *State {
 	// needs to be instantiated later, because handleEvent requires access to State
 	log, err := eventlog.NewSimpleLogFile(eventLogFile, eventLogFile, func(event event.Event) error {
 		return domain.DispatchEvent(event, s)
-	})
+	}, eventDeserializer)
 	if err != nil {
 		panic(err)
 	}
@@ -172,4 +173,8 @@ func (s *State) SetSealed(sealed bool) {
 
 func hex(in []byte) string {
 	return fmt.Sprintf("%x", in)
+}
+
+func eventDeserializer(serialized string) (event.Event, error) {
+	return domain.Deserialize(serialized)
 }
