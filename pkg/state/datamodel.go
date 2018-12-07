@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"time"
 )
 
@@ -38,7 +39,7 @@ type Statefile struct {
 
 const maxAuditLogEntries = 10
 
-func (s *Statefile) Audit(message string, meta *domain.EventMeta) {
+func (s *Statefile) Audit(message string, meta *event.EventMeta) {
 	entry := apitypes.AuditlogEntry{
 		Timestamp: meta.Timestamp,
 		Message:   message,

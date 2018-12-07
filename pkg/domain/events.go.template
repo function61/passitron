@@ -1,10 +1,14 @@
 package domain
 
+import (
+	"github.com/function61/pi-security-module/pkg/event"
+)
+
 // WARNING: generated file
 
-var eventBuilders = map[string]func() Event{
+var eventBuilders = map[string]func() event.Event{
 {{range .EventDefs}}
-	"{{.EventKey}}": func() Event { return &{{.GoStructName}}{meta: &EventMeta{}} },{{end}}
+	"{{.EventKey}}": func() event.Event { return &{{.GoStructName}}{meta: &event.EventMeta{}} },{{end}}
 }
 
 
@@ -23,7 +27,7 @@ func New{{.GoStructName}}({{.CtorArgs}}) *{{.GoStructName}} {
 {{end}}
 
 {{range .EventDefs}}
-func (e *{{.GoStructName}}) Meta() *EventMeta { return e.meta }{{end}}
+func (e *{{.GoStructName}}) Meta() *event.EventMeta { return e.meta }{{end}}
 
 {{range .EventDefs}}
 func (e *{{.GoStructName}}) MetaType() string { return "{{.EventKey}}" }{{end}}
@@ -36,10 +40,10 @@ func (e *{{.GoStructName}}) Serialize() string { return e.meta.Serialize(e) }{{e
 type EventListener interface { {{range .EventDefs}}
 	Apply{{.GoStructName}}(*{{.GoStructName}}) error{{end}}
 
-	HandleUnknownEvent(event Event) error
+	HandleUnknownEvent(event event.Event) error
 }
 
-func DispatchEvent(event Event, listener EventListener) error {
+func DispatchEvent(event event.Event, listener EventListener) error {
 	switch e := event.(type) { {{range .EventDefs}}
 	case *{{.GoStructName}}:
 		return listener.Apply{{.GoStructName}}(e){{end}}

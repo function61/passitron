@@ -10,6 +10,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/keepassexport"
 	"github.com/function61/pi-security-module/pkg/randompassword"
 	"github.com/function61/pi-security-module/pkg/u2futil"
@@ -120,7 +121,7 @@ func (a *AccountCreateFolder) Invoke(ctx *command.Ctx) error {
 	}
 
 	ctx.RaisesEvent(domain.NewAccountFolderCreated(
-		domain.RandomId(),
+		event.RandomId(),
 		a.Parent,
 		a.Name,
 		ctx.Meta))
@@ -177,7 +178,7 @@ func (a *AccountMoveFolder) Invoke(ctx *command.Ctx) error {
 }
 
 func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
-	accountId := domain.RandomId()
+	accountId := event.RandomId()
 
 	title := a.Title
 
@@ -214,7 +215,7 @@ func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 
 		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 			accountId,
-			domain.RandomId(),
+			event.RandomId(),
 			a.Password,
 			ctx.Meta))
 	}
@@ -262,7 +263,7 @@ func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
 
 	ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 		a.Account,
-		domain.RandomId(),
+		event.RandomId(),
 		password,
 		ctx.Meta))
 
@@ -276,7 +277,7 @@ func (a *AccountAddSecretNote) Invoke(ctx *command.Ctx) error {
 
 	ctx.RaisesEvent(domain.NewAccountSecretNoteAdded(
 		a.Account,
-		domain.RandomId(),
+		event.RandomId(),
 		a.Title,
 		a.Note,
 		ctx.Meta))
@@ -321,7 +322,7 @@ func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
 
 	ctx.RaisesEvent(domain.NewAccountKeylistAdded(
 		a.Account,
-		domain.RandomId(),
+		event.RandomId(),
 		a.Title,
 		keys,
 		ctx.Meta))
@@ -370,7 +371,7 @@ func (a *AccountAddSshKey) Invoke(ctx *command.Ctx) error {
 
 	ctx.RaisesEvent(domain.NewAccountSshKeyAdded(
 		a.Id,
-		domain.RandomId(),
+		event.RandomId(),
 		privateKeyReformatted,
 		publicKeyAuthorizedFormat,
 		ctx.Meta))
@@ -390,7 +391,7 @@ func (a *AccountAddOtpToken) Invoke(ctx *command.Ctx) error {
 
 	ctx.RaisesEvent(domain.NewAccountOtpTokenAdded(
 		a.Account,
-		domain.RandomId(),
+		event.RandomId(),
 		a.OtpProvisioningUrl,
 		ctx.Meta))
 
@@ -425,7 +426,7 @@ func (a *SessionSignIn) Invoke(ctx *command.Ctx) error {
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,
 		ctx.UserAgent,
-		domain.Meta(time.Now(), user.Id)))
+		event.Meta(time.Now(), user.Id)))
 
 	return nil
 }

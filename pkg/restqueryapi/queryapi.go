@@ -7,6 +7,7 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/mac"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -84,7 +85,7 @@ func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w
 				[]string{wsecret.Secret.Id},
 				domain.SecretUsedTypeKeylistKeyExposed,
 				keyEntry.Key,
-				domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+				event.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
 			return &keyEntry
 		}
@@ -148,7 +149,7 @@ func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w htt
 		secretIdsForAudit,
 		domain.SecretUsedTypePasswordExposed,
 		"",
-		domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+		event.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
 	return &secrets
 }
@@ -341,7 +342,7 @@ func u2fSignatureOk(
 	st.EventLog.Append(domain.NewUserU2FTokenUsed(
 		response.SignResult.KeyHandle,
 		int(newCounter),
-		domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+		event.Meta(time.Now(), domain.DefaultUserIdTODO))) // TODO: remove TODO user
 
 	return nil
 }

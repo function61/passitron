@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -125,7 +126,7 @@ func Setup(router *mux.Router, st *state.State) {
 				[]string{secretId},
 				domain.SecretUsedTypeSshSigning,
 				"",
-				domain.Meta(time.Now(), domain.DefaultUserIdTODO)))
+				event.Meta(time.Now(), domain.DefaultUserIdTODO)))
 
 		httputil.RespondHttpJson(signingapitypes.SignResponse{
 			Signature: signature,

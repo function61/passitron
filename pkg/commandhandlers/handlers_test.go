@@ -4,6 +4,7 @@ import (
 	"github.com/function61/gokit/assert"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/state"
 	"testing"
 	"time"
@@ -355,7 +356,7 @@ func NewTestScenarioState(st *state.State) *testScenarioState {
 func (tstate *testScenarioState) DefaultCmdCtx() *command.Ctx {
 	return &command.Ctx{
 		State: tstate.st,
-		Meta:  domain.Meta(time.Now(), domain.DefaultUserIdTODO),
+		Meta:  event.Meta(time.Now(), domain.DefaultUserIdTODO),
 	}
 }
 

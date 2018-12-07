@@ -7,7 +7,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
-	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"
@@ -46,7 +46,7 @@ func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.
 			RemoteAddr: r.RemoteAddr,
 			UserAgent:  r.Header.Get("User-Agent"),
 			State:      st,
-			Meta:       domain.Meta(time.Now(), userId),
+			Meta:       event.Meta(time.Now(), userId),
 		}
 
 		if r.Header.Get("Content-Type") != "application/json" {

@@ -1,6 +1,7 @@
-package domain
+package event
 
 import (
+	"encoding/json"
 	"github.com/function61/gokit/cryptorandombytes"
 	"time"
 )
@@ -25,4 +26,13 @@ func Meta(timestamp time.Time, userId string) EventMeta {
 
 func RandomId() string {
 	return cryptorandombytes.Hex(4)
+}
+
+func (e *EventMeta) Serialize(payload Event) string {
+	payloadJson, err := json.Marshal(payload)
+	if err != nil {
+		panic(err)
+	}
+
+	return payload.MetaType() + " " + e.Timestamp.Format(time.RFC3339Nano) + " " + e.UserId + " " + string(payloadJson)
 }

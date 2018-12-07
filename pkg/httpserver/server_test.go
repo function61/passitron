@@ -7,6 +7,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/state"
 	"io/ioutil"
 	"net/http"
@@ -146,12 +147,12 @@ func seedDatabase(st *state.State) {
 		"14",
 		domain.RootFolderId,
 		"My test account",
-		domain.Meta(time.Now(), testUserId)))
+		event.Meta(time.Now(), testUserId)))
 
 	// many crypto tokens are derived from master password
 	st.EventLog.Append(domain.NewDatabaseMasterPasswordChanged(
 		"greatpassword",
-		domain.Meta(time.Now(), testUserId)))
+		event.Meta(time.Now(), testUserId)))
 }
 
 type reqMutator func(*http.Request)

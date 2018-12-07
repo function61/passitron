@@ -52,7 +52,7 @@ func main() {
 		"pkg/apitypes/apitypes.go",
 		"pkg/apitypes/endpointcontract.go",
 		"pkg/commandhandlers/generated.go",
-		"pkg/domain/domain.go",
+		"pkg/domain/consts-and-enums.go",
 		"pkg/domain/events.go",
 		"pkg/version/version.go",
 	}

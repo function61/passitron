@@ -3,6 +3,7 @@ package keepassimport
 import (
 	"encoding/csv"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/state"
 	"io"
 	"log"
@@ -52,9 +53,9 @@ func Run(csvPath string, userId string) {
 
 	importStartedTime := time.Now()
 
-	events := []domain.Event{}
+	events := []event.Event{}
 
-	pushEvent := func(e domain.Event) {
+	pushEvent := func(e event.Event) {
 		events = append(events, e)
 	}
 
@@ -82,18 +83,18 @@ func Run(csvPath string, userId string) {
 		if _, has := foldersJustCreated[groupPath]; has {
 			folderId = foldersJustCreated[groupPath]
 		} else {
-			folderId = domain.RandomId()
+			folderId = event.RandomId()
 
 			pushEvent(domain.NewAccountFolderCreated(
 				folderId,
 				domain.RootFolderId,
 				groupPath,
-				domain.Meta(importStartedTime, userId)))
+				event.Meta(importStartedTime, userId)))
 
 			foldersJustCreated[groupPath] = folderId
 		}
 
-		accountId := domain.RandomId()
+		accountId := event.RandomId()
 
 		creationTime, err := time.Parse("2006-01-02T15:04:05", res["Creation Time"])
 		if err != nil {
@@ -109,28 +110,28 @@ func Run(csvPath string, userId string) {
 			accountId,
 			folderId,
 			res["Account"],
-			domain.Meta(creationTime, userId)))
+			event.Meta(creationTime, userId)))
 
 		if res["Login Name"] != "" {
 			pushEvent(domain.NewAccountUsernameChanged(
 				accountId,
 				res["Login Name"],
-				domain.Meta(modificationTime, userId)))
+				event.Meta(modificationTime, userId)))
 		}
 
 		if res["Password"] != "" {
 			pushEvent(domain.NewAccountPasswordAdded(
 				accountId,
-				domain.RandomId(),
+				event.RandomId(),
 				res["Password"],
-				domain.Meta(modificationTime, userId)))
+				event.Meta(modificationTime, userId)))
 		}
 
 		if res["Comments"] != "" {
 			pushEvent(domain.NewAccountDescriptionChanged(
 				accountId,
 				res["Comments"],
-				domain.Meta(modificationTime, userId)))
+				event.Meta(modificationTime, userId)))
 		}
 	}
 

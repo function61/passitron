@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 )
 
 var (
@@ -348,6 +349,6 @@ func (s *State) ApplyUserU2FTokenUsed(e *domain.UserU2FTokenUsed) error {
 	return nil
 }
 
-func (s *State) HandleUnknownEvent(e domain.Event) error {
+func (s *State) HandleUnknownEvent(e event.Event) error {
 	return errors.New("unknown event: " + e.MetaType())
 }

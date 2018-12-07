@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/pi-security-module/pkg/event"
 	"github.com/function61/pi-security-module/pkg/eventlog"
 	"io/ioutil"
 	"log"
@@ -25,7 +26,7 @@ type State struct {
 	sealed         bool
 	conf           *Config
 	State          *Statefile
-	EventLog       *eventlog.EventLog
+	EventLog       *eventlog.SimpleLogFile
 	eventLogFile   *os.File
 	S3ExportBucket string
 	S3ExportApiKey string
@@ -45,12 +46,17 @@ func NewTesting() *State {
 
 	emptyLogReader := &bytes.Buffer{}
 
-	s.EventLog = eventlog.New(
+	log, err := eventlog.NewSimpleLogFile(
 		emptyLogReader, // no existing data in the log
 		ioutil.Discard, // do not write to disk
-		func(event domain.Event) error {
+		func(event event.Event) error {
 			return domain.DispatchEvent(event, s)
 		})
+	if err != nil {
+		panic(err)
+	}
+
+	s.EventLog = log
 
 	return s
 }
@@ -76,9 +82,14 @@ func New() *State {
 	}
 
 	// needs to be instantiated later, because handleEvent requires access to State
-	s.EventLog = eventlog.New(eventLogFile, eventLogFile, func(event domain.Event) error {
+	log, err := eventlog.NewSimpleLogFile(eventLogFile, eventLogFile, func(event event.Event) error {
 		return domain.DispatchEvent(event, s)
 	})
+	if err != nil {
+		panic(err)
+	}
+
+	s.EventLog = log
 
 	return s
 }
