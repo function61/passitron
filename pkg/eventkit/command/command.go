@@ -1,18 +1,17 @@
 package command
 
 import (
-	"github.com/function61/pi-security-module/pkg/event"
-	"github.com/function61/pi-security-module/pkg/state"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
+	"net/http"
 )
 
 type Ctx struct {
-	State *state.State
-	Meta  event.EventMeta
+	Meta event.EventMeta
 
 	RemoteAddr string
 	UserAgent  string
 
-	SendLoginCookieUserId string
+	SetCookie *http.Cookie
 
 	raisedEvents []event.Event
 }
@@ -29,5 +28,9 @@ type Command interface {
 	Key() string
 	Validate() error
 	MiddlewareChain() string
-	Invoke(*Ctx) error
+	Invoke(ctx *Ctx, handlers interface{}) error
 }
+
+// map keyed by command name (command.Key()) values are functions that allocates a new
+// specific command struct
+type AllocatorMap map[string]func() Command

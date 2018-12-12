@@ -87,7 +87,7 @@ func createHandler(st *state.State) (http.Handler, error) {
 
 	restqueryapi.Register(router, middlewareChains, st)
 
-	if err := restcommandapi.Register(router, middlewareChains, st); err != nil {
+	if err := restcommandapi.Register(router, middlewareChains, st.EventLog, st); err != nil {
 		return nil, err
 	}
 

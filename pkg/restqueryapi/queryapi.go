@@ -6,8 +6,9 @@ import (
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/function61/pi-security-module/pkg/apitypes"
+	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/event"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/mac"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -21,7 +22,7 @@ import (
 	"time"
 )
 
-func Register(router *mux.Router, mwares apitypes.MiddlewareChainMap, st *state.State) {
+func Register(router *mux.Router, mwares auth.MiddlewareChainMap, st *state.State) {
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
 	}, mwares, func(method string, path string, fn http.HandlerFunc) {

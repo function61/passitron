@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/event"
-	"github.com/function61/pi-security-module/pkg/eventlog"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
+	"github.com/function61/pi-security-module/pkg/eventkit/eventlog"
 	"io/ioutil"
 	"log"
 	"os"
@@ -176,5 +176,5 @@ func hex(in []byte) string {
 }
 
 func eventDeserializer(serialized string) (event.Event, error) {
-	return domain.Deserialize(serialized)
+	return event.Deserialize(serialized, domain.Allocators)
 }

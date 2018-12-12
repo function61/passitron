@@ -1,12 +1,12 @@
 package domain
 
 import (
-	"github.com/function61/pi-security-module/pkg/event"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
 )
 
 // WARNING: generated file
 
-var eventBuilders = map[string]func() event.Event{
+var Allocators = event.AllocatorMap{
 {{range .EventDefs}}
 	"{{.EventKey}}": func() event.Event { return &{{.GoStructName}}{meta: &event.EventMeta{}} },{{end}}
 }

@@ -2,14 +2,13 @@ package httpserver
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"net/http"
 )
 
-func createMiddlewares(st *state.State) (apitypes.MiddlewareChainMap, error) {
+func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
 	jwtAuth, err := auth.NewJwtAuthenticator(st.GetJwtValidationKey())
 	if err != nil {
 		return nil, err
@@ -66,11 +65,11 @@ func createMiddlewares(st *state.State) (apitypes.MiddlewareChainMap, error) {
 		authdWrite: sealed check, CSRF check and auth check
 		authdQuery: same as authdWrite but no CSRF check
 	*/
-	return apitypes.MiddlewareChainMap{
-		"public": func(w http.ResponseWriter, r *http.Request) *apitypes.RequestContext {
-			return &apitypes.RequestContext{}
+	return auth.MiddlewareChainMap{
+		"public": func(w http.ResponseWriter, r *http.Request) *auth.RequestContext {
+			return &auth.RequestContext{}
 		},
-		"authdQuery": func(w http.ResponseWriter, r *http.Request) *apitypes.RequestContext {
+		"authdQuery": func(w http.ResponseWriter, r *http.Request) *auth.RequestContext {
 			if !sealedCheck(w) {
 				return nil
 			}
@@ -80,11 +79,11 @@ func createMiddlewares(st *state.State) (apitypes.MiddlewareChainMap, error) {
 				return nil
 			}
 
-			return &apitypes.RequestContext{
+			return &auth.RequestContext{
 				User: authDetails,
 			}
 		},
-		"authdWrite": func(w http.ResponseWriter, r *http.Request) *apitypes.RequestContext {
+		"authdWrite": func(w http.ResponseWriter, r *http.Request) *auth.RequestContext {
 			if !sealedCheck(w) {
 				return nil
 			}
@@ -97,7 +96,7 @@ func createMiddlewares(st *state.State) (apitypes.MiddlewareChainMap, error) {
 				return nil
 			}
 
-			return &apitypes.RequestContext{
+			return &auth.RequestContext{
 				User: authDetails,
 			}
 		},

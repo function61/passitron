@@ -2,9 +2,9 @@ package commandhandlers
 
 import (
 	"github.com/function61/gokit/assert"
-	"github.com/function61/pi-security-module/pkg/command"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/event"
+	"github.com/function61/pi-security-module/pkg/eventkit/command"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/state"
 	"testing"
 	"time"
@@ -43,10 +43,10 @@ func TestScenario(t *testing.T) {
 	deleteAccount(t, tstate)
 
 	// TODO: remove these bit by bit
-	tstate.MarkCommandTested(StructBuilders["user.RegisterU2FToken"]())
-	tstate.MarkCommandTested(StructBuilders["database.ExportToKeepass"]())
-	tstate.MarkCommandTested(StructBuilders["database.Unseal"]())
-	tstate.MarkCommandTested(StructBuilders["database.ChangeMasterPassword"]())
+	tstate.MarkCommandTested(Allocators["user.RegisterU2FToken"]())
+	tstate.MarkCommandTested(Allocators["database.ExportToKeepass"]())
+	tstate.MarkCommandTested(Allocators["database.Unseal"]())
+	tstate.MarkCommandTested(Allocators["database.ChangeMasterPassword"]())
 
 	// make sure the scenario covered all commands that this application supports
 
@@ -83,7 +83,7 @@ func signIn(t *testing.T, tstate *testScenarioState) {
 		Password: "poop",
 	})
 
-	assert.EqualString(t, ctx.SendLoginCookieUserId, domain.DefaultUserIdTODO)
+	assert.True(t, ctx.SetCookie != nil)
 }
 
 func renameAccount(t *testing.T, tstate *testScenarioState) {
@@ -132,7 +132,7 @@ func sshKey(t *testing.T, tstate *testScenarioState) {
 	}
 
 	assert.True(t, addFails.Validate() == nil)
-	assert.EqualString(t, addFails.Invoke(tstate.DefaultCmdCtx()).Error(), "Failed to parse PEM block")
+	assert.EqualString(t, addFails.Invoke(tstate.DefaultCmdCtx(), tstate.handlers).Error(), "Failed to parse PEM block")
 
 	dummyButWorkingSshKey := `-----BEGIN RSA PRIVATE KEY-----
 MIICWwIBAAKBgQDYHLgXErTPTKGGwY/sQ6b7dl7zVm5B/nfGlqfejVb10gAkcO1N
@@ -336,6 +336,7 @@ func deleteAccount(t *testing.T, tstate *testScenarioState) {
 // used to pass test context along
 type testScenarioState struct {
 	st               *state.State
+	handlers         Handlers
 	untestedCommands map[string]bool
 	firstAccountId   string
 }
@@ -343,20 +344,20 @@ type testScenarioState struct {
 func NewTestScenarioState(st *state.State) *testScenarioState {
 	untestedCommands := map[string]bool{}
 
-	for commandKey, _ := range StructBuilders {
+	for commandKey, _ := range Allocators {
 		untestedCommands[commandKey] = true
 	}
 
 	return &testScenarioState{
 		st:               st,
+		handlers:         New(st),
 		untestedCommands: untestedCommands,
 	}
 }
 
 func (tstate *testScenarioState) DefaultCmdCtx() *command.Ctx {
 	return &command.Ctx{
-		State: tstate.st,
-		Meta:  event.Meta(time.Now(), domain.DefaultUserIdTODO),
+		Meta: event.Meta(time.Now(), domain.DefaultUserIdTODO),
 	}
 }
 
@@ -379,11 +380,11 @@ func (tstate *testScenarioState) InvokeSucceeds(t *testing.T, ctx *command.Ctx, 
 
 	assert.True(t, cmd.Validate() == nil)
 
-	if err := cmd.Invoke(ctx); err != nil {
+	if err := cmd.Invoke(ctx, tstate.handlers); err != nil {
 		t.Errorf("Command invoke failed: %s", err.Error())
 	}
 
-	if err := ctx.State.EventLog.Append(ctx.GetRaisedEvents()); err != nil {
+	if err := tstate.st.EventLog.Append(ctx.GetRaisedEvents()); err != nil {
 		panic(err)
 	}
 

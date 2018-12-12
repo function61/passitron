@@ -4,8 +4,12 @@ package commandhandlers
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/pkg/command"
+	"github.com/function61/pi-security-module/pkg/eventkit/command"
 )
+
+type Handlers interface { {{range .CommandSpecs}}
+	{{.AsGoStructName}}(*{{.AsGoStructName}}, *command.Ctx) error{{end}}
+}
 
 // structs
 
@@ -20,11 +24,14 @@ func (x *{{.AsGoStructName}}) Validate() error {
 
 func (x *{{.AsGoStructName}}) MiddlewareChain() string { return "{{.MiddlewareChain}}" }
 func (x *{{.AsGoStructName}}) Key() string { return "{{.Command}}" }
+func (x *{{.AsGoStructName}}) Invoke(ctx *command.Ctx, handlers interface{}) error {
+	return handlers.(Handlers).{{.AsGoStructName}}(x, ctx)
+}
 {{end}}
 
 // builders
 
-var StructBuilders = map[string]func() command.Command{
+var Allocators = command.AllocatorMap{
 {{range .CommandSpecs}}
 	"{{.Command}}": func() command.Command { return &{{.AsGoStructName}}{} },{{end}}
 }

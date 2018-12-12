@@ -13,17 +13,9 @@ import (
 	"time"
 )
 
-type UserDetails struct {
-	Id string
-}
-
-type HttpRequestAuthenticator interface {
-	Authenticate(*http.Request) *UserDetails
-}
-
-type Signer interface {
-	Sign(userDetails UserDetails) string
-}
+const (
+	loginCookieName = "login"
+)
 
 type jwtSigner struct {
 	privKey *ecdsa.PrivateKey
@@ -70,7 +62,7 @@ func NewJwtAuthenticator(validatorPublicKey []byte) (HttpRequestAuthenticator, e
 }
 
 func (j *jwtAuthenticator) Authenticate(r *http.Request) *UserDetails {
-	cookie, err := r.Cookie("login")
+	cookie, err := r.Cookie(loginCookieName)
 	if err == http.ErrNoCookie {
 		return nil
 	}
@@ -104,7 +96,7 @@ func (j *jwtAuthenticator) getValidatedClaims(jwtString string) jwt.MapClaims {
 
 func ToCookie(tokenString string) *http.Cookie {
 	return &http.Cookie{
-		Name:     "login",
+		Name:     loginCookieName,
 		Path:     "/",
 		Value:    tokenString,
 		HttpOnly: true, // = not visible to JavaScript
@@ -144,7 +136,7 @@ func GenerateKey() ([]byte, []byte, error) {
 /*
 func DeleteLoginCookie() *http.Cookie {
 	return &http.Cookie{
-		Name:     "login",
+		Name:     loginCookieName,
 		Value:    "del",
 		Path:     "/",
 		HttpOnly: true,

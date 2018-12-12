@@ -1,18 +1,29 @@
-package domain
+package event
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/function61/pi-security-module/pkg/event"
 	"regexp"
 	"time"
 )
 
+// table (keyed by MetaType()) of empty event struct allocators
+type AllocatorMap map[string]func() Event
+
+func (e *EventMeta) Serialize(payload Event) string {
+	payloadJson, err := json.Marshal(payload)
+	if err != nil {
+		panic(err)
+	}
+
+	return payload.MetaType() + " " + e.Timestamp.Format(time.RFC3339Nano) + " " + e.UserId + " " + string(payloadJson)
+}
+
 // only the user ID is optional
 var deserializeRe = regexp.MustCompile("^([^ ]+) ([^ ]+) ([^ ]*) (.+)$")
 
-func Deserialize(serialized string) (event.Event, error) {
+func Deserialize(serialized string, allocators AllocatorMap) (Event, error) {
 	match := deserializeRe.FindStringSubmatch(serialized)
 	if len(match) != 5 {
 		return nil, errors.New("parsing failed")
@@ -27,12 +38,12 @@ func Deserialize(serialized string) (event.Event, error) {
 	eventUser := match[3]
 	eventPayload := match[4]
 
-	eventBuilder, ok := eventBuilders[eventType]
-	if !ok {
+	allocator, eventKnown := allocators[eventType]
+	if !eventKnown {
 		return nil, fmt.Errorf("unknown event type: %s", eventType)
 	}
 
-	event := eventBuilder()
+	event := allocator()
 
 	meta := event.Meta()
 	meta.Timestamp = eventDate

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/event"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
 	"github.com/function61/pi-security-module/pkg/state"

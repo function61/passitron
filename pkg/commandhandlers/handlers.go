@@ -8,11 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/function61/pi-security-module/pkg/apitypes"
-	"github.com/function61/pi-security-module/pkg/command"
+	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/event"
+	"github.com/function61/pi-security-module/pkg/eventkit/command"
+	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/keepassexport"
 	"github.com/function61/pi-security-module/pkg/randompassword"
+	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/function61/pi-security-module/pkg/useraccounts"
 	"github.com/pquerna/otp"
@@ -29,8 +31,16 @@ var (
 	errFolderNotFound  = errors.New("Folder not found")
 )
 
-func (a *AccountRename) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+type CommandHandlers struct {
+	state *state.State
+}
+
+func New(state *state.State) *CommandHandlers {
+	return &CommandHandlers{state}
+}
+
+func (h *CommandHandlers) AccountRename(a *AccountRename, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -42,8 +52,8 @@ func (a *AccountRename) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountMove) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountMove(a *AccountMove, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -55,8 +65,8 @@ func (a *AccountMove) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountChangeUsername(a *AccountChangeUsername, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -68,8 +78,8 @@ func (a *AccountChangeUsername) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountChangeUrl) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountChangeUrl(a *AccountChangeUrl, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -87,8 +97,8 @@ func (a *AccountChangeUrl) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountChangeDescription) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountChangeDescription(a *AccountChangeDescription, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -100,8 +110,8 @@ func (a *AccountChangeDescription) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountDeleteSecret) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountDeleteSecret(a *AccountDeleteSecret, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -115,8 +125,8 @@ func (a *AccountDeleteSecret) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountCreateFolder) Invoke(ctx *command.Ctx) error {
-	if ctx.State.FolderById(a.Parent) == nil {
+func (h *CommandHandlers) AccountCreateFolder(a *AccountCreateFolder, ctx *command.Ctx) error {
+	if h.state.FolderById(a.Parent) == nil {
 		return errFolderNotFound
 	}
 
@@ -129,13 +139,13 @@ func (a *AccountCreateFolder) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountDeleteFolder) Invoke(ctx *command.Ctx) error {
-	if ctx.State.FolderById(a.Id) == nil {
+func (h *CommandHandlers) AccountDeleteFolder(a *AccountDeleteFolder, ctx *command.Ctx) error {
+	if h.state.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
 
-	subFolders := ctx.State.SubfoldersByParentId(a.Id)
-	accounts := ctx.State.WrappedAccountsByFolder(a.Id)
+	subFolders := h.state.SubfoldersByParentId(a.Id)
+	accounts := h.state.WrappedAccountsByFolder(a.Id)
 
 	if len(subFolders) > 0 || len(accounts) > 0 {
 		return errors.New("folder not empty")
@@ -148,8 +158,8 @@ func (a *AccountDeleteFolder) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountRenameFolder) Invoke(ctx *command.Ctx) error {
-	if ctx.State.FolderById(a.Id) == nil {
+func (h *CommandHandlers) AccountRenameFolder(a *AccountRenameFolder, ctx *command.Ctx) error {
+	if h.state.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
 
@@ -161,11 +171,11 @@ func (a *AccountRenameFolder) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountMoveFolder) Invoke(ctx *command.Ctx) error {
-	if ctx.State.FolderById(a.Id) == nil {
+func (h *CommandHandlers) AccountMoveFolder(a *AccountMoveFolder, ctx *command.Ctx) error {
+	if h.state.FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
-	if ctx.State.FolderById(a.NewParent) == nil {
+	if h.state.FolderById(a.NewParent) == nil {
 		return errFolderNotFound
 	}
 
@@ -177,7 +187,7 @@ func (a *AccountMoveFolder) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
+func (h *CommandHandlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) error {
 	accountId := event.RandomId()
 
 	title := a.Title
@@ -234,8 +244,8 @@ func (a *AccountCreate) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Id) == nil {
+func (h *CommandHandlers) AccountDelete(a *AccountDelete, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -246,8 +256,8 @@ func (a *AccountDelete) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountAddPassword(a *AccountAddPassword, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -270,8 +280,8 @@ func (a *AccountAddPassword) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountAddSecretNote) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -285,8 +295,8 @@ func (a *AccountAddSecretNote) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -330,8 +340,8 @@ func (a *AccountAddKeylist) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountAddSshKey) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Id) == nil {
+func (h *CommandHandlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -379,8 +389,8 @@ func (a *AccountAddSshKey) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *AccountAddOtpToken) Invoke(ctx *command.Ctx) error {
-	if ctx.State.WrappedAccountById(a.Account) == nil {
+func (h *CommandHandlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) error {
+	if h.state.WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -398,7 +408,7 @@ func (a *AccountAddOtpToken) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *DatabaseChangeMasterPassword) Invoke(ctx *command.Ctx) error {
+func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword, ctx *command.Ctx) error {
 	if a.NewMasterPassword != a.NewMasterPasswordRepeat {
 		return errors.New("NewMasterPassword not same as NewMasterPasswordRepeat")
 	}
@@ -410,7 +420,7 @@ func (a *DatabaseChangeMasterPassword) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *SessionSignIn) Invoke(ctx *command.Ctx) error {
+func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	user, err := useraccounts.DummyRepository.FindByUsername(a.Username)
 	if err != nil {
 		return err // maybe error contacting DB
@@ -421,7 +431,16 @@ func (a *SessionSignIn) Invoke(ctx *command.Ctx) error {
 		return errors.New("bad username or password")
 	}
 
-	ctx.SendLoginCookieUserId = user.Id
+	jwtSigner, err := auth.NewJwtSigner(h.state.GetJwtSigningKey())
+	if err != nil {
+		return err
+	}
+
+	token := jwtSigner.Sign(auth.UserDetails{
+		Id: user.Id,
+	})
+
+	ctx.SetCookie = auth.ToCookie(token)
 
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,
@@ -431,26 +450,26 @@ func (a *SessionSignIn) Invoke(ctx *command.Ctx) error {
 	return nil
 }
 
-func (a *DatabaseExportToKeepass) Invoke(ctx *command.Ctx) error {
-	return keepassexport.Export(ctx.State)
+func (h *CommandHandlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *command.Ctx) error {
+	return keepassexport.Export(h.state)
 }
 
-func (a *DatabaseUnseal) Invoke(ctx *command.Ctx) error {
-	if subtle.ConstantTimeCompare([]byte(ctx.State.GetMasterPassword()), []byte(a.MasterPassword)) != 1 {
+func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
+	if subtle.ConstantTimeCompare([]byte(h.state.GetMasterPassword()), []byte(a.MasterPassword)) != 1 {
 		return errors.New("invalid password")
 	}
 
-	if ctx.State.IsUnsealed() {
+	if h.state.IsUnsealed() {
 		return errors.New("state already unsealed")
 	}
-	ctx.State.SetSealed(false)
+	h.state.SetSealed(false)
 
 	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
 
 	return nil
 }
 
-func (a *UserRegisterU2FToken) Invoke(ctx *command.Ctx) error {
+func (h *CommandHandlers) UserRegisterU2FToken(a *UserRegisterU2FToken, ctx *command.Ctx) error {
 	var input apitypes.RegisterResponse
 	if err := json.Unmarshal([]byte(a.Request), &input); err != nil {
 		return err
