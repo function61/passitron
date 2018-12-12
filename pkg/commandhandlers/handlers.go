@@ -431,7 +431,7 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 		return errors.New("bad username or password")
 	}
 
-	jwtSigner, err := auth.NewJwtSigner(h.state.GetJwtSigningKey())
+	jwtSigner, err := auth.NewEcJwtSigner(h.state.GetJwtSigningKey())
 	if err != nil {
 		return err
 	}

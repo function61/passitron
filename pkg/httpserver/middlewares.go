@@ -9,7 +9,7 @@ import (
 )
 
 func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
-	jwtAuth, err := auth.NewJwtAuthenticator(st.GetJwtValidationKey())
+	jwtAuth, err := auth.NewEcJwtAuthenticator(st.GetJwtValidationKey())
 	if err != nil {
 		return nil, err
 	}
