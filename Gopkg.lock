@@ -63,19 +63,24 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d5a7caeb14681c9ed3e70466510ae1b2b281e0f35da7ea730713d970a862f42d"
+  digest = "1:4d25a025f843c0893e7432f6fd23a321b2721aebf3a80193c418e3451f3d7638"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "cryptorandombytes",
+    "dynversion",
+    "dynversion/precompilationversion",
     "fileexists",
+    "httpauth",
     "logex",
+    "mac",
     "ossignal",
+    "randompassword",
     "stopper",
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "4b662134a5648303996afe77b64b4bde42b95460"
+  revision = "091471da655bb3ccee7417dd8c69cf75ab845cfb"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -199,12 +204,16 @@
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/boombuler/barcode",
     "github.com/boombuler/barcode/qr",
-    "github.com/dgrijalva/jwt-go",
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/cryptorandombytes",
+    "github.com/function61/gokit/dynversion",
+    "github.com/function61/gokit/dynversion/precompilationversion",
     "github.com/function61/gokit/fileexists",
+    "github.com/function61/gokit/httpauth",
     "github.com/function61/gokit/logex",
+    "github.com/function61/gokit/mac",
     "github.com/function61/gokit/ossignal",
+    "github.com/function61/gokit/randompassword",
     "github.com/function61/gokit/stopper",
     "github.com/function61/gokit/systemdinstaller",
     "github.com/gorilla/mux",

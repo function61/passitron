@@ -142,7 +142,7 @@ const RestEndpointsTemplate = `package apitypes
 import (
 	"net/http"
 	"encoding/json"
-	"github.com/function61/pi-security-module/pkg/auth"
+	"github.com/function61/gokit/httpauth"
 )
 
 type Handlers interface { {{range .ApplicationTypes.Endpoints}}
@@ -152,7 +152,7 @@ type Handlers interface { {{range .ApplicationTypes.Endpoints}}
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
 // TODO: middlewares like auth
-func RegisterRoutes(handlers Handlers, mwares auth.MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
+func RegisterRoutes(handlers Handlers, mwares httpauth.MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
 	register("{{.HttpMethod}}", "{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
 		if mwares["{{.MiddlewareChain}}"](w, r) == nil {
 			return // middleware aborted request handing and handled error response itself

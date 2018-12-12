@@ -2,7 +2,7 @@ package httpcommand
 
 import (
 	"encoding/json"
-	"github.com/function61/pi-security-module/pkg/auth"
+	"github.com/function61/gokit/httpauth"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/eventkit/eventlog"
@@ -39,7 +39,7 @@ func customError(errorCode string, description string, statusCode int) *HttpErro
 func Serve(
 	w http.ResponseWriter,
 	r *http.Request,
-	mwares auth.MiddlewareChainMap,
+	mwares httpauth.MiddlewareChainMap,
 	commandName string,
 	allocators command.AllocatorMap,
 	handlers interface{},

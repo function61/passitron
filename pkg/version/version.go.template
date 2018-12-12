@@ -1,9 +1,0 @@
-package version
-
-// WARNING: generated file
-
-const Version = "{{.Version}}"
-
-func IsDevVersion() bool {
-	return Version == "dev"
-}

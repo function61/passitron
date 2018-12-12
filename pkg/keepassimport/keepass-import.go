@@ -3,6 +3,7 @@ package keepassimport
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -36,7 +37,7 @@ import (
 */
 
 func Run(csvPath string, userId string) error {
-	st := state.New()
+	st := state.New(logex.Discard)
 	defer st.Close()
 
 	csvFile, err := os.Open(csvPath)

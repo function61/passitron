@@ -2,7 +2,7 @@ package restcommandapi
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/pkg/auth"
+	"github.com/function61/gokit/httpauth"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
 	"github.com/function61/pi-security-module/pkg/eventkit/eventlog"
 	"github.com/function61/pi-security-module/pkg/eventkit/httpcommand"
@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func Register(router *mux.Router, mwares auth.MiddlewareChainMap, eventLog eventlog.Log, st *state.State) error {
+func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, eventLog eventlog.Log, st *state.State) error {
 	handlers := commandhandlers.New(st)
 
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

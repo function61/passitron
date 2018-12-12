@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/function61/gokit/fileexists"
-	"github.com/function61/pi-security-module/pkg/auth"
+	"github.com/function61/gokit/httpauth"
 	"os"
 )
 
@@ -56,7 +56,7 @@ func InitConfig() error {
 		return errors.New("config file already exists")
 	}
 
-	privKeyPem, pubKeyPem, err := auth.GenerateKey()
+	privKeyPem, pubKeyPem, err := httpauth.GenerateKey()
 	if err != nil {
 		return err
 	}

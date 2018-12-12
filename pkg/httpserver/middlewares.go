@@ -2,14 +2,14 @@ package httpserver
 
 import (
 	"errors"
-	"github.com/function61/pi-security-module/pkg/auth"
+	"github.com/function61/gokit/httpauth"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"net/http"
 )
 
-func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
-	jwtAuth, err := auth.NewEcJwtAuthenticator(st.GetJwtValidationKey())
+func createMiddlewares(st *state.State) (httpauth.MiddlewareChainMap, error) {
+	jwtAuth, err := httpauth.NewEcJwtAuthenticator(st.GetJwtValidationKey())
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
 		return false
 	}
 
-	authCheck := func(w http.ResponseWriter, r *http.Request) *auth.UserDetails {
+	authCheck := func(w http.ResponseWriter, r *http.Request) *httpauth.UserDetails {
 		authDetails := jwtAuth.Authenticate(r)
 		if authDetails != nil {
 			return authDetails
@@ -65,11 +65,11 @@ func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
 		authdWrite: sealed check, CSRF check and auth check
 		authdQuery: same as authdWrite but no CSRF check
 	*/
-	return auth.MiddlewareChainMap{
-		"public": func(w http.ResponseWriter, r *http.Request) *auth.RequestContext {
-			return &auth.RequestContext{}
+	return httpauth.MiddlewareChainMap{
+		"public": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
+			return &httpauth.RequestContext{}
 		},
-		"authdQuery": func(w http.ResponseWriter, r *http.Request) *auth.RequestContext {
+		"authdQuery": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
 			if !sealedCheck(w) {
 				return nil
 			}
@@ -79,11 +79,11 @@ func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
 				return nil
 			}
 
-			return &auth.RequestContext{
+			return &httpauth.RequestContext{
 				User: authDetails,
 			}
 		},
-		"authdWrite": func(w http.ResponseWriter, r *http.Request) *auth.RequestContext {
+		"authdWrite": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
 			if !sealedCheck(w) {
 				return nil
 			}
@@ -96,7 +96,7 @@ func createMiddlewares(st *state.State) (auth.MiddlewareChainMap, error) {
 				return nil
 			}
 
-			return &auth.RequestContext{
+			return &httpauth.RequestContext{
 				User: authDetails,
 			}
 		},

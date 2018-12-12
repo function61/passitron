@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/function61/gokit/dynversion/precompilationversion"
 	"github.com/function61/pi-security-module/pkg/eventkit/codegen"
-	"github.com/function61/pi-security-module/pkg/version/versionresolver"
 	"os"
 )
 
@@ -39,14 +39,14 @@ func mainInternal() error {
 		codegen.Inline("pkg/commandhandlers/commanddefinitions.go", codegen.CommandsDefinitionsTemplate),
 		codegen.Inline("pkg/domain/consts-and-enums.go", codegen.ConstsAndEnumsTemplate),
 		codegen.Inline("pkg/domain/events.go", codegen.EventDefinitionsTemplate),
-		codegen.CompanionFile("pkg/version/version.go"),
 	}
 
 	if err := codegen.Run(
 		"pkg/domain/domain.json",
 		"pkg/apitypes/apitypes.json",
 		"pkg/commandhandlers/commands.json",
-		versionresolver.ResolveVersion(), // TODO: get rid of this
+		// code generation doesn't have access to version via regular method
+		precompilationversion.PreCompilationVersion(),
 		files); err != nil {
 		return err
 	}

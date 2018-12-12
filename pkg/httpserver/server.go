@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"fmt"
+	"github.com/function61/gokit/dynversion"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/stopper"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
@@ -10,7 +11,6 @@ import (
 	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
-	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
@@ -26,8 +26,8 @@ const (
 func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	defer stop.Done()
 
-	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
-	if version.IsDevVersion() {
+	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(dynversion.Version)
+	if dynversion.IsDevVersion() { // cannot be downloaded
 		downloadUrl = ""
 	}
 
@@ -35,7 +35,7 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 		return err
 	}
 
-	st := state.New()
+	st := state.New(logex.Prefix("state", logger))
 	defer st.Close()
 
 	handler, err := createHandler(st)

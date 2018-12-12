@@ -5,12 +5,12 @@ import (
 	"errors"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
+	"github.com/function61/gokit/httpauth"
+	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
-	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/httputil"
-	"github.com/function61/pi-security-module/pkg/mac"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/gorilla/mux"
@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-func Register(router *mux.Router, mwares auth.MiddlewareChainMap, st *state.State) {
+func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.State) {
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
 	}, mwares, func(method string, path string, fn http.HandlerFunc) {

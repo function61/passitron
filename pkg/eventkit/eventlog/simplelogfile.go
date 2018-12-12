@@ -3,6 +3,7 @@ package eventlog
 import (
 	"bufio"
 	"fmt"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"io"
 	"log"
@@ -52,13 +53,14 @@ func NewSimpleLogFile(
 	logWriter io.Writer,
 	handleEvent eventHandler,
 	deserializeEvent eventDeserializer,
+	logger *log.Logger,
 ) (Log, error) {
 	eventsRead, err := readOldEvents(logReader, handleEvent, deserializeEvent)
 	if err != nil {
 		return nil, fmt.Errorf("readOldEvents: %s", err.Error())
 	}
 
-	log.Printf("readOldEvents: succesfully read %d event(s)", eventsRead)
+	logex.Levels(logger).Info.Printf("Succesfully read %d event(s)", eventsRead)
 
 	return &SimpleLogFile{
 		logWriter:   logWriter,

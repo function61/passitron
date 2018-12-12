@@ -7,13 +7,13 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/function61/gokit/httpauth"
+	"github.com/function61/gokit/randompassword"
 	"github.com/function61/pi-security-module/pkg/apitypes"
-	"github.com/function61/pi-security-module/pkg/auth"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/keepassexport"
-	"github.com/function61/pi-security-module/pkg/randompassword"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
 	"github.com/function61/pi-security-module/pkg/useraccounts"
@@ -431,16 +431,16 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 		return errors.New("bad username or password")
 	}
 
-	jwtSigner, err := auth.NewEcJwtSigner(h.state.GetJwtSigningKey())
+	jwtSigner, err := httpauth.NewEcJwtSigner(h.state.GetJwtSigningKey())
 	if err != nil {
 		return err
 	}
 
-	token := jwtSigner.Sign(auth.UserDetails{
+	token := jwtSigner.Sign(httpauth.UserDetails{
 		Id: user.Id,
 	})
 
-	ctx.SetCookie = auth.ToCookie(token)
+	ctx.SetCookie = httpauth.ToCookie(token)
 
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,

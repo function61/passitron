@@ -1,8 +1,8 @@
 package state
 
 import (
+	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
-	"github.com/function61/pi-security-module/pkg/mac"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"time"

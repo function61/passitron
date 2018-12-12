@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
@@ -52,7 +53,8 @@ func NewTesting() *State {
 		func(event event.Event) error {
 			return domain.DispatchEvent(event, s)
 		},
-		eventDeserializer)
+		eventDeserializer,
+		logex.Discard)
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +64,7 @@ func NewTesting() *State {
 	return s
 }
 
-func New() *State {
+func New(logger *log.Logger) *State {
 	conf, err := readConfig()
 	if err != nil {
 		panic(err)
@@ -85,9 +87,9 @@ func New() *State {
 	// needs to be instantiated later, because handleEvent requires access to State
 	log, err := eventlog.NewSimpleLogFile(eventLogFile, eventLogFile, func(event event.Event) error {
 		return domain.DispatchEvent(event, s)
-	}, eventDeserializer)
+	}, eventDeserializer, logex.Prefix("SimpleLogFile", logger))
 	if err != nil {
-		panic(err)
+		panic(err) // TODO: return as error
 	}
 
 	s.EventLog = log

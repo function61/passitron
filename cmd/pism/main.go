@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/function61/gokit/dynversion"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/ossignal"
 	"github.com/function61/gokit/stopper"
@@ -11,7 +12,6 @@ import (
 	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
-	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -27,7 +27,7 @@ func serverEntrypoint() *cobra.Command {
 
 			logl := logex.Levels(logex.Prefix("serverEntrypoint", rootLogger))
 
-			logl.Info.Printf("%s starting", version.Version)
+			logl.Info.Printf("%s starting", dynversion.Version)
 			defer logl.Info.Printf("Stopped")
 
 			workers := stopper.NewManager()
@@ -38,7 +38,7 @@ func serverEntrypoint() *cobra.Command {
 				workers.StopAllWorkersAndWait()
 			}()
 
-			if err := httpserver.Run(workers.Stopper(), logex.Prefix("httpserver", rootLogger)); err != nil {
+			if err := httpserver.Run(workers.Stopper(), rootLogger); err != nil {
 				panic(err)
 			}
 		},
@@ -60,7 +60,7 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Displays the auth token required to use the signing API",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			st := state.New()
+			st := state.New(logex.Discard)
 			defer st.Close()
 
 			fmt.Printf("%s\n", signingapi.ExpectedAuthHeader(st))
@@ -92,7 +92,7 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use:     os.Args[0],
 		Short:   "Software for a hardware security module",
-		Version: version.Version,
+		Version: dynversion.Version,
 	}
 
 	rootCmd.AddCommand(serverEntrypoint())
