@@ -15,5 +15,19 @@ down to if the application implements BOTH:
 2. Are the secrets accessible without a press of a physical button that the hacker doesn't 
    have access to? (i.e. a signature from a U2F key)
 
+
+On the radar
+------------
+
+[Krypton](https://krypt.co/) - while Krypton is not a password manager (at all), on the
+surface (I haven't tested it yet) it seems to do a great job of handling the use case of
+U2F-enabled logins. It seems that you need a browser plugin to use it, which is kind of a
+bummer - I wonder if it is technically possible to emulate U2F token as a kernel driver to
+support every already-U2F-enabled browser without a plugin.
+
+
+Errors
+------
+
 If you notice any errors in this comparison, please report an issue! Being accurate and
 honest is important to us.
