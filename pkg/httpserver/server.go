@@ -2,7 +2,7 @@ package httpserver
 
 import (
 	"fmt"
-	"github.com/function61/gokit/logger"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/stopper"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/restcommandapi"
@@ -13,6 +13,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -22,9 +23,7 @@ const (
 	keyFile  = "key.pem"
 )
 
-var log = logger.New("httpserver")
-
-func Run(stop *stopper.Stopper) error {
+func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	defer stop.Done()
 
 	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(version.Version)
@@ -59,14 +58,16 @@ func Run(stop *stopper.Stopper) error {
 		Handler: handler,
 	}
 
-	log.Info(fmt.Sprintf("serving @ %s", srv.Addr))
-	defer log.Info("stopped")
+	logl := logex.Levels(logger)
+
+	logl.Info.Printf("Serving @ %s", srv.Addr)
+	defer logl.Info.Println("Stopped")
 
 	go func() {
 		<-stop.Signal
 
 		if err := srv.Shutdown(nil); err != nil {
-			log.Error(fmt.Sprintf("Shutdown(): %s", err.Error()))
+			logl.Error.Printf("Shutdown(): %s", err.Error())
 		}
 	}()
 

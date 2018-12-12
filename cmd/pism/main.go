@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/function61/gokit/logger"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/ossignal"
 	"github.com/function61/gokit/stopper"
 	"github.com/function61/gokit/systemdinstaller"
@@ -13,6 +13,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/version"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -22,19 +23,22 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Starts the server",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			log := logger.New("serverEntrypoint")
-			log.Info(fmt.Sprintf("%s starting", version.Version))
-			defer log.Info("stopped")
+			rootLogger := log.New(os.Stderr, "", log.LstdFlags)
+
+			logl := logex.Levels(logex.Prefix("serverEntrypoint", rootLogger))
+
+			logl.Info.Printf("%s starting", version.Version)
+			defer logl.Info.Printf("Stopped")
 
 			workers := stopper.NewManager()
 
 			go func() {
-				log.Info(fmt.Sprintf("Received signal %s; stopping", <-ossignal.InterruptOrTerminate()))
+				logl.Info.Printf("Received signal %s; stopping", <-ossignal.InterruptOrTerminate())
 
 				workers.StopAllWorkersAndWait()
 			}()
 
-			if err := httpserver.Run(workers.Stopper()); err != nil {
+			if err := httpserver.Run(workers.Stopper(), logex.Prefix("httpserver", rootLogger)); err != nil {
 				panic(err)
 			}
 		},

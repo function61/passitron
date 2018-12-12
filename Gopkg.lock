@@ -63,19 +63,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5e96a3bae6866f6426dd44d160a2ad161bd2b4adb75e19e2b002fe0e6104ce94"
+  digest = "1:d5a7caeb14681c9ed3e70466510ae1b2b281e0f35da7ea730713d970a862f42d"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "cryptorandombytes",
     "fileexists",
-    "logger",
+    "logex",
     "ossignal",
     "stopper",
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "5590520346d86339e5e972aa29fff01194cbcad0"
+  revision = "4b662134a5648303996afe77b64b4bde42b95460"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -203,7 +203,7 @@
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/cryptorandombytes",
     "github.com/function61/gokit/fileexists",
-    "github.com/function61/gokit/logger",
+    "github.com/function61/gokit/logex",
     "github.com/function61/gokit/ossignal",
     "github.com/function61/gokit/stopper",
     "github.com/function61/gokit/systemdinstaller",
