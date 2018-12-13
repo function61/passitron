@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -12,7 +14,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
@@ -41,10 +42,11 @@ var errNotImplemented = errors.New("not implemented")
 type AgentServer struct {
 	baseUrl     string
 	bearerToken string
+	logl        *logex.Leveled
 }
 
 func (a *AgentServer) List() ([]*agent.Key, error) {
-	log.Printf("SshAgentServer: List()")
+	a.logl.Debug.Printf("List()")
 
 	knownKeys := []*agent.Key{}
 
@@ -84,7 +86,7 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 }
 
 func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
-	log.Printf("SshAgentServer: Sign()")
+	a.logl.Debug.Printf("Sign()")
 
 	reqJson, _ := json.Marshal(signingapitypes.SignRequestInput{
 		PublicKey: key.Marshal(),
@@ -118,82 +120,90 @@ func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, erro
 }
 
 func (a *AgentServer) Add(key agent.AddedKey) error {
-	log.Printf("SshAgentServer: Add()")
+	a.logl.Debug.Printf("Add()")
 
 	return errNotImplemented
 }
 
 func (a *AgentServer) Remove(key ssh.PublicKey) error {
-	log.Printf("SshAgentServer: Remove()")
+	a.logl.Debug.Printf("Remove()")
 
 	return errNotImplemented
 }
 
 func (a *AgentServer) RemoveAll() error {
-	log.Printf("SshAgentServer: RemoveAll()")
+	a.logl.Debug.Printf("RemoveAll()")
 
 	return errNotImplemented
 }
 
 func (a *AgentServer) Lock(passphrase []byte) error {
-	log.Printf("SshAgentServer: Lock()")
+	a.logl.Debug.Printf("Lock()")
 
 	return errNotImplemented
 }
 
 func (a *AgentServer) Unlock(passphrase []byte) error {
-	log.Printf("SshAgentServer: Unlock()")
+	a.logl.Debug.Printf("Unlock()")
 
 	return errNotImplemented
 }
 
 func (a *AgentServer) Signers() ([]ssh.Signer, error) {
-	log.Printf("SshAgentServer: Signers()")
+	a.logl.Debug.Printf("Signers()")
 
 	return []ssh.Signer{}, errNotImplemented
 }
 
-func checkSocketExistence() {
+func checkSocketExistence() error {
 	_, err := os.Stat(sourceSocket)
 	if err == nil { // socket exists
 		if err := os.Remove(sourceSocket); err != nil {
-			log.Fatalf("sshagent: remove error: %s", err.Error())
+			return fmt.Errorf("Remove: %s", err.Error())
 		}
 	} else if !os.IsNotExist(err) { // some other error than not exists
-		log.Fatalf("sshagent: unexpected Stat() error: %s", err.Error())
+		return fmt.Errorf("Stat(): %s", err.Error())
 	}
+
+	return nil
 }
 
-func handleOneClient(client net.Conn, server *AgentServer) {
-	log.Printf("sshagent: client connected")
+func handleOneClient(client net.Conn, server *AgentServer, logl *logex.Leveled) {
+	logl.Info.Printf("Connected")
+	defer logl.Info.Printf("Disconnected")
 
 	agent.ServeAgent(server, client)
 }
 
-func Run(baseurl string, token string) {
-	checkSocketExistence()
+func Run(baseurl string, token string, logger *log.Logger) error {
+	if err := checkSocketExistence(); err != nil {
+		return fmt.Errorf("checkSocketExistence: %s", err.Error())
+	}
+
+	logl := logex.Levels(logger)
 
 	agentServer := AgentServer{
 		baseUrl:     baseurl,
 		bearerToken: token,
+		logl:        logex.Levels(logex.Prefix("AgentServer", logger)),
 	}
 
-	log.Printf("sshagent: listening at %s", sourceSocket)
-	log.Printf("sshagent: pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
+	logl.Info.Printf("Listening at %s", sourceSocket)
+	logl.Info.Printf("Pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
 
 	socketListener, err := net.Listen("unix", sourceSocket)
 	if err != nil {
-		log.Fatalf("sshagent: sock listen error: %s", err.Error())
+		return fmt.Errorf("Listen(): %s", err.Error())
 	}
+
+	clientHandlerLogger := logex.Levels(logex.Prefix("handleOneClient", logger))
 
 	for {
 		client, err := socketListener.Accept()
 		if err != nil {
-			log.Printf("sshagent: Accept() error: %s", err.Error())
-			time.Sleep(1 * time.Second)
-			continue
+			return fmt.Errorf("Accept(): %s", err.Error())
 		}
 
-		go handleOneClient(client, &agentServer)
+		go handleOneClient(client, &agentServer, clientHandlerLogger)
 	}
 }

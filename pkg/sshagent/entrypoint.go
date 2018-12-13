@@ -5,6 +5,7 @@ import (
 	"github.com/function61/gokit/systemdinstaller"
 	"github.com/spf13/cobra"
 	"log"
+	"os"
 )
 
 func Entrypoint() *cobra.Command {
@@ -16,7 +17,11 @@ func Entrypoint() *cobra.Command {
 			baseurl := args[0]
 			token := args[1]
 
-			Run(baseurl, token)
+			rootLogger := log.New(os.Stderr, "", log.LstdFlags)
+
+			if err := Run(baseurl, token, rootLogger); err != nil {
+				panic(err)
+			}
 		},
 	}
 
