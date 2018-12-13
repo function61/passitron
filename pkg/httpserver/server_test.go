@@ -3,7 +3,7 @@ package httpserver
 import (
 	"encoding/json"
 	"github.com/function61/gokit/assert"
-	"github.com/function61/pi-security-module/pkg/auth"
+	"github.com/function61/gokit/httpauth"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
@@ -44,18 +44,18 @@ func TestScenario(t *testing.T) {
 		req.Header.Set("x-csrf-token", st.GetCsrfToken())
 	}
 
-	auther, err := auth.NewJwtSigner(st.GetJwtSigningKey())
+	auther, err := httpauth.NewEcJwtSigner(st.GetJwtSigningKey())
 	if err != nil {
 		t.Fatalf("NewJwtSigner: %v", err)
 	}
 
 	// somewhat expensive operation, so cache this here to do this only once
-	jwtToken := auther.Sign(auth.UserDetails{
+	jwtToken := auther.Sign(httpauth.UserDetails{
 		Id: testUserId,
 	})
 
 	auth := func(req *http.Request) {
-		req.AddCookie(auth.ToCookie(jwtToken))
+		req.AddCookie(httpauth.ToCookie(jwtToken))
 	}
 
 	jsonHeader := func(req *http.Request) {
@@ -131,7 +131,7 @@ func TestScenario(t *testing.T) {
 
 		body := string(bodyBytes)
 
-		assert.True(t, res.StatusCode == test.status)
+		assert.Assert(t, res.StatusCode == test.status)
 		assert.EqualString(t, body, test.body+"\n")
 	}
 

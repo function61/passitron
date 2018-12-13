@@ -83,7 +83,7 @@ func signIn(t *testing.T, tstate *testScenarioState) {
 		Password: "poop",
 	})
 
-	assert.True(t, ctx.SetCookie != nil)
+	assert.Assert(t, ctx.SetCookie != nil)
 }
 
 func renameAccount(t *testing.T, tstate *testScenarioState) {
@@ -131,7 +131,7 @@ func sshKey(t *testing.T, tstate *testScenarioState) {
 		SshPrivateKey: "invalid",
 	}
 
-	assert.True(t, addFails.Validate() == nil)
+	assert.Assert(t, addFails.Validate() == nil)
 	assert.EqualString(t, addFails.Invoke(tstate.DefaultCmdCtx(), tstate.handlers).Error(), "Failed to parse PEM block")
 
 	dummyButWorkingSshKey := `-----BEGIN RSA PRIVATE KEY-----
@@ -159,7 +159,7 @@ vD2QakbdLBUy2JF2E2GHmGyTXQ6yp4rWgcCVPeeFRw==
 
 	secret := wacc.Secrets[1]
 
-	assert.True(t, secret.Secret.Kind == domain.SecretKindSshKey)
+	assert.Assert(t, secret.Secret.Kind == domain.SecretKindSshKey)
 	assert.EqualString(t,
 		secret.Secret.SshPublicKeyAuthorized,
 		"ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEA2By4FxK0z0yhhsGP7EOm+3Ze81ZuQf53xpan3o1W9dIAJHDtTUQgrCjwmIq23P/6kKPrJKRoev839TjyU6vXOGWgHYId97R5RuNv5VdZdHocTA662nkqy9UYLrULDTAfmXpuc7kS2d796RMlWNuJ8nBfK/Aaa4H9caZXkdSibQc=\n")
@@ -174,11 +174,11 @@ func addPasswordAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 
 	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
 
-	assert.True(t, len(wacc.Secrets) == 3)
+	assert.Assert(t, len(wacc.Secrets) == 3)
 
 	newPassword := wacc.Secrets[2]
 
-	assert.True(t, newPassword.Secret.Kind == domain.SecretKindPassword)
+	assert.Assert(t, newPassword.Secret.Kind == domain.SecretKindPassword)
 	assert.EqualString(t, newPassword.Secret.Password, "foobar")
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDeleteSecret{
@@ -186,7 +186,7 @@ func addPasswordAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  newPassword.Secret.Id,
 	})
 
-	assert.True(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func addSecretNoteAndRemoveIt(t *testing.T, tstate *testScenarioState) {
@@ -198,10 +198,10 @@ func addSecretNoteAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 
 	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
 
-	assert.True(t, len(wacc.Secrets) == 3)
+	assert.Assert(t, len(wacc.Secrets) == 3)
 
 	note := wacc.Secrets[2]
-	assert.True(t, note.Secret.Kind == domain.SecretKindNote)
+	assert.Assert(t, note.Secret.Kind == domain.SecretKindNote)
 	assert.EqualString(t, note.Secret.Title, "Account recovery codes")
 	assert.EqualString(t, note.Secret.Note, "01: foo    02: bar    ...")
 
@@ -210,7 +210,7 @@ func addSecretNoteAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  note.Secret.Id,
 	})
 
-	assert.True(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func addOtpTokenAndRemoveIt(t *testing.T, tstate *testScenarioState) {
@@ -221,11 +221,11 @@ func addOtpTokenAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 
 	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
 
-	assert.True(t, len(wacc.Secrets) == 3)
+	assert.Assert(t, len(wacc.Secrets) == 3)
 
 	totp := wacc.Secrets[2]
 
-	assert.True(t, totp.Secret.Kind == domain.SecretKindOtpToken)
+	assert.Assert(t, totp.Secret.Kind == domain.SecretKindOtpToken)
 	assert.EqualString(t, totp.OtpProvisioningUrl, "otpauth://totp/Google%3Afoo%40example.com?secret=qlt6vmy6svfx4bt4rpmisaiyol6hihca&issuer=Google")
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDeleteSecret{
@@ -233,7 +233,7 @@ func addOtpTokenAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  totp.Secret.Id,
 	})
 
-	assert.True(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
@@ -248,13 +248,13 @@ func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 
 	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
 
-	assert.True(t, len(wacc.Secrets) == 3)
+	assert.Assert(t, len(wacc.Secrets) == 3)
 
 	keylist := wacc.Secrets[2]
 
-	assert.True(t, keylist.Secret.Kind == domain.SecretKindKeylist)
+	assert.Assert(t, keylist.Secret.Kind == domain.SecretKindKeylist)
 	assert.EqualString(t, keylist.Secret.Title, "My legacy bank")
-	assert.True(t, len(keylist.KeylistKeys) == 3)
+	assert.Assert(t, len(keylist.KeylistKeys) == 3)
 	assert.EqualString(t, keylist.KeylistKeys[0].Key, "01")
 	assert.EqualString(t, keylist.KeylistKeys[0].Value, "1234")
 	assert.EqualString(t, keylist.KeylistKeys[1].Key, "02")
@@ -267,7 +267,7 @@ func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  keylist.Secret.Id,
 	})
 
-	assert.True(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {
@@ -281,7 +281,7 @@ func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {
 		Name:   "2nd sub folder",
 	})
 
-	assert.True(t, len(tstate.st.State.Folders) == 3)
+	assert.Assert(t, len(tstate.st.State.Folders) == 3)
 
 	// both should be root's parents
 	assert.EqualString(t, tstate.st.State.Folders[1].ParentId, domain.RootFolderId)
@@ -305,7 +305,7 @@ func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {
 		Id: tstate.st.State.Folders[2].Id,
 	})
 
-	assert.True(t, len(tstate.st.State.Folders) == 2)
+	assert.Assert(t, len(tstate.st.State.Folders) == 2)
 }
 
 func moveAccount(t *testing.T, tstate *testScenarioState) {
@@ -328,7 +328,7 @@ func deleteAccount(t *testing.T, tstate *testScenarioState) {
 		Id: tstate.firstAccountId,
 	})
 
-	assert.True(t, len(tstate.st.State.WrappedAccounts) == 0)
+	assert.Assert(t, len(tstate.st.State.WrappedAccounts) == 0)
 }
 
 // the rest are utilities used for testing
@@ -378,7 +378,7 @@ func (tstate *testScenarioState) MarkCommandTested(cmd command.Command) {
 func (tstate *testScenarioState) InvokeSucceeds(t *testing.T, ctx *command.Ctx, cmd command.Command) {
 	t.Helper()
 
-	assert.True(t, cmd.Validate() == nil)
+	assert.Assert(t, cmd.Validate() == nil)
 
 	if err := cmd.Invoke(ctx, tstate.handlers); err != nil {
 		t.Errorf("Command invoke failed: %s", err.Error())

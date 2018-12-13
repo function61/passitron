@@ -6,8 +6,8 @@ import (
 )
 
 func TestBeginsWithUppercaseLetter(t *testing.T) {
-	assert.True(t, isCustomType("Foo"))
-	assert.True(t, !isCustomType("foo"))
+	assert.Assert(t, isCustomType("Foo"))
+	assert.Assert(t, !isCustomType("foo"))
 
-	assert.True(t, !isCustomType("!perkele"))
+	assert.Assert(t, !isCustomType("!perkele"))
 }
