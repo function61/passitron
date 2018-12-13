@@ -25,6 +25,10 @@ U2F-enabled logins. It seems that you need a browser plugin to use it, which is 
 bummer - I wonder if it is technically possible to emulate U2F token as a kernel driver to
 support every already-U2F-enabled browser without a plugin.
 
+[pass](https://www.passwordstore.org/)
+
+[Bitwarden](https://github.com/bitwarden/core)
+
 
 Errors
 ------
