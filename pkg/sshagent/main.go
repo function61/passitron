@@ -1,15 +1,14 @@
 package sshagent
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"errors"
 	"fmt"
+	"github.com/function61/gokit/ezhttp"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -50,26 +49,17 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 
 	knownKeys := []*agent.Key{}
 
-	req, _ := http.NewRequest(
-		"GET",
+	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
+	defer cancel()
+
+	output := &signingapitypes.PublicKeysResponse{}
+	if _, err := ezhttp.Send(
+		ctx,
+		http.MethodGet,
 		a.baseUrl+"/_api/signer/publickeys",
-		nil)
-
-	req.Header.Set("Authorization", "Bearer "+a.bearerToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return knownKeys, errors.New("public keys list request failed")
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return knownKeys, errors.New("failed reading body")
-	}
-
-	var output signingapitypes.PublicKeysResponse
-	if err := json.Unmarshal(body, &output); err != nil {
-		return knownKeys, errors.New("failed to parse JSON response")
+		ezhttp.AuthBearer(a.bearerToken),
+		ezhttp.RespondsJson(output, false)); err != nil {
+		return knownKeys, err
 	}
 
 	for _, key := range output.PublicKeys {
@@ -88,35 +78,26 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
 	a.logl.Debug.Printf("Sign()")
 
-	reqJson, _ := json.Marshal(signingapitypes.SignRequestInput{
+	req := signingapitypes.SignRequestInput{
 		PublicKey: key.Marshal(),
 		Data:      data,
-	})
+	}
+	res := signingapitypes.SignResponse{}
 
-	req, _ := http.NewRequest(
-		"POST",
+	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
+	defer cancel()
+
+	if _, err := ezhttp.Send(
+		ctx,
+		http.MethodPost,
 		a.baseUrl+"/_api/signer/sign",
-		bytes.NewReader(reqJson))
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+a.bearerToken)
-
-	resp, respErr := http.DefaultClient.Do(req)
-	if respErr != nil {
-		return nil, respErr
+		ezhttp.AuthBearer(a.bearerToken),
+		ezhttp.SendJson(&req),
+		ezhttp.RespondsJson(&res, false)); err != nil {
+		return nil, err
 	}
 
-	body, readErr := ioutil.ReadAll(resp.Body)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	var output signingapitypes.SignResponse
-	if jsonErr := json.Unmarshal(body, &output); jsonErr != nil {
-		return nil, jsonErr
-	}
-
-	return output.Signature, nil
+	return res.Signature, nil
 }
 
 func (a *AgentServer) Add(key agent.AddedKey) error {

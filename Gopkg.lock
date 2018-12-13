@@ -63,13 +63,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4d25a025f843c0893e7432f6fd23a321b2721aebf3a80193c418e3451f3d7638"
+  digest = "1:7197de89ba4893df6066b8813155c109eadadb37816e254f67d96b132b1d64aa"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "cryptorandombytes",
     "dynversion",
     "dynversion/precompilationversion",
+    "ezhttp",
     "fileexists",
     "httpauth",
     "logex",
@@ -208,6 +209,7 @@
     "github.com/function61/gokit/cryptorandombytes",
     "github.com/function61/gokit/dynversion",
     "github.com/function61/gokit/dynversion/precompilationversion",
+    "github.com/function61/gokit/ezhttp",
     "github.com/function61/gokit/fileexists",
     "github.com/function61/gokit/httpauth",
     "github.com/function61/gokit/logex",
