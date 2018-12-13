@@ -64,12 +64,25 @@ func (c *CommandFieldSpec) AsValidationSnippet() string {
 	goType := c.AsGoType()
 
 	if goType == "string" || goType == "password" {
+		maxLen := 128
+
+		if c.Type == "multiline" {
+			maxLen = 4 * 1024
+		}
+
 		return fmt.Sprintf(
 			`if x.%s == "" {
 		return fieldEmptyValidationError("%s")
+	}
+	if len(x.%s) > %d {
+		return fieldLengthValidationError("%s", %d)
 	}`,
 			c.Key,
-			c.Key)
+			c.Key,
+			c.Key,
+			maxLen,
+			c.Key,
+			maxLen)
 	} else if goType == "bool" || goType == "int" {
 		// presence check not possible for these types
 		return ""
