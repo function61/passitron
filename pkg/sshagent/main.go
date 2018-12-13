@@ -136,10 +136,10 @@ func (a *AgentServer) Signers() ([]ssh.Signer, error) {
 	return []ssh.Signer{}, errNotImplemented
 }
 
-func checkSocketExistence() error {
-	_, err := os.Stat(sourceSocket)
+func removeFileIfExists(path string) error {
+	_, err := os.Stat(path)
 	if err == nil { // socket exists
-		if err := os.Remove(sourceSocket); err != nil {
+		if err := os.Remove(path); err != nil {
 			return fmt.Errorf("Remove: %s", err.Error())
 		}
 	} else if !os.IsNotExist(err) { // some other error than not exists
@@ -157,8 +157,8 @@ func handleOneClient(client net.Conn, server *AgentServer, logl *logex.Leveled) 
 }
 
 func Run(baseurl string, token string, logger *log.Logger) error {
-	if err := checkSocketExistence(); err != nil {
-		return fmt.Errorf("checkSocketExistence: %s", err.Error())
+	if err := removeFileIfExists(sourceSocket); err != nil {
+		return fmt.Errorf("removeFileIfExists: %s", err.Error())
 	}
 
 	logl := logex.Levels(logger)
