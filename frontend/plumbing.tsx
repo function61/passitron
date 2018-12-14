@@ -172,6 +172,12 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			return false;
 		}
 
+		// strim with heading or trailing whitespace
+		// TODO: opting out of this mechanism?
+		if (typeof(value) === 'string' && value !== value.trim()) {
+			return false;
+		}
+
 		return true; // if no errors found
 	}
 
