@@ -218,6 +218,14 @@
 		]
 	},
 	{
+		"command": "session.SignOut",
+		"chain": "authdWrite",
+		"ctor": [],
+		"crudNature": "update",
+		"title": "Sign out",
+		"fields": []
+	},
+	{
 		"command": "database.Unseal",
 		"chain": "public",
 		"ctor": [],

@@ -450,6 +450,14 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 	return nil
 }
 
+func (h *CommandHandlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) error {
+	ctx.SetCookie = httpauth.DeleteLoginCookie()
+
+	// TODO: raise an event
+
+	return nil
+}
+
 func (h *CommandHandlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *command.Ctx) error {
 	return keepassexport.Export(h.state)
 }

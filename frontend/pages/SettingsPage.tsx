@@ -5,7 +5,7 @@ import {CommandButton} from 'components/CommandButton';
 import {Loading} from 'components/loading';
 import {Timestamp} from 'components/timestamp';
 import {RegisterResponse, U2FEnrolledToken} from 'generated/apitypes';
-import {DatabaseChangeMasterPassword, DatabaseExportToKeepass, UserRegisterU2FToken} from 'generated/commanddefinitions';
+import {DatabaseChangeMasterPassword, DatabaseExportToKeepass, SessionSignOut, UserRegisterU2FToken} from 'generated/commanddefinitions';
 import {RootFolderName} from 'generated/domain';
 import {u2fEnrolledTokens, u2fEnrollmentChallenge} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
@@ -55,6 +55,8 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 				<div><CommandButton command={DatabaseChangeMasterPassword()}></CommandButton></div>
 
 				<div className="margin-top"><CommandButton command={DatabaseExportToKeepass()}></CommandButton></div>
+
+				<div className="margin-top"><CommandButton command={SessionSignOut()}></CommandButton></div>
 			</Panel>
 
 			<Panel heading="U2F tokens">

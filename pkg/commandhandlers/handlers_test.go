@@ -17,7 +17,7 @@ func TestScenario(t *testing.T) {
 
 	tstate.firstAccountId = createAccount(t, tstate)
 
-	signIn(t, tstate)
+	signInAndSignOut(t, tstate)
 
 	renameAccount(t, tstate)
 
@@ -75,7 +75,7 @@ func createAccount(t *testing.T, tstate *testScenarioState) string {
 	return wacc.Account.Id
 }
 
-func signIn(t *testing.T, tstate *testScenarioState) {
+func signInAndSignOut(t *testing.T, tstate *testScenarioState) {
 	ctx := tstate.DefaultCmdCtx()
 
 	tstate.InvokeSucceeds(t, ctx, &SessionSignIn{
@@ -84,6 +84,12 @@ func signIn(t *testing.T, tstate *testScenarioState) {
 	})
 
 	assert.Assert(t, ctx.SetCookie != nil)
+
+	ctx = tstate.DefaultCmdCtx()
+
+	tstate.InvokeSucceeds(t, ctx, &SessionSignOut{})
+
+	assert.EqualString(t, ctx.SetCookie.Value, "del")
 }
 
 func renameAccount(t *testing.T, tstate *testScenarioState) {
