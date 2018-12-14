@@ -9,11 +9,18 @@ import (
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
-func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, eventLog eventlog.Log, st *state.State) error {
-	handlers := commandhandlers.New(st)
+func Register(
+	router *mux.Router,
+	mwares httpauth.MiddlewareChainMap,
+	eventLog eventlog.Log,
+	st *state.State,
+	logger *log.Logger,
+) error {
+	handlers := commandhandlers.New(st, logger)
 
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]

@@ -45,11 +45,11 @@ func serverEntrypoint() *cobra.Command {
 	}
 
 	server.AddCommand(&cobra.Command{
-		Use:   "init-config",
+		Use:   "init-config [adminUsername] [adminPassword]",
 		Short: "Initializes configuration file",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := state.InitConfig(); err != nil {
+			if err := state.InitConfig(args[0], args[1]); err != nil {
 				panic(err)
 			}
 		},

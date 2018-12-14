@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/httpauth"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/commandhandlers"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
@@ -192,7 +193,7 @@ func createHandlerWithWorkdirHack(st *state.State) (http.Handler, error) {
 	}
 	defer revertWdir()
 
-	return createHandler(st)
+	return createHandler(st, logex.Discard)
 }
 
 func chdirTemporarily(to string) (revert func(), err error) {

@@ -38,7 +38,7 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	st := state.New(logex.Prefix("state", logger))
 	defer st.Close()
 
-	handler, err := createHandler(st)
+	handler, err := createHandler(st, logger)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	return nil
 }
 
-func createHandler(st *state.State) (http.Handler, error) {
+func createHandler(st *state.State, logger *log.Logger) (http.Handler, error) {
 	router := mux.NewRouter()
 
 	middlewareChains, err := createMiddlewares(st)
@@ -88,7 +88,7 @@ func createHandler(st *state.State) (http.Handler, error) {
 
 	restqueryapi.Register(router, middlewareChains, st)
 
-	if err := restcommandapi.Register(router, middlewareChains, st.EventLog, st); err != nil {
+	if err := restcommandapi.Register(router, middlewareChains, st.EventLog, st, logex.Prefix("commandapi", logger)); err != nil {
 		return nil, err
 	}
 

@@ -327,6 +327,23 @@ func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3Integra
 	return nil
 }
 
+func (s *State) ApplyUserCreated(e *domain.UserCreated) error {
+	s.State.Users[e.Id] = User{
+		Id:       e.Id,
+		Username: e.Username,
+	}
+
+	return nil
+}
+
+func (s *State) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error {
+	u := s.State.Users[e.User]
+	u.Password = e.Password
+	s.State.Users[e.User] = u
+
+	return nil
+}
+
 func (s *State) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
 	s.State.U2FTokens[e.KeyHandle] = &U2FToken{
 		Name:             e.Name,

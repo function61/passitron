@@ -9,25 +9,6 @@ import (
 	"io"
 )
 
-func DeriveKey100k(masterKey []byte, salt []byte) []byte {
-	// 1.4sec @ 100k on Raspberry Pi 2
-	// https://github.com/borgbackup/borg/issues/77#issuecomment-130459726
-	iterationCount := 100 * 1000
-
-	derivedKey := pbkdf2.Key(
-		masterKey,
-		salt,
-		iterationCount,
-		256/8,
-		sha256.New)
-
-	if len(derivedKey) != 32 {
-		panic("pbkdf2 derived key not 32 bytes")
-	}
-
-	return derivedKey
-}
-
 // envelope = <24 bytes of nonce> <ciphertext>
 func Encrypt(plaintext []byte, password string) ([]byte, error) {
 	// You must use a different nonce for each message you encrypt with the
@@ -69,7 +50,16 @@ func Decrypt(nonceAndCiphertextEnvelope []byte, password string) ([]byte, error)
 
 func passwordTo256BitEncryptionKey100k(masterKey string, salt []byte) [32]byte {
 	var ret [32]byte
-	copy(ret[:], DeriveKey100k([]byte(masterKey), salt))
+	copy(ret[:], Pbkdf2Sha256100kDerive([]byte(masterKey), salt))
 
 	return ret
+}
+
+func Pbkdf2Sha256100kDerive(key []byte, salt []byte) []byte {
+	return pbkdf2.Key(
+		key,
+		salt,
+		100*1000,
+		sha256.Size,
+		sha256.New)
 }

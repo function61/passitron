@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/function61/gokit/httpauth"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/randompassword"
+	"github.com/function61/gokit/storedpassword"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
@@ -16,11 +18,11 @@ import (
 	"github.com/function61/pi-security-module/pkg/keepassexport"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
-	"github.com/function61/pi-security-module/pkg/useraccounts"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/tstranex/u2f"
 	"golang.org/x/crypto/ssh"
+	"log"
 	"net/url"
 	"regexp"
 	"time"
@@ -33,10 +35,11 @@ var (
 
 type CommandHandlers struct {
 	state *state.State
+	logl  *logex.Leveled
 }
 
-func New(state *state.State) *CommandHandlers {
-	return &CommandHandlers{state}
+func New(state *state.State, logger *log.Logger) *CommandHandlers {
+	return &CommandHandlers{state, logex.Levels(logger)}
 }
 
 func (h *CommandHandlers) AccountRename(a *AccountRename, ctx *command.Ctx) error {
@@ -421,14 +424,45 @@ func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPa
 }
 
 func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
-	user, err := useraccounts.DummyRepository.FindByUsername(a.Username)
-	if err != nil {
-		return err // maybe error contacting DB
+	var user *state.User
+	for _, u := range h.state.State.Users {
+		if u.Username == a.Username {
+			user = &u
+			break
+		}
 	}
 
-	if user == nil || subtle.ConstantTimeCompare([]byte(user.Password), []byte(a.Password)) != 1 {
-		time.Sleep(2 * time.Second) // to lessen efficacy of brute forcing
+	if user == nil {
+		return errors.New("bad username or password") // TODO: deduplicate sleep also here
+	}
+
+	upgradedPassword, err := storedpassword.Verify(
+		storedpassword.StoredPassword(user.Password),
+		a.Password,
+		storedpassword.BuiltinStrategies)
+	if err != nil {
+		h.logl.Error.Printf("User %s failure signing in: %s", user.Username, err.Error())
+
+		if err != storedpassword.ErrIncorrectPassword { // technical error
+			return err
+		}
+
+		// to lessen efficacy of brute forcing. yes, `Verify()` by design is already slow,
+		// but this is an addititional layer of protection.
+		time.Sleep(2 * time.Second)
 		return errors.New("bad username or password")
+	}
+
+	if upgradedPassword != "" {
+		h.logl.Info.Printf(
+			"Upgrading password of %s to %s",
+			user.Username,
+			storedpassword.CurrentBestDerivationStrategy.Id())
+
+		ctx.RaisesEvent(domain.NewUserPasswordUpdated(
+			user.Id,
+			string(upgradedPassword),
+			event.Meta(time.Now(), user.Id)))
 	}
 
 	jwtSigner, err := httpauth.NewEcJwtSigner(h.state.GetJwtSigningKey())
@@ -447,10 +481,14 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 		ctx.UserAgent,
 		event.Meta(time.Now(), user.Id)))
 
+	h.logl.Info.Printf("User %s signed in", user.Username)
+
 	return nil
 }
 
 func (h *CommandHandlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) error {
+	h.logl.Info.Printf("User %s signed out", ctx.Meta.UserId)
+
 	ctx.SetCookie = httpauth.DeleteLoginCookie()
 
 	// TODO: raise an event
@@ -475,6 +513,14 @@ func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) er
 	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
 
 	return nil
+}
+
+func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
+	// TODO: fix grabusersu2ftokens()
+	// TODO: fix hardcoded ID in signingapi
+	// TODO: remove skipped test
+
+	return errors.New("not yet implemented")
 }
 
 func (h *CommandHandlers) UserRegisterU2FToken(a *UserRegisterU2FToken, ctx *command.Ctx) error {

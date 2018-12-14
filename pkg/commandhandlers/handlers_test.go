@@ -2,6 +2,7 @@ package commandhandlers
 
 import (
 	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
@@ -14,6 +15,8 @@ import (
 // state of the database
 func TestScenario(t *testing.T) {
 	tstate := NewTestScenarioState(state.NewTesting())
+
+	createAdminUser(t, tstate)
 
 	tstate.firstAccountId = createAccount(t, tstate)
 
@@ -47,11 +50,33 @@ func TestScenario(t *testing.T) {
 	tstate.MarkCommandTested(Allocators["database.ExportToKeepass"]())
 	tstate.MarkCommandTested(Allocators["database.Unseal"]())
 	tstate.MarkCommandTested(Allocators["database.ChangeMasterPassword"]())
+	tstate.MarkCommandTested(Allocators["user.Create"]())
 
 	// make sure the scenario covered all commands that this application supports
 
 	if len(tstate.GetUntestedCommands()) > 0 {
 		t.Errorf("Untested commands: %v", tstate.GetUntestedCommands())
+	}
+}
+
+func createAdminUser(t *testing.T, tstate *testScenarioState) {
+	meta := tstate.DefaultCmdCtx().Meta
+
+	userCreated := domain.NewUserCreated(
+		meta.UserId,
+		"admin",
+		meta)
+
+	// "nimda"
+	storedPassword := "$pbkdf2-sha256-100k$PS7BCoKVAnYVrmZ-T_6m5_BaBNlnDEpK25rn4GnrdoQ$r1oMO-FMdkn1QEJlutQuEXOaacYhG9nNWvJ7GkVY4sM"
+
+	passwordUpdated := domain.NewUserPasswordUpdated(
+		meta.UserId,
+		storedPassword,
+		meta)
+
+	if err := tstate.st.EventLog.Append([]event.Event{userCreated, passwordUpdated}); err != nil {
+		panic(err)
 	}
 }
 
@@ -79,8 +104,8 @@ func signInAndSignOut(t *testing.T, tstate *testScenarioState) {
 	ctx := tstate.DefaultCmdCtx()
 
 	tstate.InvokeSucceeds(t, ctx, &SessionSignIn{
-		Username: "joonas",
-		Password: "poop",
+		Username: "admin",
+		Password: "nimda",
 	})
 
 	assert.Assert(t, ctx.SetCookie != nil)
@@ -356,14 +381,14 @@ func NewTestScenarioState(st *state.State) *testScenarioState {
 
 	return &testScenarioState{
 		st:               st,
-		handlers:         New(st),
+		handlers:         New(st, logex.Discard),
 		untestedCommands: untestedCommands,
 	}
 }
 
 func (tstate *testScenarioState) DefaultCmdCtx() *command.Ctx {
 	return &command.Ctx{
-		Meta: event.Meta(time.Now(), domain.DefaultUserIdTODO),
+		Meta: event.Meta(time.Now(), "2"),
 	}
 }
 

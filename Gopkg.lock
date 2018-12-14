@@ -63,7 +63,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7197de89ba4893df6066b8813155c109eadadb37816e254f67d96b132b1d64aa"
+  digest = "1:ae1ffc11c07f82cc042e0b6a9dca2cda8a590553952bd4990b643691de4eb973"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
@@ -78,10 +78,11 @@
     "ossignal",
     "randompassword",
     "stopper",
+    "storedpassword",
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "091471da655bb3ccee7417dd8c69cf75ab845cfb"
+  revision = "789f5bab3b2ce6326d0a4719f2705e27b28b5955"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -217,6 +218,7 @@
     "github.com/function61/gokit/ossignal",
     "github.com/function61/gokit/randompassword",
     "github.com/function61/gokit/stopper",
+    "github.com/function61/gokit/storedpassword",
     "github.com/function61/gokit/systemdinstaller",
     "github.com/gorilla/mux",
     "github.com/mattetti/filebuffer",

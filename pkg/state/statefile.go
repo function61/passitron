@@ -152,15 +152,15 @@ func (s *State) SetMasterPassword(password string) {
 	// FIXME: if we scan entire event log at startup, and there's 100x
 	// "master password changed" events, that's going to yield N amount of calls to here
 	// and due to nature of a KDFs are designed to be slow, that'd be real slow
-	s.macSigningKey = hex(crypto.DeriveKey100k(
+	s.macSigningKey = hex(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("macSalt")))
 
-	s.csrfToken = hex(crypto.DeriveKey100k(
+	s.csrfToken = hex(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("csrfSalt")))
 
-	s.agentToken = hex(crypto.DeriveKey100k(
+	s.agentToken = hex(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("agentSalt")))
 }

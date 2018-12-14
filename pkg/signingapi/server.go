@@ -125,7 +125,7 @@ func Setup(router *mux.Router, st *state.State) {
 			[]string{secretId},
 			domain.SecretUsedTypeSshSigning,
 			"",
-			event.Meta(time.Now(), domain.DefaultUserIdTODO))
+			event.Meta(time.Now(), "2")) // FIXME: hardcoded uid
 
 		if err := st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
 			panic(err)

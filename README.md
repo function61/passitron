@@ -81,7 +81,7 @@ $ chmod +x pism
 Installation & running:
 
 ```
-$ ./pism server init-config
+$ ./pism server init-config admin yourpassword
 $ ./pism server install
 Wrote unit file to /etc/systemd/system/pi-security-module.service
 Run to enable on boot & to start now:

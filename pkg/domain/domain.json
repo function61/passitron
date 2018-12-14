@@ -1,6 +1,5 @@
 {
 	"stringConsts": [
-		{ "key": "DefaultUserIdTODO", "value": "2" },
 		{ "key": "RootFolderId", "value": "root" },
 		{ "key": "RootFolderName", "value": "root" }
 	],
@@ -322,6 +321,22 @@
 		"fields": [
 			{ "key": "IpAddress", "type": {"_": "string"} },
 			{ "key": "UserAgent", "type": {"_": "string"} }
+		]
+	},
+	{
+		"event": "user.Created",
+		"ctor": ["Id", "Username"],
+		"fields": [
+			{ "key": "Id", "type": {"_": "string"} },
+			{ "key": "Username", "type": {"_": "string"} }
+		]
+	},
+	{
+		"event": "user.PasswordUpdated",
+		"ctor": ["User", "Password"],
+		"fields": [
+			{ "key": "User", "type": {"_": "string"} },
+			{ "key": "Password", "type": {"_": "string"} }
 		]
 	},
 	{

@@ -244,6 +244,14 @@
 		"fields": []
 	},
 	{
+		"command": "user.Create",
+		"chain": "authdWrite",
+		"ctor": [],
+		"crudNature": "create",
+		"title": "+ User",
+		"fields": []
+	},
+	{
 		"command": "user.RegisterU2FToken",
 		"chain": "authdWrite",
 		"ctor": ["Request"],
