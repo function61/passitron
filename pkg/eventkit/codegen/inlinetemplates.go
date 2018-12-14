@@ -151,7 +151,7 @@ import (
 )
 
 type Handlers interface { {{range .ApplicationTypes.Endpoints}}
-	{{UppercaseFirst .Name}}({{if .Consumes}}input {{.Consumes.AsGoType}}, {{end}}w http.ResponseWriter, r *http.Request){{if .Produces}} *{{.Produces.AsGoType}}{{end}}{{end}}
+	{{UppercaseFirst .Name}}(rctx *httpauth.RequestContext, {{if .Consumes}}input {{.Consumes.AsGoType}}, {{end}}w http.ResponseWriter, r *http.Request){{if .Produces}} *{{.Produces.AsGoType}}{{end}}{{end}}
 }
 
 // the following generated code brings type safety from all the way to the
@@ -159,7 +159,8 @@ type Handlers interface { {{range .ApplicationTypes.Endpoints}}
 // TODO: middlewares like auth
 func RegisterRoutes(handlers Handlers, mwares httpauth.MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
 	register("{{.HttpMethod}}", "{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
-		if mwares["{{.MiddlewareChain}}"](w, r) == nil {
+		rctx := mwares["{{.MiddlewareChain}}"](w, r)
+		if rctx == nil {
 			return // middleware aborted request handing and handled error response itself
 		}
 {{if .Consumes}}		input := &{{.Consumes.AsGoType}}{}
@@ -167,8 +168,8 @@ func RegisterRoutes(handlers Handlers, mwares httpauth.MiddlewareChainMap, regis
 			return // parseJsonInput handled error message
 		} {{end}}
 {{if .Produces}}
-		if out := handlers.{{UppercaseFirst .Name}}({{if .Consumes}}*input, {{end}}w, r); out != nil { handleJsonOutput(w, out) } {{else}}
-		handlers.{{UppercaseFirst .Name}}({{if .Consumes}}*input, {{end}}w, r) {{end}}
+		if out := handlers.{{UppercaseFirst .Name}}(rctx, {{if .Consumes}}*input, {{end}}w, r); out != nil { handleJsonOutput(w, out) } {{else}}
+		handlers.{{UppercaseFirst .Name}}(rctx, {{if .Consumes}}*input, {{end}}w, r) {{end}}
 	})
 {{end}}
 }

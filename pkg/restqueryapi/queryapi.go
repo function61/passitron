@@ -34,7 +34,7 @@ type queryHandlers struct {
 	st *state.State
 }
 
-func (a *queryHandlers) GetFolder(w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
+func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
 	folder := a.st.FolderById(mux.Vars(r)["folderId"])
 
 	accounts := state.UnwrapAccounts(a.st.WrappedAccountsByFolder(folder.Id))
@@ -58,7 +58,7 @@ func (a *queryHandlers) GetFolder(w http.ResponseWriter, r *http.Request) *apity
 	}
 }
 
-func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
+func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
 	key := mux.Vars(r)["key"]
@@ -74,7 +74,7 @@ func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w
 		return nil
 	}
 
-	if err := u2fSignatureOk(u2fResponse, u2fChallengeHash, a.st); err != nil {
+	if err := u2fSignatureOk(rctx, u2fResponse, u2fChallengeHash, a.st); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
@@ -86,7 +86,7 @@ func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w
 				[]string{wsecret.Secret.Id},
 				domain.SecretUsedTypeKeylistKeyExposed,
 				keyEntry.Key,
-				event.Meta(time.Now(), domain.DefaultUserIdTODO))
+				event.Meta(time.Now(), rctx.User.Id))
 
 			if err := a.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
 				panic(err)
@@ -100,7 +100,7 @@ func (a *queryHandlers) GetKeylistItem(u2fResponse apitypes.U2FResponseBundle, w
 	return nil
 }
 
-func (a *queryHandlers) GetKeylistItemChallenge(w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
+func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
 	challengeHash := u2futil.ChallengeHashForKeylistKey(
 		mux.Vars(r)["accountId"],
 		mux.Vars(r)["secretId"],
@@ -129,7 +129,7 @@ func (a *queryHandlers) GetKeylistItemChallenge(w http.ResponseWriter, r *http.R
 	}
 }
 
-func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
+func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
 	wacc := a.st.WrappedAccountById(mux.Vars(r)["accountId"])
 
 	if wacc == nil {
@@ -137,7 +137,7 @@ func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w htt
 		return nil
 	}
 
-	if err := u2fSignatureOk(u2fResponse, u2futil.ChallengeHashForAccountSecrets(wacc.Account), a.st); err != nil {
+	if err := u2fSignatureOk(rctx, u2fResponse, u2futil.ChallengeHashForAccountSecrets(wacc.Account), a.st); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
@@ -154,7 +154,7 @@ func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w htt
 		secretIdsForAudit,
 		domain.SecretUsedTypePasswordExposed,
 		"",
-		event.Meta(time.Now(), domain.DefaultUserIdTODO))
+		event.Meta(time.Now(), rctx.User.Id))
 
 	if err := a.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
 		panic(err)
@@ -163,11 +163,11 @@ func (a *queryHandlers) GetSecrets(u2fResponse apitypes.U2FResponseBundle, w htt
 	return &secrets
 }
 
-func (a *queryHandlers) AuditLogEntries(w http.ResponseWriter, r *http.Request) *[]apitypes.AuditlogEntry {
+func (a *queryHandlers) AuditLogEntries(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.AuditlogEntry {
 	return &a.st.State.AuditLog
 }
 
-func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
+func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
 	wacc := a.st.WrappedAccountById(mux.Vars(r)["id"])
 
 	if wacc == nil {
@@ -203,7 +203,7 @@ func (a *queryHandlers) GetAccount(w http.ResponseWriter, r *http.Request) *apit
 	}
 }
 
-func (a *queryHandlers) Search(w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
+func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
 	query := strings.ToLower(r.URL.Query().Get("q"))
 
 	accounts := []apitypes.Account{}
@@ -231,7 +231,7 @@ func (a *queryHandlers) Search(w http.ResponseWriter, r *http.Request) *apitypes
 	}
 }
 
-func (a *queryHandlers) U2fEnrollmentChallenge(w http.ResponseWriter, r *http.Request) *apitypes.U2FEnrollmentChallenge {
+func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.U2FEnrollmentChallenge {
 	c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.GetTrustedFacets())
 	if err != nil {
 		log.Printf("u2f.NewChallenge error: %v", err)
@@ -259,7 +259,7 @@ func (a *queryHandlers) U2fEnrollmentChallenge(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func (a *queryHandlers) U2fEnrolledTokens(w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
+func (a *queryHandlers) U2fEnrolledTokens(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
 	tokens := []apitypes.U2FEnrolledToken{}
 
 	for _, token := range a.st.State.U2FTokens {
@@ -273,7 +273,7 @@ func (a *queryHandlers) U2fEnrolledTokens(w http.ResponseWriter, r *http.Request
 	return &tokens
 }
 
-func (a *queryHandlers) TotpBarcodeExport(w http.ResponseWriter, r *http.Request) {
+func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) {
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
 
@@ -323,6 +323,7 @@ func (a *queryHandlers) TotpBarcodeExport(w http.ResponseWriter, r *http.Request
 }
 
 func u2fSignatureOk(
+	rctx *httpauth.RequestContext,
 	response apitypes.U2FResponseBundle,
 	expectedHash [32]byte,
 	st *state.State,
@@ -351,7 +352,7 @@ func u2fSignatureOk(
 	u2fTokenUsedEvent := domain.NewUserU2FTokenUsed(
 		response.SignResult.KeyHandle,
 		int(newCounter),
-		event.Meta(time.Now(), domain.DefaultUserIdTODO))
+		event.Meta(time.Now(), rctx.User.Id))
 
 	return st.EventLog.Append([]event.Event{u2fTokenUsedEvent})
 }
