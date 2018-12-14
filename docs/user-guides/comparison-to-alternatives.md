@@ -19,6 +19,9 @@ down to if the application implements BOTH:
 On the radar
 ------------
 
+.. means mention-worthy projects for which we haven't had the time to write a feature
+breakdown yet.
+
 [Krypton](https://krypt.co/) - while Krypton is not a password manager (at all), on the
 surface (I haven't tested it yet) it seems to do a great job of handling the use case of
 U2F-enabled logins. It seems that you need a browser plugin to use it, which is kind of a
@@ -28,6 +31,8 @@ support every already-U2F-enabled browser without a plugin.
 [pass](https://www.passwordstore.org/)
 
 [Bitwarden](https://github.com/bitwarden/core)
+
+[Buttercup](https://buttercup.pw/)
 
 
 Errors
