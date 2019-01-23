@@ -4,7 +4,7 @@ import {SearchBox} from 'components/SearchBox';
 import {FolderResponse} from 'generated/apitypes';
 import {AccountDeleteFolder, AccountMove, AccountMoveFolder, AccountRenameFolder} from 'generated/commanddefinitions';
 import * as React from 'react';
-import {credviewRoute, folderRoute} from 'routes';
+import {accountRoute, folderRoute} from 'routes';
 
 interface SecretListingProps {
 	searchTerm?: string;
@@ -29,7 +29,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 		const accountRows = this.props.listing.Accounts.map((account) => {
 			return <tr key={account.Id}>
 				<td></td>
-				<td><a href={credviewRoute.buildUrl({id: account.Id})}>{account.Title}</a></td>
+				<td><a href={accountRoute.buildUrl({id: account.Id})}>{account.Title}</a></td>
 				<td>{account.Username}</td>
 				<td><Dropdown>
 					<CommandLink command={AccountMove(account.Id)}></CommandLink>

@@ -13,7 +13,7 @@ import {makeRoute, makeRouter} from 'typescript-safe-router/saferouter';
 export const indexRoute = makeRoute('index', {});
 export const folderRoute = makeRoute('folder', {folderId: 'string'});
 export const searchRoute = makeRoute('search', {searchTerm: 'string'});
-export const credviewRoute = makeRoute('credview', {id: 'string'});
+export const accountRoute = makeRoute('account', {id: 'string'});
 export const sshkeysRoute = makeRoute('sshkeys', {});
 export const settingsRoute = makeRoute('settings', {});
 export const signInRoute = makeRoute('unseal', {redirect: 'string'});
@@ -23,7 +23,7 @@ export const importotptokenRoute = makeRoute('importotptoken', {account: 'string
 export const router = makeRouter(indexRoute, () => <HomePage key={RootFolderId} folderId={RootFolderId} />)
 	.registerRoute(folderRoute, (opts) => <HomePage key={opts.folderId} folderId={opts.folderId} />)
 	.registerRoute(searchRoute, (opts) => <SearchPage key={opts.searchTerm} searchTerm={opts.searchTerm} />)
-	.registerRoute(credviewRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)
+	.registerRoute(accountRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)
 	.registerRoute(sshkeysRoute, () => <SshKeysPage />)
 	.registerRoute(settingsRoute, () => <SettingsPage />)
 	.registerRoute(signInRoute, (opts) => <SignInPage redirect={opts.redirect} />)
