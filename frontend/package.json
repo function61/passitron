@@ -1,7 +1,7 @@
 {
   "name": "app",
   "version": "1.0.0",
-  "description": "$ apt install -y curl $ curl -sL https://deb.nodesource.com/setup_8.x | bash - $ apt-get install -y nodejs $ npm install typescript $ node_modules/typescript/bin/tsc",
+  "description": "",
   "main": "-",
   "dependencies": {
     "@types/bootstrap": "3.3.28",
