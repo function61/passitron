@@ -178,7 +178,12 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 			return false;
 		}
 
-		return true; // if no errors found
+		if (field.ValidationRegex && !(new RegExp(field.ValidationRegex).test(value))) {
+			return false;
+
+		}
+
+		return true;
 	}
 
 	private execute(): Promise<void> {

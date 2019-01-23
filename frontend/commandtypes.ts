@@ -29,4 +29,5 @@ export interface CommandField {
 	DefaultValueString?: string;
 	DefaultValueBoolean?: boolean;
 	Help?: string;
+	ValidationRegex: string;
 }

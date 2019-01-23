@@ -51,6 +51,7 @@ func (c *CommandSpec) Validate() error {
 type CommandFieldSpec struct {
 	Key                string `json:"key"`
 	Type               string `json:"type"`
+	ValidationRegex    string `json:"validation_regex"`
 	Optional           bool   `json:"optional"`
 	HideIfDefaultValue bool   `json:"hideIfDefaultValue"`
 	Help               string `json:"help"`
@@ -70,19 +71,41 @@ func (c *CommandFieldSpec) AsValidationSnippet() string {
 			maxLen = 4 * 1024
 		}
 
-		return fmt.Sprintf(
-			`if x.%s == "" {
+		emptySnippet := ""
+
+		if !c.Optional {
+			emptySnippet = fmt.Sprintf(
+				`if x.%s == "" {
 		return fieldEmptyValidationError("%s")
 	}
-	if len(x.%s) > %d {
+	`,
+				c.Key,
+				c.Key)
+		}
+
+		lengthSnippet := fmt.Sprintf(
+			`if len(x.%s) > %d {
 		return fieldLengthValidationError("%s", %d)
-	}`,
-			c.Key,
-			c.Key,
+	}
+	`,
 			c.Key,
 			maxLen,
 			c.Key,
 			maxLen)
+
+		regexSnippet := ""
+		if c.ValidationRegex != "" {
+			regexSnippet = fmt.Sprintf(
+				`if err := regexpValidation("%s", "%s", x.%s); err != nil {
+		return err
+	}
+	`,
+				c.Key,
+				strings.Replace(c.ValidationRegex, `\`, `\\`, -1),
+				c.Key)
+		}
+
+		return emptySnippet + lengthSnippet + regexSnippet
 	} else if goType == "bool" || goType == "int" {
 		// presence check not possible for these types
 		return ""
@@ -140,13 +163,17 @@ func (c *CommandSpec) MakeStruct() string {
 		strings.Join(fieldLines, "\n\t"))
 }
 
+// returns Go code (as a string) for validating command inputs
 func (c *CommandSpec) MakeValidation() string {
 	validationSnippets := []string{}
 
 	for _, field := range c.Fields {
-		if !field.Optional {
-			validationSnippets = append(validationSnippets, field.AsValidationSnippet())
+		validationSnippet := field.AsValidationSnippet()
+		if validationSnippet == "" {
+			continue
 		}
+
+		validationSnippets = append(validationSnippets, validationSnippet)
 	}
 
 	return strings.Join(validationSnippets, "\n\t")
@@ -170,13 +197,14 @@ func (c *CommandSpec) FieldsForTypeScript() string {
 			}
 
 			return fmt.Sprintf(
-				`{ Key: '%s', Required: %v, HideIfDefaultValue: %v, Kind: CommandFieldKind.%s, DefaultValueString: %s, Help: '%s' },`,
+				`{ Key: '%s', Required: %v, HideIfDefaultValue: %v, Kind: CommandFieldKind.%s, DefaultValueString: %s, Help: '%s', ValidationRegex: '%s' },`,
 				fieldSpec.Key,
 				!fieldSpec.Optional,
 				fieldSpec.HideIfDefaultValue,
 				tsKind,
 				defVal,
-				fieldSpec.Help)
+				fieldSpec.Help,
+				fieldSpec.ValidationRegex)
 		}
 
 		switch fieldSpec.Type {

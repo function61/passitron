@@ -7,6 +7,7 @@ const CommandsDefinitionsTemplate = `package commandhandlers
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
 )
 
@@ -40,6 +41,14 @@ var Allocators = command.AllocatorMap{
 }
 
 // util functions
+
+func regexpValidation(fieldName string, pattern string, value string) error {
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		return fmt.Errorf("field %s does not match pattern %s", fieldName, pattern)
+	}
+
+	return nil
+}
 
 func fieldEmptyValidationError(fieldName string) error {
 	return errors.New("field " + fieldName + " cannot be empty")
