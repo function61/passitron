@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"fmt"
 	"github.com/function61/gokit/dynversion"
 	"github.com/function61/gokit/logex"
@@ -66,12 +67,12 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	go func() {
 		<-stop.Signal
 
-		if err := srv.Shutdown(nil); err != nil {
+		if err := srv.Shutdown(context.TODO()); err != nil {
 			logl.Error.Printf("Shutdown(): %s", err.Error())
 		}
 	}()
 
-	if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil {
+	if err := srv.ListenAndServeTLS(certFile, keyFile); err != http.ErrServerClosed {
 		return fmt.Errorf("ListenAndServeTLS(): %s", err.Error())
 	}
 
