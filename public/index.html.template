@@ -12,6 +12,7 @@
 		paths: {
 			"react": "https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development",
 			"react-dom": "https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development",
+			"react-autocomplete": "https://unpkg.com/react-autocomplete@1.8.1/dist/react-autocomplete.min",
 			"moment": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min",
 			"jsqrcode": "/vendor/jsqrcode/jsqrcode",
 		},
