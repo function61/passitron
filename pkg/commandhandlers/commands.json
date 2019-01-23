@@ -209,11 +209,11 @@
 	{
 		"command": "session.SignIn",
 		"chain": "public",
-		"ctor": [],
+		"ctor": ["Username"],
 		"crudNature": "update",
 		"title": "Sign in",
 		"fields": [
-			{ "key": "Username" },
+			{ "key": "Username", "hideIfDefaultValue": true },
 			{ "key": "Password", "type": "password" }
 		]
 	},
