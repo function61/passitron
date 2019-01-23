@@ -96,6 +96,7 @@ func InitConfig(adminUsername string, adminPassword string) error {
 	password := domain.NewUserPasswordUpdated(
 		uid,
 		string(storedPassword),
+		false,
 		event.Meta(now, uid))
 
 	return state.EventLog.Append([]event.Event{userCreated, password})

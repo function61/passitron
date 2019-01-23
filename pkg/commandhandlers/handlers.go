@@ -462,6 +462,7 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 		ctx.RaisesEvent(domain.NewUserPasswordUpdated(
 			user.Id,
 			string(upgradedPassword),
+			true, // => automatic upgrade of password
 			event.Meta(time.Now(), user.Id)))
 	}
 

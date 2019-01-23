@@ -333,10 +333,14 @@
 	},
 	{
 		"event": "user.PasswordUpdated",
-		"ctor": ["User", "Password"],
+		"ctor": ["User", "Password", "AutomaticUpgrade"],
 		"fields": [
 			{ "key": "User", "type": {"_": "string"} },
-			{ "key": "Password", "type": {"_": "string"} }
+			{ "key": "Password", "type": {"_": "string"} },
+			{
+				"key": "AutomaticUpgrade", "type": {"_": "boolean"},
+				"notes": "True if the plaintext password didn't change, but rather the hashed version was upgraded to a more secure version"
+			}
 		]
 	},
 	{

@@ -73,6 +73,7 @@ func createAdminUser(t *testing.T, tstate *testScenarioState) {
 	passwordUpdated := domain.NewUserPasswordUpdated(
 		meta.UserId,
 		storedPassword,
+		false,
 		meta)
 
 	if err := tstate.st.EventLog.Append([]event.Event{userCreated, passwordUpdated}); err != nil {
