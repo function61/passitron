@@ -409,7 +409,9 @@ func (tstate *testScenarioState) MarkCommandTested(cmd command.Command) {
 func (tstate *testScenarioState) InvokeSucceeds(t *testing.T, ctx *command.Ctx, cmd command.Command) {
 	t.Helper()
 
-	assert.Assert(t, cmd.Validate() == nil)
+	if err := cmd.Validate(); err != nil {
+		t.Error(err)
+	}
 
 	if err := cmd.Invoke(ctx, tstate.handlers); err != nil {
 		t.Errorf("Command invoke failed: %s", err.Error())
