@@ -99,10 +99,3 @@ How to build & develop
 [How to build & develop](https://github.com/function61/turbobob/blob/master/docs/external-how-to-build-and-dev.md)
 (with Turbo Bob, our build tool). It's easy and simple!
 
-
-TODO
-----
-
-- Tags to .JS command definitions
-- Enter to confirm command dialog
-- Data types for command fields (password)
