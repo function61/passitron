@@ -19,8 +19,7 @@ cleanupGeneratedFiles() {
 }
 
 buildPublicFiles() {
-	# --no-bin-links to work across filesystems, possibly on Win-Linux development with fileshares
-	(cd frontend/ && npm install --no-bin-links)
+	(cd frontend/ && yarn install)
 
 	# apparently --no-bin-links leaves executable bits off of these o_O
 	chmod +x frontend/node_modules/typescript/bin/tsc frontend/node_modules/tslint/bin/tslint

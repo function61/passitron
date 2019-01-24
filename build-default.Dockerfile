@@ -4,5 +4,7 @@ WORKDIR /go/src/github.com/function61/pi-security-module
 
 CMD bin/build.sh
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-	&& apt-get install -y nodejs mkdocs
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+	&& echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
+	&& curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+	&& apt install -y nodejs yarn
