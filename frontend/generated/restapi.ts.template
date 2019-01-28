@@ -1,6 +1,6 @@
+// tslint:disable
 // WARNING: generated file
 
-// tslint:disable
 // WHY: wouldn't make sense complicating code generation to check
 // if we need template string or not in path string
 

@@ -1,3 +1,4 @@
+// tslint:disable
 // WARNING: generated file
 
 export const version = '{{.Version}}';
