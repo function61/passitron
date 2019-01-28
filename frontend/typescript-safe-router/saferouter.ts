@@ -98,7 +98,7 @@ export function makeRoute<S extends RouteParamsSpec>(routeName: string, routePar
       let params: Partial<SpecToType<S>> = {};
       Object.keys(routeParams).forEach(function<K extends keyof S>(key: K){
         const val: SerializableTypeName = routeParams[key];
-        let found = findInHash(hash, key);
+        let found = findInHash(hash, key as string);
         if (found === null) {
           if (isNullable(val)) {
             params[key] = null;
@@ -125,7 +125,7 @@ export function makeRoute<S extends RouteParamsSpec>(routeName: string, routePar
           return acc;
         } else {
           return acc
-            + "/" +  key.toLowerCase()
+            + "/" +  (key as string).toLowerCase()
             // Encoding so we don't break on strings with '/', ...
             + "/" + encodeURIComponent(
               serializeRouteParam(routeParams[key], val));
