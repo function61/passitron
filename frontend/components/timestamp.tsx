@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {relativeDateFormat} from 'utils';
+import { relativeDateFormat } from 'utils';
 
 interface TimestampProps {
 	ts: string;

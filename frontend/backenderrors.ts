@@ -1,5 +1,5 @@
-import {getCurrentHash, navigateTo} from 'browserutils';
-import {signInRoute} from 'routes';
+import { getCurrentHash, navigateTo } from 'browserutils';
+import { signInRoute } from 'routes';
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	const ser = coerceToStructuredErrorResponse(err);
@@ -28,7 +28,9 @@ export function handleKnownGlobalErrors(err: StructuredErrorResponse): boolean {
 	return false;
 }
 
-export function coerceToStructuredErrorResponse(err: Error | StructuredErrorResponse): StructuredErrorResponse {
+export function coerceToStructuredErrorResponse(
+	err: Error | StructuredErrorResponse,
+): StructuredErrorResponse {
 	if (isStructuredErrorResponse(err)) {
 		return err;
 	}
@@ -41,6 +43,8 @@ export interface StructuredErrorResponse {
 	error_description: string;
 }
 
-export function isStructuredErrorResponse(err: StructuredErrorResponse | {}): err is StructuredErrorResponse {
+export function isStructuredErrorResponse(
+	err: StructuredErrorResponse | {},
+): err is StructuredErrorResponse {
 	return 'error_code' in (err as StructuredErrorResponse);
 }

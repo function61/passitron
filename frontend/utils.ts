@@ -1,4 +1,4 @@
-import {defaultErrorHandler} from 'backenderrors';
+import { defaultErrorHandler } from 'backenderrors';
 import moment = require('moment');
 
 export function unrecognizedValue(value: never): never {
@@ -20,7 +20,9 @@ export function relativeDateFormat(dateIso: string): string {
 //   complains if your *caller* calls this function whose promise will never reject
 // - therefore this hack was made to please tslint
 export function shouldAlwaysSucceed(prom: Promise<any>): void {
-	prom.then(() => { /* noop */ }, defaultErrorHandler);
+	prom.then(() => {
+		/* noop */
+	}, defaultErrorHandler);
 }
 
 export function focusRetainer(logicThatMessesUpFocus: () => void) {
@@ -32,4 +34,3 @@ export function focusRetainer(logicThatMessesUpFocus: () => void) {
 		activeElementBefore.focus();
 	}
 }
-

@@ -1,4 +1,3 @@
-
 // why these abstractions? it's not pretty putting these non-null asserts everywhere,
 // and whether we should use document.location or window.location
 // (or document.location.assign or document.location.href) is not something we want to

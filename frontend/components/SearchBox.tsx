@@ -1,10 +1,10 @@
-import {defaultErrorHandler} from 'backenderrors';
-import {navigateTo} from 'browserutils';
-import {search} from 'generated/restapi';
+import { defaultErrorHandler } from 'backenderrors';
+import { navigateTo } from 'browserutils';
+import { search } from 'generated/restapi';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
-import {indexRoute, searchRoute} from 'routes';
-import {accountRoute, folderRoute} from 'routes';
+import { indexRoute, searchRoute } from 'routes';
+import { accountRoute, folderRoute } from 'routes';
 
 interface SearchBoxProps {
 	searchTerm?: string; // initial
@@ -27,32 +27,44 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 	private queuedQuery: undefined | string;
 
 	render() {
-		return <Autocomplete
-			inputProps={{onKeyPress: (e: any) => { // https://github.com/reactjs/react-autocomplete/issues/338
-				if (e.key !== 'Enter') {
-					return;
-				}
+		return (
+			<Autocomplete
+				inputProps={{
+					onKeyPress: (e: any) => {
+						// https://github.com/reactjs/react-autocomplete/issues/338
+						if (e.key !== 'Enter') {
+							return;
+						}
 
-				// => user hit enter with non-suggested term => go to search results
-				const searchTerm = e.target.value;
+						// => user hit enter with non-suggested term => go to search results
+						const searchTerm = e.target.value;
 
-				if (searchTerm !== '') {
-					navigateTo(searchRoute.buildUrl({searchTerm}));
-				} else {
-					navigateTo(indexRoute.buildUrl({}));
-				}
-			}}}
-			getItemValue={ (item: AutocompleteItem) => item.url }
-			items={this.state.items}
-			renderItem={(item: AutocompleteItem, isHighlighted: boolean) =>
-				<div style={{ background: isHighlighted ? 'lightgray' : 'white' }} key={item.url}>
-					{item.label}
-				</div>
-			}
-			value={this.state.searchTerm}
-			onChange={(e: any) => { this.setState({ searchTerm: e.target.value, items: [] }); this.searchtermChanged(e.target.value); }}
-			onSelect={(url: string) => { navigateTo(url); }}
-		/>;
+						if (searchTerm !== '') {
+							navigateTo(searchRoute.buildUrl({ searchTerm }));
+						} else {
+							navigateTo(indexRoute.buildUrl({}));
+						}
+					},
+				}}
+				getItemValue={(item: AutocompleteItem) => item.url}
+				items={this.state.items}
+				renderItem={(item: AutocompleteItem, isHighlighted: boolean) => (
+					<div
+						style={{ background: isHighlighted ? 'lightgray' : 'white' }}
+						key={item.url}>
+						{item.label}
+					</div>
+				)}
+				value={this.state.searchTerm}
+				onChange={(e: any) => {
+					this.setState({ searchTerm: e.target.value, items: [] });
+					this.searchtermChanged(e.target.value);
+				}}
+				onSelect={(url: string) => {
+					navigateTo(url);
+				}}
+			/>
+		);
 	}
 
 	private searchtermChanged(term: string) {
@@ -74,23 +86,26 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 			}, 1000);
 		};
 
-		search(term).then((resp) => {
-			const folderMatches: AutocompleteItem[] = resp.SubFolders.map((item) => ({
-				label: item.Name,
-				url: folderRoute.buildUrl({ folderId: item.Id }),
-			}));
+		search(term).then(
+			(resp) => {
+				const folderMatches: AutocompleteItem[] = resp.SubFolders.map((item) => ({
+					label: item.Name,
+					url: folderRoute.buildUrl({ folderId: item.Id }),
+				}));
 
-			const accountMatches: AutocompleteItem[] = resp.Accounts.map((item) => ({
-				label: item.Title,
-				url: accountRoute.buildUrl({ id: item.Id }),
-			}));
+				const accountMatches: AutocompleteItem[] = resp.Accounts.map((item) => ({
+					label: item.Title,
+					url: accountRoute.buildUrl({ id: item.Id }),
+				}));
 
-			this.setState({ items: folderMatches.concat(accountMatches) });
+				this.setState({ items: folderMatches.concat(accountMatches) });
 
-			scheduleNextOk();
-		}, (err) => {
-			scheduleNextOk();
-			defaultErrorHandler(err);
-		});
+				scheduleNextOk();
+			},
+			(err) => {
+				scheduleNextOk();
+				defaultErrorHandler(err);
+			},
+		);
 	}
 }

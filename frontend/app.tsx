@@ -1,5 +1,5 @@
 import { getCurrentHash } from 'browserutils';
-import {DangerAlert} from 'components/alerts';
+import { DangerAlert } from 'components/alerts';
 import { configureCsrfToken } from 'httputil';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
@@ -14,9 +14,7 @@ interface Config {
 export function main(appElement: HTMLElement, config: Config): void {
 	configureCsrfToken(config.csrf_token);
 
-	ReactDOM.render(
-		<App />,
-		appElement);
+	ReactDOM.render(<App />, appElement);
 }
 
 export interface AppState {
@@ -31,7 +29,9 @@ export class App extends React.Component<{}, AppState> {
 
 		// need to create create bound proxy, because this object function
 		// ref (bound one) must be used for removeEventListener()
-		this.hashChangedProxy = () => { this.hashChanged(); };
+		this.hashChangedProxy = () => {
+			this.hashChanged();
+		};
 
 		this.state = {
 			hash: getCurrentHash(),
@@ -49,11 +49,13 @@ export class App extends React.Component<{}, AppState> {
 	render() {
 		const fromRouter = router.match(this.state.hash);
 		if (!fromRouter) {
-			return <DefaultLayout title="404" breadcrumbs={[]}>
-				<h1>404</h1>
+			return (
+				<DefaultLayout title="404" breadcrumbs={[]}>
+					<h1>404</h1>
 
-				<DangerAlert text="The page you were looking for is not found." />
-			</DefaultLayout>;
+					<DangerAlert text="The page you were looking for is not found." />
+				</DefaultLayout>
+			);
 		}
 
 		return fromRouter;

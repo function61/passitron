@@ -1,13 +1,13 @@
-import {defaultErrorHandler} from 'backenderrors';
-import {Breadcrumb} from 'components/breadcrumbtrail';
-import {Loading} from 'components/loading';
-import {SecretListing} from 'components/SecretListing';
-import {FolderResponse} from 'generated/apitypes';
-import {RootFolderName} from 'generated/domain';
-import {search} from 'generated/restapi';
+import { defaultErrorHandler } from 'backenderrors';
+import { Breadcrumb } from 'components/breadcrumbtrail';
+import { Loading } from 'components/loading';
+import { SecretListing } from 'components/SecretListing';
+import { FolderResponse } from 'generated/apitypes';
+import { RootFolderName } from 'generated/domain';
+import { search } from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {indexRoute} from 'routes';
+import { indexRoute } from 'routes';
 
 interface SearchPageProps {
 	searchTerm: string;
@@ -32,9 +32,14 @@ export default class SearchPage extends React.Component<SearchPageProps, SearchP
 			{ url: '', title: `Search: ${this.props.searchTerm}` },
 		];
 
-		return <DefaultLayout title="Search" breadcrumbs={breadcrumbs}>
-			<SecretListing searchTerm={this.props.searchTerm} listing={this.state.searchResult} />
-		</DefaultLayout>;
+		return (
+			<DefaultLayout title="Search" breadcrumbs={breadcrumbs}>
+				<SecretListing
+					searchTerm={this.props.searchTerm}
+					listing={this.state.searchResult}
+				/>
+			</DefaultLayout>
+		);
 	}
 
 	private fetchData() {

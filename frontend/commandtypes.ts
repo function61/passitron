@@ -1,4 +1,3 @@
-
 export enum CrudNature {
 	update = 'update',
 	delete = 'delete',

@@ -1,4 +1,3 @@
-
 export interface U2FStdSignResult {
 	keyHandle: string;
 	clientData: string;

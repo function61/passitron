@@ -1,9 +1,9 @@
-import {CommandDefinition, CrudNature} from 'commandtypes';
-import {Loading} from 'components/loading';
-import {ModalDialog} from 'components/modaldialog';
-import {CommandChangesArgs, CommandPagelet, initialCommandState} from 'plumbing';
+import { CommandDefinition, CrudNature } from 'commandtypes';
+import { Loading } from 'components/loading';
+import { ModalDialog } from 'components/modaldialog';
+import { CommandChangesArgs, CommandPagelet, initialCommandState } from 'plumbing';
 import * as React from 'react';
-import {unrecognizedValue} from 'utils';
+import { unrecognizedValue } from 'utils';
 
 interface CommandButtonProps {
 	command: CommandDefinition;
@@ -26,27 +26,46 @@ export class CommandButton extends React.Component<CommandButtonProps, CommandBu
 	render() {
 		const commandTitle = this.props.command.title;
 
-		const maybeDialog = this.state.dialogOpen ?
+		const maybeDialog = this.state.dialogOpen ? (
 			<ModalDialog
 				title={commandTitle}
-				onClose={() => { this.setState({ dialogOpen: false }); }}
-				onSave={() => { this.save(); }}
+				onClose={() => {
+					this.setState({ dialogOpen: false });
+				}}
+				onSave={() => {
+					this.save();
+				}}
 				loading={this.state.cmdState.processing}
 				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
-				submitEnabled={this.state.cmdState.submitEnabled}
-			>
+				submitEnabled={this.state.cmdState.submitEnabled}>
 				<CommandPagelet
 					command={this.props.command}
-					onSubmit={() => { this.save(); }}
-					onChanges={(cmdState) => { this.setState({ cmdState }); }}
-					ref={(el) => { this.cmdPagelet = el; }} />
-			</ModalDialog> : null;
+					onSubmit={() => {
+						this.save();
+					}}
+					onChanges={(cmdState) => {
+						this.setState({ cmdState });
+					}}
+					ref={(el) => {
+						this.cmdPagelet = el;
+					}}
+				/>
+			</ModalDialog>
+		) : null;
 
-		return <div style={{display: 'inline-block'}}>
-			<a className="btn btn-default" onClick={() => { this.setState({ dialogOpen: true }); }}>{commandTitle}</a>
+		return (
+			<div style={{ display: 'inline-block' }}>
+				<a
+					className="btn btn-default"
+					onClick={() => {
+						this.setState({ dialogOpen: true });
+					}}>
+					{commandTitle}
+				</a>
 
-			{ maybeDialog }
-		</div>;
+				{maybeDialog}
+			</div>
+		);
 	}
 }
 
@@ -61,26 +80,26 @@ interface CommandIconState {
 
 function commandCrudNatureToIcon(nature: CrudNature): string {
 	switch (nature) {
-	case CrudNature.create:
-		return 'glyphicon-plus';
-	case CrudNature.update:
-		return 'glyphicon-pencil';
-	case CrudNature.delete:
-		return 'glyphicon-remove';
-	default:
-		throw unrecognizedValue(nature);
+		case CrudNature.create:
+			return 'glyphicon-plus';
+		case CrudNature.update:
+			return 'glyphicon-pencil';
+		case CrudNature.delete:
+			return 'glyphicon-remove';
+		default:
+			throw unrecognizedValue(nature);
 	}
 }
 
 function btnClassFromCrudNature(nature: CrudNature): string {
 	switch (nature) {
-	case CrudNature.create:
-	case CrudNature.update:
-		return 'btn-primary';
-	case CrudNature.delete:
-		return 'btn-danger';
-	default:
-		throw unrecognizedValue(nature);
+		case CrudNature.create:
+		case CrudNature.update:
+			return 'btn-primary';
+		case CrudNature.delete:
+			return 'btn-danger';
+		default:
+			throw unrecognizedValue(nature);
 	}
 }
 
@@ -98,25 +117,43 @@ export class CommandIcon extends React.Component<CommandIconProps, CommandIconSt
 
 		const icon = commandCrudNatureToIcon(this.props.command.crudNature);
 
-		const maybeDialog = this.state.dialogOpen ?
+		const maybeDialog = this.state.dialogOpen ? (
 			<ModalDialog
 				title={commandTitle}
-				onClose={() => { this.setState({ dialogOpen: false }); }}
-				onSave={() => { this.save(); }}
+				onClose={() => {
+					this.setState({ dialogOpen: false });
+				}}
+				onSave={() => {
+					this.save();
+				}}
 				loading={this.state.cmdState.processing}
 				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
-				submitEnabled={this.state.cmdState.submitEnabled}
-			>
+				submitEnabled={this.state.cmdState.submitEnabled}>
 				<CommandPagelet
 					command={this.props.command}
-					onSubmit={() => { this.save(); }}
-					onChanges={(cmdState) => { this.setState({ cmdState }); }}
-					ref={(el) => { this.cmdPagelet = el; }} />
-			</ModalDialog> : null;
+					onSubmit={() => {
+						this.save();
+					}}
+					onChanges={(cmdState) => {
+						this.setState({ cmdState });
+					}}
+					ref={(el) => {
+						this.cmdPagelet = el;
+					}}
+				/>
+			</ModalDialog>
+		) : null;
 
-		return <span className={`glyphicon ${icon} hovericon margin-left`} onClick={() => { this.setState({dialogOpen: true}); }} title={commandTitle}>
-			{maybeDialog}
-		</span>;
+		return (
+			<span
+				className={`glyphicon ${icon} hovericon margin-left`}
+				onClick={() => {
+					this.setState({ dialogOpen: true });
+				}}
+				title={commandTitle}>
+				{maybeDialog}
+			</span>
+		);
 	}
 }
 
@@ -141,26 +178,44 @@ export class CommandLink extends React.Component<CommandLinkProps, CommandLinkSt
 	render() {
 		const commandTitle = this.props.command.title;
 
-		const maybeDialog = this.state.dialogOpen ?
+		const maybeDialog = this.state.dialogOpen ? (
 			<ModalDialog
 				title={commandTitle}
-				onClose={() => { this.setState({ dialogOpen: false }); }}
-				onSave={() => { this.save(); }}
+				onClose={() => {
+					this.setState({ dialogOpen: false });
+				}}
+				onSave={() => {
+					this.save();
+				}}
 				loading={this.state.cmdState.processing}
 				submitBtnClass={btnClassFromCrudNature(this.props.command.crudNature)}
-				submitEnabled={this.state.cmdState.submitEnabled}
-			>
+				submitEnabled={this.state.cmdState.submitEnabled}>
 				<CommandPagelet
 					command={this.props.command}
-					onSubmit={() => { this.save(); }}
-					onChanges={(cmdState) => { this.setState({ cmdState }); }}
-					ref={(el) => { this.cmdPagelet = el; }} />
-			</ModalDialog> : null;
+					onSubmit={() => {
+						this.save();
+					}}
+					onChanges={(cmdState) => {
+						this.setState({ cmdState });
+					}}
+					ref={(el) => {
+						this.cmdPagelet = el;
+					}}
+				/>
+			</ModalDialog>
+		) : null;
 
-		return <a className="fauxlink" onClick={() => { this.setState({dialogOpen: true}); }} key={this.props.command.key}>
-			{commandTitle}
-			{maybeDialog}
-		</a>;
+		return (
+			<a
+				className="fauxlink"
+				onClick={() => {
+					this.setState({ dialogOpen: true });
+				}}
+				key={this.props.command.key}>
+				{commandTitle}
+				{maybeDialog}
+			</a>
+		);
 	}
 }
 
@@ -172,25 +227,45 @@ interface CommandInlineFormState {
 	cmdState?: CommandChangesArgs;
 }
 
-export class CommandInlineForm extends React.Component<CommandInlineFormProps, CommandInlineFormState> {
+export class CommandInlineForm extends React.Component<
+	CommandInlineFormProps,
+	CommandInlineFormState
+> {
 	public state: CommandInlineFormState = {};
 	private cmdPagelet: CommandPagelet | null = null;
 
 	render() {
 		const submitEnabled = this.state.cmdState && this.state.cmdState.submitEnabled;
-		const maybeLoading = this.state.cmdState && this.state.cmdState.processing ? <Loading /> : '';
+		const maybeLoading =
+			this.state.cmdState && this.state.cmdState.processing ? <Loading /> : '';
 
-		return <div>
-			<CommandPagelet
-				command={this.props.command}
-				onSubmit={() => { this.save(); }}
-				onChanges={(cmdState) => { this.setState({ cmdState }); }}
-				ref={(el) => { this.cmdPagelet = el; }} />
+		return (
+			<div>
+				<CommandPagelet
+					command={this.props.command}
+					onSubmit={() => {
+						this.save();
+					}}
+					onChanges={(cmdState) => {
+						this.setState({ cmdState });
+					}}
+					ref={(el) => {
+						this.cmdPagelet = el;
+					}}
+				/>
 
-			<button className="btn btn-primary" onClick={() => { this.save(); }} disabled={!submitEnabled}>{this.props.command.title}</button>
+				<button
+					className="btn btn-primary"
+					onClick={() => {
+						this.save();
+					}}
+					disabled={!submitEnabled}>
+					{this.props.command.title}
+				</button>
 
-			{maybeLoading}
-		</div>;
+				{maybeLoading}
+			</div>
+		);
 	}
 
 	save() {

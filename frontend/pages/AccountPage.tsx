@@ -1,13 +1,13 @@
-import {defaultErrorHandler} from 'backenderrors';
-import {elToClipboard} from 'clipboard';
-import {DangerAlert} from 'components/alerts';
-import {Breadcrumb} from 'components/breadcrumbtrail';
-import {CommandIcon, CommandLink} from 'components/CommandButton';
-import {Dropdown} from 'components/dropdown';
-import {Loading} from 'components/loading';
-import {MonospaceContent} from 'components/monospacecontent';
-import {OptionalContent} from 'components/optionalcontent';
-import {SecretReveal} from 'components/secretreveal';
+import { defaultErrorHandler } from 'backenderrors';
+import { elToClipboard } from 'clipboard';
+import { DangerAlert } from 'components/alerts';
+import { Breadcrumb } from 'components/breadcrumbtrail';
+import { CommandIcon, CommandLink } from 'components/CommandButton';
+import { Dropdown } from 'components/dropdown';
+import { Loading } from 'components/loading';
+import { MonospaceContent } from 'components/monospacecontent';
+import { OptionalContent } from 'components/optionalcontent';
+import { SecretReveal } from 'components/secretreveal';
 import {
 	Account,
 	ExposedSecret,
@@ -32,13 +32,20 @@ import {
 	AccountDeleteSecret,
 	AccountRename,
 } from 'generated/commanddefinitions';
-import {SecretKind} from 'generated/domain';
-import {getAccount, getFolder, getKeylistItem, getKeylistItemChallenge, getSecrets, totpBarcodeExportUrl} from 'generated/restapi';
+import { SecretKind } from 'generated/domain';
+import {
+	getAccount,
+	getFolder,
+	getKeylistItem,
+	getKeylistItemChallenge,
+	getSecrets,
+	totpBarcodeExportUrl,
+} from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {folderRoute, importotptokenRoute} from 'routes';
-import {isU2FError, u2fErrorMsg, U2FStdRegisteredKey, U2FStdSignResult} from 'u2ftypes';
-import {relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue} from 'utils';
+import { folderRoute, importotptokenRoute } from 'routes';
+import { isU2FError, u2fErrorMsg, U2FStdRegisteredKey, U2FStdSignResult } from 'u2ftypes';
+import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'utils';
 
 interface SecretsFetcherProps {
 	wrappedAccount: WrappedAccount;
@@ -62,24 +69,34 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 
 	render() {
 		if (this.state.authing) {
-			return <div>
-				<p>Please swipe your U2F token now ...</p>
+			return (
+				<div>
+					<p>Please swipe your U2F token now ...</p>
 
-				<Loading />
-			</div>;
+					<Loading />
+				</div>
+			);
 		}
 
-		const authErrorNode = this.state.authError ?
-			<DangerAlert text={this.state.authError} /> :
-			'';
+		const authErrorNode = this.state.authError ? (
+			<DangerAlert text={this.state.authError} />
+		) : (
+			''
+		);
 
-		return <div>
-			<a className="btn btn-default" onClick={() => { shouldAlwaysSucceed(this.startSigning()); }}>
-				Authenticate
-			</a>
+		return (
+			<div>
+				<a
+					className="btn btn-default"
+					onClick={() => {
+						shouldAlwaysSucceed(this.startSigning());
+					}}>
+					Authenticate
+				</a>
 
-			{authErrorNode}
-		</div>;
+				{authErrorNode}
+			</div>
+		);
 	}
 
 	private async startSigning() {
@@ -120,8 +137,11 @@ async function u2fSign(req: U2FSignRequest): Promise<U2FStdSignResult> {
 			req.AppID,
 			req.Challenge, // serialized (not in structural form)
 			keysTransformed,
-			(res: U2FStdSignResult) => { resolve(res); },
-			5);
+			(res: U2FStdSignResult) => {
+				resolve(res);
+			},
+			5,
+		);
 	});
 }
 
@@ -141,27 +161,55 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 	state: KeylistAccessorState = { keylistKey: '', loading: false };
 
 	render() {
-		const authErrorNode = this.state.authError ?
-			<DangerAlert text={this.state.authError} /> :
-			'';
+		const authErrorNode = this.state.authError ? (
+			<DangerAlert text={this.state.authError} />
+		) : (
+			''
+		);
 
-		const keyMaybe = this.state.foundKeyItem ?
+		const keyMaybe = this.state.foundKeyItem ? (
 			<div>
 				<span className="label label-primary">{this.state.foundKeyItem.Value}</span>
-				<span data-to-clipboard={this.state.foundKeyItem.Value} onClick={(e) => { elToClipboard(e); }} className="fauxlink margin-left">📋</span>
-			</div> : null;
+				<span
+					data-to-clipboard={this.state.foundKeyItem.Value}
+					onClick={(e) => {
+						elToClipboard(e);
+					}}
+					className="fauxlink margin-left">
+					📋
+				</span>
+			</div>
+		) : null;
 
-		return <div>
-			<input className="form-control" style={{ width: '200px', display: 'inline-block' }} type="text" value={this.state.keylistKey} onChange={(e) => { this.onType(e); }} placeholder={this.props.secret.KeylistKeyExample} />
+		return (
+			<div>
+				<input
+					className="form-control"
+					style={{ width: '200px', display: 'inline-block' }}
+					type="text"
+					value={this.state.keylistKey}
+					onChange={(e) => {
+						this.onType(e);
+					}}
+					placeholder={this.props.secret.KeylistKeyExample}
+				/>
 
-			<button className="btn btn-default" type="submit" onClick={() => { shouldAlwaysSucceed(this.onSubmit()); }}>Get</button>
+				<button
+					className="btn btn-default"
+					type="submit"
+					onClick={() => {
+						shouldAlwaysSucceed(this.onSubmit());
+					}}>
+					Get
+				</button>
 
-			{authErrorNode}
+				{authErrorNode}
 
-			{this.state.loading ? <Loading /> : null}
+				{this.state.loading ? <Loading /> : null}
 
-			{keyMaybe}
-		</div>;
+				{keyMaybe}
+			</div>
+		);
 	}
 
 	private async onSubmit() {
@@ -175,7 +223,11 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 		this.setState({ loading: true, foundKeyItem: undefined, authError: undefined });
 
 		try {
-			const challengeBundle = await getKeylistItemChallenge(this.props.account, this.props.secret.Id, this.state.keylistKey);
+			const challengeBundle = await getKeylistItemChallenge(
+				this.props.account,
+				this.props.secret.Id,
+				this.state.keylistKey,
+			);
 
 			const signResult = await u2fSign(challengeBundle.SignRequest);
 
@@ -193,7 +245,8 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 				this.props.account,
 				this.props.secret.Id,
 				this.state.keylistKey,
-				challengeResponse);
+				challengeResponse,
+			);
 
 			this.setState({ foundKeyItem, loading: false });
 		} catch (ex) {
@@ -231,69 +284,104 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		const account = this.state.account;
 
-		const secretRows = this.state.secrets ?
-			this.state.secrets.map((secret) => this.secretToRow(secret, account)) :
+		const secretRows = this.state.secrets ? (
+			this.state.secrets.map((secret) => this.secretToRow(secret, account))
+		) : (
 			<tr>
 				<th>Secrets</th>
 				<td>
 					<SecretsFetcher
 						wrappedAccount={this.state.wrappedAccount}
-						fetched={(secrets) => { this.setState({ secrets }); }} />
+						fetched={(secrets) => {
+							this.setState({ secrets });
+						}}
+					/>
 				</td>
-				<td></td>
-			</tr>;
+				<td />
+			</tr>
+		);
 
 		const breadcrumbItems = this.getBreadcrumbItems();
 
-		return <DefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
-			<h1>
-				<span title={relativeDateFormat(account.Created)}>{account.Title}</span>
-				&nbsp;
-				<Dropdown>
-					<CommandLink command={AccountRename(account.Id, account.Title)} />
-					<CommandLink command={AccountDelete(account.Id)} />
+		return (
+			<DefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
+				<h1>
+					<span title={relativeDateFormat(account.Created)}>{account.Title}</span>
+					&nbsp;
+					<Dropdown>
+						<CommandLink command={AccountRename(account.Id, account.Title)} />
+						<CommandLink command={AccountDelete(account.Id)} />
 
-					<CommandLink command={AccountAddSshKey(account.Id)} />
-					<CommandLink command={AccountAddKeylist(account.Id)} />
-					<CommandLink command={AccountAddPassword(account.Id)} />
-					<CommandLink command={AccountAddSecretNote(account.Id)} />
+						<CommandLink command={AccountAddSshKey(account.Id)} />
+						<CommandLink command={AccountAddKeylist(account.Id)} />
+						<CommandLink command={AccountAddPassword(account.Id)} />
+						<CommandLink command={AccountAddSecretNote(account.Id)} />
 
-					<a href={importotptokenRoute.buildUrl({account: account.Id})}>+ OTP token</a>
-				</Dropdown>
-			</h1>
+						<a href={importotptokenRoute.buildUrl({ account: account.Id })}>
+							+ OTP token
+						</a>
+					</Dropdown>
+				</h1>
 
-			<table className="table table-striped th-align-right">
-			<tbody>
-				<tr>
-					<th>
-						URL
-						<CommandIcon command={AccountChangeUrl(account.Id, account.Url)} />
-					</th>
-					<td>{account.Url ? <a href={account.Url} target="_blank">{account.Url}</a> : <OptionalContent />}</td>
-					<td></td>
-				</tr>
-				<tr>
-					<th>
-						Username
-						<CommandIcon command={AccountChangeUsername(account.Id, account.Username)} />
-					</th>
-					<td><OptionalContent>{account.Username}</OptionalContent></td>
-					<td data-to-clipboard={account.Username} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
-				</tr>
-				{secretRows}
-				<tr>
-					<th>
-						Description
-						<CommandIcon command={AccountChangeDescription(account.Id, account.Description)} />
-					</th>
-					<td>
-						<MonospaceContent><OptionalContent>{account.Description}</OptionalContent></MonospaceContent>
-					</td>
-					<td></td>
-				</tr>
-			</tbody>
-			</table>
-		</DefaultLayout>;
+				<table className="table table-striped th-align-right">
+					<tbody>
+						<tr>
+							<th>
+								URL
+								<CommandIcon command={AccountChangeUrl(account.Id, account.Url)} />
+							</th>
+							<td>
+								{account.Url ? (
+									<a href={account.Url} target="_blank">
+										{account.Url}
+									</a>
+								) : (
+									<OptionalContent />
+								)}
+							</td>
+							<td />
+						</tr>
+						<tr>
+							<th>
+								Username
+								<CommandIcon
+									command={AccountChangeUsername(account.Id, account.Username)}
+								/>
+							</th>
+							<td>
+								<OptionalContent>{account.Username}</OptionalContent>
+							</td>
+							<td
+								data-to-clipboard={account.Username}
+								onClick={(e) => {
+									elToClipboard(e);
+								}}
+								className="fauxlink">
+								📋
+							</td>
+						</tr>
+						{secretRows}
+						<tr>
+							<th>
+								Description
+								<CommandIcon
+									command={AccountChangeDescription(
+										account.Id,
+										account.Description,
+									)}
+								/>
+							</th>
+							<td>
+								<MonospaceContent>
+									<OptionalContent>{account.Description}</OptionalContent>
+								</MonospaceContent>
+							</td>
+							<td />
+						</tr>
+					</tbody>
+				</table>
+			</DefaultLayout>
+		);
 	}
 
 	private secretToRow(exposedSecret: ExposedSecret, account: Account): JSX.Element {
@@ -301,61 +389,95 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		switch (secret.Kind) {
 			case SecretKind.SshKey:
-				return <tr key={secret.Id}>
-					<th>
-						<span title={relativeDateFormat(secret.Created)}>SSH public key</span>
-						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</th>
-					<td>{secret.SshPublicKeyAuthorized}</td>
-					<td></td>
-				</tr>;
+				return (
+					<tr key={secret.Id}>
+						<th>
+							<span title={relativeDateFormat(secret.Created)}>SSH public key</span>
+							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+						</th>
+						<td>{secret.SshPublicKeyAuthorized}</td>
+						<td />
+					</tr>
+				);
 			case SecretKind.Password:
-				return <tr key={secret.Id}>
-					<th>
-						<span title={relativeDateFormat(secret.Created)}>Password</span>
-						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</th>
-					<td><SecretReveal secret={secret.Password} /></td>
-					<td data-to-clipboard={secret.Password} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
-				</tr>;
+				return (
+					<tr key={secret.Id}>
+						<th>
+							<span title={relativeDateFormat(secret.Created)}>Password</span>
+							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+						</th>
+						<td>
+							<SecretReveal secret={secret.Password} />
+						</td>
+						<td
+							data-to-clipboard={secret.Password}
+							onClick={(e) => {
+								elToClipboard(e);
+							}}
+							className="fauxlink">
+							📋
+						</td>
+					</tr>
+				);
 			case SecretKind.OtpToken:
-				const exportUrl = totpBarcodeExportUrl(account.Id, secret.Id, exposedSecret.OtpKeyExportMac);
+				const exportUrl = totpBarcodeExportUrl(
+					account.Id,
+					secret.Id,
+					exposedSecret.OtpKeyExportMac,
+				);
 
-				return <tr key={secret.Id}>
-					<th>
-						<span title={relativeDateFormat(secret.Created)}>OTP code</span>
-						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</th>
-					<td>
-						{exposedSecret.OtpProof}
-						<a
-							style={{marginLeft: '16px'}}
-							title="Export to Google Authenticator"
-							href={exportUrl}
-							target="_blank"><span className="glyphicon glyphicon-barcode" /></a>
-					</td>
-					<td data-to-clipboard={exposedSecret.OtpProof} onClick={(e) => { elToClipboard(e); }} className="fauxlink">📋</td>
-				</tr>;
+				return (
+					<tr key={secret.Id}>
+						<th>
+							<span title={relativeDateFormat(secret.Created)}>OTP code</span>
+							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+						</th>
+						<td>
+							{exposedSecret.OtpProof}
+							<a
+								style={{ marginLeft: '16px' }}
+								title="Export to Google Authenticator"
+								href={exportUrl}
+								target="_blank">
+								<span className="glyphicon glyphicon-barcode" />
+							</a>
+						</td>
+						<td
+							data-to-clipboard={exposedSecret.OtpProof}
+							onClick={(e) => {
+								elToClipboard(e);
+							}}
+							className="fauxlink">
+							📋
+						</td>
+					</tr>
+				);
 			case SecretKind.Keylist:
-				return <tr key={secret.Id}>
-					<th>
-						<span title={relativeDateFormat(secret.Created)}>Keylist</span>
-						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</th>
-					<td colSpan={2}>{secret.Title}
-						<KeylistAccessor account={account.Id} secret={secret} />
-					</td>
-				</tr>;
+				return (
+					<tr key={secret.Id}>
+						<th>
+							<span title={relativeDateFormat(secret.Created)}>Keylist</span>
+							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+						</th>
+						<td colSpan={2}>
+							{secret.Title}
+							<KeylistAccessor account={account.Id} secret={secret} />
+						</td>
+					</tr>
+				);
 			case SecretKind.Note:
-				return <tr key={secret.Id}>
-					<th>
-						<span title={relativeDateFormat(secret.Created)}>Note</span>
-						<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
-					</th>
-					<td colSpan={2}>{secret.Title}
-						<MonospaceContent>{secret.Note}</MonospaceContent>
-					</td>
-				</tr>;
+				return (
+					<tr key={secret.Id}>
+						<th>
+							<span title={relativeDateFormat(secret.Created)}>Note</span>
+							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+						</th>
+						<td colSpan={2}>
+							{secret.Title}
+							<MonospaceContent>{secret.Note}</MonospaceContent>
+						</td>
+					</tr>
+				);
 			default:
 				return unrecognizedValue(secret.Kind);
 		}
@@ -368,7 +490,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		const folderProm = accountProm.then((acc) => getFolder(acc.FolderId));
 
-		const [wrappedAccount, account, folderresponse] = await Promise.all([wrappedAccountProm, accountProm, folderProm]);
+		const [wrappedAccount, account, folderresponse] = await Promise.all([
+			wrappedAccountProm,
+			accountProm,
+			folderProm,
+		]);
 
 		this.setState({
 			wrappedAccount,
@@ -378,13 +504,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 	}
 
 	private getBreadcrumbItems(): Breadcrumb[] {
-		const breadcrumbItems: Breadcrumb[] = [
-			{ url: '', title: this.state.account.Title },
-		];
+		const breadcrumbItems: Breadcrumb[] = [{ url: '', title: this.state.account.Title }];
 
 		function unshiftFolderToBreadcrumb(fld: Folder) {
 			breadcrumbItems.unshift({
-				url: folderRoute.buildUrl({folderId: fld.Id}),
+				url: folderRoute.buildUrl({ folderId: fld.Id }),
 				title: fld.Name,
 			});
 		}

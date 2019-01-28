@@ -1,15 +1,15 @@
-import {defaultErrorHandler} from 'backenderrors';
-import {Breadcrumb} from 'components/breadcrumbtrail';
-import {CommandLink} from 'components/CommandButton';
-import {Dropdown} from 'components/dropdown';
-import {Loading} from 'components/loading';
-import {SecretListing} from 'components/SecretListing';
-import {FolderResponse} from 'generated/apitypes';
-import {AccountCreate, AccountCreateFolder} from 'generated/commanddefinitions';
-import {getFolder} from 'generated/restapi';
+import { defaultErrorHandler } from 'backenderrors';
+import { Breadcrumb } from 'components/breadcrumbtrail';
+import { CommandLink } from 'components/CommandButton';
+import { Dropdown } from 'components/dropdown';
+import { Loading } from 'components/loading';
+import { SecretListing } from 'components/SecretListing';
+import { FolderResponse } from 'generated/apitypes';
+import { AccountCreate, AccountCreateFolder } from 'generated/commanddefinitions';
+import { getFolder } from 'generated/restapi';
 import DefaultLayout from 'layouts/DefaultLayout';
 import * as React from 'react';
-import {folderRoute} from 'routes';
+import { folderRoute } from 'routes';
 
 interface HomePageProps {
 	folderId: string;
@@ -35,22 +35,25 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 
 		const listing = this.state.listing;
 
-		const breadcrumbs: Breadcrumb[] = [
-			{ url: '', title: listing.Folder!.Name },
-		];
+		const breadcrumbs: Breadcrumb[] = [{ url: '', title: listing.Folder!.Name }];
 
 		for (const parent of listing.ParentFolders) {
-			breadcrumbs.unshift({ url: folderRoute.buildUrl({folderId: parent.Id}), title: parent.Name });
+			breadcrumbs.unshift({
+				url: folderRoute.buildUrl({ folderId: parent.Id }),
+				title: parent.Name,
+			});
 		}
 
-		return <DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
-			<SecretListing listing={listing} />
+		return (
+			<DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
+				<SecretListing listing={listing} />
 
-			<Dropdown label="New ..">
-				<CommandLink command={AccountCreate(this.props.folderId)}></CommandLink>
-				<CommandLink command={AccountCreateFolder(this.props.folderId)}></CommandLink>
-			</Dropdown>
-		</DefaultLayout>;
+				<Dropdown label="New ..">
+					<CommandLink command={AccountCreate(this.props.folderId)} />
+					<CommandLink command={AccountCreateFolder(this.props.folderId)} />
+				</Dropdown>
+			</DefaultLayout>
+		);
 	}
 
 	private fetchData(folderId: string) {

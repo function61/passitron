@@ -1,9 +1,13 @@
-import {coerceToStructuredErrorResponse, handleKnownGlobalErrors, StructuredErrorResponse} from 'backenderrors';
-import {reloadCurrentPage} from 'browserutils';
-import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
-import {postJson} from 'httputil';
+import {
+	coerceToStructuredErrorResponse,
+	handleKnownGlobalErrors,
+	StructuredErrorResponse,
+} from 'backenderrors';
+import { reloadCurrentPage } from 'browserutils';
+import { CommandDefinition, CommandField, CommandFieldKind } from 'commandtypes';
+import { postJson } from 'httputil';
 import * as React from 'react';
-import {unrecognizedValue} from 'utils';
+import { unrecognizedValue } from 'utils';
 
 export type CommandSubmitListener = () => void;
 
@@ -14,7 +18,7 @@ export interface CommandChangesArgs {
 }
 
 export function initialCommandState(): CommandChangesArgs {
-	return { submitEnabled: false, processing: false };
+	return { submitEnabled: false, processing: false };
 }
 
 export type CommandChangesListener = (cmdState: CommandChangesArgs) => void;
@@ -25,14 +29,16 @@ interface CommandPageletProps {
 	onSubmit: CommandSubmitListener;
 }
 
-interface CommandValueCollection {[key: string]: any; }
+interface CommandValueCollection {
+	[key: string]: any;
+}
 
 interface CommandPageletState {
 	values: CommandValueCollection;
 	additional_confirmation?: boolean;
-	validationStatuses: {[key: string]: boolean};
+	validationStatuses: { [key: string]: boolean };
 	submitError: string;
-	fieldsThatWerePrefilled: {[key: string]: boolean};
+	fieldsThatWerePrefilled: { [key: string]: boolean };
 }
 
 export class CommandPagelet extends React.Component<CommandPageletProps, CommandPageletState> {
@@ -50,22 +56,22 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		// "onChange" event, and thus if user doesn't change them, they wouldn't get filled
 		this.props.command.fields.forEach((field) => {
 			switch (field.Kind) {
-			case CommandFieldKind.Integer:
-				state.values[field.Key] = null;
-				break;
-			case CommandFieldKind.Password:
-			case CommandFieldKind.Text:
-			case CommandFieldKind.Multiline:
-				state.values[field.Key] = field.DefaultValueString;
-				if (field.DefaultValueString) {
-					state.fieldsThatWerePrefilled[field.Key] = true;
-				}
-				break;
-			case CommandFieldKind.Checkbox:
-				state.values[field.Key] = field.DefaultValueBoolean;
-				break;
-			default:
-				unrecognizedValue(field.Kind);
+				case CommandFieldKind.Integer:
+					state.values[field.Key] = null;
+					break;
+				case CommandFieldKind.Password:
+				case CommandFieldKind.Text:
+				case CommandFieldKind.Multiline:
+					state.values[field.Key] = field.DefaultValueString;
+					if (field.DefaultValueString) {
+						state.fieldsThatWerePrefilled[field.Key] = true;
+					}
+					break;
+				case CommandFieldKind.Checkbox:
+					state.values[field.Key] = field.DefaultValueBoolean;
+					break;
+				default:
+					unrecognizedValue(field.Kind);
 			}
 
 			state.validationStatuses[field.Key] = this.validate(field, state.values[field.Key]);
@@ -91,33 +97,57 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 			const validationFailedClass = valid ? '' : 'has-error';
 
-			const possiblyHelp = field.Help ?
-				<span title={field.Help} className="glyphicon glyphicon-question-sign" style={{marginLeft: '8px'}} /> :
-				'';
+			const possiblyHelp = field.Help ? (
+				<span
+					title={field.Help}
+					className="glyphicon glyphicon-question-sign"
+					style={{ marginLeft: '8px' }}
+				/>
+			) : (
+				''
+			);
 
 			// TODO: label[for]
-			return <div className={`form-group ${validationFailedClass}`} key={field.Key}>
-				<div><label>{field.Key} {field.Required ? '*' : ''}</label>{possiblyHelp}</div>
+			return (
+				<div className={`form-group ${validationFailedClass}`} key={field.Key}>
+					<div>
+						<label>
+							{field.Key} {field.Required ? '*' : ''}
+						</label>
+						{possiblyHelp}
+					</div>
 
-				{input}
-			</div>;
+					{input}
+				</div>
+			);
 		});
 
 		if (this.props.command.additional_confirmation) {
-			fieldGroups.push(this.createAdditionalConfirmationFormGroup(
-				this.props.command.additional_confirmation));
+			fieldGroups.push(
+				this.createAdditionalConfirmationFormGroup(
+					this.props.command.additional_confirmation,
+				),
+			);
 		}
 
 		// hidden submit included because otherwise onSubmit does not work except if form has only one input
 		// https://stackoverflow.com/a/40400840
 
-		return <form onSubmit={(e) => { e.preventDefault(); this.onInternalEnterSubmit(e); }}>
-			{fieldGroups}
+		return (
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					this.onInternalEnterSubmit(e);
+				}}>
+				{fieldGroups}
 
-			<input type="submit" style={{display: 'none'}} />
+				<input type="submit" style={{ display: 'none' }} />
 
-			{this.state.submitError ? <p className="bg-danger">{this.state.submitError}</p> : null}
-		</form>;
+				{this.state.submitError ? (
+					<p className="bg-danger">{this.state.submitError}</p>
+				) : null}
+			</form>
+		);
 	}
 
 	// official submit, which should trigger validation
@@ -134,38 +164,54 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 		// whether fulfilled or rejected, return submitEnabled
 		// state back to what it should be
-		execResult.then(() => {
-			this.broadcastChanges();
-		}, (err: Error | StructuredErrorResponse) => {
-			const ser = coerceToStructuredErrorResponse(err);
-			if (handleKnownGlobalErrors(ser)) {
-				return;
-			}
+		execResult.then(
+			() => {
+				this.broadcastChanges();
+			},
+			(err: Error | StructuredErrorResponse) => {
+				const ser = coerceToStructuredErrorResponse(err);
+				if (handleKnownGlobalErrors(ser)) {
+					return;
+				}
 
-			this.setState({ submitError: `${ser.error_code}: ${ser.error_description}` });
+				this.setState({ submitError: `${ser.error_code}: ${ser.error_description}` });
 
-			this.broadcastChanges();
-		});
+				this.broadcastChanges();
+			},
+		);
 
 		return execResult;
 	}
 
 	submitAndReloadOnSuccess(): void {
-		this.submit().then(() => {
-			reloadCurrentPage();
-		}, () => { /* noop */ });
+		this.submit().then(
+			() => {
+				reloadCurrentPage();
+			},
+			() => {
+				/* noop */
+			},
+		);
 	}
 
 	private createAdditionalConfirmationFormGroup(question: string) {
-		return <div className="form-group" key="additional_confirmation">
-			<div><label>{question} *</label></div>
+		return (
+			<div className="form-group" key="additional_confirmation">
+				<div>
+					<label>{question} *</label>
+				</div>
 
-			<input
-				type="checkbox"
-				className="form-control"
-				onChange={(e) => { this.setState({ additional_confirmation: e.currentTarget.checked }, () => { this.broadcastChanges(); }); }}
-			/>
-		</div>;
+				<input
+					type="checkbox"
+					className="form-control"
+					onChange={(e) => {
+						this.setState({ additional_confirmation: e.currentTarget.checked }, () => {
+							this.broadcastChanges();
+						});
+					}}
+				/>
+			</div>
+		);
 	}
 
 	private validate(field: CommandField, value: any): boolean {
@@ -175,13 +221,12 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 		// strim with heading or trailing whitespace
 		// TODO: opting out of this mechanism?
-		if (typeof(value) === 'string' && value !== value.trim()) {
+		if (typeof value === 'string' && value !== value.trim()) {
 			return false;
 		}
 
-		if (field.ValidationRegex && !(new RegExp(field.ValidationRegex).test(value))) {
+		if (field.ValidationRegex && !new RegExp(field.ValidationRegex).test(value)) {
 			return false;
-
 		}
 
 		return true;
@@ -195,7 +240,8 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 		// FIXME: this doesn't actually return void
 		return postJson<CommandValueCollection, void>(
 			`/command/${this.props.command.key}`,
-			this.state.values);
+			this.state.values,
+		);
 	}
 
 	private broadcastChanges() {
@@ -212,11 +258,16 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 	}
 
 	private isEverythingValid(): boolean {
-		if (this.props.command.additional_confirmation !== undefined && this.state.additional_confirmation !== true) {
+		if (
+			this.props.command.additional_confirmation !== undefined &&
+			this.state.additional_confirmation !== true
+		) {
 			return false;
 		}
 
-		return Object.keys(this.state.validationStatuses).every((key) => this.state.validationStatuses[key]);
+		return Object.keys(this.state.validationStatuses).every(
+			(key) => this.state.validationStatuses[key],
+		);
 	}
 
 	private updateFieldValue(key: string, value: any) {
@@ -254,56 +305,66 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 	private createInput(field: CommandField, autoFocus: boolean): JSX.Element {
 		switch (field.Kind) {
-		case CommandFieldKind.Password:
-			return <input
-				type="password"
-				className="form-control"
-				name={field.Key}
-				autoFocus={autoFocus}
-				required={field.Required}
-				value={this.state.values[field.Key]}
-				onChange={this.onInputChange.bind(this)}
-			/>;
-		case CommandFieldKind.Text:
-			return <input
-				type="text"
-				className="form-control"
-				name={field.Key}
-				autoFocus={autoFocus}
-				required={field.Required}
-				value={this.state.values[field.Key]}
-				onChange={this.onInputChange.bind(this)}
-			/>;
-		case CommandFieldKind.Multiline:
-			return <textarea
-				name={field.Key}
-				autoFocus={autoFocus}
-				required={field.Required}
-				className="form-control"
-				rows={7}
-				value={this.state.values[field.Key]}
-				onChange={this.onTextareaChange.bind(this)}
-			/>;
-		case CommandFieldKind.Integer:
-			return <input
-				type="number"
-				className="form-control"
-				name={field.Key}
-				autoFocus={autoFocus}
-				required={field.Required}
-				onChange={this.onIntegerInputChange.bind(this)}
-			/>;
-		case CommandFieldKind.Checkbox:
-			return <input
-				type="checkbox"
-				name={field.Key}
-				autoFocus={autoFocus}
-				className="form-control"
-				checked={this.state.values[field.Key]}
-				onChange={this.onCheckboxChange.bind(this)}
-			/>;
-		default:
-			return unrecognizedValue(field.Kind);
+			case CommandFieldKind.Password:
+				return (
+					<input
+						type="password"
+						className="form-control"
+						name={field.Key}
+						autoFocus={autoFocus}
+						required={field.Required}
+						value={this.state.values[field.Key]}
+						onChange={this.onInputChange.bind(this)}
+					/>
+				);
+			case CommandFieldKind.Text:
+				return (
+					<input
+						type="text"
+						className="form-control"
+						name={field.Key}
+						autoFocus={autoFocus}
+						required={field.Required}
+						value={this.state.values[field.Key]}
+						onChange={this.onInputChange.bind(this)}
+					/>
+				);
+			case CommandFieldKind.Multiline:
+				return (
+					<textarea
+						name={field.Key}
+						autoFocus={autoFocus}
+						required={field.Required}
+						className="form-control"
+						rows={7}
+						value={this.state.values[field.Key]}
+						onChange={this.onTextareaChange.bind(this)}
+					/>
+				);
+			case CommandFieldKind.Integer:
+				return (
+					<input
+						type="number"
+						className="form-control"
+						name={field.Key}
+						autoFocus={autoFocus}
+						required={field.Required}
+						onChange={this.onIntegerInputChange.bind(this)}
+					/>
+				);
+			case CommandFieldKind.Checkbox:
+				return (
+					<input
+						type="checkbox"
+						name={field.Key}
+						autoFocus={autoFocus}
+						className="form-control"
+						checked={this.state.values[field.Key]}
+						onChange={this.onCheckboxChange.bind(this)}
+					/>
+				);
+			default:
+				return unrecognizedValue(field.Kind);
 		}
 	}
 
