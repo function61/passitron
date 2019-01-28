@@ -1,3 +1,4 @@
+import {getCurrentHash} from 'browserutils';
 import * as React from 'react';
 import {auditlogRoute, indexRoute, settingsRoute, sshkeysRoute} from 'routes';
 
@@ -9,7 +10,7 @@ interface NavLink {
 
 export default class Navigation extends React.Component<{}, {}> {
 	render() {
-		const hash = document.location.hash;
+		const hash = getCurrentHash();
 
 		const links: NavLink[] = [
 			{ title: 'Home', url: indexRoute.buildUrl({}), active: indexRoute.matchUrl(hash) !== null },

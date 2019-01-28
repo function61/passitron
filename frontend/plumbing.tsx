@@ -1,4 +1,5 @@
 import {coerceToStructuredErrorResponse, handleKnownGlobalErrors, StructuredErrorResponse} from 'backenderrors';
+import {reloadCurrentPage} from 'browserutils';
 import {CommandDefinition, CommandField, CommandFieldKind} from 'commandtypes';
 import {postJson} from 'httputil';
 import * as React from 'react';
@@ -151,7 +152,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 	submitAndReloadOnSuccess(): void {
 		this.submit().then(() => {
-			document.location.reload();
+			reloadCurrentPage();
 		}, () => { /* noop */ });
 	}
 

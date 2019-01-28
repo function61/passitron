@@ -1,3 +1,4 @@
+import {getCurrentHash, navigateTo} from 'browserutils';
 import {signInRoute} from 'routes';
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
@@ -20,7 +21,7 @@ export function isNotSignedInError(err: StructuredErrorResponse): boolean {
 
 export function handleKnownGlobalErrors(err: StructuredErrorResponse): boolean {
 	if (isSealedError(err) || isNotSignedInError(err)) {
-		document.location.assign(signInRoute.buildUrl({ redirect: document.location.hash }));
+		navigateTo(signInRoute.buildUrl({ redirect: getCurrentHash() }));
 		return true;
 	}
 

@@ -1,3 +1,4 @@
+import { getCurrentHash } from 'browserutils';
 import {DangerAlert} from 'components/alerts';
 import { configureCsrfToken } from 'httputil';
 import DefaultLayout from 'layouts/DefaultLayout';
@@ -23,30 +24,30 @@ export interface AppState {
 }
 
 export class App extends React.Component<{}, AppState> {
-	private listenerProxy: any;
+	private hashChangedProxy: () => void;
 
 	constructor(props: {}) {
 		super(props);
 
 		// need to create create bound proxy, because this object function
 		// ref (bound one) must be used for removeEventListener()
-		this.listenerProxy = () => { this.hashChanged(); };
+		this.hashChangedProxy = () => { this.hashChanged(); };
 
 		this.state = {
-			hash: document.location.hash,
+			hash: getCurrentHash(),
 		};
 	}
 
 	componentDidMount() {
-		window.addEventListener('hashchange', this.listenerProxy);
+		window.addEventListener('hashchange', this.hashChangedProxy);
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener('hashchange', this.listenerProxy);
+		window.removeEventListener('hashchange', this.hashChangedProxy);
 	}
 
 	render() {
-		const fromRouter = router.match(document.location.hash);
+		const fromRouter = router.match(this.state.hash);
 		if (!fromRouter) {
 			return <DefaultLayout title="404" breadcrumbs={[]}>
 				<h1>404</h1>
@@ -59,6 +60,6 @@ export class App extends React.Component<{}, AppState> {
 	}
 
 	private hashChanged() {
-		this.setState({ hash: document.location.hash });
+		this.setState({ hash: getCurrentHash() });
 	}
 }

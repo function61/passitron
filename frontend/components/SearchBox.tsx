@@ -1,4 +1,5 @@
 import {defaultErrorHandler} from 'backenderrors';
+import {navigateTo} from 'browserutils';
 import {search} from 'generated/restapi';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
@@ -36,9 +37,9 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 				const searchTerm = e.target.value;
 
 				if (searchTerm !== '') {
-					this.navigate(searchRoute.buildUrl({searchTerm}));
+					navigateTo(searchRoute.buildUrl({searchTerm}));
 				} else {
-					this.navigate(indexRoute.buildUrl({}));
+					navigateTo(indexRoute.buildUrl({}));
 				}
 			}}}
 			getItemValue={ (item: AutocompleteItem) => item.url }
@@ -50,7 +51,7 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 			}
 			value={this.state.searchTerm}
 			onChange={(e: any) => { this.setState({ searchTerm: e.target.value, items: [] }); this.searchtermChanged(e.target.value); }}
-			onSelect={(url: string) => { this.navigate(url); }}
+			onSelect={(url: string) => { navigateTo(url); }}
 		/>;
 	}
 
@@ -91,9 +92,5 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 			scheduleNextOk();
 			defaultErrorHandler(err);
 		});
-	}
-
-	private navigate(url: string) {
-		document.location.hash = url;
 	}
 }
