@@ -1,33 +1,11 @@
 {
+	// contains per-project overrides on top of the buildkit's own strict config
+	"extends": [
+		"/etc/tslint.json"
+	],
 	"linterOptions": {
 		"exclude": [
 			"typescript-safe-router/**/*"
 		]
-	},
-	"extends": [
-		"tslint:recommended"
-	],
-	"rules": {
-		"member-access": false,
-		"indent": [true, "tabs"],
-		"interface-name": false,
-		"max-classes-per-file": false,
-		"object-literal-sort-keys": false,
-		"no-unused-variable": true,
-		"no-void-expression": true,
-		"max-line-length": false,
-		"no-consecutive-blank-lines": false,
-		"no-switch-case-fall-through": true,
-		"semicolon": true,
-		"quotemark": [true, "single", "avoid-escape", "avoid-template", "jsx-double"],
-		"trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
-		"switch-default": true,
-		"no-floating-promises": true,
-		"only-arrow-functions": {
-			"options": [
-				"allow-declarations",
-				"allow-named-functions"
-			]
-		}
 	}
 }

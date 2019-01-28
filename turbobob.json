@@ -5,16 +5,45 @@
 	"builders": [
 		{
 			"name": "default",
-			"dockerfile_path": "build-default.Dockerfile",
+			"uses": "dockerfile://build-default.Dockerfile",
 			"mount_destination": "/go/src/github.com/function61/pi-security-module",
-			"dev_command": ["bash"],
+			"commands": {
+				"dev": ["bash"]
+			},
 			"dev_ports": ["8091:443"],
-			"pass_envs": [
-				"BINTRAY_CREDS",
-				"AWS_ACCESS_KEY_ID",
-				"AWS_SECRET_ACCESS_KEY"
-			],
 			"contextless_build": true
+		},
+		{
+			"name": "frontend",
+			"uses": "docker://fn61/buildkit-js:20190128_1415_c0f15ada",
+			"mount_destination": "/workspace",
+			"commands": {
+				"build": ["bin/build-frontend.sh"],
+				"dev": ["bash"]
+			}
+		},
+		{
+			"name": "docs",
+			"uses": "docker://fn61/buildkit-mkdocs:20190125_1601_a956d2b7",
+			"mount_destination": "/workspace",
+			"commands": {
+				"build": ["run-mkdocs.sh", "docs/", "rel/docs.tar.gz"],
+				"dev": ["bash"]
+			}
+		},
+		{
+			"name": "publisher",
+			"uses": "docker://fn61/buildkit-publisher:20190125_1635_3730c572",
+			"mount_destination": "/workspace",
+			"commands": {
+				"publish": ["publish.sh", "rel/*"]
+			},
+			"env": {
+				"BINTRAY_PROJECT": "function61/pi-security-module"
+			},
+			"pass_envs": [
+				"BINTRAY_CREDS"
+			]
 		}
 	],
 	"os_arches": {

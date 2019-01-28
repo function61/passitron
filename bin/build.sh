@@ -4,7 +4,6 @@ source /build-common.sh
 
 COMPILE_IN_DIRECTORY="cmd/pism"
 BINARY_NAME="pism"
-BINTRAY_PROJECT="function61/pi-security-module"
 GOFMT_TARGETS="cmd/ pkg/"
 
 # clean slate, because generated files rarely pass formatting check
@@ -18,39 +17,41 @@ cleanupGeneratedFiles() {
 		pkg/domain/events.go
 }
 
-buildPublicFiles() {
-	(cd frontend/ && yarn install)
-
-	# apparently --no-bin-links leaves executable bits off of these o_O
-	chmod +x frontend/node_modules/typescript/bin/tsc frontend/node_modules/tslint/bin/tslint
-
-	bin/tsc.sh
-
-	bin/tslint.sh
+buildInternalDependenciesDocs() {
+	echo "\`\`\`" > docs/internal-dependencies.md
+	(cd cmd/pism && depth . | grep github.com/function61/pi-security-module/ | grep -v vendor) >> docs/internal-dependencies.md
+	echo "\`\`\`" >> docs/internal-dependencies.md
 }
 
-packagePublicFiles() {
-	tar -czf rel/public.tar.gz public/
-}
+generateCommandlineUserguideDocs() {
+	# because help text self reflects its binary name
+	cp rel/pism_linux-amd64 pism
 
-buildAndDeployDocs() {
-	bin/generate_docs.sh
+	cat << EOF > docs/user-guides/command-line.md
+To receive help, just run:
 
-	if [ "${PUBLISH_ARTEFACTS:-''}" = "true" ]; then
-		mc config host add s3 https://s3.amazonaws.com "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" S3v4
+\`\`\`
+./pism --help
+$(./pism --help)
+\`\`\`
 
-		mc cp --json --no-color docs_ready/docs.tar.gz s3/docs.function61.com/_packages/pi-security-module.tar.gz
-	fi
-}
+Any subcommand will also give you help:
 
-hook_unitTests_after() {
-	buildstep buildPublicFiles
+\`\`\`
+./pism server --help
+$(./pism server --help)
+\`\`\`
 
-	buildstep packagePublicFiles
+EOF
+
+	# cleanup
+	rm -f pism
 }
 
 cleanupGeneratedFiles
 
 standardBuildProcess
 
-buildAndDeployDocs
+buildInternalDependenciesDocs
+
+generateCommandlineUserguideDocs
