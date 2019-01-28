@@ -5,7 +5,7 @@
   "main": "-",
   "dependencies": {
     "@types/bootstrap": "3.3.28",
-    "@types/jquery": "3.3.1",
+    "@types/jquery": "3.3.29",
     "@types/moment": "2.13.0",
     "@types/react-dom": "16.0.10",
     "react": "16.5.2",
