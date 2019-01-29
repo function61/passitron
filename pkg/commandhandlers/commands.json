@@ -252,6 +252,18 @@
 		"fields": []
 	},
 	{
+		"command": "user.ChangePassword",
+		"chain": "authdWrite",
+		"ctor": ["User"],
+		"crudNature": "update",
+		"title": "Change password",
+		"fields": [
+			{ "key": "User", "hideIfDefaultValue": true },
+			{ "key": "Password", "type": "password" },
+			{ "key": "PasswordRepeat", "type": "password" }
+		]
+	},
+	{
 		"command": "user.RegisterU2FToken",
 		"chain": "authdWrite",
 		"ctor": ["Request"],

@@ -14,6 +14,7 @@ import {
 	U2FEnrollmentChallenge,
 	U2FEnrolledToken,
 	U2FChallengeBundle,
+	User,
 } from 'generated/apitypes';
 import {getJson, postJson} from 'httputil';
 

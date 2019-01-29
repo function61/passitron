@@ -328,18 +328,25 @@ func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3Integra
 }
 
 func (s *State) ApplyUserCreated(e *domain.UserCreated) error {
-	s.State.Users[e.Id] = User{
-		Id:       e.Id,
-		Username: e.Username,
+	s.State.Users[e.Id] = SensitiveUser{
+		User: apitypes.User{
+			Id:       e.Id,
+			Created:  e.Meta().Timestamp,
+			Username: e.Username,
+		},
 	}
 
 	return nil
 }
 
 func (s *State) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error {
-	u := s.State.Users[e.User]
-	u.Password = e.Password
-	s.State.Users[e.User] = u
+	// PasswordLastChanged only reflects actual password changes, not technical ones
+	if !e.AutomaticUpgrade {
+		u := s.State.Users[e.User]
+		u.PasswordHash = e.Password
+		u.User.PasswordLastChanged = e.Meta().Timestamp
+		s.State.Users[e.User] = u
+	}
 
 	return nil
 }

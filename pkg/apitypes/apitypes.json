@@ -6,6 +6,7 @@
 		{ "chain": "authdQuery", "method": "POST", "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
 		{ "chain": "authdQuery", "method": "GET", "path": "/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport", "description": "Gets QR code of TOTP token for exporting to Google Authenticator" },
 		{ "chain": "authdQuery", "method": "GET", "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
+		{ "chain": "authdQuery", "method": "GET", "path": "/users", "produces": {"_": "list", "of": {"_": "User"}}, "name": "userList" },
 		{ "chain": "authdQuery", "method": "GET", "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
 		{ "chain": "authdQuery", "method": "GET", "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
 		{ "chain": "authdQuery", "method": "GET", "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
@@ -19,6 +20,15 @@
 				{ "key": "SubFolders", "type": {"_": "list", "of": {"_": "Folder"}} },
 				{ "key": "ParentFolders", "type": {"_": "list", "of": {"_": "Folder"}} },
 				{ "key": "Accounts", "type": {"_": "list", "of": {"_": "Account"}} }
+			]
+		},
+		{
+			"name": "User",
+			"fields": [
+				{ "key": "Id", "type": {"_": "string"} },
+				{ "key": "Created", "type": {"_": "datetime"} },
+				{ "key": "Username", "type": {"_": "string"} },
+				{ "key": "PasswordLastChanged", "type": {"_": "datetime"} }
 			]
 		},
 		{

@@ -424,9 +424,9 @@ func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPa
 }
 
 func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
-	var user *state.User
+	var user *state.SensitiveUser
 	for _, u := range h.state.State.Users {
-		if u.Username == a.Username {
+		if u.User.Username == a.Username {
 			user = &u
 			break
 		}
@@ -437,11 +437,11 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 	}
 
 	upgradedPassword, err := storedpassword.Verify(
-		storedpassword.StoredPassword(user.Password),
+		storedpassword.StoredPassword(user.PasswordHash),
 		a.Password,
 		storedpassword.BuiltinStrategies)
 	if err != nil {
-		h.logl.Error.Printf("User %s failure signing in: %s", user.Username, err.Error())
+		h.logl.Error.Printf("User %s failure signing in: %s", user.User.Username, err.Error())
 
 		if err != storedpassword.ErrIncorrectPassword { // technical error
 			return err
@@ -456,14 +456,14 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 	if upgradedPassword != "" {
 		h.logl.Info.Printf(
 			"Upgrading password of %s to %s",
-			user.Username,
+			user.User.Username,
 			storedpassword.CurrentBestDerivationStrategy.Id())
 
 		ctx.RaisesEvent(domain.NewUserPasswordUpdated(
-			user.Id,
+			user.User.Id,
 			string(upgradedPassword),
 			true, // => automatic upgrade of password
-			event.Meta(time.Now(), user.Id)))
+			event.Meta(time.Now(), user.User.Id)))
 	}
 
 	jwtSigner, err := httpauth.NewEcJwtSigner(h.state.GetJwtSigningKey())
@@ -472,7 +472,7 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 	}
 
 	token := jwtSigner.Sign(httpauth.UserDetails{
-		Id: user.Id,
+		Id: user.User.Id,
 	})
 
 	ctx.SetCookie = httpauth.ToCookie(token)
@@ -480,9 +480,9 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,
 		ctx.UserAgent,
-		event.Meta(time.Now(), user.Id)))
+		event.Meta(time.Now(), user.User.Id)))
 
-	h.logl.Info.Printf("User %s signed in", user.Username)
+	h.logl.Info.Printf("User %s signed in", user.User.Username)
 
 	return nil
 }
@@ -522,6 +522,23 @@ func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
 	// TODO: remove skipped test
 
 	return errors.New("not yet implemented")
+}
+
+func (h *CommandHandlers) UserChangePassword(a *UserChangePassword, ctx *command.Ctx) error {
+	// TODO: verify current password
+
+	if a.Password != a.PasswordRepeat {
+		return errors.New("password and repeated password different")
+	}
+
+	passwordHashed, err := storedpassword.Store(a.Password, storedpassword.CurrentBestDerivationStrategy)
+	if err != nil {
+		return err
+	}
+
+	ctx.RaisesEvent(domain.NewUserPasswordUpdated(a.User, string(passwordHashed), false, ctx.Meta))
+
+	return nil
 }
 
 func (h *CommandHandlers) UserRegisterU2FToken(a *UserRegisterU2FToken, ctx *command.Ctx) error {

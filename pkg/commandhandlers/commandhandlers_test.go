@@ -18,6 +18,8 @@ func TestScenario(t *testing.T) {
 
 	createAdminUser(t, tstate)
 
+	changeAdminPassword(t, tstate)
+
 	tstate.firstAccountId = createAccount(t, tstate)
 
 	signInAndSignOut(t, tstate)
@@ -81,6 +83,16 @@ func createAdminUser(t *testing.T, tstate *testScenarioState) {
 	}
 }
 
+func changeAdminPassword(t *testing.T, tstate *testScenarioState) {
+	cmdCtx := tstate.DefaultCmdCtx()
+
+	tstate.InvokeSucceeds(t, cmdCtx, &UserChangePassword{
+		User:           cmdCtx.Meta.UserId,
+		Password:       "nimda2", // previous password was "nimda"
+		PasswordRepeat: "nimda2",
+	})
+}
+
 func createAccount(t *testing.T, tstate *testScenarioState) string {
 	cmdCtx := tstate.DefaultCmdCtx()
 
@@ -106,7 +118,7 @@ func signInAndSignOut(t *testing.T, tstate *testScenarioState) {
 
 	tstate.InvokeSucceeds(t, ctx, &SessionSignIn{
 		Username: "admin",
-		Password: "nimda",
+		Password: "nimda2",
 	})
 
 	assert.Assert(t, ctx.SetCookie != nil)

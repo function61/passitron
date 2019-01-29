@@ -30,14 +30,13 @@ type U2FToken struct {
 	Counter          uint32
 }
 
-type User struct {
-	Id       string
-	Username string
-	Password string
+type SensitiveUser struct {
+	User         apitypes.User
+	PasswordHash string
 }
 
 type Statefile struct {
-	Users           map[string]User // keyed by id
+	Users           map[string]SensitiveUser // keyed by id
 	WrappedAccounts []WrappedAccount
 	Folders         []apitypes.Folder
 	AuditLog        []apitypes.AuditlogEntry
@@ -70,7 +69,7 @@ func NewStatefile() *Statefile {
 	}
 
 	return &Statefile{
-		Users:           map[string]User{},
+		Users:           map[string]SensitiveUser{},
 		WrappedAccounts: []WrappedAccount{},
 		Folders:         []apitypes.Folder{rootFolder},
 		AuditLog:        []apitypes.AuditlogEntry{},

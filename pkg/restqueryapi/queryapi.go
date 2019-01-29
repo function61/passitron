@@ -58,6 +58,16 @@ func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.Response
 	}
 }
 
+func (a *queryHandlers) UserList(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.User {
+	users := []apitypes.User{}
+
+	for _, user := range a.st.State.Users {
+		users = append(users, user.User)
+	}
+
+	return &users
+}
+
 func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *apitypes.SecretKeylistKey {
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
