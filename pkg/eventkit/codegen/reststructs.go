@@ -3,6 +3,7 @@ package codegen
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -115,4 +116,40 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 	}
 
 	return tsType
+}
+
+func (a *ApplicationTypesDefinition) EndpointsProducesAndConsumesTypescriptTypes() []string {
+	dedupe := map[string]bool{}
+
+	processOneDt := func(dt *DatatypeDef) {
+		if dt == nil {
+			return
+		}
+
+		// look inside arrays and objects
+		for _, flattenedItem := range flattenDatatype(dt) {
+			if !isCustomType(flattenedItem.Name) {
+				continue
+			}
+
+			dedupe[flattenedItem.Name] = true
+		}
+	}
+
+	for _, endpoint := range a.Endpoints {
+		processOneDt(endpoint.Consumes)
+		processOneDt(endpoint.Produces)
+	}
+
+	uniques := make([]string, len(dedupe))
+
+	i := 0
+	for name, _ := range dedupe {
+		uniques[i] = name
+		i++
+	}
+
+	sort.Sort(sort.StringSlice(uniques))
+
+	return uniques
 }

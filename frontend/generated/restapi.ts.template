@@ -4,17 +4,8 @@
 // WHY: wouldn't make sense complicating code generation to check
 // if we need template string or not in path string
 
-import {
-	AuditlogEntry,
-	ExposedSecret,
-	FolderResponse,
-	SecretKeylistKey,
-	WrappedAccount,
-	U2FResponseBundle,
-	U2FEnrollmentChallenge,
-	U2FEnrolledToken,
-	U2FChallengeBundle,
-	User,
+import { {{range .ApplicationTypes.EndpointsProducesAndConsumesTypescriptTypes}}
+	{{.}},{{end}}
 } from 'generated/apitypes';
 import {getJson, postJson} from 'httputil';
 
