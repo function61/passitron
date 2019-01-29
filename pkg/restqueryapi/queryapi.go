@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.State) {
+func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.AppState) {
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
 	}, mwares, func(method string, path string, fn http.HandlerFunc) {
@@ -31,7 +31,7 @@ func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.
 }
 
 type queryHandlers struct {
-	st *state.State
+	st *state.AppState
 }
 
 func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
@@ -61,7 +61,7 @@ func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.Response
 func (a *queryHandlers) UserList(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.User {
 	users := []apitypes.User{}
 
-	for _, user := range a.st.State.Users {
+	for _, user := range a.st.DB.Users {
 		users = append(users, user.User)
 	}
 
@@ -174,7 +174,7 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 }
 
 func (a *queryHandlers) AuditLogEntries(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.AuditlogEntry {
-	return &a.st.State.AuditLog
+	return &a.st.DB.AuditLog
 }
 
 func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
@@ -219,7 +219,7 @@ func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWri
 	accounts := []apitypes.Account{}
 	folders := []apitypes.Folder{}
 
-	for _, folder := range a.st.State.Folders {
+	for _, folder := range a.st.DB.Folders {
 		if !strings.Contains(strings.ToLower(folder.Name), query) {
 			continue
 		}
@@ -227,7 +227,7 @@ func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWri
 		folders = append(folders, folder)
 	}
 
-	for _, wacc := range a.st.State.WrappedAccounts {
+	for _, wacc := range a.st.DB.WrappedAccounts {
 		if !strings.Contains(strings.ToLower(wacc.Account.Title), query) {
 			continue
 		}
@@ -272,7 +272,7 @@ func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w 
 func (a *queryHandlers) U2fEnrolledTokens(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
 	tokens := []apitypes.U2FEnrolledToken{}
 
-	for _, token := range a.st.State.U2FTokens {
+	for _, token := range a.st.DB.U2FTokens {
 		tokens = append(tokens, apitypes.U2FEnrolledToken{
 			Name:       token.Name,
 			EnrolledAt: token.EnrolledAt,
@@ -336,7 +336,7 @@ func u2fSignatureOk(
 	rctx *httpauth.RequestContext,
 	response apitypes.U2FResponseBundle,
 	expectedHash [32]byte,
-	st *state.State,
+	st *state.AppState,
 ) error {
 	nativeChallenge := u2futil.ChallengeFromApiType(response.Challenge)
 

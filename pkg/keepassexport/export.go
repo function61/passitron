@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-func Export(st *state.State) error {
+func Export(st *state.AppState) error {
 	if st.S3ExportBucket == "" || st.S3ExportApiKey == "" || st.S3ExportSecret == "" {
 		return errors.New("S3ExportBucket, S3ExportApiKey or S3ExportSecret undefined")
 	}
@@ -129,7 +129,7 @@ func entryForAccount(account apitypes.Account, idx int, notesAppend string) *gok
 	return &entry
 }
 
-func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (gokeepasslib.Group, int) {
+func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.AppState) (gokeepasslib.Group, int) {
 	entriesExported := 0
 
 	folder := st.FolderById(id)
@@ -199,7 +199,7 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.State) (g
 	return group, entriesExported
 }
 
-func keepassExport(masterPassword string, output io.Writer, st *state.State) error {
+func keepassExport(masterPassword string, output io.Writer, st *state.AppState) error {
 	meta := gokeepasslib.NewMetaData()
 
 	content := &gokeepasslib.DBContent{

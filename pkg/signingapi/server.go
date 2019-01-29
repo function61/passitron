@@ -25,8 +25,8 @@ func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
 	return false
 }
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, *state.WrappedAccount, string, error) {
-	for _, wacc := range st.State.WrappedAccounts {
+func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.AppState) (ssh.Signer, *state.WrappedAccount, string, error) {
+	for _, wacc := range st.DB.WrappedAccounts {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
@@ -49,11 +49,11 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.State) (ssh.Signer, 
 	return nil, nil, "", errors.New("privkey not found by pubkey")
 }
 
-func ExpectedAuthHeader(st *state.State) string {
+func ExpectedAuthHeader(st *state.AppState) string {
 	return "Bearer " + st.GetAgentToken()
 }
 
-func Setup(router *mux.Router, st *state.State) {
+func Setup(router *mux.Router, st *state.AppState) {
 	router.HandleFunc("/_api/signer/publickeys", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfSealed(st.IsUnsealed(), w) {
 			return
@@ -66,7 +66,7 @@ func Setup(router *mux.Router, st *state.State) {
 
 		resp := signingapitypes.NewPublicKeysResponse()
 
-		for _, wacc := range st.State.WrappedAccounts {
+		for _, wacc := range st.DB.WrappedAccounts {
 			for _, secret := range wacc.Secrets {
 				if secret.SshPrivateKey == "" {
 					continue

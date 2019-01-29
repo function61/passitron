@@ -36,10 +36,10 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 		return err
 	}
 
-	st := state.New(logex.Prefix("state", logger))
-	defer st.Close()
+	appState := state.New(logex.Prefix("state", logger))
+	defer appState.Close()
 
-	handler, err := createHandler(st, logger)
+	handler, err := createHandler(appState, logger)
 	if err != nil {
 		return err
 	}
@@ -79,31 +79,37 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	return nil
 }
 
-func createHandler(st *state.State, logger *log.Logger) (http.Handler, error) {
+func createHandler(appState *state.AppState, logger *log.Logger) (http.Handler, error) {
 	router := mux.NewRouter()
 
-	middlewareChains, err := createMiddlewares(st)
+	middlewareChains, err := createMiddlewares(appState)
 	if err != nil {
 		return nil, err
 	}
 
-	restqueryapi.Register(router, middlewareChains, st)
+	restqueryapi.Register(router, middlewareChains, appState)
 
-	if err := restcommandapi.Register(router, middlewareChains, st.EventLog, st, logex.Prefix("commandapi", logger)); err != nil {
+	if err := restcommandapi.Register(
+		router,
+		middlewareChains,
+		appState.EventLog,
+		appState,
+		logex.Prefix("commandapi", logger),
+	); err != nil {
 		return nil, err
 	}
 
-	signingapi.Setup(router, st)
+	signingapi.Setup(router, appState)
 
 	// this most generic catch-all route has to be introduced last
-	if err := setupStaticFilesRouting(router, st); err != nil {
+	if err := setupStaticFilesRouting(router, appState); err != nil {
 		return nil, err
 	}
 
 	return router, nil
 }
 
-func setupStaticFilesRouting(router *mux.Router, st *state.State) error {
+func setupStaticFilesRouting(router *mux.Router, appState *state.AppState) error {
 	indexTemplate, err := ioutil.ReadFile("public/index.html.template")
 	if err != nil {
 		return err
@@ -112,7 +118,7 @@ func setupStaticFilesRouting(router *mux.Router, st *state.State) error {
 	index := strings.Replace(
 		string(indexTemplate),
 		"[$csrf_token]",
-		st.GetCsrfToken(),
+		appState.GetCsrfToken(),
 		-1)
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

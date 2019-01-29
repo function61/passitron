@@ -8,10 +8,10 @@ import (
 	"time"
 )
 
-func (s *State) SubfoldersByParentId(id string) []apitypes.Folder {
+func (s *AppState) SubfoldersByParentId(id string) []apitypes.Folder {
 	subFolders := []apitypes.Folder{}
 
-	for _, f := range s.State.Folders {
+	for _, f := range s.DB.Folders {
 		if f.ParentId != id {
 			continue
 		}
@@ -22,10 +22,10 @@ func (s *State) SubfoldersByParentId(id string) []apitypes.Folder {
 	return subFolders
 }
 
-func (s *State) WrappedAccountsByFolder(id string) []WrappedAccount {
+func (s *AppState) WrappedAccountsByFolder(id string) []WrappedAccount {
 	accounts := []WrappedAccount{}
 
-	for _, wacc := range s.State.WrappedAccounts {
+	for _, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.FolderId != id {
 			continue
 		}
@@ -36,7 +36,7 @@ func (s *State) WrappedAccountsByFolder(id string) []WrappedAccount {
 	return accounts
 }
 
-func (s *State) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
+func (s *AppState) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
 	wacc := s.WrappedAccountById(accountId)
 	if wacc == nil {
 		return nil
@@ -51,8 +51,8 @@ func (s *State) WrappedSecretById(accountId string, secretId string) *WrappedSec
 	return nil
 }
 
-func (s *State) WrappedAccountById(id string) *WrappedAccount {
-	for _, wacc := range s.State.WrappedAccounts {
+func (s *AppState) WrappedAccountById(id string) *WrappedAccount {
+	for _, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == id {
 			return &wacc
 		}
@@ -61,8 +61,8 @@ func (s *State) WrappedAccountById(id string) *WrappedAccount {
 	return nil
 }
 
-func (s *State) FolderById(id string) *apitypes.Folder {
-	for _, folder := range s.State.Folders {
+func (s *AppState) FolderById(id string) *apitypes.Folder {
+	for _, folder := range s.DB.Folders {
 		if folder.Id == id {
 			return &folder
 		}
@@ -81,7 +81,7 @@ func UnwrapAccounts(waccs []WrappedAccount) []apitypes.Account {
 	return ret
 }
 
-func UnwrapSecrets(secrets []WrappedSecret, st *State) []apitypes.ExposedSecret {
+func UnwrapSecrets(secrets []WrappedSecret, st *AppState) []apitypes.ExposedSecret {
 	ret := []apitypes.ExposedSecret{}
 
 	otpProofTime := time.Now()

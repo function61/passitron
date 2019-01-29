@@ -104,7 +104,7 @@ func createAccount(t *testing.T, tstate *testScenarioState) string {
 		PasswordRepeat: "hunter2",
 	})
 
-	wacc := tstate.st.State.WrappedAccounts[0]
+	wacc := tstate.st.DB.WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Title, "www.example.com")
 	assert.EqualString(t, wacc.Account.Url, "https://www.example.com/login")
@@ -136,7 +136,7 @@ func renameAccount(t *testing.T, tstate *testScenarioState) {
 		Title:   "www.example.com, renamed",
 	})
 
-	wacc := tstate.st.State.WrappedAccounts[0]
+	wacc := tstate.st.DB.WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Title, "www.example.com, renamed")
 }
@@ -147,7 +147,7 @@ func changeUsername(t *testing.T, tstate *testScenarioState) {
 		Username: "joonas",
 	})
 
-	wacc := tstate.st.State.WrappedAccounts[0]
+	wacc := tstate.st.DB.WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Username, "joonas")
 }
@@ -163,7 +163,7 @@ func changeDescriptionAndUrl(t *testing.T, tstate *testScenarioState) {
 		Url:     "https://www.reddit.com/",
 	})
 
-	wacc := tstate.st.State.WrappedAccounts[0]
+	wacc := tstate.st.DB.WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Description, "why hello there my friend")
 	assert.EqualString(t, wacc.Account.Url, "https://www.reddit.com/")
@@ -325,31 +325,31 @@ func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {
 		Name:   "2nd sub folder",
 	})
 
-	assert.Assert(t, len(tstate.st.State.Folders) == 3)
+	assert.Assert(t, len(tstate.st.DB.Folders) == 3)
 
 	// both should be root's parents
-	assert.EqualString(t, tstate.st.State.Folders[1].ParentId, domain.RootFolderId)
-	assert.EqualString(t, tstate.st.State.Folders[2].ParentId, domain.RootFolderId)
+	assert.EqualString(t, tstate.st.DB.Folders[1].ParentId, domain.RootFolderId)
+	assert.EqualString(t, tstate.st.DB.Folders[2].ParentId, domain.RootFolderId)
 
 	// now rename and move "2nd sub folder" under "1st sub folder"
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountRenameFolder{
-		Id:   tstate.st.State.Folders[2].Id,
+		Id:   tstate.st.DB.Folders[2].Id,
 		Name: "sub sub folder",
 	})
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountMoveFolder{
-		Id:        tstate.st.State.Folders[2].Id,
-		NewParent: tstate.st.State.Folders[1].Id,
+		Id:        tstate.st.DB.Folders[2].Id,
+		NewParent: tstate.st.DB.Folders[1].Id,
 	})
 
-	assert.EqualString(t, tstate.st.State.Folders[2].Name, "sub sub folder")
-	assert.EqualString(t, tstate.st.State.Folders[2].ParentId, tstate.st.State.Folders[1].Id)
+	assert.EqualString(t, tstate.st.DB.Folders[2].Name, "sub sub folder")
+	assert.EqualString(t, tstate.st.DB.Folders[2].ParentId, tstate.st.DB.Folders[1].Id)
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDeleteFolder{
-		Id: tstate.st.State.Folders[2].Id,
+		Id: tstate.st.DB.Folders[2].Id,
 	})
 
-	assert.Assert(t, len(tstate.st.State.Folders) == 2)
+	assert.Assert(t, len(tstate.st.DB.Folders) == 2)
 }
 
 func moveAccount(t *testing.T, tstate *testScenarioState) {
@@ -359,12 +359,12 @@ func moveAccount(t *testing.T, tstate *testScenarioState) {
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountMove{
 		Account:         tstate.firstAccountId,
-		NewParentFolder: tstate.st.State.Folders[1].Id,
+		NewParentFolder: tstate.st.DB.Folders[1].Id,
 	})
 
 	wacc = tstate.st.WrappedAccountById(tstate.firstAccountId)
 
-	assert.EqualString(t, wacc.Account.FolderId, tstate.st.State.Folders[1].Id)
+	assert.EqualString(t, wacc.Account.FolderId, tstate.st.DB.Folders[1].Id)
 }
 
 func deleteAccount(t *testing.T, tstate *testScenarioState) {
@@ -372,20 +372,20 @@ func deleteAccount(t *testing.T, tstate *testScenarioState) {
 		Id: tstate.firstAccountId,
 	})
 
-	assert.Assert(t, len(tstate.st.State.WrappedAccounts) == 0)
+	assert.Assert(t, len(tstate.st.DB.WrappedAccounts) == 0)
 }
 
 // the rest are utilities used for testing
 
 // used to pass test context along
 type testScenarioState struct {
-	st               *state.State
+	st               *state.AppState
 	handlers         Handlers
 	untestedCommands map[string]bool
 	firstAccountId   string
 }
 
-func NewTestScenarioState(st *state.State) *testScenarioState {
+func NewTestScenarioState(st *state.AppState) *testScenarioState {
 	untestedCommands := map[string]bool{}
 
 	for commandKey, _ := range Allocators {

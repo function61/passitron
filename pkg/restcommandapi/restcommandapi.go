@@ -17,10 +17,10 @@ func Register(
 	router *mux.Router,
 	mwares httpauth.MiddlewareChainMap,
 	eventLog eventlog.Log,
-	st *state.State,
+	appState *state.AppState,
 	logger *log.Logger,
 ) error {
-	handlers := commandhandlers.New(st, logger)
+	handlers := commandhandlers.New(appState, logger)
 
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]

@@ -19,14 +19,14 @@ const (
 	logfilePath   = "events.log"
 )
 
-type State struct {
+type AppState struct {
 	masterPassword string
 	macSigningKey  string // derived from masterPassword
 	csrfToken      string // derived from masterPassword
 	agentToken     string // derived from masterPassword
 	sealed         bool
 	conf           *Config
-	State          *Statefile
+	DB             *Statefile
 	EventLog       eventlog.Log
 	eventLogFile   *os.File
 	S3ExportBucket string
@@ -34,10 +34,10 @@ type State struct {
 	S3ExportSecret string
 }
 
-func NewTesting() *State {
-	s := &State{
+func NewTesting() *AppState {
+	s := &AppState{
 		masterPassword: "",
-		State:          NewStatefile(),
+		DB:             NewStatefile(),
 		sealed:         false,
 		conf: &Config{ // don't worry, these aren't used anywhere else
 			JwtPrivateKey: "-----BEGIN PRIVATE KEY-----\nMIHcAgEBBEIB2tjp2EsS8/3zluTu9BD2iO7CgSLW/4SbE3QP+agvZ4gqfX+bfUqv\nOIGJ2QXWnNUdoa959SMk16X3g/8hhV36M/CgBwYFK4EEACOhgYkDgYYABAEdq+Bc\n07oizVlgGglR3W7YaGy9X1aRQKwmz8fkGxjSnvh59rWKrRuEf/Y0YkqsvbZ57WYH\nJ6VG+zWcdGwKrsbXaAAsUs6ublzftJUDLNWhFTF3s4YzT2h3A8ClGjKhsoqRR6YC\n3U4taAsc2GqLUf+ElReqfUiCkQSHVJ2OjxNyKCAMqg==\n-----END PRIVATE KEY-----\n",
@@ -64,7 +64,7 @@ func NewTesting() *State {
 	return s
 }
 
-func New(logger *log.Logger) *State {
+func New(logger *log.Logger) *AppState {
 	conf, err := readConfig()
 	if err != nil {
 		panic(err)
@@ -76,9 +76,9 @@ func New(logger *log.Logger) *State {
 	}
 
 	// state from the event log is computed & populated mainly under State field
-	s := &State{
+	s := &AppState{
 		masterPassword: "",
-		State:          NewStatefile(),
+		DB:             NewStatefile(),
 		sealed:         true,
 		conf:           conf,
 		eventLogFile:   eventLogFile,
@@ -97,24 +97,24 @@ func New(logger *log.Logger) *State {
 	return s
 }
 
-func (s *State) Close() {
+func (s *AppState) Close() {
 	if s.eventLogFile != nil {
 		s.eventLogFile.Close()
 	}
 }
 
 // for Keepass export
-func (s *State) GetMasterPassword() string {
+func (s *AppState) GetMasterPassword() string {
 	return s.masterPassword
 }
 
-func (s *State) GetMacSigningKey() string {
+func (s *AppState) GetMacSigningKey() string {
 	return s.macSigningKey
 }
 
 // FIXME: this is relatively safe (system-wide CSRF tokens) only as long as this is a
 //        single-user system
-func (s *State) GetCsrfToken() string {
+func (s *AppState) GetCsrfToken() string {
 	if s.csrfToken == "" {
 		panic("csrfToken not set")
 	}
@@ -122,7 +122,7 @@ func (s *State) GetCsrfToken() string {
 	return s.csrfToken
 }
 
-func (s *State) GetAgentToken() string {
+func (s *AppState) GetAgentToken() string {
 	if s.agentToken == "" {
 		panic("agentToken not set")
 	}
@@ -130,7 +130,7 @@ func (s *State) GetAgentToken() string {
 	return s.agentToken
 }
 
-func (s *State) GetJwtValidationKey() []byte {
+func (s *AppState) GetJwtValidationKey() []byte {
 	if s.conf.JwtPublicKey == "" {
 		panic(errors.New("JwtPublicKey not set"))
 	}
@@ -138,7 +138,7 @@ func (s *State) GetJwtValidationKey() []byte {
 	return []byte(s.conf.JwtPublicKey)
 }
 
-func (s *State) GetJwtSigningKey() []byte {
+func (s *AppState) GetJwtSigningKey() []byte {
 	if s.conf.JwtPrivateKey == "" {
 		panic(errors.New("JwtPrivateKey not set"))
 	}
@@ -146,7 +146,7 @@ func (s *State) GetJwtSigningKey() []byte {
 	return []byte(s.conf.JwtPrivateKey)
 }
 
-func (s *State) SetMasterPassword(password string) {
+func (s *AppState) SetMasterPassword(password string) {
 	s.masterPassword = password
 
 	// FIXME: if we scan entire event log at startup, and there's 100x
@@ -165,11 +165,11 @@ func (s *State) SetMasterPassword(password string) {
 		[]byte("agentSalt")))
 }
 
-func (s *State) IsUnsealed() bool {
+func (s *AppState) IsUnsealed() bool {
 	return !s.sealed
 }
 
-func (s *State) SetSealed(sealed bool) {
+func (s *AppState) SetSealed(sealed bool) {
 	s.sealed = sealed
 }
 

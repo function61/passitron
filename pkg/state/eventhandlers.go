@@ -16,7 +16,7 @@ func ewrap(msg string, inner error) error {
 	return errors.New(msg + ": " + inner.Error())
 }
 
-func (s *State) ApplyAccountCreated(e *domain.AccountCreated) error {
+func (s *AppState) ApplyAccountCreated(e *domain.AccountCreated) error {
 	wrappedAccount := WrappedAccount{
 		Account: apitypes.Account{
 			Id:       e.Id,
@@ -27,22 +27,22 @@ func (s *State) ApplyAccountCreated(e *domain.AccountCreated) error {
 		Secrets: []WrappedSecret{},
 	}
 
-	s.State.WrappedAccounts = append(s.State.WrappedAccounts, wrappedAccount)
+	s.DB.WrappedAccounts = append(s.DB.WrappedAccounts, wrappedAccount)
 
 	return nil
 }
 
-func (s *State) ApplySessionSignedIn(e *domain.SessionSignedIn) error {
+func (s *AppState) ApplySessionSignedIn(e *domain.SessionSignedIn) error {
 	return nil
 }
 
-func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountDeleted(e *domain.AccountDeleted) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			s.State.WrappedAccounts = append(
-				s.State.WrappedAccounts[:idx],
-				s.State.WrappedAccounts[idx+1:]...)
+			s.DB.WrappedAccounts = append(
+				s.DB.WrappedAccounts[:idx],
+				s.DB.WrappedAccounts[idx+1:]...)
 			return nil
 		}
 	}
@@ -50,11 +50,11 @@ func (s *State) ApplyAccountDeleted(e *domain.AccountDeleted) error {
 	return ewrap("ApplyAccountDeleted", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountRenamed(e *domain.AccountRenamed) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Title = e.Title
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -62,11 +62,11 @@ func (s *State) ApplyAccountRenamed(e *domain.AccountRenamed) error {
 	return ewrap("ApplyAccountRenamed", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountMoved(e *domain.AccountMoved) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountMoved(e *domain.AccountMoved) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.FolderId = e.NewParentFolder
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -74,11 +74,11 @@ func (s *State) ApplyAccountMoved(e *domain.AccountMoved) error {
 	return ewrap("ApplyAccountMoved", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Description = e.Description
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -86,11 +86,11 @@ func (s *State) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChang
 	return ewrap("ApplyAccountDescriptionChanged", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountUrlChanged(e *domain.AccountUrlChanged) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountUrlChanged(e *domain.AccountUrlChanged) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Url = e.Url
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -98,8 +98,8 @@ func (s *State) ApplyAccountUrlChanged(e *domain.AccountUrlChanged) error {
 	return ewrap("ApplyAccountUrlChanged", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -112,7 +112,7 @@ func (s *State) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded) er
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -120,8 +120,8 @@ func (s *State) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded) er
 	return ewrap("ApplyAccountSecretNoteAdded", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -133,7 +133,7 @@ func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error 
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -141,8 +141,8 @@ func (s *State) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error 
 	return ewrap("ApplyAccountOtpTokenAdded", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -154,7 +154,7 @@ func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error 
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -162,8 +162,8 @@ func (s *State) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error 
 	return ewrap("ApplyAccountPasswordAdded", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			keyItems := []apitypes.SecretKeylistKey{}
 
@@ -192,7 +192,7 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -200,8 +200,8 @@ func (s *State) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 	return ewrap("ApplyAccountKeylistAdded", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error {
-	for accountIdx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error {
+	for accountIdx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			for secretIdx, secret := range wacc.Secrets {
 				if secret.Secret.Id == e.Secret {
@@ -210,7 +210,7 @@ func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error 
 						wacc.Secrets[secretIdx+1:]...)
 				}
 			}
-			s.State.WrappedAccounts[accountIdx] = wacc
+			s.DB.WrappedAccounts[accountIdx] = wacc
 			return nil
 		}
 	}
@@ -218,14 +218,14 @@ func (s *State) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error 
 	return ewrap("ApplyAccountSecretDeleted", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountSecretUsed(e *domain.AccountSecretUsed) error {
-	s.State.Audit(fmt.Sprintf("Secret %s used (%s)", e.Account, e.Type), e.Meta())
+func (s *AppState) ApplyAccountSecretUsed(e *domain.AccountSecretUsed) error {
+	s.DB.Audit(fmt.Sprintf("Secret %s used (%s)", e.Account, e.Type), e.Meta())
 
 	return nil
 }
 
-func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -238,7 +238,7 @@ func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -246,11 +246,11 @@ func (s *State) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 	return ewrap("ApplyAccountSshKeyAdded", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) error {
-	for idx, wacc := range s.State.WrappedAccounts {
+func (s *AppState) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) error {
+	for idx, wacc := range s.DB.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Username = e.Username
-			s.State.WrappedAccounts[idx] = wacc
+			s.DB.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -258,24 +258,24 @@ func (s *State) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) er
 	return ewrap("ApplyAccountUsernameChanged", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) error {
+func (s *AppState) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) error {
 	newFolder := apitypes.Folder{
 		Id:       e.Id,
 		ParentId: e.ParentId,
 		Name:     e.Name,
 	}
 
-	s.State.Folders = append(s.State.Folders, newFolder)
+	s.DB.Folders = append(s.DB.Folders, newFolder)
 	return nil
 }
 
-func (s *State) ApplyAccountFolderDeleted(e *domain.AccountFolderDeleted) error {
-	for idx, folder := range s.State.Folders {
+func (s *AppState) ApplyAccountFolderDeleted(e *domain.AccountFolderDeleted) error {
+	for idx, folder := range s.DB.Folders {
 		if folder.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			s.State.Folders = append(
-				s.State.Folders[:idx],
-				s.State.Folders[idx+1:]...)
+			s.DB.Folders = append(
+				s.DB.Folders[:idx],
+				s.DB.Folders[idx+1:]...)
 			return nil
 		}
 	}
@@ -283,11 +283,11 @@ func (s *State) ApplyAccountFolderDeleted(e *domain.AccountFolderDeleted) error 
 	return ewrap("ApplyAccountFolderDeleted", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
-	for idx, acc := range s.State.Folders {
+func (s *AppState) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
+	for idx, acc := range s.DB.Folders {
 		if acc.Id == e.Id {
 			acc.ParentId = e.ParentId
-			s.State.Folders[idx] = acc
+			s.DB.Folders[idx] = acc
 			return nil
 		}
 	}
@@ -295,11 +295,11 @@ func (s *State) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
 	return ewrap("ApplyAccountFolderMoved", errRecordNotFound)
 }
 
-func (s *State) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) error {
-	for idx, acc := range s.State.Folders {
+func (s *AppState) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) error {
+	for idx, acc := range s.DB.Folders {
 		if acc.Id == e.Id {
 			acc.Name = e.Name
-			s.State.Folders[idx] = acc
+			s.DB.Folders[idx] = acc
 			return nil
 		}
 	}
@@ -307,19 +307,19 @@ func (s *State) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) error 
 	return ewrap("ApplyAccountFolderRenamed", errRecordNotFound)
 }
 
-func (s *State) ApplyDatabaseUnsealed(e *domain.DatabaseUnsealed) error {
+func (s *AppState) ApplyDatabaseUnsealed(e *domain.DatabaseUnsealed) error {
 	// no-op
 
 	return nil
 }
 
-func (s *State) ApplyDatabaseMasterPasswordChanged(e *domain.DatabaseMasterPasswordChanged) error {
+func (s *AppState) ApplyDatabaseMasterPasswordChanged(e *domain.DatabaseMasterPasswordChanged) error {
 	s.SetMasterPassword(e.Password)
 
 	return nil
 }
 
-func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3IntegrationConfigured) error {
+func (s *AppState) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3IntegrationConfigured) error {
 	s.S3ExportBucket = e.Bucket
 	s.S3ExportApiKey = e.ApiKey
 	s.S3ExportSecret = e.Secret
@@ -327,8 +327,8 @@ func (s *State) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3Integra
 	return nil
 }
 
-func (s *State) ApplyUserCreated(e *domain.UserCreated) error {
-	s.State.Users[e.Id] = SensitiveUser{
+func (s *AppState) ApplyUserCreated(e *domain.UserCreated) error {
+	s.DB.Users[e.Id] = SensitiveUser{
 		User: apitypes.User{
 			Id:       e.Id,
 			Created:  e.Meta().Timestamp,
@@ -339,20 +339,20 @@ func (s *State) ApplyUserCreated(e *domain.UserCreated) error {
 	return nil
 }
 
-func (s *State) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error {
+func (s *AppState) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error {
 	// PasswordLastChanged only reflects actual password changes, not technical ones
 	if !e.AutomaticUpgrade {
-		u := s.State.Users[e.User]
+		u := s.DB.Users[e.User]
 		u.PasswordHash = e.Password
 		u.User.PasswordLastChanged = e.Meta().Timestamp
-		s.State.Users[e.User] = u
+		s.DB.Users[e.User] = u
 	}
 
 	return nil
 }
 
-func (s *State) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
-	s.State.U2FTokens[e.KeyHandle] = &U2FToken{
+func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
+	s.DB.U2FTokens[e.KeyHandle] = &U2FToken{
 		Name:             e.Name,
 		EnrolledAt:       e.Meta().Timestamp,
 		KeyHandle:        e.KeyHandle,
@@ -365,14 +365,14 @@ func (s *State) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) er
 	return nil
 }
 
-func (s *State) ApplyUserU2FTokenUsed(e *domain.UserU2FTokenUsed) error {
-	token := s.State.U2FTokens[e.KeyHandle]
+func (s *AppState) ApplyUserU2FTokenUsed(e *domain.UserU2FTokenUsed) error {
+	token := s.DB.U2FTokens[e.KeyHandle]
 
 	token.Counter = uint32(e.Counter)
 
 	return nil
 }
 
-func (s *State) HandleUnknownEvent(e event.Event) error {
+func (s *AppState) HandleUnknownEvent(e event.Event) error {
 	return errors.New("unknown event: " + e.MetaType())
 }

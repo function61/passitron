@@ -143,7 +143,7 @@ func TestScenario(t *testing.T) {
 	}
 }
 
-func seedDatabase(st *state.State) {
+func seedDatabase(appState *state.AppState) {
 	accCreated := domain.NewAccountCreated(
 		"14",
 		domain.RootFolderId,
@@ -155,7 +155,7 @@ func seedDatabase(st *state.State) {
 		"greatpassword",
 		event.Meta(time.Now(), testUserId))
 
-	if err := st.EventLog.Append([]event.Event{
+	if err := appState.EventLog.Append([]event.Event{
 		accCreated,
 		masterPwdChanged,
 	}); err != nil {
@@ -184,7 +184,7 @@ func cmdJson(cmd command.Command) string {
 	return string(out)
 }
 
-func createHandlerWithWorkdirHack(st *state.State) (http.Handler, error) {
+func createHandlerWithWorkdirHack(appState *state.AppState) (http.Handler, error) {
 	// createHandler() reads a file off of a filesystem, expecting project root as workdir,
 	// but during test execution our workdir is at our workdir
 	revertWdir, err := chdirTemporarily("../..")
@@ -193,7 +193,7 @@ func createHandlerWithWorkdirHack(st *state.State) (http.Handler, error) {
 	}
 	defer revertWdir()
 
-	return createHandler(st, logex.Discard)
+	return createHandler(appState, logex.Discard)
 }
 
 func chdirTemporarily(to string) (revert func(), err error) {

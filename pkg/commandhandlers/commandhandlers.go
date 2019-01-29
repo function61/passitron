@@ -34,11 +34,11 @@ var (
 )
 
 type CommandHandlers struct {
-	state *state.State
+	state *state.AppState
 	logl  *logex.Leveled
 }
 
-func New(state *state.State, logger *log.Logger) *CommandHandlers {
+func New(state *state.AppState, logger *log.Logger) *CommandHandlers {
 	return &CommandHandlers{state, logex.Levels(logger)}
 }
 
@@ -425,7 +425,7 @@ func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPa
 
 func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	var user *state.SensitiveUser
-	for _, u := range h.state.State.Users {
+	for _, u := range h.state.DB.Users {
 		if u.User.Username == a.Username {
 			user = &u
 			break

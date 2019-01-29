@@ -8,14 +8,14 @@ import (
 	"net/http"
 )
 
-func createMiddlewares(st *state.State) (httpauth.MiddlewareChainMap, error) {
-	jwtAuth, err := httpauth.NewEcJwtAuthenticator(st.GetJwtValidationKey())
+func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, error) {
+	jwtAuth, err := httpauth.NewEcJwtAuthenticator(appState.GetJwtValidationKey())
 	if err != nil {
 		return nil, err
 	}
 
 	sealedCheck := func(w http.ResponseWriter) bool {
-		if st.IsUnsealed() {
+		if appState.IsUnsealed() {
 			return true
 		}
 
@@ -30,7 +30,7 @@ func createMiddlewares(st *state.State) (httpauth.MiddlewareChainMap, error) {
 	}
 
 	csrfCheck := func(w http.ResponseWriter, r *http.Request) bool {
-		if r.Header.Get("x-csrf-token") == st.GetCsrfToken() {
+		if r.Header.Get("x-csrf-token") == appState.GetCsrfToken() {
 			return true
 		}
 
