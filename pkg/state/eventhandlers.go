@@ -33,6 +33,8 @@ func (s *AppState) ApplyAccountCreated(e *domain.AccountCreated) error {
 }
 
 func (s *AppState) ApplySessionSignedIn(e *domain.SessionSignedIn) error {
+	s.DB.Audit(fmt.Sprintf("Signed in with IP %s with %s", e.IpAddress, e.UserAgent), e.Meta())
+
 	return nil
 }
 
