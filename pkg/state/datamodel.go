@@ -48,6 +48,7 @@ const maxAuditLogEntries = 10
 func (s *Statefile) Audit(message string, meta *event.EventMeta) {
 	entry := apitypes.AuditlogEntry{
 		Timestamp: meta.Timestamp,
+		UserId:    meta.UserId,
 		Message:   message,
 	}
 

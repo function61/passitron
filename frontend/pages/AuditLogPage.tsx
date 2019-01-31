@@ -26,6 +26,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 				<td>
 					<Timestamp ts={entry.Timestamp} />
 				</td>
+				<td>{entry.UserId}</td>
 				<td>{entry.Message}</td>
 			</tr>
 		);

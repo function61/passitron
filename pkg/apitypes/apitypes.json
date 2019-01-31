@@ -94,6 +94,7 @@
 			"name": "AuditlogEntry",
 			"fields": [
 				{ "key": "Timestamp", "type": {"_": "datetime"} },
+				{ "key": "UserId", "type": {"_": "string"} },
 				{ "key": "Message", "type": {"_": "string"} }
 			]
 		},
