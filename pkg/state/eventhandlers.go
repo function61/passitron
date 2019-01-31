@@ -356,6 +356,7 @@ func (s *AppState) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error
 func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
 	s.DB.U2FTokens[e.KeyHandle] = &U2FToken{
 		Name:             e.Name,
+		UserId:           e.Meta().UserId,
 		EnrolledAt:       e.Meta().Timestamp,
 		KeyHandle:        e.KeyHandle,
 		RegistrationData: e.RegistrationData,

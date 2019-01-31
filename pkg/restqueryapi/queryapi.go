@@ -116,7 +116,7 @@ func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w
 		mux.Vars(r)["secretId"],
 		mux.Vars(r)["key"])
 
-	u2fTokens := u2futil.GrabUsersU2FTokens(a.st)
+	u2fTokens := u2futil.GrabUsersU2FTokens(a.st, rctx.User.Id)
 
 	if len(u2fTokens) == 0 {
 		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
@@ -185,7 +185,7 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 		return nil
 	}
 
-	u2fTokens := u2futil.GrabUsersU2FTokens(a.st)
+	u2fTokens := u2futil.GrabUsersU2FTokens(a.st, rctx.User.Id)
 
 	if len(u2fTokens) == 0 {
 		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
@@ -249,7 +249,7 @@ func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w 
 		return nil
 	}
 
-	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.st))
+	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.st, rctx.User.Id))
 
 	registerRequests := []apitypes.U2FRegisterRequest{}
 	for _, r := range req.RegisterRequests {
@@ -273,6 +273,10 @@ func (a *queryHandlers) U2fEnrolledTokens(rctx *httpauth.RequestContext, w http.
 	tokens := []apitypes.U2FEnrolledToken{}
 
 	for _, token := range a.st.DB.U2FTokens {
+		if token.UserId != rctx.User.Id {
+			continue
+		}
+
 		tokens = append(tokens, apitypes.U2FEnrolledToken{
 			Name:       token.Name,
 			EnrolledAt: token.EnrolledAt,
@@ -344,7 +348,7 @@ func u2fSignatureOk(
 		return errors.New("invalid challenge hash")
 	}
 
-	u2ftoken := u2futil.GrabUsersU2FTokenByKeyHandle(st, response.SignResult.KeyHandle)
+	u2ftoken := u2futil.GrabUsersU2FTokenByKeyHandle(st, rctx.User.Id, response.SignResult.KeyHandle)
 	if u2ftoken == nil {
 		return errors.New("U2F token not found by KeyHandle")
 	}
