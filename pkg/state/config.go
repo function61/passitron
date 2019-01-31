@@ -1,15 +1,14 @@
 package state
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/httpauth"
+	"github.com/function61/gokit/jsonfile"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/storedpassword"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
-	"os"
 	"time"
 )
 
@@ -23,32 +22,12 @@ type Config struct {
 }
 
 func readConfig() (*Config, error) {
-	file, err := os.Open(configFilename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
 	cfg := &Config{}
-	decoder := json.NewDecoder(file)
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(cfg); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
+	return cfg, jsonfile.Read(configFilename, cfg, true)
 }
 
 func saveConfig(cfg *Config) error {
-	file, err := os.Create(configFilename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-	return encoder.Encode(cfg)
+	return jsonfile.Write(configFilename, cfg)
 }
 
 func InitConfig(adminUsername string, adminPassword string) error {

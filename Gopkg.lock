@@ -63,7 +63,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ae1ffc11c07f82cc042e0b6a9dca2cda8a590553952bd4990b643691de4eb973"
+  digest = "1:87bd0fbcfcb47d7e738cac83736be14d31bd78213150af5883878bb3513819b6"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
@@ -73,6 +73,7 @@
     "ezhttp",
     "fileexists",
     "httpauth",
+    "jsonfile",
     "logex",
     "mac",
     "ossignal",
@@ -213,6 +214,7 @@
     "github.com/function61/gokit/ezhttp",
     "github.com/function61/gokit/fileexists",
     "github.com/function61/gokit/httpauth",
+    "github.com/function61/gokit/jsonfile",
     "github.com/function61/gokit/logex",
     "github.com/function61/gokit/mac",
     "github.com/function61/gokit/ossignal",
