@@ -64,19 +64,18 @@ func InitConfig(adminUsername string, adminPassword string) error {
 		return err
 	}
 
-	uid := "2"
-	now := time.Now()
+	meta := event.Meta(time.Now(), state.NextFreeUserId())
 
 	userCreated := domain.NewUserCreated(
-		uid,
+		meta.UserId,
 		adminUsername,
-		event.Meta(now, uid))
+		meta)
 
 	password := domain.NewUserPasswordUpdated(
-		uid,
+		meta.UserId,
 		string(storedPassword),
 		false,
-		event.Meta(now, uid))
+		meta)
 
 	return state.EventLog.Append([]event.Event{userCreated, password})
 }

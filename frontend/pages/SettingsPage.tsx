@@ -12,6 +12,7 @@ import {
 	DatabaseExportToKeepass,
 	SessionSignOut,
 	UserChangePassword,
+	UserCreate,
 	UserRegisterU2FToken,
 } from 'generated/commanddefinitions';
 import { RootFolderName } from 'generated/domain';
@@ -92,36 +93,40 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 
 	private renderUsers() {
 		return this.state.users ? (
-			<table className="table">
-				<thead>
-					<tr>
-						<th>Id</th>
-						<th>Username</th>
-						<th>Created</th>
-						<th>Password last changed</th>
-						<th />
-					</tr>
-				</thead>
-				<tbody>
-					{this.state.users.map((user) => (
-						<tr key={user.Id}>
-							<td>{user.Id}</td>
-							<td>{user.Username}</td>
-							<td>
-								<Timestamp ts={user.Created} />
-							</td>
-							<td>
-								<Timestamp ts={user.PasswordLastChanged} />
-							</td>
-							<td>
-								<Dropdown>
-									<CommandLink command={UserChangePassword(user.Id)} />
-								</Dropdown>
-							</td>
+			<div>
+				<table className="table">
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Username</th>
+							<th>Created</th>
+							<th>Password last changed</th>
+							<th />
 						</tr>
-					))}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{this.state.users.map((user) => (
+							<tr key={user.Id}>
+								<td>{user.Id}</td>
+								<td>{user.Username}</td>
+								<td>
+									<Timestamp ts={user.Created} />
+								</td>
+								<td>
+									<Timestamp ts={user.PasswordLastChanged} />
+								</td>
+								<td>
+									<Dropdown>
+										<CommandLink command={UserChangePassword(user.Id)} />
+									</Dropdown>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+
+				<CommandButton command={UserCreate()} />
+			</div>
 		) : (
 			<Loading />
 		);

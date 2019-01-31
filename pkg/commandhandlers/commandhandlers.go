@@ -522,7 +522,35 @@ func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
 	// TODO: fix hardcoded ID in signingapi
 	// TODO: remove skipped test
 
-	return errors.New("not yet implemented")
+	if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); err != nil {
+		return err
+	}
+
+	storedPassword, err := storedpassword.Store(
+		a.Password,
+		storedpassword.CurrentBestDerivationStrategy)
+	if err != nil {
+		return err
+	}
+
+	// FIXME: this has a race condition until the underlying event storage engine can
+	//        support conditional append
+	uid := h.state.NextFreeUserId()
+
+	meta := event.Meta(time.Now(), uid)
+
+	ctx.RaisesEvent(domain.NewUserCreated(
+		uid,
+		a.Username,
+		meta))
+
+	ctx.RaisesEvent(domain.NewUserPasswordUpdated(
+		uid,
+		string(storedPassword),
+		false,
+		meta))
+
+	return nil
 }
 
 func (h *CommandHandlers) UserChangePassword(a *UserChangePassword, ctx *command.Ctx) error {

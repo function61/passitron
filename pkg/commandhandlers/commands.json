@@ -249,7 +249,11 @@
 		"ctor": [],
 		"crudNature": "create",
 		"title": "+ User",
-		"fields": []
+		"fields": [
+			{ "key": "Username", "validation_regex": "^[a-zA-Z0-9@_\\-]+$", "help": "a-z, A-Z, 0-9, _ and -" },
+			{ "key": "Password", "type": "password" },
+			{ "key": "PasswordRepeat", "type": "password" }
+		]
 	},
 	{
 		"command": "user.ChangePassword",

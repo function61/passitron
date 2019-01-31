@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/pquerna/otp"
@@ -112,4 +113,9 @@ func UnwrapSecrets(secrets []WrappedSecret, st *AppState) []apitypes.ExposedSecr
 	}
 
 	return ret
+}
+
+func (s *AppState) NextFreeUserId() string {
+	// 1st user has ID of 2, so that's why we use + 2
+	return fmt.Sprintf("%d", len(s.DB.Users)+2)
 }
