@@ -222,8 +222,9 @@ func (h *CommandHandlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) erro
 	}
 
 	if a.Password != "" {
-		if a.PasswordRepeat != "" && a.Password != a.PasswordRepeat {
-			return errors.New("password and repeated password different")
+		// if PasswordRepeat given, verify it
+		if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); a.PasswordRepeat != "" && err != nil {
+			return err
 		}
 
 		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
@@ -527,8 +528,8 @@ func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
 func (h *CommandHandlers) UserChangePassword(a *UserChangePassword, ctx *command.Ctx) error {
 	// TODO: verify current password
 
-	if a.Password != a.PasswordRepeat {
-		return errors.New("password and repeated password different")
+	if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); err != nil {
+		return err
 	}
 
 	passwordHashed, err := storedpassword.Store(a.Password, storedpassword.CurrentBestDerivationStrategy)
@@ -585,6 +586,14 @@ func validateTotpProvisioningUrl(provisioningUrl string) error {
 	// so that's why we must actually go this far as to verify this
 	if _, err := totp.GenerateCode(key.Secret(), time.Now()); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func verifyRepeatPassword(pwd, pwdRepeat string) error {
+	if pwd != pwdRepeat {
+		return errors.New("password and repeated password different")
 	}
 
 	return nil
