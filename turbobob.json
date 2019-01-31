@@ -7,7 +7,7 @@
 			"name": "default",
 			"uses": "docker://fn61/buildkit-golang:20190125_1536_1b2a32b5",
 			"mount_destination": "/go/src/github.com/function61/pi-security-module",
-			"workdir": "/go/src/github.com/function6/pi-security-module",
+			"workdir": "/go/src/github.com/function61/pi-security-module",
 			"commands": {
 				"build": ["bin/build.sh"],
 				"dev": ["bash"]
