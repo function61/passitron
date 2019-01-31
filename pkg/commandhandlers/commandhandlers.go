@@ -265,8 +265,8 @@ func (h *CommandHandlers) AccountAddPassword(a *AccountAddPassword, ctx *command
 		return errAccountNotFound
 	}
 
-	if a.Password != a.PasswordRepeat {
-		return errors.New("PasswordRepeat different than Password")
+	if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); err != nil {
+		return err
 	}
 
 	password := a.Password
@@ -413,8 +413,8 @@ func (h *CommandHandlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command
 }
 
 func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword, ctx *command.Ctx) error {
-	if a.NewMasterPassword != a.NewMasterPasswordRepeat {
-		return errors.New("NewMasterPassword not same as NewMasterPasswordRepeat")
+	if err := verifyRepeatPassword(a.NewMasterPassword, a.NewMasterPasswordRepeat); err != nil {
+		return err
 	}
 
 	ctx.RaisesEvent(domain.NewDatabaseMasterPasswordChanged(
