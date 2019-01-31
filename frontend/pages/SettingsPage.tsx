@@ -11,9 +11,9 @@ import {
 	DatabaseChangeMasterPassword,
 	DatabaseExportToKeepass,
 	SessionSignOut,
+	UserAddAccessToken,
 	UserChangePassword,
 	UserCreate,
-	UserAddAccessToken,
 	UserRegisterU2FToken,
 } from 'generated/commanddefinitions';
 import { RootFolderName } from 'generated/domain';
