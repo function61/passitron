@@ -9,7 +9,6 @@ import (
 	"github.com/function61/gokit/systemdinstaller"
 	"github.com/function61/pi-security-module/pkg/httpserver"
 	"github.com/function61/pi-security-module/pkg/keepassimport"
-	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/spf13/cobra"
@@ -52,18 +51,6 @@ func serverEntrypoint() *cobra.Command {
 			if err := state.InitConfig(args[0], args[1]); err != nil {
 				panic(err)
 			}
-		},
-	})
-
-	server.AddCommand(&cobra.Command{
-		Use:   "print-signingapi-auth-token",
-		Short: "Displays the auth token required to use the signing API",
-		Args:  cobra.NoArgs,
-		Run: func(cmd *cobra.Command, args []string) {
-			st := state.New(logex.Discard)
-			defer st.Close()
-
-			fmt.Printf("%s\n", signingapi.ExpectedAuthHeader(st))
 		},
 	})
 

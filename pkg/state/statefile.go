@@ -23,7 +23,6 @@ type AppState struct {
 	masterPassword string
 	macSigningKey  string // derived from masterPassword
 	csrfToken      string // derived from masterPassword
-	agentToken     string // derived from masterPassword
 	sealed         bool
 	conf           *Config
 	DB             *Statefile
@@ -122,14 +121,6 @@ func (s *AppState) GetCsrfToken() string {
 	return s.csrfToken
 }
 
-func (s *AppState) GetAgentToken() string {
-	if s.agentToken == "" {
-		panic("agentToken not set")
-	}
-
-	return s.agentToken
-}
-
 func (s *AppState) GetJwtValidationKey() []byte {
 	if s.conf.JwtPublicKey == "" {
 		panic(errors.New("JwtPublicKey not set"))
@@ -159,10 +150,6 @@ func (s *AppState) SetMasterPassword(password string) {
 	s.csrfToken = hex(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("csrfSalt")))
-
-	s.agentToken = hex(crypto.Pbkdf2Sha256100kDerive(
-		[]byte(s.masterPassword),
-		[]byte("agentSalt")))
 }
 
 func (s *AppState) IsUnsealed() bool {

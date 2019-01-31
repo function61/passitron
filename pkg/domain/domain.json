@@ -344,6 +344,15 @@
 		]
 	},
 	{
+		"event": "user.AccessTokenAdded",
+		"ctor": ["User", "TokenId", "Token"],
+		"fields": [
+			{ "key": "User", "type": {"_": "string"} },
+			{ "key": "TokenId", "type": {"_": "string"} },
+			{ "key": "Token", "type": {"_": "string"} }
+		]
+	},
+	{
 		"event": "user.U2FTokenRegistered",
 		"ctor": ["Name", "KeyHandle", "RegistrationData", "ClientData", "Version"],
 		"fields": [

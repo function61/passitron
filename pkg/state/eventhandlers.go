@@ -353,6 +353,14 @@ func (s *AppState) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error
 	return nil
 }
 
+func (s *AppState) ApplyUserAccessTokenAdded(e *domain.UserAccessTokenAdded) error {
+	u := s.DB.Users[e.User]
+	u.AccessToken = e.Token
+	s.DB.Users[e.User] = u
+
+	return nil
+}
+
 func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
 	s.DB.U2FTokens[e.KeyHandle] = &U2FToken{
 		Name:             e.Name,

@@ -33,6 +33,7 @@ type U2FToken struct {
 
 type SensitiveUser struct {
 	User         apitypes.User
+	AccessToken  string // stores only the latest. TODO: support multiple
 	PasswordHash string
 }
 

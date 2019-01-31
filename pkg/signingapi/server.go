@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -49,17 +50,36 @@ func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.AppState) (ssh.Signe
 	return nil, nil, "", errors.New("privkey not found by pubkey")
 }
 
-func ExpectedAuthHeader(st *state.AppState) string {
-	return "Bearer " + st.GetAgentToken()
-}
-
 func Setup(router *mux.Router, st *state.AppState) {
+	resolveUidByAccessToken := func(r *http.Request) (string, bool) {
+		bearerPrefix := "Bearer "
+		authHeader := r.Header.Get("Authorization")
+
+		if !strings.HasPrefix(authHeader, bearerPrefix) {
+			return "", false
+		}
+
+		token := authHeader[len(bearerPrefix):]
+		if token == "" {
+			return "", false
+		}
+
+		for _, user := range st.DB.Users {
+			if user.AccessToken == token {
+				return user.User.Id, true
+			}
+		}
+
+		return "", false
+	}
+
 	router.HandleFunc("/_api/signer/publickeys", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if errorIfSealed(st.IsUnsealed(), w) {
 			return
 		}
 
-		if r.Header.Get("Authorization") != ExpectedAuthHeader(st) {
+		_, authenticated := resolveUidByAccessToken(r)
+		if !authenticated {
 			httputil.RespondHttpJson(httputil.GenericError("invalid_auth_header", errors.New("Authorization failed")), http.StatusForbidden, w)
 			return
 		}
@@ -97,7 +117,8 @@ func Setup(router *mux.Router, st *state.AppState) {
 			return
 		}
 
-		if r.Header.Get("Authorization") != ExpectedAuthHeader(st) {
+		uid, authenticated := resolveUidByAccessToken(r)
+		if !authenticated {
 			httputil.RespondHttpJson(httputil.GenericError("invalid_auth_header", errors.New("Authorization failed")), http.StatusForbidden, w)
 			return
 		}
@@ -125,7 +146,7 @@ func Setup(router *mux.Router, st *state.AppState) {
 			[]string{secretId},
 			domain.SecretUsedTypeSshSigning,
 			"",
-			event.Meta(time.Now(), "2")) // FIXME: hardcoded uid
+			event.Meta(time.Now(), uid))
 
 		if err := st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
 			panic(err)

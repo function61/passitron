@@ -7,6 +7,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/function61/gokit/cryptorandombytes"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/randompassword"
@@ -513,6 +514,21 @@ func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) er
 	h.state.SetSealed(false)
 
 	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
+
+	return nil
+}
+
+func (h *CommandHandlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command.Ctx) error {
+	u := h.state.DB.Users[a.User]
+	if u.AccessToken != "" {
+		return errors.New("multiple access tokens not currently supported")
+	}
+
+	ctx.RaisesEvent(domain.NewUserAccessTokenAdded(
+		a.User,
+		event.RandomId(),
+		cryptorandombytes.Base64Url(16),
+		ctx.Meta))
 
 	return nil
 }

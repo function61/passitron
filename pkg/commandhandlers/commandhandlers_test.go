@@ -20,6 +20,8 @@ func TestScenario(t *testing.T) {
 
 	changeAdminPassword(t, tstate)
 
+	addAccessToken(t, tstate)
+
 	tstate.firstAccountId = createAccount(t, tstate)
 
 	signInAndSignOut(t, tstate)
@@ -91,6 +93,22 @@ func changeAdminPassword(t *testing.T, tstate *testScenarioState) {
 		Password:       "nimda2", // previous password was "nimda"
 		PasswordRepeat: "nimda2",
 	})
+}
+
+func addAccessToken(t *testing.T, tstate *testScenarioState) {
+	cmdCtx := tstate.DefaultCmdCtx()
+
+	assert.EqualString(t, tstate.st.DB.Users["2"].AccessToken, "")
+
+	tstate.InvokeSucceeds(t, cmdCtx, &UserAddAccessToken{
+		User: cmdCtx.Meta.UserId,
+	})
+
+	assert.Assert(t, len(tstate.st.DB.Users["2"].AccessToken) == 22)
+
+	assert.EqualString(t, tstate.InvokeFails(t, cmdCtx, &UserAddAccessToken{
+		User: cmdCtx.Meta.UserId,
+	}), "multiple access tokens not currently supported")
 }
 
 func createAccount(t *testing.T, tstate *testScenarioState) string {
@@ -170,13 +188,10 @@ func changeDescriptionAndUrl(t *testing.T, tstate *testScenarioState) {
 }
 
 func sshKey(t *testing.T, tstate *testScenarioState) {
-	addFails := &AccountAddSshKey{
+	assert.EqualString(t, tstate.InvokeFails(t, tstate.DefaultCmdCtx(), &AccountAddSshKey{
 		Id:            tstate.firstAccountId,
 		SshPrivateKey: "invalid",
-	}
-
-	assert.Assert(t, addFails.Validate() == nil)
-	assert.EqualString(t, addFails.Invoke(tstate.DefaultCmdCtx(), tstate.handlers).Error(), "Failed to parse PEM block")
+	}), "Failed to parse PEM block")
 
 	dummyButWorkingSshKey := `-----BEGIN RSA PRIVATE KEY-----
 MIICWwIBAAKBgQDYHLgXErTPTKGGwY/sQ6b7dl7zVm5B/nfGlqfejVb10gAkcO1N
@@ -435,4 +450,20 @@ func (tstate *testScenarioState) InvokeSucceeds(t *testing.T, ctx *command.Ctx, 
 	}
 
 	tstate.MarkCommandTested(cmd)
+}
+
+func (tstate *testScenarioState) InvokeFails(t *testing.T, ctx *command.Ctx, cmd command.Command) string {
+	t.Helper()
+
+	if err := cmd.Validate(); err != nil {
+		t.Error(err)
+	}
+
+	err := cmd.Invoke(ctx, tstate.handlers)
+
+	if err == nil {
+		t.Error("expecting error")
+	}
+
+	return err.Error()
 }

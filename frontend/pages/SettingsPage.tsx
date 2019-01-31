@@ -13,6 +13,7 @@ import {
 	SessionSignOut,
 	UserChangePassword,
 	UserCreate,
+	UserAddAccessToken,
 	UserRegisterU2FToken,
 } from 'generated/commanddefinitions';
 import { RootFolderName } from 'generated/domain';
@@ -118,6 +119,7 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 								<td>
 									<Dropdown>
 										<CommandLink command={UserChangePassword(user.Id)} />
+										<CommandLink command={UserAddAccessToken(user.Id)} />
 									</Dropdown>
 								</td>
 							</tr>
