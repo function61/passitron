@@ -1,4 +1,5 @@
 import { coerceToStructuredErrorResponse, isNotSignedInError, isSealedError } from 'backenderrors';
+import { navigateTo } from 'browserutils';
 import { WarningAlert } from 'components/alerts';
 import { Panel } from 'components/bootstrap';
 import { Breadcrumb } from 'components/breadcrumbtrail';
@@ -111,7 +112,7 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 			this.setState({ status });
 		} else {
 			// signed in => redirect to where we wanted to go
-			window.location.assign(this.props.redirect);
+			navigateTo(this.props.redirect);
 		}
 	}
 
