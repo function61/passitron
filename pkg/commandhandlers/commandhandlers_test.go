@@ -54,7 +54,6 @@ func TestScenario(t *testing.T) {
 	tstate.MarkCommandTested(Allocators["database.ExportToKeepass"]())
 	tstate.MarkCommandTested(Allocators["database.Unseal"]())
 	tstate.MarkCommandTested(Allocators["database.ChangeMasterPassword"]())
-	tstate.MarkCommandTested(Allocators["user.Create"]())
 
 	// make sure the scenario covered all commands that this application supports
 
@@ -64,25 +63,11 @@ func TestScenario(t *testing.T) {
 }
 
 func createAdminUser(t *testing.T, tstate *testScenarioState) {
-	meta := tstate.DefaultCmdCtx().Meta
-
-	userCreated := domain.NewUserCreated(
-		meta.UserId,
-		"admin",
-		meta)
-
-	// "nimda"
-	storedPassword := "$pbkdf2-sha256-100k$PS7BCoKVAnYVrmZ-T_6m5_BaBNlnDEpK25rn4GnrdoQ$r1oMO-FMdkn1QEJlutQuEXOaacYhG9nNWvJ7GkVY4sM"
-
-	passwordUpdated := domain.NewUserPasswordUpdated(
-		meta.UserId,
-		storedPassword,
-		false,
-		meta)
-
-	if err := tstate.st.EventLog.Append([]event.Event{userCreated, passwordUpdated}); err != nil {
-		panic(err)
-	}
+	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &UserCreate{
+		Username:       "admin",
+		Password:       "nimda",
+		PasswordRepeat: "nimda",
+	})
 }
 
 func changeAdminPassword(t *testing.T, tstate *testScenarioState) {
