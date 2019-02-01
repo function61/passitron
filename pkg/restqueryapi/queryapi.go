@@ -34,16 +34,20 @@ type queryHandlers struct {
 	st *state.AppState
 }
 
-func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
-	folder := a.st.FolderById(mux.Vars(r)["folderId"])
+func (q *queryHandlers) userData(rctx *httpauth.RequestContext) *state.UserStorage {
+	return q.st.DB.UserScope[rctx.User.Id]
+}
 
-	accounts := state.UnwrapAccounts(a.st.WrappedAccountsByFolder(folder.Id))
-	subFolders := a.st.SubfoldersByParentId(folder.Id)
+func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
+	folder := a.userData(rctx).FolderById(mux.Vars(r)["folderId"])
+
+	accounts := state.UnwrapAccounts(a.userData(rctx).WrappedAccountsByFolder(folder.Id))
+	subFolders := a.userData(rctx).SubfoldersByParentId(folder.Id)
 	parentFolders := []apitypes.Folder{}
 
 	parentId := folder.ParentId
 	for parentId != "" {
-		parent := a.st.FolderById(parentId)
+		parent := a.userData(rctx).FolderById(parentId)
 
 		parentFolders = append(parentFolders, *parent)
 
@@ -61,8 +65,8 @@ func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.Response
 func (a *queryHandlers) UserList(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.User {
 	users := []apitypes.User{}
 
-	for _, user := range a.st.DB.Users {
-		users = append(users, user.User)
+	for _, userStorage := range a.st.DB.UserScope {
+		users = append(users, userStorage.SensitiveUser.User)
 	}
 
 	return &users
@@ -78,7 +82,7 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 		secretId,
 		key)
 
-	wsecret := a.st.WrappedSecretById(accountId, secretId)
+	wsecret := a.userData(rctx).WrappedSecretById(accountId, secretId)
 	if wsecret == nil {
 		httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
 		return nil
@@ -140,7 +144,7 @@ func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w
 }
 
 func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
-	wacc := a.st.WrappedAccountById(mux.Vars(r)["accountId"])
+	wacc := a.userData(rctx).WrappedAccountById(mux.Vars(r)["accountId"])
 
 	if wacc == nil {
 		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
@@ -178,7 +182,7 @@ func (a *queryHandlers) AuditLogEntries(rctx *httpauth.RequestContext, w http.Re
 }
 
 func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
-	wacc := a.st.WrappedAccountById(mux.Vars(r)["id"])
+	wacc := a.userData(rctx).WrappedAccountById(mux.Vars(r)["id"])
 
 	if wacc == nil {
 		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
@@ -219,7 +223,7 @@ func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWri
 	accounts := []apitypes.Account{}
 	folders := []apitypes.Folder{}
 
-	for _, folder := range a.st.DB.Folders {
+	for _, folder := range a.userData(rctx).Folders {
 		if !strings.Contains(strings.ToLower(folder.Name), query) {
 			continue
 		}
@@ -227,7 +231,7 @@ func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWri
 		folders = append(folders, folder)
 	}
 
-	for _, wacc := range a.st.DB.WrappedAccounts {
+	for _, wacc := range a.userData(rctx).WrappedAccounts {
 		if !strings.Contains(strings.ToLower(wacc.Account.Title), query) {
 			continue
 		}
@@ -272,11 +276,7 @@ func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w 
 func (a *queryHandlers) U2fEnrolledTokens(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
 	tokens := []apitypes.U2FEnrolledToken{}
 
-	for _, token := range a.st.DB.U2FTokens {
-		if token.UserId != rctx.User.Id {
-			continue
-		}
-
+	for _, token := range a.userData(rctx).U2FTokens {
 		tokens = append(tokens, apitypes.U2FEnrolledToken{
 			Name:       token.Name,
 			EnrolledAt: token.EnrolledAt,
@@ -291,7 +291,7 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
 
-	account := a.st.WrappedAccountById(accountId)
+	account := a.userData(rctx).WrappedAccountById(accountId)
 	if account == nil {
 		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 		return

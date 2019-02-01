@@ -83,14 +83,14 @@ func changeAdminPassword(t *testing.T, tstate *testScenarioState) {
 func addAccessToken(t *testing.T, tstate *testScenarioState) {
 	cmdCtx := tstate.DefaultCmdCtx()
 
-	assert.EqualString(t, tstate.st.DB.Users["2"].AccessToken, "")
+	assert.EqualString(t, tstate.userData().SensitiveUser.AccessToken, "")
 
 	tstate.InvokeSucceeds(t, cmdCtx, &UserAddAccessToken{
 		User:        cmdCtx.Meta.UserId,
 		Description: "SSH agent access",
 	})
 
-	assert.Assert(t, len(tstate.st.DB.Users["2"].AccessToken) == 22)
+	assert.Assert(t, len(tstate.userData().SensitiveUser.AccessToken) == 22)
 
 	assert.EqualString(t, tstate.InvokeFails(t, cmdCtx, &UserAddAccessToken{
 		User:        cmdCtx.Meta.UserId,
@@ -109,7 +109,7 @@ func createAccount(t *testing.T, tstate *testScenarioState) string {
 		PasswordRepeat: "hunter2",
 	})
 
-	wacc := tstate.st.DB.WrappedAccounts[0]
+	wacc := tstate.userData().WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Title, "www.example.com")
 	assert.EqualString(t, wacc.Account.Url, "https://www.example.com/login")
@@ -141,7 +141,7 @@ func renameAccount(t *testing.T, tstate *testScenarioState) {
 		Title:   "www.example.com, renamed",
 	})
 
-	wacc := tstate.st.DB.WrappedAccounts[0]
+	wacc := tstate.userData().WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Title, "www.example.com, renamed")
 }
@@ -152,7 +152,7 @@ func changeUsername(t *testing.T, tstate *testScenarioState) {
 		Username: "joonas",
 	})
 
-	wacc := tstate.st.DB.WrappedAccounts[0]
+	wacc := tstate.userData().WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Username, "joonas")
 }
@@ -168,7 +168,7 @@ func changeDescriptionAndUrl(t *testing.T, tstate *testScenarioState) {
 		Url:     "https://www.reddit.com/",
 	})
 
-	wacc := tstate.st.DB.WrappedAccounts[0]
+	wacc := tstate.userData().WrappedAccounts[0]
 
 	assert.EqualString(t, wacc.Account.Description, "why hello there my friend")
 	assert.EqualString(t, wacc.Account.Url, "https://www.reddit.com/")
@@ -201,7 +201,7 @@ vD2QakbdLBUy2JF2E2GHmGyTXQ6yp4rWgcCVPeeFRw==
 		SshPrivateKey: dummyButWorkingSshKey,
 	})
 
-	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
 	secret := wacc.Secrets[1]
 
@@ -218,7 +218,7 @@ func addPasswordAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		PasswordRepeat: "foobar",
 	})
 
-	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
 	assert.Assert(t, len(wacc.Secrets) == 3)
 
@@ -232,7 +232,7 @@ func addPasswordAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  newPassword.Secret.Id,
 	})
 
-	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.userData().WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func addSecretNoteAndRemoveIt(t *testing.T, tstate *testScenarioState) {
@@ -242,7 +242,7 @@ func addSecretNoteAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Note:    "01: foo    02: bar    ...",
 	})
 
-	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
 	assert.Assert(t, len(wacc.Secrets) == 3)
 
@@ -256,7 +256,7 @@ func addSecretNoteAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  note.Secret.Id,
 	})
 
-	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.userData().WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func addOtpTokenAndRemoveIt(t *testing.T, tstate *testScenarioState) {
@@ -265,7 +265,7 @@ func addOtpTokenAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		OtpProvisioningUrl: "otpauth://totp/Google%3Afoo%40example.com?secret=qlt6vmy6svfx4bt4rpmisaiyol6hihca&issuer=Google",
 	})
 
-	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
 	assert.Assert(t, len(wacc.Secrets) == 3)
 
@@ -279,7 +279,7 @@ func addOtpTokenAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  totp.Secret.Id,
 	})
 
-	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.userData().WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
@@ -292,7 +292,7 @@ func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Keylist:          "01  1234\n02  5678\n03  9012\n",
 	})
 
-	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
 	assert.Assert(t, len(wacc.Secrets) == 3)
 
@@ -313,7 +313,7 @@ func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 		Secret:  keylist.Secret.Id,
 	})
 
-	assert.Assert(t, len(tstate.st.WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+	assert.Assert(t, len(tstate.userData().WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
 }
 
 func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {
@@ -327,46 +327,46 @@ func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {
 		Name:   "2nd sub folder",
 	})
 
-	assert.Assert(t, len(tstate.st.DB.Folders) == 3)
+	assert.Assert(t, len(tstate.userData().Folders) == 3)
 
 	// both should be root's parents
-	assert.EqualString(t, tstate.st.DB.Folders[1].ParentId, domain.RootFolderId)
-	assert.EqualString(t, tstate.st.DB.Folders[2].ParentId, domain.RootFolderId)
+	assert.EqualString(t, tstate.userData().Folders[1].ParentId, domain.RootFolderId)
+	assert.EqualString(t, tstate.userData().Folders[2].ParentId, domain.RootFolderId)
 
 	// now rename and move "2nd sub folder" under "1st sub folder"
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountRenameFolder{
-		Id:   tstate.st.DB.Folders[2].Id,
+		Id:   tstate.userData().Folders[2].Id,
 		Name: "sub sub folder",
 	})
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountMoveFolder{
-		Id:        tstate.st.DB.Folders[2].Id,
-		NewParent: tstate.st.DB.Folders[1].Id,
+		Id:        tstate.userData().Folders[2].Id,
+		NewParent: tstate.userData().Folders[1].Id,
 	})
 
-	assert.EqualString(t, tstate.st.DB.Folders[2].Name, "sub sub folder")
-	assert.EqualString(t, tstate.st.DB.Folders[2].ParentId, tstate.st.DB.Folders[1].Id)
+	assert.EqualString(t, tstate.userData().Folders[2].Name, "sub sub folder")
+	assert.EqualString(t, tstate.userData().Folders[2].ParentId, tstate.userData().Folders[1].Id)
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDeleteFolder{
-		Id: tstate.st.DB.Folders[2].Id,
+		Id: tstate.userData().Folders[2].Id,
 	})
 
-	assert.Assert(t, len(tstate.st.DB.Folders) == 2)
+	assert.Assert(t, len(tstate.userData().Folders) == 2)
 }
 
 func moveAccount(t *testing.T, tstate *testScenarioState) {
-	wacc := tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
 	assert.EqualString(t, wacc.Account.FolderId, domain.RootFolderId)
 
 	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountMove{
 		Account:         tstate.firstAccountId,
-		NewParentFolder: tstate.st.DB.Folders[1].Id,
+		NewParentFolder: tstate.userData().Folders[1].Id,
 	})
 
-	wacc = tstate.st.WrappedAccountById(tstate.firstAccountId)
+	wacc = tstate.userData().WrappedAccountById(tstate.firstAccountId)
 
-	assert.EqualString(t, wacc.Account.FolderId, tstate.st.DB.Folders[1].Id)
+	assert.EqualString(t, wacc.Account.FolderId, tstate.userData().Folders[1].Id)
 }
 
 func deleteAccount(t *testing.T, tstate *testScenarioState) {
@@ -374,7 +374,7 @@ func deleteAccount(t *testing.T, tstate *testScenarioState) {
 		Id: tstate.firstAccountId,
 	})
 
-	assert.Assert(t, len(tstate.st.DB.WrappedAccounts) == 0)
+	assert.Assert(t, len(tstate.userData().WrappedAccounts) == 0)
 }
 
 // the rest are utilities used for testing
@@ -399,6 +399,10 @@ func NewTestScenarioState(st *state.AppState) *testScenarioState {
 		handlers:         New(st, logex.Discard),
 		untestedCommands: untestedCommands,
 	}
+}
+
+func (tstate *testScenarioState) userData() *state.UserStorage {
+	return tstate.st.DB.UserScope["2"]
 }
 
 func (tstate *testScenarioState) DefaultCmdCtx() *command.Ctx {

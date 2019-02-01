@@ -26,8 +26,8 @@ func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
 	return false
 }
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte, st *state.AppState) (ssh.Signer, *state.WrappedAccount, string, error) {
-	for _, wacc := range st.DB.WrappedAccounts {
+func lookupSignerByPubKey(pubKeyMarshaled []byte, userId string, st *state.AppState) (ssh.Signer, *state.WrappedAccount, string, error) {
+	for _, wacc := range st.DB.UserScope[userId].WrappedAccounts {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
@@ -64,9 +64,9 @@ func Setup(router *mux.Router, st *state.AppState) {
 			return "", false
 		}
 
-		for _, user := range st.DB.Users {
-			if user.AccessToken == token {
-				return user.User.Id, true
+		for _, userScope := range st.DB.UserScope {
+			if userScope.SensitiveUser.AccessToken == token {
+				return userScope.SensitiveUser.User.Id, true
 			}
 		}
 
@@ -78,7 +78,7 @@ func Setup(router *mux.Router, st *state.AppState) {
 			return
 		}
 
-		_, authenticated := resolveUidByAccessToken(r)
+		uid, authenticated := resolveUidByAccessToken(r)
 		if !authenticated {
 			httputil.RespondHttpJson(httputil.GenericError("invalid_auth_header", errors.New("Authorization failed")), http.StatusForbidden, w)
 			return
@@ -86,7 +86,7 @@ func Setup(router *mux.Router, st *state.AppState) {
 
 		resp := signingapitypes.NewPublicKeysResponse()
 
-		for _, wacc := range st.DB.WrappedAccounts {
+		for _, wacc := range st.DB.UserScope[uid].WrappedAccounts {
 			for _, secret := range wacc.Secrets {
 				if secret.SshPrivateKey == "" {
 					continue
@@ -129,7 +129,7 @@ func Setup(router *mux.Router, st *state.AppState) {
 			return
 		}
 
-		signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, st)
+		signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, uid, st)
 		if err != nil {
 			httputil.RespondHttpJson(httputil.GenericError("privkey_for_pubkey_not_found", err), http.StatusBadRequest, w)
 			return

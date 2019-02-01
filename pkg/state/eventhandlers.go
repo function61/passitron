@@ -27,7 +27,7 @@ func (s *AppState) ApplyAccountCreated(e *domain.AccountCreated) error {
 		Secrets: []WrappedSecret{},
 	}
 
-	s.DB.WrappedAccounts = append(s.DB.WrappedAccounts, wrappedAccount)
+	s.DB.UserScope[e.Meta().UserId].WrappedAccounts = append(s.DB.UserScope[e.Meta().UserId].WrappedAccounts, wrappedAccount)
 
 	return nil
 }
@@ -39,12 +39,13 @@ func (s *AppState) ApplySessionSignedIn(e *domain.SessionSignedIn) error {
 }
 
 func (s *AppState) ApplyAccountDeleted(e *domain.AccountDeleted) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			s.DB.WrappedAccounts = append(
-				s.DB.WrappedAccounts[:idx],
-				s.DB.WrappedAccounts[idx+1:]...)
+			us.WrappedAccounts = append(
+				us.WrappedAccounts[:idx],
+				us.WrappedAccounts[idx+1:]...)
 			return nil
 		}
 	}
@@ -53,10 +54,11 @@ func (s *AppState) ApplyAccountDeleted(e *domain.AccountDeleted) error {
 }
 
 func (s *AppState) ApplyAccountRenamed(e *domain.AccountRenamed) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Title = e.Title
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -65,10 +67,11 @@ func (s *AppState) ApplyAccountRenamed(e *domain.AccountRenamed) error {
 }
 
 func (s *AppState) ApplyAccountMoved(e *domain.AccountMoved) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.FolderId = e.NewParentFolder
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -77,10 +80,11 @@ func (s *AppState) ApplyAccountMoved(e *domain.AccountMoved) error {
 }
 
 func (s *AppState) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionChanged) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Description = e.Description
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -89,10 +93,11 @@ func (s *AppState) ApplyAccountDescriptionChanged(e *domain.AccountDescriptionCh
 }
 
 func (s *AppState) ApplyAccountUrlChanged(e *domain.AccountUrlChanged) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Url = e.Url
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -101,7 +106,8 @@ func (s *AppState) ApplyAccountUrlChanged(e *domain.AccountUrlChanged) error {
 }
 
 func (s *AppState) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -114,7 +120,7 @@ func (s *AppState) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded)
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -123,7 +129,8 @@ func (s *AppState) ApplyAccountSecretNoteAdded(e *domain.AccountSecretNoteAdded)
 }
 
 func (s *AppState) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -135,7 +142,7 @@ func (s *AppState) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) err
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -144,7 +151,8 @@ func (s *AppState) ApplyAccountOtpTokenAdded(e *domain.AccountOtpTokenAdded) err
 }
 
 func (s *AppState) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -156,7 +164,7 @@ func (s *AppState) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) err
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -165,7 +173,8 @@ func (s *AppState) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) err
 }
 
 func (s *AppState) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			keyItems := []apitypes.SecretKeylistKey{}
 
@@ -194,7 +203,7 @@ func (s *AppState) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -203,7 +212,8 @@ func (s *AppState) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error
 }
 
 func (s *AppState) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) error {
-	for accountIdx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for accountIdx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			for secretIdx, secret := range wacc.Secrets {
 				if secret.Secret.Id == e.Secret {
@@ -212,7 +222,7 @@ func (s *AppState) ApplyAccountSecretDeleted(e *domain.AccountSecretDeleted) err
 						wacc.Secrets[secretIdx+1:]...)
 				}
 			}
-			s.DB.WrappedAccounts[accountIdx] = wacc
+			us.WrappedAccounts[accountIdx] = wacc
 			return nil
 		}
 	}
@@ -227,7 +237,8 @@ func (s *AppState) ApplyAccountSecretUsed(e *domain.AccountSecretUsed) error {
 }
 
 func (s *AppState) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
@@ -240,7 +251,7 @@ func (s *AppState) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 			}
 
 			wacc.Secrets = append(wacc.Secrets, secret)
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -249,10 +260,11 @@ func (s *AppState) ApplyAccountSshKeyAdded(e *domain.AccountSshKeyAdded) error {
 }
 
 func (s *AppState) ApplyAccountUsernameChanged(e *domain.AccountUsernameChanged) error {
-	for idx, wacc := range s.DB.WrappedAccounts {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Id {
 			wacc.Account.Username = e.Username
-			s.DB.WrappedAccounts[idx] = wacc
+			us.WrappedAccounts[idx] = wacc
 			return nil
 		}
 	}
@@ -267,17 +279,19 @@ func (s *AppState) ApplyAccountFolderCreated(e *domain.AccountFolderCreated) err
 		Name:     e.Name,
 	}
 
-	s.DB.Folders = append(s.DB.Folders, newFolder)
+	us := s.DB.UserScope[e.Meta().UserId]
+	us.Folders = append(us.Folders, newFolder)
 	return nil
 }
 
 func (s *AppState) ApplyAccountFolderDeleted(e *domain.AccountFolderDeleted) error {
-	for idx, folder := range s.DB.Folders {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, folder := range us.Folders {
 		if folder.Id == e.Id {
 			// https://github.com/golang/go/wiki/SliceTricks
-			s.DB.Folders = append(
-				s.DB.Folders[:idx],
-				s.DB.Folders[idx+1:]...)
+			us.Folders = append(
+				us.Folders[:idx],
+				us.Folders[idx+1:]...)
 			return nil
 		}
 	}
@@ -286,10 +300,11 @@ func (s *AppState) ApplyAccountFolderDeleted(e *domain.AccountFolderDeleted) err
 }
 
 func (s *AppState) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
-	for idx, acc := range s.DB.Folders {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, acc := range us.Folders {
 		if acc.Id == e.Id {
 			acc.ParentId = e.ParentId
-			s.DB.Folders[idx] = acc
+			us.Folders[idx] = acc
 			return nil
 		}
 	}
@@ -298,10 +313,11 @@ func (s *AppState) ApplyAccountFolderMoved(e *domain.AccountFolderMoved) error {
 }
 
 func (s *AppState) ApplyAccountFolderRenamed(e *domain.AccountFolderRenamed) error {
-	for idx, acc := range s.DB.Folders {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, acc := range us.Folders {
 		if acc.Id == e.Id {
 			acc.Name = e.Name
-			s.DB.Folders[idx] = acc
+			us.Folders[idx] = acc
 			return nil
 		}
 	}
@@ -330,41 +346,41 @@ func (s *AppState) ApplyDatabaseS3IntegrationConfigured(e *domain.DatabaseS3Inte
 }
 
 func (s *AppState) ApplyUserCreated(e *domain.UserCreated) error {
-	s.DB.Users[e.Id] = SensitiveUser{
+	s.DB.UserScope[e.Id] = NewUserStorage(SensitiveUser{
 		User: apitypes.User{
 			Id:       e.Id,
 			Created:  e.Meta().Timestamp,
 			Username: e.Username,
 		},
-	}
+	})
 
 	return nil
 }
 
 func (s *AppState) ApplyUserPasswordUpdated(e *domain.UserPasswordUpdated) error {
+	us := s.DB.UserScope[e.Meta().UserId]
 	// PasswordLastChanged only reflects actual password changes, not technical ones
 	if !e.AutomaticUpgrade {
-		u := s.DB.Users[e.User]
-		u.PasswordHash = e.Password
-		u.User.PasswordLastChanged = e.Meta().Timestamp
-		s.DB.Users[e.User] = u
+		su := us.SensitiveUser
+		su.PasswordHash = e.Password
+		su.User.PasswordLastChanged = e.Meta().Timestamp
+		us.SensitiveUser = su
 	}
 
 	return nil
 }
 
 func (s *AppState) ApplyUserAccessTokenAdded(e *domain.UserAccessTokenAdded) error {
-	u := s.DB.Users[e.User]
-	u.AccessToken = e.Token
-	s.DB.Users[e.User] = u
+	us := s.DB.UserScope[e.Meta().UserId]
+	us.SensitiveUser.AccessToken = e.Token
 
 	return nil
 }
 
 func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
-	s.DB.U2FTokens[e.KeyHandle] = &U2FToken{
+	us := s.DB.UserScope[e.Meta().UserId]
+	us.U2FTokens[e.KeyHandle] = &U2FToken{
 		Name:             e.Name,
-		UserId:           e.Meta().UserId,
 		EnrolledAt:       e.Meta().Timestamp,
 		KeyHandle:        e.KeyHandle,
 		RegistrationData: e.RegistrationData,
@@ -377,8 +393,9 @@ func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered)
 }
 
 func (s *AppState) ApplyUserU2FTokenUsed(e *domain.UserU2FTokenUsed) error {
-	token := s.DB.U2FTokens[e.KeyHandle]
+	us := s.DB.UserScope[e.Meta().UserId]
 
+	token := us.U2FTokens[e.KeyHandle]
 	token.Counter = uint32(e.Counter)
 
 	return nil

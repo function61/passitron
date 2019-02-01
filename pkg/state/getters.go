@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-func (s *AppState) SubfoldersByParentId(id string) []apitypes.Folder {
+func (s *UserStorage) SubfoldersByParentId(id string) []apitypes.Folder {
 	subFolders := []apitypes.Folder{}
 
-	for _, f := range s.DB.Folders {
+	for _, f := range s.Folders {
 		if f.ParentId != id {
 			continue
 		}
@@ -23,10 +23,10 @@ func (s *AppState) SubfoldersByParentId(id string) []apitypes.Folder {
 	return subFolders
 }
 
-func (s *AppState) WrappedAccountsByFolder(id string) []WrappedAccount {
+func (s *UserStorage) WrappedAccountsByFolder(id string) []WrappedAccount {
 	accounts := []WrappedAccount{}
 
-	for _, wacc := range s.DB.WrappedAccounts {
+	for _, wacc := range s.WrappedAccounts {
 		if wacc.Account.FolderId != id {
 			continue
 		}
@@ -37,7 +37,7 @@ func (s *AppState) WrappedAccountsByFolder(id string) []WrappedAccount {
 	return accounts
 }
 
-func (s *AppState) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
+func (s *UserStorage) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
 	wacc := s.WrappedAccountById(accountId)
 	if wacc == nil {
 		return nil
@@ -52,8 +52,8 @@ func (s *AppState) WrappedSecretById(accountId string, secretId string) *Wrapped
 	return nil
 }
 
-func (s *AppState) WrappedAccountById(id string) *WrappedAccount {
-	for _, wacc := range s.DB.WrappedAccounts {
+func (s *UserStorage) WrappedAccountById(id string) *WrappedAccount {
+	for _, wacc := range s.WrappedAccounts {
 		if wacc.Account.Id == id {
 			return &wacc
 		}
@@ -62,8 +62,8 @@ func (s *AppState) WrappedAccountById(id string) *WrappedAccount {
 	return nil
 }
 
-func (s *AppState) FolderById(id string) *apitypes.Folder {
-	for _, folder := range s.DB.Folders {
+func (s *UserStorage) FolderById(id string) *apitypes.Folder {
+	for _, folder := range s.Folders {
 		if folder.Id == id {
 			return &folder
 		}
@@ -117,5 +117,5 @@ func UnwrapSecrets(secrets []WrappedSecret, st *AppState) []apitypes.ExposedSecr
 
 func (s *AppState) NextFreeUserId() string {
 	// 1st user has ID of 2, so that's why we use + 2
-	return fmt.Sprintf("%d", len(s.DB.Users)+2)
+	return fmt.Sprintf("%d", len(s.DB.UserScope)+2)
 }

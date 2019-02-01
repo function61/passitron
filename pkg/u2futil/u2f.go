@@ -65,11 +65,7 @@ func U2ftokenToRegistration(u2ftoken *state.U2FToken) u2f.Registration {
 func GrabUsersU2FTokens(st *state.AppState, userId string) []u2f.Registration {
 	regs := []u2f.Registration{}
 
-	for _, token := range st.DB.U2FTokens {
-		if token.UserId != userId {
-			continue
-		}
-
+	for _, token := range st.DB.UserScope[userId].U2FTokens {
 		regs = append(regs, U2ftokenToRegistration(token))
 	}
 
@@ -77,11 +73,7 @@ func GrabUsersU2FTokens(st *state.AppState, userId string) []u2f.Registration {
 }
 
 func GrabUsersU2FTokenByKeyHandle(st *state.AppState, userId string, keyHandle string) *state.U2FToken {
-	for _, token := range st.DB.U2FTokens {
-		if token.UserId != userId {
-			continue
-		}
-
+	for _, token := range st.DB.UserScope[userId].U2FTokens {
 		if token.KeyHandle == keyHandle {
 			return token
 		}

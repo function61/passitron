@@ -144,7 +144,12 @@ func TestScenario(t *testing.T) {
 }
 
 func seedDatabase(appState *state.AppState) {
-	accCreated := domain.NewAccountCreated(
+	userCreated := domain.NewUserCreated(
+		testUserId,
+		"admin",
+		event.Meta(time.Now(), testUserId))
+
+	accountCreated := domain.NewAccountCreated(
 		"14",
 		domain.RootFolderId,
 		"My test account",
@@ -156,7 +161,8 @@ func seedDatabase(appState *state.AppState) {
 		event.Meta(time.Now(), testUserId))
 
 	if err := appState.EventLog.Append([]event.Event{
-		accCreated,
+		userCreated,
+		accountCreated,
 		masterPwdChanged,
 	}); err != nil {
 		panic(err)

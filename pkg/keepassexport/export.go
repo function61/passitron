@@ -23,14 +23,14 @@ import (
 	"time"
 )
 
-func Export(st *state.AppState) error {
+func Export(st *state.AppState, userId string) error {
 	if st.S3ExportBucket == "" || st.S3ExportApiKey == "" || st.S3ExportSecret == "" {
 		return errors.New("S3ExportBucket, S3ExportApiKey or S3ExportSecret undefined")
 	}
 
 	var keepassOutFile bytes.Buffer
 
-	if err := keepassExport(st.GetMasterPassword(), &keepassOutFile, st); err != nil {
+	if err := keepassExport(st.GetMasterPassword(), &keepassOutFile, st, userId); err != nil {
 		return err
 	}
 
@@ -129,15 +129,20 @@ func entryForAccount(account apitypes.Account, idx int, notesAppend string) *gok
 	return &entry
 }
 
-func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.AppState) (gokeepasslib.Group, int) {
+func exportRecursive(
+	id string,
+	meta *gokeepasslib.MetaData,
+	st *state.AppState,
+	userStorage *state.UserStorage,
+) (gokeepasslib.Group, int) {
 	entriesExported := 0
 
-	folder := st.FolderById(id)
+	folder := userStorage.FolderById(id)
 
 	group := gokeepasslib.NewGroup()
 	group.Name = folder.Name
 
-	waccs := st.WrappedAccountsByFolder(folder.Id)
+	waccs := userStorage.WrappedAccountsByFolder(folder.Id)
 
 	for _, wacc := range waccs {
 		for idx, secret := range wacc.Secrets {
@@ -186,10 +191,10 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.AppState)
 		}
 	}
 
-	subFolders := st.SubfoldersByParentId(folder.Id)
+	subFolders := userStorage.SubfoldersByParentId(folder.Id)
 
 	for _, subFolder := range subFolders {
-		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta, st)
+		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta, st, userStorage)
 
 		group.Groups = append(group.Groups, subGroup)
 
@@ -199,14 +204,15 @@ func exportRecursive(id string, meta *gokeepasslib.MetaData, st *state.AppState)
 	return group, entriesExported
 }
 
-func keepassExport(masterPassword string, output io.Writer, st *state.AppState) error {
+func keepassExport(masterPassword string, output io.Writer, st *state.AppState, userId string) error {
 	meta := gokeepasslib.NewMetaData()
 
 	content := &gokeepasslib.DBContent{
 		Meta: meta,
 	}
 
-	rootGroup, entriesExported := exportRecursive(domain.RootFolderId, meta, st)
+	userStorage := st.DB.UserScope[userId]
+	rootGroup, entriesExported := exportRecursive(domain.RootFolderId, meta, st, userStorage)
 
 	content.Root = &gokeepasslib.RootData{
 		Groups: []gokeepasslib.Group{rootGroup},

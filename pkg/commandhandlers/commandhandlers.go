@@ -39,12 +39,16 @@ type CommandHandlers struct {
 	logl  *logex.Leveled
 }
 
+func (c *CommandHandlers) userData(ctx *command.Ctx) *state.UserStorage {
+	return c.state.DB.UserScope[ctx.Meta.UserId]
+}
+
 func New(state *state.AppState, logger *log.Logger) *CommandHandlers {
 	return &CommandHandlers{state, logex.Levels(logger)}
 }
 
 func (h *CommandHandlers) AccountRename(a *AccountRename, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -57,7 +61,7 @@ func (h *CommandHandlers) AccountRename(a *AccountRename, ctx *command.Ctx) erro
 }
 
 func (h *CommandHandlers) AccountMove(a *AccountMove, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -70,7 +74,7 @@ func (h *CommandHandlers) AccountMove(a *AccountMove, ctx *command.Ctx) error {
 }
 
 func (h *CommandHandlers) AccountChangeUsername(a *AccountChangeUsername, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -83,7 +87,7 @@ func (h *CommandHandlers) AccountChangeUsername(a *AccountChangeUsername, ctx *c
 }
 
 func (h *CommandHandlers) AccountChangeUrl(a *AccountChangeUrl, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -102,7 +106,7 @@ func (h *CommandHandlers) AccountChangeUrl(a *AccountChangeUrl, ctx *command.Ctx
 }
 
 func (h *CommandHandlers) AccountChangeDescription(a *AccountChangeDescription, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -115,7 +119,7 @@ func (h *CommandHandlers) AccountChangeDescription(a *AccountChangeDescription, 
 }
 
 func (h *CommandHandlers) AccountDeleteSecret(a *AccountDeleteSecret, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -130,7 +134,7 @@ func (h *CommandHandlers) AccountDeleteSecret(a *AccountDeleteSecret, ctx *comma
 }
 
 func (h *CommandHandlers) AccountCreateFolder(a *AccountCreateFolder, ctx *command.Ctx) error {
-	if h.state.FolderById(a.Parent) == nil {
+	if h.userData(ctx).FolderById(a.Parent) == nil {
 		return errFolderNotFound
 	}
 
@@ -144,12 +148,12 @@ func (h *CommandHandlers) AccountCreateFolder(a *AccountCreateFolder, ctx *comma
 }
 
 func (h *CommandHandlers) AccountDeleteFolder(a *AccountDeleteFolder, ctx *command.Ctx) error {
-	if h.state.FolderById(a.Id) == nil {
+	if h.userData(ctx).FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
 
-	subFolders := h.state.SubfoldersByParentId(a.Id)
-	accounts := h.state.WrappedAccountsByFolder(a.Id)
+	subFolders := h.userData(ctx).SubfoldersByParentId(a.Id)
+	accounts := h.userData(ctx).WrappedAccountsByFolder(a.Id)
 
 	if len(subFolders) > 0 || len(accounts) > 0 {
 		return errors.New("folder not empty")
@@ -163,7 +167,7 @@ func (h *CommandHandlers) AccountDeleteFolder(a *AccountDeleteFolder, ctx *comma
 }
 
 func (h *CommandHandlers) AccountRenameFolder(a *AccountRenameFolder, ctx *command.Ctx) error {
-	if h.state.FolderById(a.Id) == nil {
+	if h.userData(ctx).FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
 
@@ -176,10 +180,10 @@ func (h *CommandHandlers) AccountRenameFolder(a *AccountRenameFolder, ctx *comma
 }
 
 func (h *CommandHandlers) AccountMoveFolder(a *AccountMoveFolder, ctx *command.Ctx) error {
-	if h.state.FolderById(a.Id) == nil {
+	if h.userData(ctx).FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
-	if h.state.FolderById(a.NewParent) == nil {
+	if h.userData(ctx).FolderById(a.NewParent) == nil {
 		return errFolderNotFound
 	}
 
@@ -250,7 +254,7 @@ func (h *CommandHandlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) erro
 }
 
 func (h *CommandHandlers) AccountDelete(a *AccountDelete, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Id) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -262,7 +266,7 @@ func (h *CommandHandlers) AccountDelete(a *AccountDelete, ctx *command.Ctx) erro
 }
 
 func (h *CommandHandlers) AccountAddPassword(a *AccountAddPassword, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -286,7 +290,7 @@ func (h *CommandHandlers) AccountAddPassword(a *AccountAddPassword, ctx *command
 }
 
 func (h *CommandHandlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -301,7 +305,7 @@ func (h *CommandHandlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *com
 }
 
 func (h *CommandHandlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -346,7 +350,7 @@ func (h *CommandHandlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.C
 }
 
 func (h *CommandHandlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Id) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
 
@@ -395,7 +399,7 @@ func (h *CommandHandlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx
 }
 
 func (h *CommandHandlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) error {
-	if h.state.WrappedAccountById(a.Account) == nil {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
 
@@ -427,9 +431,9 @@ func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPa
 
 func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	var user *state.SensitiveUser
-	for _, u := range h.state.DB.Users {
-		if u.User.Username == a.Username {
-			user = &u
+	for _, userStorage := range h.state.DB.UserScope {
+		if userStorage.SensitiveUser.User.Username == a.Username {
+			user = &userStorage.SensitiveUser
 			break
 		}
 	}
@@ -500,7 +504,7 @@ func (h *CommandHandlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) er
 }
 
 func (h *CommandHandlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *command.Ctx) error {
-	return keepassexport.Export(h.state)
+	return keepassexport.Export(h.state, ctx.Meta.UserId)
 }
 
 func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
@@ -519,8 +523,7 @@ func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) er
 }
 
 func (h *CommandHandlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command.Ctx) error {
-	u := h.state.DB.Users[a.User]
-	if u.AccessToken != "" {
+	if h.userData(ctx).SensitiveUser.AccessToken != "" {
 		return errors.New("multiple access tokens not currently supported")
 	}
 

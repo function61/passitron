@@ -7,6 +7,40 @@ import (
 	"time"
 )
 
+type UserStorage struct {
+	SensitiveUser   SensitiveUser
+	WrappedAccounts []WrappedAccount
+	Folders         []apitypes.Folder
+	U2FTokens       map[string]*U2FToken // TODO: change struct?
+}
+
+func NewUserStorage(sensitiveUser SensitiveUser) *UserStorage {
+	rootFolder := apitypes.Folder{
+		Id:       domain.RootFolderId,
+		ParentId: "",
+		Name:     domain.RootFolderName,
+	}
+
+	return &UserStorage{
+		SensitiveUser:   sensitiveUser,
+		WrappedAccounts: []WrappedAccount{},
+		Folders:         []apitypes.Folder{rootFolder},
+		U2FTokens:       map[string]*U2FToken{},
+	}
+}
+
+type Statefile struct {
+	UserScope map[string]*UserStorage // keyed by id
+	AuditLog  []apitypes.AuditlogEntry
+}
+
+func NewStatefile() *Statefile {
+	return &Statefile{
+		UserScope: map[string]*UserStorage{},
+		AuditLog:  []apitypes.AuditlogEntry{},
+	}
+}
+
 type WrappedSecret struct {
 	Secret             apitypes.Secret
 	SshPrivateKey      string
@@ -22,7 +56,6 @@ type WrappedAccount struct {
 
 type U2FToken struct {
 	Name             string
-	UserId           string
 	EnrolledAt       time.Time
 	KeyHandle        string
 	RegistrationData string
@@ -35,14 +68,6 @@ type SensitiveUser struct {
 	User         apitypes.User
 	AccessToken  string // stores only the latest. TODO: support multiple
 	PasswordHash string
-}
-
-type Statefile struct {
-	Users           map[string]SensitiveUser // keyed by id
-	WrappedAccounts []WrappedAccount
-	Folders         []apitypes.Folder
-	AuditLog        []apitypes.AuditlogEntry
-	U2FTokens       map[string]*U2FToken
 }
 
 const maxAuditLogEntries = 30
@@ -62,20 +87,4 @@ func (s *Statefile) Audit(message string, meta *event.EventMeta) {
 	s.AuditLog = append(
 		[]apitypes.AuditlogEntry{entry},
 		s.AuditLog[0:high]...)
-}
-
-func NewStatefile() *Statefile {
-	rootFolder := apitypes.Folder{
-		Id:       domain.RootFolderId,
-		ParentId: "",
-		Name:     domain.RootFolderName,
-	}
-
-	return &Statefile{
-		Users:           map[string]SensitiveUser{},
-		WrappedAccounts: []WrappedAccount{},
-		Folders:         []apitypes.Folder{rootFolder},
-		AuditLog:        []apitypes.AuditlogEntry{},
-		U2FTokens:       map[string]*U2FToken{},
-	}
 }
