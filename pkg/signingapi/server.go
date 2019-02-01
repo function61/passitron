@@ -26,21 +26,22 @@ func errorIfSealed(unsealed bool, w http.ResponseWriter) bool {
 	return false
 }
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte, userId string, st *state.AppState) (ssh.Signer, *state.WrappedAccount, string, error) {
-	for _, wacc := range st.DB.UserScope[userId].WrappedAccounts {
+func lookupSignerByPubKey(pubKeyMarshaled []byte, userStorage *state.UserStorage) (ssh.Signer, *state.WrappedAccount, string, error) {
+	for _, wacc := range userStorage.WrappedAccounts {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
 			}
 
 			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
-			if err != nil {
-				panic(err)
+			if err != nil { // shouldn't happen
+				return nil, nil, "", err
 			}
 
 			publicKey := signer.PublicKey()
 
-			// TODO: is there better way to compare than marshal result?
+			// apparently identities can only be compared by Marshal(), this is is done
+			// the same way in SSH package
 			if bytes.Equal(pubKeyMarshaled, publicKey.Marshal()) {
 				return signer, &wacc, secret.Secret.Id, nil
 			}
@@ -94,18 +95,20 @@ func Setup(router *mux.Router, st *state.AppState) {
 
 				signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
 				if err != nil {
-					panic(err)
+					httputil.RespondHttpJson(
+						httputil.GenericError("private_key_parse_failed", err),
+						http.StatusInternalServerError,
+						w)
+					return
 				}
 
 				publicKey := signer.PublicKey()
 
-				pitem := signingapitypes.PublicKeyResponseItem{
+				resp.PublicKeys = append(resp.PublicKeys, signingapitypes.PublicKeyResponseItem{
 					Format:  publicKey.Type(),
 					Blob:    publicKey.Marshal(),
 					Comment: wacc.Account.Title,
-				}
-
-				resp.PublicKeys = append(resp.PublicKeys, pitem)
+				})
 			}
 		}
 
@@ -129,7 +132,7 @@ func Setup(router *mux.Router, st *state.AppState) {
 			return
 		}
 
-		signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, uid, st)
+		signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, st.DB.UserScope[uid])
 		if err != nil {
 			httputil.RespondHttpJson(httputil.GenericError("privkey_for_pubkey_not_found", err), http.StatusBadRequest, w)
 			return
