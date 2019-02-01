@@ -379,7 +379,7 @@ func (s *AppState) ApplyUserAccessTokenAdded(e *domain.UserAccessTokenAdded) err
 
 func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered) error {
 	us := s.DB.UserScope[e.Meta().UserId]
-	us.U2FTokens[e.KeyHandle] = &U2FToken{
+	us.U2FTokens = append(us.U2FTokens, &U2FToken{
 		Name:             e.Name,
 		EnrolledAt:       e.Meta().Timestamp,
 		KeyHandle:        e.KeyHandle,
@@ -387,7 +387,7 @@ func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered)
 		ClientData:       e.ClientData,
 		Version:          e.Version,
 		Counter:          0,
-	}
+	})
 
 	return nil
 }
@@ -395,10 +395,14 @@ func (s *AppState) ApplyUserU2FTokenRegistered(e *domain.UserU2FTokenRegistered)
 func (s *AppState) ApplyUserU2FTokenUsed(e *domain.UserU2FTokenUsed) error {
 	us := s.DB.UserScope[e.Meta().UserId]
 
-	token := us.U2FTokens[e.KeyHandle]
-	token.Counter = uint32(e.Counter)
+	for _, token := range us.U2FTokens {
+		if token.KeyHandle == e.KeyHandle {
+			token.Counter = uint32(e.Counter)
+			return nil
+		}
+	}
 
-	return nil
+	return errors.New("U2F token by key handle not found")
 }
 
 func (s *AppState) HandleUnknownEvent(e event.Event) error {

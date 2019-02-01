@@ -11,7 +11,7 @@ type UserStorage struct {
 	SensitiveUser   SensitiveUser
 	WrappedAccounts []WrappedAccount
 	Folders         []apitypes.Folder
-	U2FTokens       map[string]*U2FToken // TODO: change struct?
+	U2FTokens       []*U2FToken
 }
 
 func NewUserStorage(sensitiveUser SensitiveUser) *UserStorage {
@@ -25,7 +25,7 @@ func NewUserStorage(sensitiveUser SensitiveUser) *UserStorage {
 		SensitiveUser:   sensitiveUser,
 		WrappedAccounts: []WrappedAccount{},
 		Folders:         []apitypes.Folder{rootFolder},
-		U2FTokens:       map[string]*U2FToken{},
+		U2FTokens:       []*U2FToken{},
 	}
 }
 
