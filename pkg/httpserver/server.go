@@ -17,6 +17,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const (
@@ -50,9 +51,12 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 		return errReadCertBytes
 	}
 
-	if err := u2futil.InjectCommonNameFromSslCertificate(certBytes); err != nil {
+	cert, err := u2futil.ParseCertificate(certBytes)
+	if err != nil {
 		return err
 	}
+
+	u2futil.InjectCommonNameFromSslCertificate(cert)
 
 	srv := &http.Server{
 		Addr:    ":443",
@@ -61,7 +65,12 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 
 	logl := logex.Levels(logger)
 
-	logl.Info.Printf("Serving @ %s", srv.Addr)
+	logl.Info.Printf(
+		"Serving @ %s (cert host %s, expires %s)",
+		srv.Addr,
+		cert.Subject.CommonName,
+		cert.NotAfter.Format(time.RFC3339))
+
 	defer logl.Info.Println("Stopped")
 
 	go func() {

@@ -1,12 +1,12 @@
 package u2futil
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/pem"
-	"errors"
 	"fmt"
+	"github.com/function61/gokit/cryptoutil"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/tstranex/u2f"
@@ -26,20 +26,22 @@ func GetAppIdHostname() string {
 	return "https://" + cnFromSslCertificate
 }
 
-func InjectCommonNameFromSslCertificate(certPEM []byte) error {
-	block, _ := pem.Decode(certPEM)
-	if block == nil {
-		return errors.New("failed to parse certificate PEM")
-	}
-
-	cert, err := x509.ParseCertificate(block.Bytes)
+func ParseCertificate(certPem []byte) (*x509.Certificate, error) {
+	certBytes, err := cryptoutil.ParsePemBytes(bytes.NewBuffer(certPem), "CERTIFICATE")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	cnFromSslCertificate = cert.Subject.CommonName
+	cert, err := x509.ParseCertificate(certBytes)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	return cert, nil
+}
+
+func InjectCommonNameFromSslCertificate(cert *x509.Certificate) {
+	cnFromSslCertificate = cert.Subject.CommonName
 }
 
 func GetTrustedFacets() []string {
