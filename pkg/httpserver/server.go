@@ -73,6 +73,10 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 		cert.Subject.CommonName,
 		cert.NotAfter.Format(time.RFC3339))
 
+	if cert.NotAfter.Before(time.Now()) {
+		logl.Error.Println("Certificate expired")
+	}
+
 	defer logl.Info.Println("Stopped")
 
 	go func() {
