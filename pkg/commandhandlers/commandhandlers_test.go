@@ -42,6 +42,8 @@ func TestScenario(t *testing.T) {
 
 	addKeylistAndRemoveIt(t, tstate)
 
+	addExternalTokensAndRemoveThem(t, tstate)
+
 	// this leaves "1st sub folder"
 	createRenameMoveAndDeleteFolder(t, tstate)
 
@@ -314,6 +316,48 @@ func addKeylistAndRemoveIt(t *testing.T, tstate *testScenarioState) {
 	})
 
 	assert.Assert(t, len(tstate.userData().WrappedAccountById(tstate.firstAccountId).Secrets) == 2)
+}
+
+func addExternalTokensAndRemoveThem(t *testing.T, tstate *testScenarioState) {
+	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountAddExternalU2FToken{
+		Account: tstate.firstAccountId,
+		Title:   "Joonas' primary U2F token",
+	})
+
+	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountAddExternalYubicoOtpToken{
+		Account: tstate.firstAccountId,
+		Title:   "Joonas' primary YubiKey (Yubico OTP)",
+	})
+
+	wacc := tstate.userData().WrappedAccountById(tstate.firstAccountId)
+
+	assert.Assert(t, len(wacc.Secrets) == 4)
+
+	secret := wacc.Secrets[2].Secret
+	assert.EqualString(t, string(secret.Kind), domain.SecretKindExternalToken)
+	assert.EqualString(t, string(*secret.ExternalTokenKind), domain.ExternalTokenKindU2f)
+	assert.EqualString(t, secret.Title, "Joonas' primary U2F token")
+
+	secret = wacc.Secrets[3].Secret
+	assert.EqualString(t, string(secret.Kind), domain.SecretKindExternalToken)
+	assert.EqualString(t, string(*secret.ExternalTokenKind), domain.ExternalTokenKindYubicoOtp)
+	assert.EqualString(t, secret.Title, "Joonas' primary YubiKey (Yubico OTP)")
+
+	// now delete them
+
+	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDeleteSecret{
+		Account: tstate.firstAccountId,
+		Secret:  wacc.Secrets[2].Secret.Id,
+	})
+
+	tstate.InvokeSucceeds(t, tstate.DefaultCmdCtx(), &AccountDeleteSecret{
+		Account: tstate.firstAccountId,
+		Secret:  wacc.Secrets[3].Secret.Id,
+	})
+
+	wacc = tstate.userData().WrappedAccountById(tstate.firstAccountId)
+
+	assert.Assert(t, len(wacc.Secrets) == 2)
 }
 
 func createRenameMoveAndDeleteFolder(t *testing.T, tstate *testScenarioState) {

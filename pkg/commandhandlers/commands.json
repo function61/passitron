@@ -185,6 +185,28 @@
 		]
 	},
 	{
+		"command": "account.AddExternalU2FToken",
+		"chain": "authdWrite",
+		"ctor": ["Account"],
+		"crudNature": "create",
+		"title": "+ U2F token reference",
+		"fields": [
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "Title" }
+		]
+	},
+	{
+		"command": "account.AddExternalYubicoOtpToken",
+		"chain": "authdWrite",
+		"ctor": ["Account"],
+		"crudNature": "create",
+		"title": "+ Yubico OTP token reference",
+		"fields": [
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "Title" }
+		]
+	},
+	{
 		"command": "account.AddOtpToken",
 		"chain": "authdWrite",
 		"ctor": ["Account","OtpProvisioningUrl"],

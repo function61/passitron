@@ -172,6 +172,31 @@ func (s *AppState) ApplyAccountPasswordAdded(e *domain.AccountPasswordAdded) err
 	return ewrap("ApplyAccountPasswordAdded", errRecordNotFound)
 }
 
+func (s *AppState) ApplyAccountExternalTokenAdded(e *domain.AccountExternalTokenAdded) error {
+	us := s.DB.UserScope[e.Meta().UserId]
+	for idx, wacc := range us.WrappedAccounts {
+		if wacc.Account.Id == e.Account {
+			externalTokenKind := apitypes.ExternalTokenKind(e.Kind)
+
+			secret := WrappedSecret{
+				Secret: apitypes.Secret{
+					Id:                e.Id,
+					Kind:              domain.SecretKindExternalToken,
+					ExternalTokenKind: &externalTokenKind,
+					Created:           e.Meta().Timestamp,
+					Title:             e.Description,
+				},
+			}
+
+			wacc.Secrets = append(wacc.Secrets, secret)
+			us.WrappedAccounts[idx] = wacc
+			return nil
+		}
+	}
+
+	return ewrap("ApplyAccountExternalTokenAdded", errRecordNotFound)
+}
+
 func (s *AppState) ApplyAccountKeylistAdded(e *domain.AccountKeylistAdded) error {
 	us := s.DB.UserScope[e.Meta().UserId]
 	for idx, wacc := range us.WrappedAccounts {

@@ -147,7 +147,7 @@ func exportRecursive(
 	for _, wacc := range waccs {
 		for idx, secret := range wacc.Secrets {
 			var entry *gokeepasslib.Entry = nil
-			switch domain.SecretKindExhaustiveff1746(string(secret.Secret.Kind)) {
+			switch domain.SecretKindExhaustive97ac5d(string(secret.Secret.Kind)) {
 			case domain.SecretKindKeylist:
 				entry = entryForAccount(wacc.Account, idx, exportKeylistAsText(secret))
 			case domain.SecretKindPassword:
@@ -175,6 +175,9 @@ func exportRecursive(
 			case domain.SecretKindOtpToken:
 				entry = entryForAccount(wacc.Account, idx, "")
 				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))
+			case domain.SecretKindExternalToken:
+				entry = entryForAccount(wacc.Account, idx, "")
+				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Secret.Title))
 			default:
 				panic("invalid secret kind: " + secret.Secret.Kind)
 			}

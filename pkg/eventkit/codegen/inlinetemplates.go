@@ -145,6 +145,7 @@ import (
 )
 
 type SecretKind string
+type ExternalTokenKind string
 
 {{range .ApplicationTypes.Structs}}
 {{.AsToGoCode}}

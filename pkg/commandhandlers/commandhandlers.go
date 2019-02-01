@@ -304,6 +304,36 @@ func (h *CommandHandlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *com
 	return nil
 }
 
+func (h *CommandHandlers) AccountAddExternalU2FToken(a *AccountAddExternalU2FToken, ctx *command.Ctx) error {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	ctx.RaisesEvent(domain.NewAccountExternalTokenAdded(
+		a.Account,
+		event.RandomId(),
+		domain.ExternalTokenKindU2f,
+		a.Title,
+		ctx.Meta))
+
+	return nil
+}
+
+func (h *CommandHandlers) AccountAddExternalYubicoOtpToken(a *AccountAddExternalYubicoOtpToken, ctx *command.Ctx) error {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	ctx.RaisesEvent(domain.NewAccountExternalTokenAdded(
+		a.Account,
+		event.RandomId(),
+		domain.ExternalTokenKindYubicoOtp,
+		a.Title,
+		ctx.Meta))
+
+	return nil
+}
+
 func (h *CommandHandlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound

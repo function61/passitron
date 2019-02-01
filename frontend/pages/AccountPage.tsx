@@ -21,6 +21,8 @@ import {
 	WrappedAccount,
 } from 'generated/apitypes';
 import {
+	AccountAddExternalU2FToken,
+	AccountAddExternalYubicoOtpToken,
 	AccountAddKeylist,
 	AccountAddPassword,
 	AccountAddSecretNote,
@@ -32,7 +34,7 @@ import {
 	AccountDeleteSecret,
 	AccountRename,
 } from 'generated/commanddefinitions';
-import { SecretKind } from 'generated/domain';
+import { ExternalTokenKind, SecretKind } from 'generated/domain';
 import {
 	getAccount,
 	getFolder,
@@ -316,6 +318,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandLink command={AccountAddKeylist(account.Id)} />
 						<CommandLink command={AccountAddPassword(account.Id)} />
 						<CommandLink command={AccountAddSecretNote(account.Id)} />
+						<CommandLink command={AccountAddExternalU2FToken(account.Id)} />
+						<CommandLink command={AccountAddExternalYubicoOtpToken(account.Id)} />
 
 						<a href={importotptokenRoute.buildUrl({ account: account.Id })}>
 							+ OTP token
@@ -465,6 +469,19 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						</td>
 					</tr>
 				);
+			case SecretKind.ExternalToken:
+				return (
+					<tr key={secret.Id}>
+						<th>
+							<span title={relativeDateFormat(secret.Created)}>
+								{externalTokenKindHumanReadable(secret.ExternalTokenKind!)}{' '}
+								(external token)
+							</span>
+							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+						</th>
+						<td colSpan={2}>{secret.Title}</td>
+					</tr>
+				);
 			case SecretKind.Note:
 				return (
 					<tr key={secret.Id}>
@@ -528,4 +545,15 @@ function nativeSignResultToApiType(sr: U2FStdSignResult): U2FSignResult {
 		SignatureData: sr.signatureData,
 		ClientData: sr.clientData,
 	};
+}
+
+function externalTokenKindHumanReadable(kind: ExternalTokenKind): string {
+	switch (kind) {
+		case ExternalTokenKind.U2f:
+			return 'U2F';
+		case ExternalTokenKind.YubicoOtp:
+			return 'Yubico OTP';
+		default:
+			return unrecognizedValue(kind);
+	}
 }
