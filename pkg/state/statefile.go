@@ -2,8 +2,8 @@ package state
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
-	"fmt"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/crypto"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -143,11 +143,11 @@ func (s *AppState) SetMasterPassword(password string) {
 	// FIXME: if we scan entire event log at startup, and there's 100x
 	// "master password changed" events, that's going to yield N amount of calls to here
 	// and due to nature of a KDFs are designed to be slow, that'd be real slow
-	s.macSigningKey = hex(crypto.Pbkdf2Sha256100kDerive(
+	s.macSigningKey = hex.EncodeToString(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("macSalt")))
 
-	s.csrfToken = hex(crypto.Pbkdf2Sha256100kDerive(
+	s.csrfToken = hex.EncodeToString(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("csrfSalt")))
 }
@@ -158,10 +158,6 @@ func (s *AppState) IsUnsealed() bool {
 
 func (s *AppState) SetSealed(sealed bool) {
 	s.sealed = sealed
-}
-
-func hex(in []byte) string {
-	return fmt.Sprintf("%x", in)
 }
 
 func eventDeserializer(serialized string) (event.Event, error) {
