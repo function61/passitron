@@ -1,6 +1,7 @@
 import { Loading } from 'components/loading';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { jsxChildType } from 'types';
 import { focusRetainer, uniqueDomId } from 'utils';
 
 interface ModalDialogProps {
@@ -10,7 +11,7 @@ interface ModalDialogProps {
 	submitBtnClass: string;
 	submitEnabled: boolean;
 	loading: boolean;
-	children: JSX.Element | JSX.Element[];
+	children: jsxChildType;
 }
 
 export class ModalDialog extends React.Component<ModalDialogProps, {}> {

@@ -4,11 +4,12 @@ import { SearchBox } from 'components/SearchBox';
 import { version } from 'generated/version';
 import * as React from 'react';
 import { indexRoute } from 'routes';
+import { jsxChildType } from 'types';
 
 interface DefaultLayoutProps {
 	title: string;
 	breadcrumbs: Breadcrumb[];
-	children: JSX.Element[] | JSX.Element;
+	children: jsxChildType;
 }
 
 export default class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {

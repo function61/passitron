@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { jsxChildType } from 'types';
 
 interface PanelProps {
 	heading: string;
-	children: JSX.Element[] | JSX.Element;
+	children: jsxChildType;
 }
 
 export class Panel extends React.Component<PanelProps, {}> {

@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { jsxChildType } from 'types';
 
 interface DropdownProps {
 	label?: string;
-	children: any | any[]; // FIXME: JSX.Element or React.ReactElement didn't work
+	children: jsxChildType;
 }
 
 export class Dropdown extends React.Component<DropdownProps, {}> {
