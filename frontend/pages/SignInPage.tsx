@@ -56,8 +56,8 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 		switch (status) {
 			case UnauthenticatedKind.Sealed:
 				return (
-					<Panel heading="Unseal">
-						<WarningAlert text="Database was sealed. Please unseal it." />
+					<Panel heading="Database is sealed">
+						<WarningAlert text="Database is sealed. You can only log in after database has been unsealed." />
 
 						<CommandInlineForm command={DatabaseUnseal()} />
 					</Panel>
