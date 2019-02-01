@@ -1,12 +1,10 @@
 package u2futil
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
-	"github.com/function61/gokit/cryptoutil"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/tstranex/u2f"
@@ -24,20 +22,6 @@ func GetAppIdHostname() string {
 	// - MUST be HTTPS
 	// - MUST include the port (if non-default)
 	return "https://" + cnFromSslCertificate
-}
-
-func ParseCertificate(certPem []byte) (*x509.Certificate, error) {
-	certBytes, err := cryptoutil.ParsePemBytes(bytes.NewBuffer(certPem), "CERTIFICATE")
-	if err != nil {
-		return nil, err
-	}
-
-	cert, err := x509.ParseCertificate(certBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return cert, nil
 }
 
 func InjectCommonNameFromSslCertificate(cert *x509.Certificate) {
