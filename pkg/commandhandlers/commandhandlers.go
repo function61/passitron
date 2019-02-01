@@ -535,10 +535,6 @@ func (h *CommandHandlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command
 }
 
 func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
-	// TODO: fix grabusersu2ftokens()
-	// TODO: fix hardcoded ID in signingapi
-	// TODO: remove skipped test
-
 	if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); err != nil {
 		return err
 	}
