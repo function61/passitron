@@ -100,7 +100,7 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 	if d.Name == "string" {
 		tsType = "string"
 	} else if d.Name == "datetime" {
-		tsType = "string"
+		tsType = "datetimeRFC3339"
 	} else if d.Name == "boolean" {
 		tsType = "boolean"
 	} else if d.Name == "list" {

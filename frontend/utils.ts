@@ -1,5 +1,6 @@
 import { defaultErrorHandler } from 'backenderrors';
 import moment = require('moment');
+import { datetimeRFC3339 } from 'types';
 
 export function unrecognizedValue(value: never): never {
 	throw new Error(`Unrecognized value: ${value}`);
@@ -11,7 +12,7 @@ export function uniqueDomId(): number {
 	return ++uniqueDomIdCounter;
 }
 
-export function relativeDateFormat(dateIso: string): string {
+export function relativeDateFormat(dateIso: datetimeRFC3339): string {
 	return moment(dateIso).fromNow();
 }
 
