@@ -16,3 +16,18 @@ export class Panel extends React.Component<PanelProps, {}> {
 		);
 	}
 }
+
+interface ButtonProps {
+	label: string;
+	click: () => void;
+}
+
+export class Button extends React.Component<ButtonProps, {}> {
+	render() {
+		return (
+			<span className="btn btn-default" onClick={this.props.click}>
+				{this.props.label}
+			</span>
+		);
+	}
+}
