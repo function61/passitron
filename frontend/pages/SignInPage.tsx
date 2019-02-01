@@ -1,7 +1,7 @@
 import { coerceToStructuredErrorResponse, isNotSignedInError, isSealedError } from 'backenderrors';
 import { navigateTo } from 'browserutils';
 import { WarningAlert } from 'components/alerts';
-import { Panel } from 'components/bootstrap';
+import { Button, Panel } from 'components/bootstrap';
 import { Breadcrumb } from 'components/breadcrumbtrail';
 import { CommandInlineForm } from 'components/CommandButton';
 import { Loading } from 'components/loading';
@@ -13,6 +13,9 @@ import * as React from 'react';
 import { indexRoute } from 'routes';
 import { shouldAlwaysSucceed, unrecognizedValue } from 'utils';
 
+const storedUsernameLocalStorageKey = 'signInLastUsername';
+
+// Sealed => AwaitingUsername => AwaitingPassword
 enum UnauthenticatedKind {
 	Sealed, // while database is sealed, signing in is not possible
 	AwaitingUsername,
@@ -30,7 +33,7 @@ interface SignInPageState {
 
 export default class SignInPage extends React.Component<SignInPageProps, SignInPageState> {
 	state: SignInPageState = {
-		username: localStorage.getItem('signInLastUsername') || '',
+		username: localStorage.getItem(storedUsernameLocalStorageKey) || '',
 	};
 	private title = 'Sign in';
 
@@ -64,26 +67,37 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 					<Panel heading="Username">
 						<form
 							onSubmit={() => {
-								this.usernameEntered();
+								this.rememberUsername();
 							}}>
 							<label>
 								Username:
 								<input
 									type="text"
+									className="form-control"
 									value={this.state.username}
 									onChange={(e) => {
 										this.setState({ username: e.target.value });
 									}}
 								/>
 							</label>
-							<input type="submit" value="Submit" />
+							<input type="submit" value="Next" className="btn btn-primary" />
 						</form>
 					</Panel>
 				);
 			case UnauthenticatedKind.AwaitingPassword:
 				return (
-					<Panel heading={'Username: ' + this.state.username}>
+					<Panel heading={'Sign in'}>
+						Username
+						<br />
+						{this.state.username}
+						<br />
 						<CommandInlineForm command={SessionSignIn(this.state.username)} />
+						<Button
+							label="change user"
+							click={() => {
+								this.forgetUsername();
+							}}
+						/>
 					</Panel>
 				);
 			default:
@@ -91,11 +105,21 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 		}
 	}
 
-	private usernameEntered() {
+	private rememberUsername() {
+		if (this.state.username === '') {
+			return;
+		}
+
 		// store, so next on next login we can pre-fill this
-		localStorage.setItem('signInLastUsername', this.state.username);
+		localStorage.setItem(storedUsernameLocalStorageKey, this.state.username);
 
 		this.setState({ status: UnauthenticatedKind.AwaitingPassword });
+	}
+
+	private forgetUsername() {
+		localStorage.removeItem(storedUsernameLocalStorageKey);
+
+		this.setState({ status: UnauthenticatedKind.AwaitingUsername });
 	}
 
 	private getBreadcrumbs(): Breadcrumb[] {
