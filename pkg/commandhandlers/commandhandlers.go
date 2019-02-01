@@ -528,6 +528,7 @@ func (h *CommandHandlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command
 		a.User,
 		event.RandomId(),
 		cryptorandombytes.Base64Url(16),
+		a.Description,
 		ctx.Meta))
 
 	return nil

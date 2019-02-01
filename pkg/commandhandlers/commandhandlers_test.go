@@ -101,13 +101,15 @@ func addAccessToken(t *testing.T, tstate *testScenarioState) {
 	assert.EqualString(t, tstate.st.DB.Users["2"].AccessToken, "")
 
 	tstate.InvokeSucceeds(t, cmdCtx, &UserAddAccessToken{
-		User: cmdCtx.Meta.UserId,
+		User:        cmdCtx.Meta.UserId,
+		Description: "SSH agent access",
 	})
 
 	assert.Assert(t, len(tstate.st.DB.Users["2"].AccessToken) == 22)
 
 	assert.EqualString(t, tstate.InvokeFails(t, cmdCtx, &UserAddAccessToken{
-		User: cmdCtx.Meta.UserId,
+		User:        cmdCtx.Meta.UserId,
+		Description: "this will fail",
 	}), "multiple access tokens not currently supported")
 }
 

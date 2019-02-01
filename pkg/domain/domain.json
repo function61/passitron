@@ -345,11 +345,12 @@
 	},
 	{
 		"event": "user.AccessTokenAdded",
-		"ctor": ["User", "TokenId", "Token"],
+		"ctor": ["User", "TokenId", "Token", "Description"],
 		"fields": [
 			{ "key": "User", "type": {"_": "string"} },
 			{ "key": "TokenId", "type": {"_": "string"} },
-			{ "key": "Token", "type": {"_": "string"} }
+			{ "key": "Token", "type": {"_": "string"} },
+			{ "key": "Description", "type": {"_": "string"} }
 		]
 	},
 	{

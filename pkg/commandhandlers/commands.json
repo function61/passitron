@@ -274,7 +274,8 @@
 		"crudNature": "create",
 		"title": "Create access token",
 		"fields": [
-			{ "key": "User", "hideIfDefaultValue": true }
+			{ "key": "User", "hideIfDefaultValue": true },
+			{ "key": "Description" }
 		]
 	},
 	{
