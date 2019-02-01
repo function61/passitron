@@ -64,40 +64,47 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 				);
 			case UnauthenticatedKind.AwaitingUsername:
 				return (
-					<Panel heading="Username">
+					<Panel heading={this.title}>
 						<form
 							onSubmit={() => {
 								this.rememberUsername();
 							}}>
-							<label>
-								Username:
-								<input
-									type="text"
-									className="form-control"
-									value={this.state.username}
-									onChange={(e) => {
-										this.setState({ username: e.target.value });
-									}}
-								/>
-							</label>
+							<div className="form-group">
+								<label>
+									Username *
+									<input
+										type="text"
+										className="form-control"
+										value={this.state.username}
+										onChange={(e) => {
+											this.setState({ username: e.target.value });
+										}}
+									/>
+								</label>
+							</div>
 							<input type="submit" value="Next" className="btn btn-primary" />
 						</form>
 					</Panel>
 				);
 			case UnauthenticatedKind.AwaitingPassword:
 				return (
-					<Panel heading={'Sign in'}>
-						Username
-						<br />
-						{this.state.username}
-						<br />
+					<Panel heading={this.title}>
+						<div className="form-group">
+							<label>Username *</label>
+
+							<p>
+								{this.state.username}
+								<span className="margin-left">
+									<Button
+										label="Change user"
+										click={() => {
+											this.forgetUsername();
+										}}
+									/>
+								</span>
+							</p>
+						</div>
 						<CommandInlineForm command={SessionSignIn(this.state.username)} />
-						<Button
-							label="change user"
-							click={() => {
-								this.forgetUsername();
-							}}
-						/>
 					</Panel>
 				);
 			default:
