@@ -45,7 +45,7 @@ type Statefile struct {
 	U2FTokens       map[string]*U2FToken
 }
 
-const maxAuditLogEntries = 10
+const maxAuditLogEntries = 30
 
 func (s *Statefile) Audit(message string, meta *event.EventMeta) {
 	entry := apitypes.AuditlogEntry{
