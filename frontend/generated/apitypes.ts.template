@@ -1,7 +1,7 @@
 // tslint:disable
 // WARNING: generated file
 
-import {SecretKind, ExternalTokenKind} from 'generated/domain';
+import * as domain from 'generated/domain';
 import {datetimeRFC3339} from 'types';
 
 {{range .ApplicationTypes.Structs}}

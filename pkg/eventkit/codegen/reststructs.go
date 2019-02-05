@@ -98,7 +98,7 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 	tsType := ""
 
 	if d.isCustomType() {
-		tsType = d.Name()
+		tsType = d.NameRaw
 	} else {
 		switch d.Name() {
 		case "string":
