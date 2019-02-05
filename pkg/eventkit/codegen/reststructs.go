@@ -8,7 +8,7 @@ import (
 )
 
 type ApplicationTypesDefinition struct {
-	Structs   []StructDefinition   `json:"structs"`
+	Structs   []StructDefinition   `json:"types"`
 	Endpoints []EndpointDefinition `json:"endpoints"`
 }
 
@@ -55,15 +55,15 @@ func (e *EndpointDefinition) TypescriptArgs() string {
 }
 
 type StructDefinition struct {
-	Name   string                   `json:"name"`
-	Fields []DatatypeDefObjectField `json:"fields"`
+	Name string      `json:"name"`
+	Type DatatypeDef `json:"type"`
 }
 
 func (s *StructDefinition) AsTypeScriptCode() string {
 	fieldsSerialized := []string{}
 
-	for _, field := range s.Fields {
-		fieldsSerialized = append(fieldsSerialized, field.Key+": "+field.Type.AsTypeScriptType()+";")
+	for fieldKey, fieldType := range s.Type.Fields {
+		fieldsSerialized = append(fieldsSerialized, fieldKey+": "+fieldType.AsTypeScriptType()+";")
 	}
 
 	return fmt.Sprintf(`export interface %s {
@@ -78,11 +78,11 @@ func (s *StructDefinition) AsToGoCode() string {
 
 	visitor := &Visitor{}
 
-	for _, field := range s.Fields {
+	for fieldKey, fieldType := range s.Type.Fields {
 		fields = append(fields, GoStructField{
-			Name: field.Key,
-			Type: AsGoTypeWithInlineSupport(field.Type, field.Key, visitor),
-			Tags: "json:\"" + field.Key + "\"",
+			Name: fieldKey,
+			Type: AsGoTypeWithInlineSupport(&fieldType, fieldKey, visitor),
+			Tags: "json:\"" + fieldKey + "\"",
 		})
 	}
 

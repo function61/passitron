@@ -13,10 +13,8 @@ Datatypes are as follows:
 type {{.Name}}
 -----
 
-| Key | Type | 
-|------|----------|
-{{range .Fields}}| {{.Key}} | `{{.Type.AsTypeScriptType}}` |
-{{end}}
-
+```
+{{.AsTypeScriptCode}}
+```
 {{end}}
 

@@ -5,10 +5,10 @@ import (
 )
 
 type DatatypeDef struct {
-	NameRaw  string                   `json:"_"` // "Type" | "module.Type" if referring to another module (such as "domain")
-	Nullable bool                     `json:"nullable"`
-	Of       *DatatypeDef             `json:"of"`   // only used if Name==list
-	Keys     []DatatypeDefObjectField `json:"keys"` // only used if Name==object
+	NameRaw  string                 `json:"_"` // "Type" | "module.Type" if referring to another module (such as "domain")
+	Nullable bool                   `json:"nullable"`
+	Of       *DatatypeDef           `json:"of"`     // only used if Name==list
+	Fields   map[string]DatatypeDef `json:"fields"` // only used if Name==object
 }
 
 func (d *DatatypeDef) Name() string {
@@ -42,8 +42,8 @@ func flattenDatatypeInternal(def *DatatypeDef, all *[]*DatatypeDef) {
 	if def.Name() == "list" {
 		flattenDatatypeInternal(def.Of, all)
 	} else if def.Name() == "object" {
-		for _, member := range def.Keys {
-			flattenDatatypeInternal(member.Type, all)
+		for _, member := range def.Fields {
+			flattenDatatypeInternal(&member, all)
 		}
 	}
 }

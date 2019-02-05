@@ -12,181 +12,181 @@
 		{ "chain": "authdQuery", "method": "GET", "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
 		{ "chain": "authdQuery", "method": "GET", "path": "/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" }
 	],
-	"structs": [
+	"types": [
 		{
 			"name": "FolderResponse",
-			"fields": [
-				{ "key": "Folder", "type": {"_": "Folder", "nullable": true} },
-				{ "key": "SubFolders", "type": {"_": "list", "of": {"_": "Folder"}} },
-				{ "key": "ParentFolders", "type": {"_": "list", "of": {"_": "Folder"}} },
-				{ "key": "Accounts", "type": {"_": "list", "of": {"_": "Account"}} }
-			]
+			"type": {"_": "object", "fields": {
+				"Folder": {"_": "Folder", "nullable": true},
+				"SubFolders": {"_": "list", "of": {"_": "Folder"}},
+				"ParentFolders": {"_": "list", "of": {"_": "Folder"}},
+				"Accounts": {"_": "list", "of": {"_": "Account"}}
+			}}
 		},
 		{
 			"name": "User",
-			"fields": [
-				{ "key": "Id", "type": {"_": "string"} },
-				{ "key": "Created", "type": {"_": "datetime"} },
-				{ "key": "Username", "type": {"_": "string"} },
-				{ "key": "PasswordLastChanged", "type": {"_": "datetime"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Id": {"_": "string"},
+				"Created": {"_": "datetime"},
+				"Username": {"_": "string"},
+				"PasswordLastChanged": {"_": "datetime"}
+			}}
 		},
 		{
 			"name": "Account",
-			"fields": [
-				{ "key": "Id", "type": {"_": "string"} },
-				{ "key": "Created", "type": {"_": "datetime"} },
-				{ "key": "FolderId", "type": {"_": "string"} },
-				{ "key": "Title", "type": {"_": "string"} },
-				{ "key": "Url", "type": {"_": "string"} },
-				{ "key": "Username", "type": {"_": "string"} },
-				{ "key": "Description", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Id": {"_": "string"},
+				"Created": {"_": "datetime"},
+				"FolderId": {"_": "string"},
+				"Title": {"_": "string"},
+				"Url": {"_": "string"},
+				"Username": {"_": "string"},
+				"Description": {"_": "string"}
+			}}
 		},
 		{
 			"name": "WrappedAccount",
-			"fields": [
-				{ "key": "Account", "type": {"_": "Account"} },
-				{ "key": "ChallengeBundle", "type": {"_": "U2FChallengeBundle"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Account": {"_": "Account"},
+				"ChallengeBundle": {"_": "U2FChallengeBundle"}
+			}}
 		},
 		{
 			"name": "U2FChallengeBundle",
-			"fields": [
-				{ "key": "SignRequest", "type": {"_": "U2FSignRequest"} },
-				{ "key": "Challenge", "type": {"_": "U2FChallenge"} }
-			]
+			"type": {"_": "object", "fields": {
+				"SignRequest": {"_": "U2FSignRequest"},
+				"Challenge": {"_": "U2FChallenge"}
+			}}
 		},
 		{
 			"name": "U2FChallenge",
-			"fields": [
-				{ "key": "Challenge", "type": {"_": "string"} },
-				{ "key": "Timestamp", "type": {"_": "datetime"} },
-				{ "key": "AppID", "type": {"_": "string"} },
-				{ "key": "TrustedFacets", "type": {"_": "list", "of": {"_": "string"}} }
-			]
+			"type": {"_": "object", "fields": {
+				"Challenge": {"_": "string"},
+				"Timestamp": {"_": "datetime"},
+				"AppID": {"_": "string"},
+				"TrustedFacets": {"_": "list", "of": {"_": "string"}}
+			}}
 		},
 		{
 			"name": "U2FSignRequest",
-			"fields": [
-				{ "key": "AppID", "type": {"_": "string"} },
-				{ "key": "Challenge", "type": {"_": "string"} },
-				{ "key": "RegisteredKeys", "type": {"_": "list", "of": {"_": "U2FRegisteredKey"}} }
-			]
+			"type": {"_": "object", "fields": {
+				"AppID": {"_": "string"},
+				"Challenge": {"_": "string"},
+				"RegisteredKeys": {"_": "list", "of": {"_": "U2FRegisteredKey"}}
+			}}
 		},
 		{
 			"name": "U2FRegisteredKey",
-			"fields": [
-				{ "key": "Version", "type": {"_": "string"} },
-				{ "key": "KeyHandle", "type": {"_": "string"} },
-				{ "key": "AppID", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Version": {"_": "string"},
+				"KeyHandle": {"_": "string"},
+				"AppID": {"_": "string"}
+			}}
 		},
 		{
 			"name": "Folder",
-			"fields": [
-				{ "key": "Id", "type": {"_": "string"} },
-				{ "key": "ParentId", "type": {"_": "string"} },
-				{ "key": "Name", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Id": {"_": "string"},
+				"ParentId": {"_": "string"},
+				"Name": {"_": "string"}
+			}}
 		},
 		{
 			"name": "AuditlogEntry",
-			"fields": [
-				{ "key": "Timestamp", "type": {"_": "datetime"} },
-				{ "key": "UserId", "type": {"_": "string"} },
-				{ "key": "Message", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Timestamp": {"_": "datetime"},
+				"UserId": {"_": "string"},
+				"Message": {"_": "string"}
+			}}
 		},
 		{
 			"name": "Secret",
-			"fields": [
-				{ "key": "Id", "type": {"_": "string"} },
-				{ "key": "Kind", "type": {"_": "domain.SecretKind"} },
-				{ "key": "ExternalTokenKind", "type": {"_": "domain.ExternalTokenKind", "nullable": true} },
-				{ "key": "Title", "type": {"_": "string"} },
-				{ "key": "Created", "type": {"_": "datetime"} },
-				{ "key": "Password", "type": {"_": "string"} },
-				{ "key": "SshPublicKeyAuthorized", "type": {"_": "string"} },
-				{ "key": "KeylistKeyExample", "type": {"_": "string"} },
-				{ "key": "Note", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Id": {"_": "string"},
+				"Kind": {"_": "domain.SecretKind"},
+				"ExternalTokenKind": {"_": "domain.ExternalTokenKind", "nullable": true},
+				"Title": {"_": "string"},
+				"Created": {"_": "datetime"},
+				"Password": {"_": "string"},
+				"SshPublicKeyAuthorized": {"_": "string"},
+				"KeylistKeyExample": {"_": "string"},
+				"Note": {"_": "string"}
+			}}
 		},
 		{
 			"name": "ExposedSecret",
-			"fields": [
-				{ "key": "Secret", "type": {"_": "Secret"} },
-				{ "key": "OtpProof", "type": {"_": "string"} },
-				{ "key": "OtpKeyExportMac", "type": {"_": "string"} },
-				{ "key": "OtpProofTime", "type": {"_": "datetime"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Secret": {"_": "Secret"},
+				"OtpProof": {"_": "string"},
+				"OtpKeyExportMac": {"_": "string"},
+				"OtpProofTime": {"_": "datetime"}
+			}}
 		},
 		{
 			"name": "SecretKeylistKey",
-			"fields": [
-				{ "key": "Key", "type": {"_": "string"} },
-				{ "key": "Value", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Key": {"_": "string"},
+				"Value": {"_": "string"}
+			}}
 		},
 		{
 			"name": "U2FResponseBundle",
-			"fields": [
-				{ "key": "SignResult", "type": {"_": "U2FSignResult"} },
-				{ "key": "Challenge", "type": {"_": "U2FChallenge"} }
-			]
+			"type": {"_": "object", "fields": {
+				"SignResult": {"_": "U2FSignResult"},
+				"Challenge": {"_": "U2FChallenge"}
+			}}
 		},
 		{
 			"name": "U2FSignResult",
-			"fields": [
-				{ "key": "KeyHandle", "type": {"_": "string"} },
-				{ "key": "SignatureData", "type": {"_": "string"} },
-				{ "key": "ClientData", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"KeyHandle": {"_": "string"},
+				"SignatureData": {"_": "string"},
+				"ClientData": {"_": "string"}
+			}}
 		},
 		{
 			"name": "RegisterResponse",
-			"fields": [
-				{ "key": "Challenge", "type": {"_": "U2FChallenge"} },
-				{ "key": "RegisterResponse", "type": {"_": "U2FRegisterResponse"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Challenge": {"_": "U2FChallenge"},
+				"RegisterResponse": {"_": "U2FRegisterResponse"}
+			}}
 		},
 		{
 			"name": "U2FEnrolledToken",
-			"fields": [
-				{ "key": "EnrolledAt", "type": {"_": "datetime"} },
-				{ "key": "Name", "type": {"_": "string"} },
-				{ "key": "Version", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"EnrolledAt": {"_": "datetime"},
+				"Name": {"_": "string"},
+				"Version": {"_": "string"}
+			}}
 		},
 		{
 			"name": "U2FRegisterResponse",
-			"fields": [
-				{ "key": "Version", "type": {"_": "string"} },
-				{ "key": "RegistrationData", "type": {"_": "string"} },
-				{ "key": "ClientData", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Version": {"_": "string"},
+				"RegistrationData": {"_": "string"},
+				"ClientData": {"_": "string"}
+			}}
 		},
 		{
 			"name": "U2FEnrollmentChallenge",
-			"fields": [
-				{ "key": "Challenge", "type": {"_": "U2FChallenge"} },
-				{ "key": "RegisterRequest", "type": {"_": "U2FWebRegisterRequest"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Challenge": {"_": "U2FChallenge"},
+				"RegisterRequest": {"_": "U2FWebRegisterRequest"}
+			}}
 		},
 		{
 			"name": "U2FRegisterRequest",
-			"fields": [
-				{ "key": "Version", "type": {"_": "string"} },
-				{ "key": "Challenge", "type": {"_": "string"} }
-			]
+			"type": {"_": "object", "fields": {
+				"Version": {"_": "string"},
+				"Challenge": {"_": "string"}
+			}}
 		},
 		{
 			"name": "U2FWebRegisterRequest",
-			"fields": [
-				{ "key": "AppID", "type": {"_": "string"} },
-				{ "key": "RegisterRequests", "type": {"_": "list", "of": {"_": "U2FRegisterRequest"}} },
-				{ "key": "RegisteredKeys", "type": {"_": "list", "of": {"_": "U2FRegisteredKey"}} }
-			]
+			"type": {"_": "object", "fields": {
+				"AppID": {"_": "string"},
+				"RegisterRequests": {"_": "list", "of": {"_": "U2FRegisterRequest"}},
+				"RegisteredKeys": {"_": "list", "of": {"_": "U2FRegisteredKey"}}
+			}}
 		}
 	]
 }

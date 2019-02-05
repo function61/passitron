@@ -117,11 +117,11 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 			Fields: nil,
 		}
 
-		for _, objectKeyDefinition := range e.Keys {
+		for key, objectKeyDefinition := range e.Fields {
 			field := GoStructField{
-				Name: objectKeyDefinition.Key,
-				Type: AsGoTypeWithInlineSupport(objectKeyDefinition.Type, supportStructDef.Name, visitor),
-				Tags: "json:\"" + objectKeyDefinition.Key + "\"",
+				Name: key,
+				Type: AsGoTypeWithInlineSupport(&objectKeyDefinition, supportStructDef.Name, visitor),
+				Tags: "json:\"" + key + "\"",
 			}
 
 			supportStructDef.Fields = append(supportStructDef.Fields, field)

@@ -1,4 +1,4 @@
-{
+	{
 	"stringConsts": [
 		{ "key": "RootFolderId", "value": "root" },
 		{ "key": "RootFolderName", "value": "root" }
@@ -158,10 +158,10 @@
 				"type": {
 					"_": "list", "of": {
 						"_": "object",
-						"keys": [
-							{ "key": "Key", "type": { "_": "string" } },
-							{ "key": "Value", "type": { "_": "string" } }
-						]
+						"fields": {
+							"Key": { "_": "string" },
+							"Value": { "_": "string" }
+						}
 					}
 				}
 			}
