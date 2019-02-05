@@ -1,10 +1,10 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Loading } from 'components/loading';
 import { SecretListing } from 'components/SecretListing';
+import { Loading } from 'f61ui/components/loading';
 import { FolderResponse } from 'generated/apitypes';
 import { RootFolderId } from 'generated/domain';
 import { getFolder } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 
 interface SshKeysPageState {
@@ -26,9 +26,9 @@ export default class SshKeysPage extends React.Component<{}, SshKeysPageState> {
 		const breadcrumbs = [{ url: '', title: this.title }];
 
 		return (
-			<DefaultLayout title={this.title} breadcrumbs={breadcrumbs}>
+			<AppDefaultLayout title={this.title} breadcrumbs={breadcrumbs}>
 				<SecretListing searchTerm="" listing={this.state.listing} />
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

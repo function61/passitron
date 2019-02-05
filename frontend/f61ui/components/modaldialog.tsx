@@ -1,8 +1,8 @@
-import { Loading } from 'components/loading';
+import { Loading } from 'f61ui/components/loading';
+import { jsxChildType } from 'f61ui/types';
+import { focusRetainer, uniqueDomId } from 'f61ui/utils';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { jsxChildType } from 'types';
-import { focusRetainer, uniqueDomId } from 'utils';
 
 interface ModalDialogProps {
 	title: string;

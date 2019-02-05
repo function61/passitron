@@ -2,7 +2,7 @@
 // WARNING: generated file
 
 import * as domain from 'generated/domain';
-import {datetimeRFC3339} from 'types';
+import {datetimeRFC3339} from 'f61ui/types';
 
 {{range .ApplicationTypes.Structs}}
 {{.AsTypeScriptCode}}

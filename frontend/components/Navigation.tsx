@@ -1,4 +1,4 @@
-import { getCurrentHash } from 'browserutils';
+import { getCurrentHash } from 'f61ui/browserutils';
 import * as React from 'react';
 import { auditlogRoute, indexRoute, settingsRoute, sshkeysRoute } from 'routes';
 

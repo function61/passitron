@@ -1,11 +1,11 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Panel } from 'components/bootstrap';
-import { Breadcrumb } from 'components/breadcrumbtrail';
-import { CommandLink } from 'components/CommandButton';
-import { CommandButton } from 'components/CommandButton';
-import { Dropdown } from 'components/dropdown';
-import { Loading } from 'components/loading';
-import { Timestamp } from 'components/timestamp';
+import { Panel } from 'f61ui/components/bootstrap';
+import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
+import { CommandButton, CommandLink } from 'f61ui/components/CommandButton';
+import { Dropdown } from 'f61ui/components/dropdown';
+import { Loading } from 'f61ui/components/loading';
+import { Timestamp } from 'f61ui/components/timestamp';
+import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes';
 import {
 	DatabaseChangeMasterPassword,
@@ -18,7 +18,7 @@ import {
 } from 'generated/commanddefinitions';
 import { RootFolderName } from 'generated/domain';
 import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexRoute } from 'routes';
 import {
@@ -27,7 +27,6 @@ import {
 	U2FStdRegisterRequest,
 	U2FStdRegisterResponse,
 } from 'u2ftypes';
-import { shouldAlwaysSucceed } from 'utils';
 
 interface SettingsPageState {
 	u2fregistrationrequest?: string;
@@ -59,7 +58,7 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 		);
 
 		return (
-			<DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
+			<AppDefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 				<div className="row">
 					<div className="col-md-4">
 						<Panel heading="Actions">
@@ -88,7 +87,7 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 						</Panel>
 					</div>
 				</div>
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

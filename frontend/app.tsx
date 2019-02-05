@@ -1,7 +1,7 @@
-import { getCurrentHash } from 'browserutils';
-import { DangerAlert } from 'components/alerts';
-import { configureCsrfToken } from 'httputil';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { getCurrentHash } from 'f61ui/browserutils';
+import { DangerAlert } from 'f61ui/components/alerts';
+import { configureCsrfToken } from 'f61ui/httputil';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { router } from 'routes';
@@ -50,11 +50,11 @@ export class App extends React.Component<{}, AppState> {
 		const fromRouter = router.match(this.state.hash);
 		if (!fromRouter) {
 			return (
-				<DefaultLayout title="404" breadcrumbs={[]}>
+				<AppDefaultLayout title="404" breadcrumbs={[]}>
 					<h1>404</h1>
 
 					<DangerAlert text="The page you were looking for is not found." />
-				</DefaultLayout>
+				</AppDefaultLayout>
 			);
 		}
 

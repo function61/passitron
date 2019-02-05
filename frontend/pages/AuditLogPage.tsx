@@ -1,11 +1,11 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Breadcrumb } from 'components/breadcrumbtrail';
-import { Loading } from 'components/loading';
-import { Timestamp } from 'components/timestamp';
+import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
+import { Loading } from 'f61ui/components/loading';
+import { Timestamp } from 'f61ui/components/timestamp';
 import { AuditlogEntry } from 'generated/apitypes';
 import { RootFolderName } from 'generated/domain';
 import { auditLogEntries } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexRoute } from 'routes';
 
@@ -43,13 +43,13 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 			);
 
 		return (
-			<DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
+			<AppDefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 				<h1>{this.title}</h1>
 
 				<table className="table table-striped">
 					<tbody>{rows}</tbody>
 				</table>
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

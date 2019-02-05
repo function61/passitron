@@ -1,9 +1,13 @@
-import { CommandDefinition, CrudNature } from 'commandtypes';
-import { Loading } from 'components/loading';
-import { ModalDialog } from 'components/modaldialog';
-import { CommandChangesArgs, CommandPagelet, initialCommandState } from 'plumbing';
+import { CommandDefinition, CrudNature } from 'f61ui/commandtypes';
+import {
+	CommandChangesArgs,
+	CommandPagelet,
+	initialCommandState,
+} from 'f61ui/components/commandpagelet';
+import { Loading } from 'f61ui/components/loading';
+import { ModalDialog } from 'f61ui/components/modaldialog';
+import { unrecognizedValue } from 'f61ui/utils';
 import * as React from 'react';
-import { unrecognizedValue } from 'utils';
 
 interface CommandButtonProps {
 	command: CommandDefinition;

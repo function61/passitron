@@ -1,20 +1,22 @@
-import { Breadcrumb, BreadcrumbTrail } from 'components/breadcrumbtrail';
 import Navigation from 'components/Navigation';
 import { SearchBox } from 'components/SearchBox';
-import { version } from 'generated/version';
+import { Breadcrumb, BreadcrumbTrail } from 'f61ui/components/breadcrumbtrail';
+import { jsxChildType } from 'f61ui/types';
 import * as React from 'react';
-import { indexRoute } from 'routes';
-import { jsxChildType } from 'types';
 
 interface DefaultLayoutProps {
-	title: string;
+	pageTitle: string;
+	version: string;
+	appName: string;
+	appHomepage: string;
+	logoUrl: string;
 	breadcrumbs: Breadcrumb[];
-	children: jsxChildType;
+	content: jsxChildType;
 }
 
-export default class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
+export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 	render() {
-		document.title = `${this.props.title} - PiLockBox`;
+		document.title = `${this.props.pageTitle} - ${this.props.appName}`;
 
 		const dayOfWeek = [
 			'Sunday',
@@ -31,7 +33,7 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 				<div className="header clearfix">
 					<div className="pull-left">
 						<h3 className="text-muted">
-							<a href={indexRoute.buildUrl({})}>PiLockBox</a>
+							<a href={this.props.logoUrl}>{this.props.appName}</a>
 						</h3>
 					</div>
 
@@ -46,14 +48,14 @@ export default class DefaultLayout extends React.Component<DefaultLayoutProps, {
 
 				<BreadcrumbTrail items={this.props.breadcrumbs} />
 
-				{this.props.children}
+				{this.props.content}
 
 				<div className="panel panel-default panel-footer" style={{ marginTop: '16px' }}>
 					<div className="pull-left">
-						<a href="https://github.com/function61/pi-security-module" target="_blank">
-							PiLockBox
+						<a href={this.props.appHomepage} target="_blank">
+							{this.props.appName}
 						</a>
-						&nbsp;{version}&nbsp;by{' '}
+						&nbsp;{this.props.version}&nbsp;by{' '}
 						<a href="https://function61.com/" target="_blank">
 							function61.com
 						</a>

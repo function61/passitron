@@ -1,6 +1,6 @@
 import { defaultErrorHandler } from 'backenderrors';
+import { datetimeRFC3339 } from 'f61ui/types';
 import moment = require('moment');
-import { datetimeRFC3339 } from 'types';
 
 export function unrecognizedValue(value: never): never {
 	throw new Error(`Unrecognized value: ${value}`);

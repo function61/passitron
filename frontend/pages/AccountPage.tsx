@@ -1,13 +1,14 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { elToClipboard } from 'clipboard';
-import { DangerAlert } from 'components/alerts';
-import { Breadcrumb } from 'components/breadcrumbtrail';
-import { CommandIcon, CommandLink } from 'components/CommandButton';
-import { Dropdown } from 'components/dropdown';
-import { Loading } from 'components/loading';
-import { MonospaceContent } from 'components/monospacecontent';
-import { OptionalContent } from 'components/optionalcontent';
-import { SecretReveal } from 'components/secretreveal';
+import { elToClipboard } from 'f61ui/clipboard';
+import { DangerAlert } from 'f61ui/components/alerts';
+import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
+import { CommandIcon, CommandLink } from 'f61ui/components/CommandButton';
+import { Dropdown } from 'f61ui/components/dropdown';
+import { Loading } from 'f61ui/components/loading';
+import { MonospaceContent } from 'f61ui/components/monospacecontent';
+import { OptionalContent } from 'f61ui/components/optionalcontent';
+import { SecretReveal } from 'f61ui/components/secretreveal';
+import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import {
 	Account,
 	ExposedSecret,
@@ -43,11 +44,10 @@ import {
 	getSecrets,
 	totpBarcodeExportUrl,
 } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { folderRoute, importotptokenRoute } from 'routes';
 import { isU2FError, u2fErrorMsg, U2FStdRegisteredKey, U2FStdSignResult } from 'u2ftypes';
-import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'utils';
 
 interface SecretsFetcherProps {
 	wrappedAccount: WrappedAccount;
@@ -306,7 +306,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 		const breadcrumbItems = this.getBreadcrumbItems();
 
 		return (
-			<DefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
+			<AppDefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
 				<h1>
 					<span title={relativeDateFormat(account.Created)}>{account.Title}</span>
 					&nbsp;
@@ -384,7 +384,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						</tr>
 					</tbody>
 				</table>
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

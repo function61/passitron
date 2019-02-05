@@ -1,7 +1,7 @@
 // tslint:disable
 // WARNING: generated file
 
-import {CommandDefinition, CommandFieldKind, CrudNature} from 'commandtypes';
+import {CommandDefinition, CommandFieldKind, CrudNature} from 'f61ui/commandtypes';
 
 {{range .CommandSpecs}}
 export function {{.AsGoStructName}}({{.CtorArgsForTypeScript}}): CommandDefinition {

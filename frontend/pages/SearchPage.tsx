@@ -1,11 +1,11 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Breadcrumb } from 'components/breadcrumbtrail';
-import { Loading } from 'components/loading';
 import { SecretListing } from 'components/SecretListing';
+import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
+import { Loading } from 'f61ui/components/loading';
 import { FolderResponse } from 'generated/apitypes';
 import { RootFolderName } from 'generated/domain';
 import { search } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexRoute } from 'routes';
 
@@ -33,12 +33,12 @@ export default class SearchPage extends React.Component<SearchPageProps, SearchP
 		];
 
 		return (
-			<DefaultLayout title="Search" breadcrumbs={breadcrumbs}>
+			<AppDefaultLayout title="Search" breadcrumbs={breadcrumbs}>
 				<SecretListing
 					searchTerm={this.props.searchTerm}
 					listing={this.state.searchResult}
 				/>
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

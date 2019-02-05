@@ -1,5 +1,5 @@
+import { jsxChildType } from 'f61ui/types';
 import * as React from 'react';
-import { jsxChildType } from 'types';
 
 interface DropdownProps {
 	label?: string;

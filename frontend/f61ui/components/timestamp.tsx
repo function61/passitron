@@ -1,6 +1,6 @@
+import { datetimeRFC3339 } from 'f61ui/types';
+import { relativeDateFormat } from 'f61ui/utils';
 import * as React from 'react';
-import { datetimeRFC3339 } from 'types';
-import { relativeDateFormat } from 'utils';
 
 interface TimestampProps {
 	ts: datetimeRFC3339;

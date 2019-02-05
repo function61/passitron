@@ -1,7 +1,7 @@
-import { CommandButton } from 'components/CommandButton';
+import { CommandButton } from 'f61ui/components/CommandButton';
 import { AccountAddOtpToken } from 'generated/commanddefinitions';
 import * as QrCode from 'jsqrcode';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 
 interface ImportOtpTokenProps {
@@ -31,7 +31,7 @@ export default class ImportOtpToken extends React.Component<
 			);
 
 		return (
-			<DefaultLayout title={this.title} breadcrumbs={breadcrumbs}>
+			<AppDefaultLayout title={this.title} breadcrumbs={breadcrumbs}>
 				<h1>Import OTP token from QR code: {this.props.account}</h1>
 
 				<input
@@ -47,7 +47,7 @@ export default class ImportOtpToken extends React.Component<
 				<h2>Or import manually</h2>
 
 				<CommandButton command={AccountAddOtpToken(this.props.account, '')} />
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

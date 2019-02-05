@@ -1,13 +1,13 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Breadcrumb } from 'components/breadcrumbtrail';
-import { CommandLink } from 'components/CommandButton';
-import { Dropdown } from 'components/dropdown';
-import { Loading } from 'components/loading';
 import { SecretListing } from 'components/SecretListing';
+import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
+import { CommandLink } from 'f61ui/components/CommandButton';
+import { Dropdown } from 'f61ui/components/dropdown';
+import { Loading } from 'f61ui/components/loading';
 import { FolderResponse } from 'generated/apitypes';
 import { AccountCreate, AccountCreateFolder } from 'generated/commanddefinitions';
 import { getFolder } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { folderRoute } from 'routes';
 
@@ -45,14 +45,14 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 		}
 
 		return (
-			<DefaultLayout title="Home" breadcrumbs={breadcrumbs}>
+			<AppDefaultLayout title="Home" breadcrumbs={breadcrumbs}>
 				<SecretListing listing={listing} />
 
 				<Dropdown label="New ..">
 					<CommandLink command={AccountCreate(this.props.folderId)} />
 					<CommandLink command={AccountCreateFolder(this.props.folderId)} />
 				</Dropdown>
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 

@@ -3,11 +3,11 @@ import {
 	handleKnownGlobalErrors,
 	StructuredErrorResponse,
 } from 'backenderrors';
-import { reloadCurrentPage } from 'browserutils';
-import { CommandDefinition, CommandField, CommandFieldKind } from 'commandtypes';
-import { postJson } from 'httputil';
+import { reloadCurrentPage } from 'f61ui/browserutils';
+import { CommandDefinition, CommandField, CommandFieldKind } from 'f61ui/commandtypes';
+import { postJson } from 'f61ui/httputil';
+import { unrecognizedValue } from 'f61ui/utils';
 import * as React from 'react';
-import { unrecognizedValue } from 'utils';
 
 export type CommandSubmitListener = () => void;
 

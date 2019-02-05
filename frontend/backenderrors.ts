@@ -1,4 +1,4 @@
-import { getCurrentHash, navigateTo } from 'browserutils';
+import { getCurrentHash, navigateTo } from 'f61ui/browserutils';
 import { signInRoute } from 'routes';
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {

@@ -1,17 +1,17 @@
 import { coerceToStructuredErrorResponse, isNotSignedInError, isSealedError } from 'backenderrors';
-import { navigateTo } from 'browserutils';
-import { WarningAlert } from 'components/alerts';
-import { Button, Panel } from 'components/bootstrap';
-import { Breadcrumb } from 'components/breadcrumbtrail';
-import { CommandInlineForm } from 'components/CommandButton';
-import { Loading } from 'components/loading';
+import { navigateTo } from 'f61ui/browserutils';
+import { WarningAlert } from 'f61ui/components/alerts';
+import { Button, Panel } from 'f61ui/components/bootstrap';
+import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
+import { CommandInlineForm } from 'f61ui/components/CommandButton';
+import { Loading } from 'f61ui/components/loading';
+import { shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import { DatabaseUnseal, SessionSignIn } from 'generated/commanddefinitions';
 import { RootFolderId, RootFolderName } from 'generated/domain';
 import { getFolder } from 'generated/restapi';
-import DefaultLayout from 'layouts/DefaultLayout';
+import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexRoute } from 'routes';
-import { shouldAlwaysSucceed, unrecognizedValue } from 'utils';
 
 const storedUsernameLocalStorageKey = 'signInLastUsername';
 
@@ -46,9 +46,9 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 			this.state.status !== undefined ? this.widgetByStatus(this.state.status) : <Loading />;
 
 		return (
-			<DefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
+			<AppDefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 				{widget}
-			</DefaultLayout>
+			</AppDefaultLayout>
 		);
 	}
 
