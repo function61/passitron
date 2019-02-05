@@ -24,10 +24,14 @@ func WriteTemplateFile(filename string, data interface{}, templateString string)
 
 	tpl, err := template.New("").Funcs(templateFuncs).Parse(templateString)
 	if err != nil {
-		return err
+		return fmt.Errorf("WriteTemplateFile Parse %s: %v", filename, err)
 	}
 
-	return tpl.Execute(file, data)
+	if err := tpl.Execute(file, data); err != nil {
+		return fmt.Errorf("WriteTemplateFile %s: %v", filename, err)
+	}
+
+	return nil
 }
 
 func DeserializeJsonFile(path string, data interface{}) error {
