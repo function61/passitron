@@ -1,7 +1,7 @@
 import { defaultErrorHandler } from 'backenderrors';
 import { SecretListing } from 'components/SecretListing';
-import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
-import { Loading } from 'f61ui/components/loading';
+import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
+import { Loading } from 'f61ui/component/loading';
 import { FolderResponse } from 'generated/apitypes';
 import { RootFolderName } from 'generated/domain';
 import { search } from 'generated/restapi';

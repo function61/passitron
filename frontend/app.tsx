@@ -1,5 +1,5 @@
 import { getCurrentHash } from 'f61ui/browserutils';
-import { DangerAlert } from 'f61ui/components/alerts';
+import { DangerAlert } from 'f61ui/component/alerts';
 import { configureCsrfToken } from 'f61ui/httputil';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';

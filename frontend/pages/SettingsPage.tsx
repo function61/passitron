@@ -1,10 +1,10 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Panel } from 'f61ui/components/bootstrap';
-import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
-import { CommandButton, CommandLink } from 'f61ui/components/CommandButton';
-import { Dropdown } from 'f61ui/components/dropdown';
-import { Loading } from 'f61ui/components/loading';
-import { Timestamp } from 'f61ui/components/timestamp';
+import { Panel } from 'f61ui/component/bootstrap';
+import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
+import { CommandButton, CommandLink } from 'f61ui/component/CommandButton';
+import { Dropdown } from 'f61ui/component/dropdown';
+import { Loading } from 'f61ui/component/loading';
+import { Timestamp } from 'f61ui/component/timestamp';
 import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes';
 import {

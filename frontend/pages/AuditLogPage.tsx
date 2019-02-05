@@ -1,7 +1,7 @@
 import { defaultErrorHandler } from 'backenderrors';
-import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
-import { Loading } from 'f61ui/components/loading';
-import { Timestamp } from 'f61ui/components/timestamp';
+import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
+import { Loading } from 'f61ui/component/loading';
+import { Timestamp } from 'f61ui/component/timestamp';
 import { AuditlogEntry } from 'generated/apitypes';
 import { RootFolderName } from 'generated/domain';
 import { auditLogEntries } from 'generated/restapi';

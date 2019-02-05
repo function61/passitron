@@ -1,9 +1,9 @@
 import { defaultErrorHandler } from 'backenderrors';
 import { SecretListing } from 'components/SecretListing';
-import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
-import { CommandLink } from 'f61ui/components/CommandButton';
-import { Dropdown } from 'f61ui/components/dropdown';
-import { Loading } from 'f61ui/components/loading';
+import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
+import { CommandLink } from 'f61ui/component/CommandButton';
+import { Dropdown } from 'f61ui/component/dropdown';
+import { Loading } from 'f61ui/component/loading';
 import { FolderResponse } from 'generated/apitypes';
 import { AccountCreate, AccountCreateFolder } from 'generated/commanddefinitions';
 import { getFolder } from 'generated/restapi';

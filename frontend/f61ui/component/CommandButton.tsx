@@ -3,9 +3,9 @@ import {
 	CommandChangesArgs,
 	CommandPagelet,
 	initialCommandState,
-} from 'f61ui/components/commandpagelet';
-import { Loading } from 'f61ui/components/loading';
-import { ModalDialog } from 'f61ui/components/modaldialog';
+} from 'f61ui/component/commandpagelet';
+import { Loading } from 'f61ui/component/loading';
+import { ModalDialog } from 'f61ui/component/modaldialog';
 import { unrecognizedValue } from 'f61ui/utils';
 import * as React from 'react';
 

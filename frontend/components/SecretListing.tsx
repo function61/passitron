@@ -1,6 +1,6 @@
 import { SearchBox } from 'components/SearchBox';
-import { CommandLink } from 'f61ui/components/CommandButton';
-import { Dropdown } from 'f61ui/components/dropdown';
+import { CommandLink } from 'f61ui/component/CommandButton';
+import { Dropdown } from 'f61ui/component/dropdown';
 import { FolderResponse } from 'generated/apitypes';
 import {
 	AccountDeleteFolder,

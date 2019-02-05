@@ -1,4 +1,4 @@
-import { CommandButton } from 'f61ui/components/CommandButton';
+import { CommandButton } from 'f61ui/component/CommandButton';
 import { AccountAddOtpToken } from 'generated/commanddefinitions';
 import * as QrCode from 'jsqrcode';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';

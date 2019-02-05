@@ -1,13 +1,13 @@
 import { defaultErrorHandler } from 'backenderrors';
 import { elToClipboard } from 'f61ui/clipboard';
-import { DangerAlert } from 'f61ui/components/alerts';
-import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
-import { CommandIcon, CommandLink } from 'f61ui/components/CommandButton';
-import { Dropdown } from 'f61ui/components/dropdown';
-import { Loading } from 'f61ui/components/loading';
-import { MonospaceContent } from 'f61ui/components/monospacecontent';
-import { OptionalContent } from 'f61ui/components/optionalcontent';
-import { SecretReveal } from 'f61ui/components/secretreveal';
+import { DangerAlert } from 'f61ui/component/alerts';
+import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
+import { CommandIcon, CommandLink } from 'f61ui/component/CommandButton';
+import { Dropdown } from 'f61ui/component/dropdown';
+import { Loading } from 'f61ui/component/loading';
+import { MonospaceContent } from 'f61ui/component/monospacecontent';
+import { OptionalContent } from 'f61ui/component/optionalcontent';
+import { SecretReveal } from 'f61ui/component/secretreveal';
 import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import {
 	Account,

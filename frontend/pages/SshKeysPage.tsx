@@ -1,6 +1,6 @@
 import { defaultErrorHandler } from 'backenderrors';
 import { SecretListing } from 'components/SecretListing';
-import { Loading } from 'f61ui/components/loading';
+import { Loading } from 'f61ui/component/loading';
 import { FolderResponse } from 'generated/apitypes';
 import { RootFolderId } from 'generated/domain';
 import { getFolder } from 'generated/restapi';

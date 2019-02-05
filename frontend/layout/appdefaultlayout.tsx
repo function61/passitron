@@ -1,6 +1,6 @@
 import { getCurrentHash } from 'f61ui/browserutils';
+import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { NavLink } from 'f61ui/component/navigation';
-import { Breadcrumb } from 'f61ui/components/breadcrumbtrail';
 import { DefaultLayout } from 'f61ui/layout/defaultlayout';
 import { jsxChildType } from 'f61ui/types';
 import { version } from 'generated/version';
