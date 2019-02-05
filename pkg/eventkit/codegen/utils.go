@@ -1,7 +1,6 @@
 package codegen
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -29,22 +28,6 @@ func WriteTemplateFile(filename string, data interface{}, templateString string)
 
 	if err := tpl.Execute(file, data); err != nil {
 		return fmt.Errorf("WriteTemplateFile %s: %v", filename, err)
-	}
-
-	return nil
-}
-
-func DeserializeJsonFile(path string, data interface{}) error {
-	file, openErr := os.Open(path)
-	if openErr != nil {
-		return openErr
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(data); err != nil {
-		return fmt.Errorf("DeserializeJsonFile: %s: %s", path, err.Error())
 	}
 
 	return nil

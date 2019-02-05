@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"github.com/function61/gokit/jsonfile"
 	"io/ioutil"
 )
 
@@ -17,17 +18,17 @@ func Run(
 	files []FileToGenerate,
 ) error {
 	domainSpecs := &DomainFile{}
-	if err := DeserializeJsonFile(domainJsonPath, domainSpecs); err != nil {
+	if err := jsonfile.Read(domainJsonPath, domainSpecs, true); err != nil {
 		return err
 	}
 
 	applicationTypes := &ApplicationTypesDefinition{}
-	if err := DeserializeJsonFile(apitypesJsonPath, applicationTypes); err != nil {
+	if err := jsonfile.Read(apitypesJsonPath, applicationTypes, true); err != nil {
 		return err
 	}
 
 	commandSpecs := &CommandSpecFile{}
-	if err := DeserializeJsonFile(commandsJsonPath, commandSpecs); err != nil {
+	if err := jsonfile.Read(commandsJsonPath, commandSpecs, true); err != nil {
 		return err
 	}
 	if err := commandSpecs.Validate(); err != nil {
