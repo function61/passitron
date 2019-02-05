@@ -6,8 +6,12 @@ import (
 )
 
 func TestBeginsWithUppercaseLetter(t *testing.T) {
-	assert.Assert(t, isCustomType("Foo"))
-	assert.Assert(t, !isCustomType("foo"))
+	mkDatatype := func(name string) *DatatypeDef {
+		return &DatatypeDef{NameRaw: name}
+	}
 
-	assert.Assert(t, !isCustomType("!perkele"))
+	assert.Assert(t, mkDatatype("Foo").isCustomType())
+	assert.Assert(t, !mkDatatype("foo").isCustomType())
+
+	assert.Assert(t, !mkDatatype("!perkele").isCustomType())
 }

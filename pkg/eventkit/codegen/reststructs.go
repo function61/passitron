@@ -97,18 +97,21 @@ func (s *StructDefinition) AsToGoCode() string {
 func (d *DatatypeDef) AsTypeScriptType() string {
 	tsType := ""
 
-	if d.Name == "string" {
-		tsType = "string"
-	} else if d.Name == "datetime" {
-		tsType = "datetimeRFC3339"
-	} else if d.Name == "boolean" {
-		tsType = "boolean"
-	} else if d.Name == "list" {
-		tsType = d.Of.AsTypeScriptType() + "[]"
-	} else if isCustomType(d.Name) {
-		tsType = d.Name
+	if d.isCustomType() {
+		tsType = d.Name()
 	} else {
-		panic("unknown type for TypeScript: " + d.Name)
+		switch d.Name() {
+		case "string":
+			tsType = "string"
+		case "boolean":
+			tsType = "boolean"
+		case "datetime":
+			tsType = "datetimeRFC3339"
+		case "list":
+			tsType = d.Of.AsTypeScriptType() + "[]"
+		default:
+			panic("unknown type for TypeScript: " + d.Name())
+		}
 	}
 
 	if d.Nullable {
@@ -128,11 +131,11 @@ func (a *ApplicationTypesDefinition) EndpointsProducesAndConsumesTypescriptTypes
 
 		// look inside arrays and objects
 		for _, flattenedItem := range flattenDatatype(dt) {
-			if !isCustomType(flattenedItem.Name) {
+			if !flattenedItem.isCustomType() {
 				continue
 			}
 
-			dedupe[flattenedItem.Name] = true
+			dedupe[flattenedItem.Name()] = true
 		}
 	}
 

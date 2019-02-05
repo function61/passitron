@@ -118,17 +118,18 @@ const ConstsAndEnumsTemplate = `package domain
 
 // WARNING: generated file
 
-{{range .StringEnums}}
+{{range $_, $enum := .StringEnums}}
+type {{$enum.Name}} string
 const (
-{{range .Members}}
-	{{.GoKey}} = "{{.GoValue}}"{{end}}
+{{range $_, $member := $enum.Members}}
+	{{$member.GoKey}} {{$enum.Name}} = "{{$member.GoValue}}"{{end}}
 )
 
 // digest in name because there's no easy way to make exhaustive Enum pattern matching
 // in Go, so we hack around it by calling this generated function everywhere we want
 // to do the pattern match, and when enum members change the digest changes and thus
 // it forces you to manually review and fix each place
-func {{.Name}}Exhaustive{{.MembersDigest}}(in string) string {
+func {{$enum.Name}}Exhaustive{{$enum.MembersDigest}}(in {{$enum.Name}}) {{$enum.Name}} {
 	return in
 }
 {{end}}
@@ -142,10 +143,8 @@ const ApitypesTemplate = `package apitypes
 
 import (
 	"time"
+	"github.com/function61/pi-security-module/pkg/domain"
 )
-
-type SecretKind string
-type ExternalTokenKind string
 
 {{range .ApplicationTypes.Structs}}
 {{.AsToGoCode}}

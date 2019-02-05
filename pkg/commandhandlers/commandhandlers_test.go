@@ -334,13 +334,13 @@ func addExternalTokensAndRemoveThem(t *testing.T, tstate *testScenarioState) {
 	assert.Assert(t, len(wacc.Secrets) == 4)
 
 	secret := wacc.Secrets[2].Secret
-	assert.EqualString(t, string(secret.Kind), domain.SecretKindExternalToken)
-	assert.EqualString(t, string(*secret.ExternalTokenKind), domain.ExternalTokenKindU2f)
+	assert.Assert(t, secret.Kind == domain.SecretKindExternalToken)
+	assert.Assert(t, *secret.ExternalTokenKind == domain.ExternalTokenKindU2f)
 	assert.EqualString(t, secret.Title, "Joonas' primary U2F token")
 
 	secret = wacc.Secrets[3].Secret
-	assert.EqualString(t, string(secret.Kind), domain.SecretKindExternalToken)
-	assert.EqualString(t, string(*secret.ExternalTokenKind), domain.ExternalTokenKindYubicoOtp)
+	assert.Assert(t, secret.Kind == domain.SecretKindExternalToken)
+	assert.Assert(t, *secret.ExternalTokenKind == domain.ExternalTokenKindYubicoOtp)
 	assert.EqualString(t, secret.Title, "Joonas' primary YubiKey (Yubico OTP)")
 
 	// now delete them

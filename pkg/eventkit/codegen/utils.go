@@ -46,14 +46,6 @@ func DeserializeJsonFile(path string, data interface{}) error {
 	return nil
 }
 
-func isUppercase(input string) bool {
-	return strings.ToLower(input) != input
-}
-
-func isCustomType(typeName string) bool {
-	return isUppercase(typeName[0:1])
-}
-
 // "/search?q={stuff}" => "/search"
 func stripQueryFromUrl(input string) string {
 	u, err := url.Parse(input)

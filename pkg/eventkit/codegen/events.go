@@ -105,11 +105,11 @@ func EventNameAsGoStructName(e *EventSpec) string {
 }
 
 func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) string {
-	if isCustomType(e.Name) {
-		return e.Name
+	if e.isCustomType() {
+		return e.NameRaw
 	}
 
-	switch e.Name {
+	switch e.Name() {
 	case "object":
 		// create supporting structure to represent item
 		supportStructDef := GoStruct{
@@ -141,7 +141,7 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 	case "list":
 		return "[]" + AsGoTypeWithInlineSupport(e.Of, parentGoName, visitor)
 	default:
-		panic("unsupported type: " + e.Name)
+		panic("unsupported type: " + e.Name())
 	}
 }
 

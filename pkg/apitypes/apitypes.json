@@ -102,8 +102,8 @@
 			"name": "Secret",
 			"fields": [
 				{ "key": "Id", "type": {"_": "string"} },
-				{ "key": "Kind", "type": {"_": "SecretKind"} },
-				{ "key": "ExternalTokenKind", "type": {"_": "ExternalTokenKind", "nullable": true} },
+				{ "key": "Kind", "type": {"_": "domain.SecretKind"} },
+				{ "key": "ExternalTokenKind", "type": {"_": "domain.ExternalTokenKind", "nullable": true} },
 				{ "key": "Title", "type": {"_": "string"} },
 				{ "key": "Created", "type": {"_": "datetime"} },
 				{ "key": "Password", "type": {"_": "string"} },

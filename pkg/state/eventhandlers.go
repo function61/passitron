@@ -176,13 +176,11 @@ func (s *AppState) ApplyAccountExternalTokenAdded(e *domain.AccountExternalToken
 	us := s.DB.UserScope[e.Meta().UserId]
 	for idx, wacc := range us.WrappedAccounts {
 		if wacc.Account.Id == e.Account {
-			externalTokenKind := apitypes.ExternalTokenKind(e.Kind)
-
 			secret := WrappedSecret{
 				Secret: apitypes.Secret{
 					Id:                e.Id,
 					Kind:              domain.SecretKindExternalToken,
-					ExternalTokenKind: &externalTokenKind,
+					ExternalTokenKind: &e.Kind,
 					Created:           e.Meta().Timestamp,
 					Title:             e.Description,
 				},

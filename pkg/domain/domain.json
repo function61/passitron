@@ -193,7 +193,7 @@
 				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Kind", "type": {"_": "string"}
+				"key": "Kind", "type": {"_": "ExternalTokenKind"}
 			},
 			{
 				"key": "Description", "type": {"_": "string"}
@@ -227,7 +227,7 @@
 				"notes": "Secret IDs which were exposed"
 			},
 			{
-				"key": "Type", "type": {"_": "string"}
+				"key": "Type", "type": {"_": "SecretUsedType"}
 			},
 			{
 				"key": "KeylistKey", "type": {"_": "string"},

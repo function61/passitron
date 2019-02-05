@@ -147,7 +147,7 @@ func exportRecursive(
 	for _, wacc := range waccs {
 		for idx, secret := range wacc.Secrets {
 			var entry *gokeepasslib.Entry = nil
-			switch domain.SecretKindExhaustive97ac5d(string(secret.Secret.Kind)) {
+			switch domain.SecretKindExhaustive97ac5d(secret.Secret.Kind) {
 			case domain.SecretKindKeylist:
 				entry = entryForAccount(wacc.Account, idx, exportKeylistAsText(secret))
 			case domain.SecretKindPassword:
