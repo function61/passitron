@@ -11,7 +11,6 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 	"log"
 	"net"
-	"net/http"
 	"os"
 )
 
@@ -53,9 +52,8 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 	defer cancel()
 
 	output := &signingapitypes.PublicKeysResponse{}
-	if _, err := ezhttp.Send(
+	if _, err := ezhttp.Get(
 		ctx,
-		http.MethodGet,
 		a.baseUrl+"/_api/signer/publickeys",
 		ezhttp.AuthBearer(a.bearerToken),
 		ezhttp.RespondsJson(output, false)); err != nil {
@@ -87,9 +85,8 @@ func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, erro
 	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
 	defer cancel()
 
-	if _, err := ezhttp.Send(
+	if _, err := ezhttp.Post(
 		ctx,
-		http.MethodPost,
 		a.baseUrl+"/_api/signer/sign",
 		ezhttp.AuthBearer(a.bearerToken),
 		ezhttp.SendJson(&req),
