@@ -1,5 +1,5 @@
-import Navigation from 'components/Navigation';
 import { SearchBox } from 'components/SearchBox';
+import NavigationTabs, { NavLink } from 'f61ui/component/navigation';
 import { Breadcrumb, BreadcrumbTrail } from 'f61ui/components/breadcrumbtrail';
 import { jsxChildType } from 'f61ui/types';
 import * as React from 'react';
@@ -10,6 +10,7 @@ interface DefaultLayoutProps {
 	appName: string;
 	appHomepage: string;
 	logoUrl: string;
+	navLinks: NavLink[];
 	breadcrumbs: Breadcrumb[];
 	content: jsxChildType;
 }
@@ -42,7 +43,7 @@ export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 					</div>
 
 					<nav className="pull-right">
-						<Navigation />
+						<NavigationTabs links={this.props.navLinks} />
 					</nav>
 				</div>
 
