@@ -51,7 +51,9 @@ export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 
 				{this.props.content}
 
-				<div className="panel panel-default panel-footer" style={{ marginTop: '16px' }}>
+				<div
+					className="panel panel-default panel-footer clearfix"
+					style={{ marginTop: '16px' }}>
 					<div className="pull-left">
 						<a href={this.props.appHomepage} target="_blank">
 							{this.props.appName}
@@ -62,7 +64,6 @@ export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 						</a>
 					</div>
 					<div className="pull-right">Enjoy your {dayOfWeek}! :)</div>
-					<div className="clearfix" />
 				</div>
 			</div>
 		);
