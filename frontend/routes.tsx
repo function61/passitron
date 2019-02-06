@@ -1,3 +1,4 @@
+import { makeRoute, makeRouter } from 'f61ui/typescript-safe-router/saferouter';
 import { RootFolderId } from 'generated/domain';
 import AccountPage from 'pages/AccountPage';
 import AuditLogPage from 'pages/AuditLogPage';
@@ -8,7 +9,6 @@ import SettingsPage from 'pages/SettingsPage';
 import SignInPage from 'pages/SignInPage';
 import SshKeysPage from 'pages/SshKeysPage';
 import * as React from 'react';
-import { makeRoute, makeRouter } from 'typescript-safe-router/saferouter';
 
 export const indexRoute = makeRoute('index', {});
 export const folderRoute = makeRoute('folder', { folderId: 'string' });

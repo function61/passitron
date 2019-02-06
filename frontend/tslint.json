@@ -5,7 +5,7 @@
 	],
 	"linterOptions": {
 		"exclude": [
-			"typescript-safe-router/**/*"
+			"f61ui/typescript-safe-router/**/*"
 		]
 	}
 }
