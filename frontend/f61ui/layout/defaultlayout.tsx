@@ -19,16 +19,6 @@ export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 	render() {
 		document.title = `${this.props.pageTitle} - ${this.props.appName}`;
 
-		const dayOfWeek = [
-			'Sunday',
-			'Monday',
-			'Tuesday',
-			'Wednesday',
-			'Thursday',
-			'Friday',
-			'Saturday',
-		][new Date().getDay()];
-
 		return (
 			<div>
 				<div className="header clearfix">
@@ -38,7 +28,7 @@ export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 						</h3>
 					</div>
 
-					<div className="pull-left" style={{ padding: '14px 0 0 20px' }}>
+					<div className="pull-left" style={{ padding: '18px 0 0 20px' }}>
 						<SearchBox />
 					</div>
 
@@ -63,9 +53,23 @@ export class DefaultLayout extends React.Component<DefaultLayoutProps, {}> {
 							function61.com
 						</a>
 					</div>
-					<div className="pull-right">Enjoy your {dayOfWeek}! :)</div>
+					<div className="pull-right">{this.enjoyYourDayGreeting()}</div>
 				</div>
 			</div>
 		);
+	}
+
+	private enjoyYourDayGreeting() {
+		const dayOfWeek = [
+			'Sunday',
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+		][new Date().getDay()];
+
+		return `Enjoy your ${dayOfWeek}! :)`;
 	}
 }
