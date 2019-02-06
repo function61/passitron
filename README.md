@@ -1,5 +1,5 @@
 [![Build Status](https://img.shields.io/travis/function61/pi-security-module.svg?style=for-the-badge)](https://travis-ci.org/function61/pi-security-module)
-[![Download](https://img.shields.io/bintray/v/function61/pi-security-module/main.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/pi-security-module/main/_latestVersion#files)
+[![Download](https://img.shields.io/bintray/v/function61/dl/pi-security-module.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/pi-security-module/_latestVersion#files)
 
 What is this?
 -------------

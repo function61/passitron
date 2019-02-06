@@ -34,13 +34,13 @@
 		},
 		{
 			"name": "publisher",
-			"uses": "docker://fn61/buildkit-publisher:20190125_1635_3730c572",
+			"uses": "docker://fn61/buildkit-publisher:20190206_1058_d35b3939",
 			"mount_destination": "/workspace",
 			"commands": {
 				"publish": ["publish.sh", "rel/*"]
 			},
 			"env": {
-				"BINTRAY_PROJECT": "function61/pi-security-module"
+				"BINTRAY_PROJECT": "function61/dl/pi-security-module"
 			},
 			"pass_envs": [
 				"BINTRAY_CREDS"
