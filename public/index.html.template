@@ -3,7 +3,7 @@
 <html>
 <head>
 	<meta charset="UTF-8" />
-	<title>PiLockBox</title>
+	<title></title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css" />
 	<link rel="stylesheet" href="style.css" />
@@ -24,9 +24,9 @@
 				"moment": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min",
 				"jsqrcode": "/vendor/jsqrcode/jsqrcode",
 			},
-			deps: ["app"],
-			callback: function(app) {
-				app.main(document.getElementById('app'), {
+			deps: ["main"],
+			callback: function(main) {
+				main.main(document.getElementById('app'), {
 					csrf_token: '[$csrf_token]',
 				});
 			},
