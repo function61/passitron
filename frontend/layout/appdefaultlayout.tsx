@@ -1,3 +1,4 @@
+import { SearchBox } from 'components/SearchBox';
 import { getCurrentHash } from 'f61ui/browserutils';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { NavLink } from 'f61ui/component/navigation';
@@ -51,6 +52,7 @@ export class AppDefaultLayout extends React.Component<AppDefaultLayoutProps, {}>
 				content={this.props.children}
 				version={version}
 				pageTitle={this.props.title}
+				searchWidget={<SearchBox />}
 			/>
 		);
 	}
