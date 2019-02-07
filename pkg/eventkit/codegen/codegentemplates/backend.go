@@ -119,7 +119,7 @@ const BackendTypes = `package {{.ModuleId}}
 import (
 {{if .TypesDependOnTime}}	"time"
 {{end}}{{range .TypeDependencyModuleIds}}
-	"{{$.BackendModulePrefix}}{{.}}"
+	"{{$.Opts.BackendModulePrefix}}{{.}}"
 {{end}}
 )
 

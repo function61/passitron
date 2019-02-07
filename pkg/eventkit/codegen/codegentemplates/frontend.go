@@ -4,7 +4,7 @@ const FrontendDatatypes = `// tslint:disable
 // WARNING: generated file
 
 {{range .TypeDependencyModuleIds}}
-import * as {{.}} from '{{$.FrontendModulePrefix}}{{.}}_types';{{end}}
+import * as {{.}} from '{{$.Opts.FrontendModulePrefix}}{{.}}_types';{{end}}
 {{if .TypesDependOnTime}}import {datetimeRFC3339} from 'f61ui/types';
 {{end}}
 
@@ -29,7 +29,7 @@ const FrontendRestEndpoints = `// tslint:disable
 
 import { {{range .ApplicationTypes.EndpointsProducesAndConsumesTypescriptTypes}}
 	{{.}},{{end}}
-} from '{{$.FrontendModulePrefix}}{{.ModuleId}}_types';
+} from '{{$.Opts.FrontendModulePrefix}}{{.ModuleId}}_types';
 import {getJson, postJson} from 'f61ui/httputil';
 
 {{range .ApplicationTypes.Endpoints}}

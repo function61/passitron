@@ -40,7 +40,12 @@ func mainInternal() error {
 		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", ""),
 	}
 
-	if err := codegen.ProcessModules(modules); err != nil {
+	opts := codegen.Opts{
+		BackendModulePrefix:  "github.com/function61/pi-security-module/pkg/",
+		FrontendModulePrefix: "generated/",
+	}
+
+	if err := codegen.ProcessModules(modules, opts); err != nil {
 		return err
 	}
 

@@ -37,8 +37,7 @@ type EventDefForTpl struct {
 // this is passed as data to each template that we'll render
 type TplData struct {
 	ModuleId                string
-	BackendModulePrefix     string // "github.com/myorg/myproject/pkg/"
-	FrontendModulePrefix    string // "generated/"
+	Opts                    Opts
 	TypesDependOnTime       bool
 	TypeDependencyModuleIds []string
 	DomainSpecs             *DomainFile

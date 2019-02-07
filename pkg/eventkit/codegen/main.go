@@ -35,7 +35,7 @@ type FileToGenerate struct {
 	obtainTemplate func() (string, error)
 }
 
-func processModule(mod *Module) error {
+func processModule(mod *Module, opts Opts) error {
 	// should be ok with nil data
 	mod.EventsSpec = &DomainFile{}
 	mod.Types = &ApplicationTypesDefinition{}
@@ -85,8 +85,7 @@ func processModule(mod *Module) error {
 
 	data := &TplData{
 		ModuleId:                mod.Id,
-		FrontendModulePrefix:    "generated/",
-		BackendModulePrefix:     "github.com/function61/pi-security-module/pkg/",
+		Opts:                    opts,
 		TypesDependOnTime:       typesDependOnTime,
 		TypeDependencyModuleIds: typeDependencyModuleIds, // other modules whose types this module's types have dependencies to
 		DomainSpecs:             mod.EventsSpec,          // backwards compat
@@ -118,9 +117,14 @@ func processModule(mod *Module) error {
 	})
 }
 
-func ProcessModules(modules []*Module) error {
+type Opts struct {
+	BackendModulePrefix  string // "github.com/myorg/myproject/pkg/"
+	FrontendModulePrefix string // "generated/"
+}
+
+func ProcessModules(modules []*Module, opts Opts) error {
 	for _, mod := range modules {
-		if err := processModule(mod); err != nil {
+		if err := processModule(mod, opts); err != nil {
 			return err
 		}
 	}
