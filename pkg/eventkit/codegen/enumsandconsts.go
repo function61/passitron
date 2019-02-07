@@ -20,10 +20,10 @@ func camelCaseEnumValue(in string) string {
 		-1)
 }
 
-func ProcessStringEnums(file *DomainFile) []ProcessedStringEnum {
-	enums := []ProcessedStringEnum{}
+func ProcessStringEnums(enums []EnumDef) []ProcessedStringEnum {
+	processed := []ProcessedStringEnum{}
 
-	for _, enum := range file.Enums {
+	for _, enum := range enums {
 		if enum.Type != "string" {
 			panic(errors.New("unknown enum type: " + enum.Type))
 		}
@@ -40,12 +40,12 @@ func ProcessStringEnums(file *DomainFile) []ProcessedStringEnum {
 			})
 		}
 
-		enums = append(enums, ProcessedStringEnum{
+		processed = append(processed, ProcessedStringEnum{
 			Name:          enum.Name,
 			MembersDigest: hex.EncodeToString(membersDigest[:])[0:6],
 			Members:       members,
 		})
 	}
 
-	return enums
+	return processed
 }

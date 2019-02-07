@@ -3,7 +3,7 @@ package restcommandapi
 import (
 	"errors"
 	"github.com/function61/gokit/httpauth"
-	"github.com/function61/pi-security-module/pkg/commandhandlers"
+	"github.com/function61/pi-security-module/pkg/commands"
 	"github.com/function61/pi-security-module/pkg/eventkit/eventlog"
 	"github.com/function61/pi-security-module/pkg/eventkit/httpcommand"
 	"github.com/function61/pi-security-module/pkg/httputil"
@@ -20,12 +20,12 @@ func Register(
 	appState *state.AppState,
 	logger *log.Logger,
 ) error {
-	handlers := commandhandlers.New(appState, logger)
+	handlers := commands.New(appState, logger)
 
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
-		httpErr := httpcommand.Serve(w, r, mwares, commandName, commandhandlers.Allocators, handlers, eventLog)
+		httpErr := httpcommand.Serve(w, r, mwares, commandName, commands.Allocators, handlers, eventLog)
 		if httpErr != nil {
 			if httpErr.StatusCode > 0 {
 				httputil.RespondHttpJson(httputil.GenericError(

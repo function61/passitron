@@ -1,0 +1,37 @@
+{
+	"stringConsts": [
+		{ "key": "RootFolderId", "value": "root" },
+		{ "key": "RootFolderName", "value": "root" }
+	],
+	"enums": [
+		{
+			"name": "SecretKind",
+			"type": "string",
+			"stringMembers": [
+				"password",
+				"otp_token",
+				"ssh_key",
+				"keylist",
+				"external_token",
+				"note"
+			]
+		},
+		{
+			"name": "ExternalTokenKind",
+			"type": "string",
+			"stringMembers": [
+				"u2f",
+				"yubico_otp"
+			]
+		},
+		{
+			"name": "SecretUsedType",
+			"type": "string",
+			"stringMembers": [
+				"SshSigning",
+				"PasswordExposed",
+				"KeylistKeyExposed"
+			]
+		}
+	]
+}

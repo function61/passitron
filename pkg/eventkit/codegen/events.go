@@ -120,7 +120,7 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 		for key, objectKeyDefinition := range e.Fields {
 			field := GoStructField{
 				Name: key,
-				Type: AsGoTypeWithInlineSupport(&objectKeyDefinition, supportStructDef.Name, visitor),
+				Type: AsGoTypeWithInlineSupport(objectKeyDefinition, supportStructDef.Name, visitor),
 				Tags: "json:\"" + key + "\"",
 			}
 

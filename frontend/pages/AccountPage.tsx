@@ -10,6 +10,14 @@ import { OptionalContent } from 'f61ui/component/optionalcontent';
 import { SecretReveal } from 'f61ui/component/secretreveal';
 import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import {
+	getAccount,
+	getFolder,
+	getKeylistItem,
+	getKeylistItemChallenge,
+	getSecrets,
+	totpBarcodeExportUrl,
+} from 'generated/apitypes_endpoints';
+import {
 	Account,
 	ExposedSecret,
 	Folder,
@@ -20,7 +28,7 @@ import {
 	U2FSignRequest,
 	U2FSignResult,
 	WrappedAccount,
-} from 'generated/apitypes';
+} from 'generated/apitypes_types';
 import {
 	AccountAddExternalU2FToken,
 	AccountAddExternalYubicoOtpToken,
@@ -34,16 +42,8 @@ import {
 	AccountDelete,
 	AccountDeleteSecret,
 	AccountRename,
-} from 'generated/commanddefinitions';
-import { ExternalTokenKind, SecretKind } from 'generated/domain';
-import {
-	getAccount,
-	getFolder,
-	getKeylistItem,
-	getKeylistItemChallenge,
-	getSecrets,
-	totpBarcodeExportUrl,
-} from 'generated/restapi';
+} from 'generated/commands_commands';
+import { ExternalTokenKind, SecretKind } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { folderRoute, importotptokenRoute } from 'routes';

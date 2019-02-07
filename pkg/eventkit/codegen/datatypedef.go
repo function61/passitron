@@ -1,14 +1,15 @@
 package codegen
 
 import (
+	"sort"
 	"strings"
 )
 
 type DatatypeDef struct {
-	NameRaw  string                 `json:"_"` // "Type" | "module.Type" if referring to another module (such as "domain")
-	Nullable bool                   `json:"nullable"`
-	Of       *DatatypeDef           `json:"of"`     // only used if Name==list
-	Fields   map[string]DatatypeDef `json:"fields"` // only used if Name==object
+	NameRaw  string                  `json:"_"` // "Type" | "module.Type" if referring to another module (such as "domain")
+	Nullable bool                    `json:"nullable"`
+	Of       *DatatypeDef            `json:"of"`     // only used if Name==list
+	Fields   map[string]*DatatypeDef `json:"fields"` // only used if Name==object
 }
 
 func (d *DatatypeDef) Name() string {
@@ -17,9 +18,16 @@ func (d *DatatypeDef) Name() string {
 		return d.NameRaw
 	}
 
-	comps := strings.Split(d.NameRaw, ".")
+	return strings.Split(d.NameRaw, ".")[1]
+}
 
-	return comps[1]
+func (d *DatatypeDef) ModuleId() string {
+	// no module specified
+	if !strings.Contains(d.NameRaw, ".") {
+		return ""
+	}
+
+	return strings.Split(d.NameRaw, ".")[0]
 }
 
 type DatatypeDefObjectField struct {
@@ -43,7 +51,8 @@ func flattenDatatypeInternal(def *DatatypeDef, all *[]*DatatypeDef) {
 		flattenDatatypeInternal(def.Of, all)
 	} else if def.Name() == "object" {
 		for _, member := range def.Fields {
-			flattenDatatypeInternal(&member, all)
+			memberCopy := member // stupid implicit pointers on looping
+			flattenDatatypeInternal(memberCopy, all)
 		}
 	}
 }
@@ -54,4 +63,33 @@ func isUppercase(input string) bool {
 
 func (d *DatatypeDef) isCustomType() bool {
 	return isUppercase(d.Name()[0:1])
+}
+
+func uniqueModuleIdsFromDatatypes(dts []*DatatypeDef) []string {
+	uniqueModuleIds := map[string]bool{}
+
+	for _, dt := range dts {
+		moduleId := dt.ModuleId()
+		if moduleId == "" {
+			continue
+		}
+
+		uniqueModuleIds[moduleId] = true
+	}
+
+	return stringBoolMapKeysSorted(uniqueModuleIds)
+}
+
+func stringBoolMapKeysSorted(sbm map[string]bool) []string {
+	keys := make([]string, len(sbm))
+
+	i := 0
+	for key, _ := range sbm {
+		keys[i] = key
+		i++
+	}
+
+	sort.Sort(sort.StringSlice(keys))
+
+	return keys
 }

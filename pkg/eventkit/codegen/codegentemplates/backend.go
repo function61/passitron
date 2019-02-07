@@ -1,6 +1,6 @@
-package codegen
+package codegentemplates
 
-const CommandsDefinitionsTemplate = `package commandhandlers
+const BackendCommandsDefinitions = `package {{.ModuleId}}
 
 // WARNING: generated file
 
@@ -59,7 +59,7 @@ func fieldLengthValidationError(fieldName string, maxLength int) error {
 }
 `
 
-const EventDefinitionsTemplate = `package domain
+const BackendEventDefinitions = `package {{.ModuleId}}
 
 import (
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
@@ -114,9 +114,18 @@ func DispatchEvent(event event.Event, listener EventListener) error {
 }
 `
 
-const ConstsAndEnumsTemplate = `package domain
+const BackendTypes = `package {{.ModuleId}}
 
-// WARNING: generated file
+import (
+{{if .TypesDependOnTime}}	"time"
+{{end}}{{range .TypeDependencyModuleIds}}
+	"{{$.BackendModulePrefix}}{{.}}"
+{{end}}
+)
+
+{{range .ApplicationTypes.Types}}
+{{.AsToGoCode}}
+{{end}}
 
 {{range $_, $enum := .StringEnums}}
 type {{$enum.Name}} string
@@ -134,24 +143,12 @@ func {{$enum.Name}}Exhaustive{{$enum.MembersDigest}}(in {{$enum.Name}}) {{$enum.
 }
 {{end}}
 
-{{range .DomainSpecs.StringConsts}}
+{{range .ApplicationTypes.StringConsts}}
 const {{.Key}} = "{{.Value}}";
 {{end}}
 `
 
-const ApitypesTemplate = `package apitypes
-
-import (
-	"time"
-	"github.com/function61/pi-security-module/pkg/domain"
-)
-
-{{range .ApplicationTypes.Structs}}
-{{.AsToGoCode}}
-{{end}}
-`
-
-const RestEndpointsTemplate = `package apitypes
+const BackendRestEndpoints = `package {{.ModuleId}}
 
 import (
 	"net/http"
@@ -165,7 +162,6 @@ type Handlers interface { {{range .ApplicationTypes.Endpoints}}
 
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
-// TODO: middlewares like auth
 func RegisterRoutes(handlers Handlers, mwares httpauth.MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
 	register("{{.HttpMethod}}", "{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
 		rctx := mwares["{{.MiddlewareChain}}"](w, r)

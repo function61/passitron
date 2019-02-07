@@ -1,5 +1,5 @@
 import { makeRoute, makeRouter } from 'f61ui/typescript-safe-router/saferouter';
-import { RootFolderId } from 'generated/domain';
+import { RootFolderId } from 'generated/domain_types';
 import AccountPage from 'pages/AccountPage';
 import AuditLogPage from 'pages/AuditLogPage';
 import HomePage from 'pages/HomePage';

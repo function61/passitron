@@ -1,9 +1,9 @@
 import { defaultErrorHandler } from 'backenderrors';
 import { SecretListing } from 'components/SecretListing';
 import { Loading } from 'f61ui/component/loading';
-import { FolderResponse } from 'generated/apitypes';
-import { RootFolderId } from 'generated/domain';
-import { getFolder } from 'generated/restapi';
+import { getFolder } from 'generated/apitypes_endpoints';
+import { FolderResponse } from 'generated/apitypes_types';
+import { RootFolderId } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 

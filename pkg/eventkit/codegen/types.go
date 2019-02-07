@@ -24,9 +24,7 @@ type StringConstDef struct {
 }
 
 type DomainFile struct {
-	StringConsts []StringConstDef `json:"stringConsts"`
-	Enums        []EnumDef        `json:"enums"`
-	Events       []*EventSpec     `json:"events"`
+	Events []*EventSpec `json:"events"`
 }
 
 type EventDefForTpl struct {
@@ -36,14 +34,19 @@ type EventDefForTpl struct {
 	GoStructName    string
 }
 
+// this is passed as data to each template that we'll render
 type TplData struct {
-	Version              string
-	DomainSpecs          *DomainFile
-	CommandSpecs         *CommandSpecFile
-	ApplicationTypes     *ApplicationTypesDefinition
-	StringEnums          []ProcessedStringEnum
-	EventStructsAsGoCode string
-	EventDefs            []EventDefForTpl
+	ModuleId                string
+	BackendModulePrefix     string // "github.com/myorg/myproject/pkg/"
+	FrontendModulePrefix    string // "generated/"
+	TypesDependOnTime       bool
+	TypeDependencyModuleIds []string
+	DomainSpecs             *DomainFile
+	CommandSpecs            *CommandSpecFile
+	ApplicationTypes        *ApplicationTypesDefinition
+	StringEnums             []ProcessedStringEnum
+	EventStructsAsGoCode    string
+	EventDefs               []EventDefForTpl
 }
 
 type EventSpec struct {

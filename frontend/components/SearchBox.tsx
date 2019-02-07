@@ -1,6 +1,6 @@
 import { defaultErrorHandler } from 'backenderrors';
 import { navigateTo } from 'f61ui/browserutils';
-import { search } from 'generated/restapi';
+import { search } from 'generated/apitypes_endpoints';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
 import { indexRoute, searchRoute } from 'routes';

@@ -3,13 +3,14 @@ package codegen
 import (
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 )
 
 type ApplicationTypesDefinition struct {
-	Structs   []StructDefinition   `json:"types"`
-	Endpoints []EndpointDefinition `json:"endpoints"`
+	StringConsts []StringConstDef     `json:"stringConsts"`
+	Enums        []EnumDef            `json:"enums"`
+	Types        []NamedDatatypeDef   `json:"types"`
+	Endpoints    []EndpointDefinition `json:"endpoints"`
 }
 
 type EndpointDefinition struct {
@@ -54,12 +55,12 @@ func (e *EndpointDefinition) TypescriptArgs() string {
 	return strings.Join(typescriptedArgs, ", ")
 }
 
-type StructDefinition struct {
-	Name string      `json:"name"`
-	Type DatatypeDef `json:"type"`
+type NamedDatatypeDef struct {
+	Name string       `json:"name"`
+	Type *DatatypeDef `json:"type"`
 }
 
-func (s *StructDefinition) AsTypeScriptCode() string {
+func (s *NamedDatatypeDef) AsTypeScriptCode() string {
 	fieldsSerialized := []string{}
 
 	for fieldKey, fieldType := range s.Type.Fields {
@@ -73,7 +74,7 @@ func (s *StructDefinition) AsTypeScriptCode() string {
 		strings.Join(fieldsSerialized, "\n\t"))
 }
 
-func (s *StructDefinition) AsToGoCode() string {
+func (s *NamedDatatypeDef) AsToGoCode() string {
 	fields := []GoStructField{}
 
 	visitor := &Visitor{}
@@ -81,7 +82,7 @@ func (s *StructDefinition) AsToGoCode() string {
 	for fieldKey, fieldType := range s.Type.Fields {
 		fields = append(fields, GoStructField{
 			Name: fieldKey,
-			Type: AsGoTypeWithInlineSupport(&fieldType, fieldKey, visitor),
+			Type: AsGoTypeWithInlineSupport(fieldType, fieldKey, visitor),
 			Tags: "json:\"" + fieldKey + "\"",
 		})
 	}
@@ -121,8 +122,29 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 	return tsType
 }
 
+func (a *ApplicationTypesDefinition) UniqueDatatypesFlattened() []*DatatypeDef {
+	uniqueTypes := map[string]*DatatypeDef{}
+
+	for _, namedType := range a.Types {
+		// look inside arrays and objects
+		for _, flattenedItem := range flattenDatatype(namedType.Type) {
+			uniqueTypes[flattenedItem.NameRaw] = flattenedItem
+		}
+	}
+
+	uniques := make([]*DatatypeDef, len(uniqueTypes))
+
+	i := 0
+	for _, value := range uniqueTypes {
+		uniques[i] = value
+		i++
+	}
+
+	return uniques
+}
+
 func (a *ApplicationTypesDefinition) EndpointsProducesAndConsumesTypescriptTypes() []string {
-	dedupe := map[string]bool{}
+	uniqueCustomTypes := map[string]bool{}
 
 	processOneDt := func(dt *DatatypeDef) {
 		if dt == nil {
@@ -135,7 +157,7 @@ func (a *ApplicationTypesDefinition) EndpointsProducesAndConsumesTypescriptTypes
 				continue
 			}
 
-			dedupe[flattenedItem.Name()] = true
+			uniqueCustomTypes[flattenedItem.Name()] = true
 		}
 	}
 
@@ -144,15 +166,5 @@ func (a *ApplicationTypesDefinition) EndpointsProducesAndConsumesTypescriptTypes
 		processOneDt(endpoint.Produces)
 	}
 
-	uniques := make([]string, len(dedupe))
-
-	i := 0
-	for name, _ := range dedupe {
-		uniques[i] = name
-		i++
-	}
-
-	sort.Sort(sort.StringSlice(uniques))
-
-	return uniques
+	return stringBoolMapKeysSorted(uniqueCustomTypes)
 }

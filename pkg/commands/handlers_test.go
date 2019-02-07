@@ -1,4 +1,4 @@
-package commandhandlers
+package commands
 
 import (
 	"github.com/function61/gokit/assert"

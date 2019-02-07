@@ -6,7 +6,8 @@ import { Dropdown } from 'f61ui/component/dropdown';
 import { Loading } from 'f61ui/component/loading';
 import { Timestamp } from 'f61ui/component/timestamp';
 import { shouldAlwaysSucceed } from 'f61ui/utils';
-import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes';
+import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/apitypes_endpoints';
+import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes_types';
 import {
 	DatabaseChangeMasterPassword,
 	DatabaseExportToKeepass,
@@ -15,9 +16,8 @@ import {
 	UserChangePassword,
 	UserCreate,
 	UserRegisterU2FToken,
-} from 'generated/commanddefinitions';
-import { RootFolderName } from 'generated/domain';
-import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/restapi';
+} from 'generated/commands_commands';
+import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexRoute } from 'routes';

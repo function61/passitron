@@ -5,7 +5,7 @@ import (
 	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/logex"
-	"github.com/function61/pi-security-module/pkg/commandhandlers"
+	"github.com/function61/pi-security-module/pkg/commands"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
@@ -98,7 +98,7 @@ func TestScenario(t *testing.T) {
 			name: "Account not found",
 			req: post(
 				"/command/account.ChangeUrl",
-				cmdJson(&commandhandlers.AccountChangeUrl{
+				cmdJson(&commands.AccountChangeUrl{
 					Account: "123",
 					Url:     "http://example.com/"}),
 				allProperHeaders),
@@ -109,7 +109,7 @@ func TestScenario(t *testing.T) {
 			name: "Command succeeds",
 			req: post(
 				"/command/account.ChangeUrl",
-				cmdJson(&commandhandlers.AccountChangeUrl{
+				cmdJson(&commands.AccountChangeUrl{
 					Account: "14",
 					Url:     "http://example.com/"}),
 				allProperHeaders),

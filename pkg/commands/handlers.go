@@ -1,4 +1,4 @@
-package commandhandlers
+package commands
 
 import (
 	"crypto/subtle"

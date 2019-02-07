@@ -1,5 +1,5 @@
 import { CommandButton } from 'f61ui/component/CommandButton';
-import { AccountAddOtpToken } from 'generated/commanddefinitions';
+import { AccountAddOtpToken } from 'generated/commands_commands';
 import * as QrCode from 'jsqrcode';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
