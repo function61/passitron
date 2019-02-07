@@ -4,6 +4,8 @@ import (
 	"github.com/function61/gokit/jsonfile"
 	"github.com/function61/pi-security-module/pkg/eventkit/codegen/codegentemplates"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 type Module struct {
@@ -164,6 +166,10 @@ func Inline(targetPath string, inline string) FileToGenerate {
 func renderOneTemplate(target FileToGenerate, data interface{}) error {
 	templateContent, err := target.obtainTemplate()
 	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Dir(target.targetPath), 0755); err != nil {
 		return err
 	}
 
