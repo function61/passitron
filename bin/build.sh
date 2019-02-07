@@ -10,11 +10,7 @@ GOFMT_TARGETS="cmd/ pkg/"
 cleanupGeneratedFiles() {
 	rm -rf \
 		docs_ready/ \
-		pkg/apitypes/apitypes.go \
-		pkg/apitypes/restendpoints.go \
-		pkg/commandhandlers/commanddefinitions.go \
-		pkg/domain/consts-and-enums.go \
-		pkg/domain/events.go
+		pkg/**/*.gen.go
 }
 
 buildInternalDependenciesDocs() {
