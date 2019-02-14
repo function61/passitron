@@ -426,7 +426,7 @@ func deleteAccount(t *testing.T, tstate *testScenarioState) {
 // used to pass test context along
 type testScenarioState struct {
 	st               *state.AppState
-	handlers         Handlers
+	handlers         CommandHandlers
 	untestedCommands map[string]bool
 	firstAccountId   string
 }

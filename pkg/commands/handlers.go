@@ -34,20 +34,20 @@ var (
 	errFolderNotFound  = errors.New("Folder not found")
 )
 
-type CommandHandlers struct {
+type Handlers struct {
 	state *state.AppState
 	logl  *logex.Leveled
 }
 
-func (c *CommandHandlers) userData(ctx *command.Ctx) *state.UserStorage {
+func (c *Handlers) userData(ctx *command.Ctx) *state.UserStorage {
 	return c.state.DB.UserScope[ctx.Meta.UserId]
 }
 
-func New(state *state.AppState, logger *log.Logger) *CommandHandlers {
-	return &CommandHandlers{state, logex.Levels(logger)}
+func New(state *state.AppState, logger *log.Logger) *Handlers {
+	return &Handlers{state, logex.Levels(logger)}
 }
 
-func (h *CommandHandlers) AccountRename(a *AccountRename, ctx *command.Ctx) error {
+func (h *Handlers) AccountRename(a *AccountRename, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -60,7 +60,7 @@ func (h *CommandHandlers) AccountRename(a *AccountRename, ctx *command.Ctx) erro
 	return nil
 }
 
-func (h *CommandHandlers) AccountMove(a *AccountMove, ctx *command.Ctx) error {
+func (h *Handlers) AccountMove(a *AccountMove, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -73,7 +73,7 @@ func (h *CommandHandlers) AccountMove(a *AccountMove, ctx *command.Ctx) error {
 	return nil
 }
 
-func (h *CommandHandlers) AccountChangeUsername(a *AccountChangeUsername, ctx *command.Ctx) error {
+func (h *Handlers) AccountChangeUsername(a *AccountChangeUsername, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -86,7 +86,7 @@ func (h *CommandHandlers) AccountChangeUsername(a *AccountChangeUsername, ctx *c
 	return nil
 }
 
-func (h *CommandHandlers) AccountChangeUrl(a *AccountChangeUrl, ctx *command.Ctx) error {
+func (h *Handlers) AccountChangeUrl(a *AccountChangeUrl, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -105,7 +105,7 @@ func (h *CommandHandlers) AccountChangeUrl(a *AccountChangeUrl, ctx *command.Ctx
 	return nil
 }
 
-func (h *CommandHandlers) AccountChangeDescription(a *AccountChangeDescription, ctx *command.Ctx) error {
+func (h *Handlers) AccountChangeDescription(a *AccountChangeDescription, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -118,7 +118,7 @@ func (h *CommandHandlers) AccountChangeDescription(a *AccountChangeDescription, 
 	return nil
 }
 
-func (h *CommandHandlers) AccountDeleteSecret(a *AccountDeleteSecret, ctx *command.Ctx) error {
+func (h *Handlers) AccountDeleteSecret(a *AccountDeleteSecret, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -133,7 +133,7 @@ func (h *CommandHandlers) AccountDeleteSecret(a *AccountDeleteSecret, ctx *comma
 	return nil
 }
 
-func (h *CommandHandlers) AccountCreateFolder(a *AccountCreateFolder, ctx *command.Ctx) error {
+func (h *Handlers) AccountCreateFolder(a *AccountCreateFolder, ctx *command.Ctx) error {
 	if h.userData(ctx).FolderById(a.Parent) == nil {
 		return errFolderNotFound
 	}
@@ -147,7 +147,7 @@ func (h *CommandHandlers) AccountCreateFolder(a *AccountCreateFolder, ctx *comma
 	return nil
 }
 
-func (h *CommandHandlers) AccountDeleteFolder(a *AccountDeleteFolder, ctx *command.Ctx) error {
+func (h *Handlers) AccountDeleteFolder(a *AccountDeleteFolder, ctx *command.Ctx) error {
 	if h.userData(ctx).FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
@@ -166,7 +166,7 @@ func (h *CommandHandlers) AccountDeleteFolder(a *AccountDeleteFolder, ctx *comma
 	return nil
 }
 
-func (h *CommandHandlers) AccountRenameFolder(a *AccountRenameFolder, ctx *command.Ctx) error {
+func (h *Handlers) AccountRenameFolder(a *AccountRenameFolder, ctx *command.Ctx) error {
 	if h.userData(ctx).FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
@@ -179,7 +179,7 @@ func (h *CommandHandlers) AccountRenameFolder(a *AccountRenameFolder, ctx *comma
 	return nil
 }
 
-func (h *CommandHandlers) AccountMoveFolder(a *AccountMoveFolder, ctx *command.Ctx) error {
+func (h *Handlers) AccountMoveFolder(a *AccountMoveFolder, ctx *command.Ctx) error {
 	if h.userData(ctx).FolderById(a.Id) == nil {
 		return errFolderNotFound
 	}
@@ -195,7 +195,7 @@ func (h *CommandHandlers) AccountMoveFolder(a *AccountMoveFolder, ctx *command.C
 	return nil
 }
 
-func (h *CommandHandlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) error {
+func (h *Handlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) error {
 	accountId := event.RandomId()
 
 	title := a.Title
@@ -253,7 +253,7 @@ func (h *CommandHandlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) erro
 	return nil
 }
 
-func (h *CommandHandlers) AccountDelete(a *AccountDelete, ctx *command.Ctx) error {
+func (h *Handlers) AccountDelete(a *AccountDelete, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
@@ -265,7 +265,7 @@ func (h *CommandHandlers) AccountDelete(a *AccountDelete, ctx *command.Ctx) erro
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddPassword(a *AccountAddPassword, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddPassword(a *AccountAddPassword, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -289,7 +289,7 @@ func (h *CommandHandlers) AccountAddPassword(a *AccountAddPassword, ctx *command
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -304,7 +304,7 @@ func (h *CommandHandlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *com
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddExternalU2FToken(a *AccountAddExternalU2FToken, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddExternalU2FToken(a *AccountAddExternalU2FToken, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -319,7 +319,7 @@ func (h *CommandHandlers) AccountAddExternalU2FToken(a *AccountAddExternalU2FTok
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddExternalYubicoOtpToken(a *AccountAddExternalYubicoOtpToken, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddExternalYubicoOtpToken(a *AccountAddExternalYubicoOtpToken, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -334,7 +334,7 @@ func (h *CommandHandlers) AccountAddExternalYubicoOtpToken(a *AccountAddExternal
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -379,7 +379,7 @@ func (h *CommandHandlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.C
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Id) == nil {
 		return errAccountNotFound
 	}
@@ -428,7 +428,7 @@ func (h *CommandHandlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx
 	return nil
 }
 
-func (h *CommandHandlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) error {
+func (h *Handlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
 	}
@@ -447,7 +447,7 @@ func (h *CommandHandlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command
 	return nil
 }
 
-func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword, ctx *command.Ctx) error {
+func (h *Handlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword, ctx *command.Ctx) error {
 	if err := verifyRepeatPassword(a.NewMasterPassword, a.NewMasterPasswordRepeat); err != nil {
 		return err
 	}
@@ -459,7 +459,7 @@ func (h *CommandHandlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPa
 	return nil
 }
 
-func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
+func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	var user *state.SensitiveUser
 	for _, userStorage := range h.state.DB.UserScope {
 		if userStorage.SensitiveUser.User.Username == a.Username {
@@ -523,7 +523,7 @@ func (h *CommandHandlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) erro
 	return nil
 }
 
-func (h *CommandHandlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) error {
+func (h *Handlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) error {
 	h.logl.Info.Printf("User %s signed out", ctx.Meta.UserId)
 
 	ctx.SetCookie = httpauth.DeleteLoginCookie()
@@ -533,11 +533,11 @@ func (h *CommandHandlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) er
 	return nil
 }
 
-func (h *CommandHandlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *command.Ctx) error {
+func (h *Handlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *command.Ctx) error {
 	return keepassexport.Export(h.state, ctx.Meta.UserId)
 }
 
-func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
+func (h *Handlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
 	if subtle.ConstantTimeCompare([]byte(h.state.GetMasterPassword()), []byte(a.MasterPassword)) != 1 {
 		return errors.New("invalid password")
 	}
@@ -552,7 +552,7 @@ func (h *CommandHandlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) er
 	return nil
 }
 
-func (h *CommandHandlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command.Ctx) error {
+func (h *Handlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command.Ctx) error {
 	if h.userData(ctx).SensitiveUser.AccessToken != "" {
 		return errors.New("multiple access tokens not currently supported")
 	}
@@ -567,7 +567,7 @@ func (h *CommandHandlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command
 	return nil
 }
 
-func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
+func (h *Handlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
 	if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); err != nil {
 		return err
 	}
@@ -599,7 +599,7 @@ func (h *CommandHandlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
 	return nil
 }
 
-func (h *CommandHandlers) UserChangePassword(a *UserChangePassword, ctx *command.Ctx) error {
+func (h *Handlers) UserChangePassword(a *UserChangePassword, ctx *command.Ctx) error {
 	// TODO: verify current password
 
 	if err := verifyRepeatPassword(a.Password, a.PasswordRepeat); err != nil {
@@ -616,7 +616,7 @@ func (h *CommandHandlers) UserChangePassword(a *UserChangePassword, ctx *command
 	return nil
 }
 
-func (h *CommandHandlers) UserRegisterU2FToken(a *UserRegisterU2FToken, ctx *command.Ctx) error {
+func (h *Handlers) UserRegisterU2FToken(a *UserRegisterU2FToken, ctx *command.Ctx) error {
 	var input apitypes.RegisterResponse
 	if err := json.Unmarshal([]byte(a.Request), &input); err != nil {
 		return err

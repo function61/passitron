@@ -11,7 +11,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
 )
 
-type Handlers interface { {{range .CommandSpecs}}
+type CommandHandlers interface { {{range .CommandSpecs}}
 	{{.AsGoStructName}}(*{{.AsGoStructName}}, *command.Ctx) error{{end}}
 }
 
@@ -29,7 +29,7 @@ func (x *{{.AsGoStructName}}) Validate() error {
 func (x *{{.AsGoStructName}}) MiddlewareChain() string { return "{{.MiddlewareChain}}" }
 func (x *{{.AsGoStructName}}) Key() string { return "{{.Command}}" }
 func (x *{{.AsGoStructName}}) Invoke(ctx *command.Ctx, handlers interface{}) error {
-	return handlers.(Handlers).{{.AsGoStructName}}(x, ctx)
+	return handlers.(CommandHandlers).{{.AsGoStructName}}(x, ctx)
 }
 {{end}}
 
@@ -156,13 +156,13 @@ import (
 	"github.com/function61/gokit/httpauth"
 )
 
-type Handlers interface { {{range .ApplicationTypes.Endpoints}}
+type HttpHandlers interface { {{range .ApplicationTypes.Endpoints}}
 	{{UppercaseFirst .Name}}(rctx *httpauth.RequestContext, {{if .Consumes}}input {{.Consumes.AsGoType}}, {{end}}w http.ResponseWriter, r *http.Request){{if .Produces}} *{{.Produces.AsGoType}}{{end}}{{end}}
 }
 
 // the following generated code brings type safety from all the way to the
 // backend-frontend path (input/output structs and endpoint URLs) to the REST API
-func RegisterRoutes(handlers Handlers, mwares httpauth.MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
+func RegisterRoutes(handlers HttpHandlers, mwares httpauth.MiddlewareChainMap, register func(method string, path string, fn http.HandlerFunc)) { {{range .ApplicationTypes.Endpoints}}
 	register("{{.HttpMethod}}", "{{StripQueryFromUrl .Path}}", func(w http.ResponseWriter, r *http.Request) {
 		rctx := mwares["{{.MiddlewareChain}}"](w, r)
 		if rctx == nil {
