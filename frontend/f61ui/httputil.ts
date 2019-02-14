@@ -1,4 +1,4 @@
-let csrfToken: undefined | string;
+import { globalConfig } from 'f61ui/globalconfig';
 
 export function getJson<T>(url: string): Promise<T> {
 	return fetch(url)
@@ -13,16 +13,12 @@ export function postJson<I, O>(url: string, body: I): Promise<O> {
 export function postJsonReturningVoid<T>(url: string, body: T): Promise<Response> {
 	const bodyToPost = JSON.stringify(body);
 
-	if (!csrfToken) {
-		return Promise.reject(new Error('csrfToken not set'));
-	}
-
 	return fetch(url, {
 		method: 'POST',
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			'x-csrf-token': csrfToken,
+			'x-csrf-token': globalConfig().csrfToken,
 		},
 		body: bodyToPost,
 	}).then(httpMustBeOk);
@@ -52,12 +48,4 @@ export function httpMustBeOk(response: Response): Promise<Response> {
 	}
 
 	return Promise.resolve(response);
-}
-
-export function configureCsrfToken(token: string) {
-	if (csrfToken) {
-		throw new Error('configureCsrfToken already called');
-	}
-
-	csrfToken = token;
 }

@@ -1,5 +1,5 @@
-import { getCurrentHash, navigateTo } from 'f61ui/browserutils';
-import { signInRoute } from 'routes';
+import { globalConfig } from 'f61ui/globalconfig';
+import { StructuredErrorResponse } from 'f61ui/types';
 
 export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	const ser = coerceToStructuredErrorResponse(err);
@@ -11,21 +11,13 @@ export function defaultErrorHandler(err: Error | StructuredErrorResponse) {
 	alert(`${ser.error_code}: ${ser.error_description}`);
 }
 
-export function isSealedError(err: StructuredErrorResponse): boolean {
-	return err.error_code === 'database_is_sealed';
-}
-
-export function isNotSignedInError(err: StructuredErrorResponse): boolean {
-	return err.error_code === 'not_signed_in';
-}
-
 export function handleKnownGlobalErrors(err: StructuredErrorResponse): boolean {
-	if (isSealedError(err) || isNotSignedInError(err)) {
-		navigateTo(signInRoute.buildUrl({ redirect: getCurrentHash() }));
-		return true;
+	const handler = globalConfig().knownGlobalErrorsHandler;
+	if (!handler) {
+		return false;
 	}
 
-	return false;
+	return handler(err);
 }
 
 export function coerceToStructuredErrorResponse(
@@ -36,11 +28,6 @@ export function coerceToStructuredErrorResponse(
 	}
 
 	return { error_code: 'generic_error', error_description: err.toString() };
-}
-
-export interface StructuredErrorResponse {
-	error_code: string;
-	error_description: string;
 }
 
 export function isStructuredErrorResponse(

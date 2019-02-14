@@ -1,20 +1,16 @@
 import { getCurrentHash } from 'f61ui/browserutils';
-import { configureCsrfToken } from 'f61ui/httputil';
+import { GlobalConfig, globalConfigure } from 'f61ui/globalconfig';
 import { Router } from 'f61ui/typescript-safe-router/saferouter';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-export interface AppControllerConfig {
-	csrf_token: string;
-}
-
 // entrypoint for the app. this is called when DOM is loaded
 export function boot(
 	appElement: HTMLElement,
-	config: AppControllerConfig,
+	globalConfig: GlobalConfig,
 	props: AppControllerProps,
 ): void {
-	configureCsrfToken(config.csrf_token);
+	globalConfigure(globalConfig);
 
 	ReactDOM.render(<AppController {...props} />, appElement);
 }

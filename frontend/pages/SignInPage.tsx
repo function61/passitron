@@ -1,4 +1,5 @@
-import { coerceToStructuredErrorResponse, isNotSignedInError, isSealedError } from 'backenderrors';
+import { coerceToStructuredErrorResponse } from 'backenderrors';
+import { isNotSignedInError, isSealedError } from 'errors';
 import { navigateTo } from 'f61ui/browserutils';
 import { WarningAlert } from 'f61ui/component/alerts';
 import { Button, Panel } from 'f61ui/component/bootstrap';

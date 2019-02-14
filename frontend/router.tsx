@@ -1,4 +1,4 @@
-import { makeRoute, makeRouter } from 'f61ui/typescript-safe-router/saferouter';
+import { makeRouter } from 'f61ui/typescript-safe-router/saferouter';
 import { RootFolderId } from 'generated/domain_types';
 import AccountPage from 'pages/AccountPage';
 import AuditLogPage from 'pages/AuditLogPage';
@@ -9,16 +9,17 @@ import SettingsPage from 'pages/SettingsPage';
 import SignInPage from 'pages/SignInPage';
 import SshKeysPage from 'pages/SshKeysPage';
 import * as React from 'react';
-
-export const indexRoute = makeRoute('index', {});
-export const folderRoute = makeRoute('folder', { folderId: 'string' });
-export const searchRoute = makeRoute('search', { searchTerm: 'string' });
-export const accountRoute = makeRoute('account', { id: 'string' });
-export const sshkeysRoute = makeRoute('sshkeys', {});
-export const settingsRoute = makeRoute('settings', {});
-export const signInRoute = makeRoute('unseal', { redirect: 'string' });
-export const auditlogRoute = makeRoute('auditlog', {});
-export const importotptokenRoute = makeRoute('importotptoken', { account: 'string' });
+import {
+	accountRoute,
+	auditlogRoute,
+	folderRoute,
+	importotptokenRoute,
+	indexRoute,
+	searchRoute,
+	settingsRoute,
+	signInRoute,
+	sshkeysRoute,
+} from 'routes';
 
 export const router = makeRouter(indexRoute, () => (
 	<HomePage key={RootFolderId} folderId={RootFolderId} />

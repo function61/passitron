@@ -9,6 +9,7 @@ import (
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/stopper"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
+	"github.com/function61/pi-security-module/pkg/f61ui"
 	"github.com/function61/pi-security-module/pkg/restcommandapi"
 	"github.com/function61/pi-security-module/pkg/restqueryapi"
 	"github.com/function61/pi-security-module/pkg/signingapi"
@@ -18,7 +19,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -125,25 +125,13 @@ func createHandler(appState *state.AppState, logger *log.Logger) (http.Handler, 
 }
 
 func setupStaticFilesRouting(router *mux.Router, appState *state.AppState) error {
-	indexTemplate, err := ioutil.ReadFile("public/index.html.template")
-	if err != nil {
-		return err
-	}
+	assetsPath := "/assets"
 
-	index := strings.Replace(
-		string(indexTemplate),
-		"[$csrf_token]",
-		appState.GetCsrfToken(),
-		-1)
-
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if _, err := w.Write([]byte(index)); err != nil {
-			panic(err)
-		}
-	})
-
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+	publicFiles := http.FileServer(http.Dir("./public/"))
+	router.HandleFunc("/", f61ui.IndexHtmlHandler(assetsPath, appState.GetCsrfToken()))
+	router.PathPrefix(assetsPath + "/").Handler(http.StripPrefix(assetsPath+"/", publicFiles))
+	router.Handle("/favicon.ico", publicFiles)
+	router.Handle("/robots.txt", publicFiles)
 
 	return nil
 }

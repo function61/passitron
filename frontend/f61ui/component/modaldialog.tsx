@@ -1,6 +1,7 @@
 import { Loading } from 'f61ui/component/loading';
 import { jsxChildType } from 'f61ui/types';
 import { focusRetainer, uniqueDomId } from 'f61ui/utils';
+import * as $ from 'jquery';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 

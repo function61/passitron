@@ -1,11 +1,8 @@
-import {
-	coerceToStructuredErrorResponse,
-	handleKnownGlobalErrors,
-	StructuredErrorResponse,
-} from 'backenderrors';
+import { coerceToStructuredErrorResponse, handleKnownGlobalErrors } from 'backenderrors';
 import { reloadCurrentPage } from 'f61ui/browserutils';
 import { CommandDefinition, CommandField, CommandFieldKind } from 'f61ui/commandtypes';
 import { postJson } from 'f61ui/httputil';
+import { StructuredErrorResponse } from 'f61ui/types';
 import { unrecognizedValue } from 'f61ui/utils';
 import * as React from 'react';
 
