@@ -4,8 +4,7 @@ const CircularDependencyPlugin = require('circular-dependency-plugin')
 const webpack = require('webpack');
 
 module.exports = {
-	// mode: 'production',
-	mode: 'production',
+	mode: 'development', // overridden by CLI flag on prod build
 	entry: './main.tsx',
 	plugins: [
 		new CircularDependencyPlugin({
@@ -27,7 +26,8 @@ module.exports = {
 		]
 	},
 	optimization: {
-		minimize: false
+		// defaults: with prod -> true, with dev -> false
+		// minify: false
 	},
 	performance: {
 		hints: false
