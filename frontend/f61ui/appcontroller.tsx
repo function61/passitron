@@ -1,3 +1,4 @@
+import 'bootstrap'; // side effect import, cool stuff guys
 import { getCurrentHash } from 'f61ui/browserutils';
 import { GlobalConfig, globalConfigure } from 'f61ui/globalconfig';
 import { Router } from 'f61ui/typescript-safe-router/saferouter';

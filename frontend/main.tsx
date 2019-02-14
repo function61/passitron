@@ -1,4 +1,3 @@
-import 'bootstrap'; // side effect import, cool stuff guys
 import { isNotSignedInError, isSealedError } from 'errors';
 import { boot } from 'f61ui/appcontroller';
 import { getCurrentHash, navigateTo } from 'f61ui/browserutils';
