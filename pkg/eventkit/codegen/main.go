@@ -17,18 +17,27 @@ type Module struct {
 	CommandsSpecFile string
 	TypesFile        string
 
+	filesToGenerate []FileToGenerate
+
 	// computed state
 	EventsSpec *DomainFile
 	Types      *ApplicationTypesDefinition
 	Commands   *CommandSpecFile
 }
 
-func NewModule(id string, typesFile string, eventsSpecFile string, commandSpecFile string) *Module {
+func NewModule(
+	id string,
+	typesFile string,
+	eventsSpecFile string,
+	commandSpecFile string,
+	filesToGenerate []FileToGenerate,
+) *Module {
 	return &Module{
 		Id:               id,
 		EventsSpecFile:   eventsSpecFile,
 		CommandsSpecFile: commandSpecFile,
 		TypesFile:        typesFile,
+		filesToGenerate:  filesToGenerate,
 	}
 }
 
@@ -108,7 +117,7 @@ func processModule(mod *Module, opts Opts) error {
 
 	hasRestEndpoints := len(mod.Types.Endpoints) > 0
 
-	return allOk([]error{
+	if err := allOk([]error{
 		maybeRenderOne(mod.CommandsSpecFile != "", backendPath("commanddefinitions.gen.go"), codegentemplates.BackendCommandsDefinitions),
 		maybeRenderOne(mod.EventsSpecFile != "", backendPath("events.gen.go"), codegentemplates.BackendEventDefinitions),
 		maybeRenderOne(hasRestEndpoints, backendPath("restendpoints.gen.go"), codegentemplates.BackendRestEndpoints),
@@ -116,7 +125,17 @@ func processModule(mod *Module, opts Opts) error {
 		maybeRenderOne(mod.TypesFile != "", frontendPath("types.ts"), codegentemplates.FrontendDatatypes),
 		maybeRenderOne(hasRestEndpoints, frontendPath("endpoints.ts"), codegentemplates.FrontendRestEndpoints),
 		maybeRenderOne(mod.CommandsSpecFile != "", frontendPath("commands.ts"), codegentemplates.FrontendCommandDefinitions),
-	})
+	}); err != nil {
+		return err
+	}
+
+	for _, fileToGenerate := range mod.filesToGenerate {
+		if err := ProcessFile(fileToGenerate, data); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type Opts struct {

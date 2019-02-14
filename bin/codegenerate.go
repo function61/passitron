@@ -25,19 +25,24 @@ func mainInternal() error {
 
 	// companion file means that for each of these files their corresponding .template file
 	// exists and will be rendered which will end up as the filename given
-	/*
-		files := []codegen.FileToGenerate{
-				codegen.CompanionFile("docs/application_model/commands.md"),
-				codegen.CompanionFile("docs/application_model/rest_endpoints.md"),
-				codegen.CompanionFile("docs/domain_model/consts-and-enums.md"),
-				codegen.CompanionFile("docs/domain_model/events.md"),
-		}
-	*/
+	domainFiles := []codegen.FileToGenerate{
+		codegen.Inline("docs/domain_model/types.md", codegentemplates.DocsTypes),
+		codegen.Inline("docs/domain_model/events.md", codegentemplates.DocsEvents),
+	}
+
+	commandsFiles := []codegen.FileToGenerate{
+		codegen.Inline("docs/application_model/commands.md", codegentemplates.DocsCommands),
+	}
+
+	apitypesFiles := []codegen.FileToGenerate{
+		codegen.Inline("docs/application_model/rest_endpoints.md", codegentemplates.DocsRestEndpoints),
+		codegen.Inline("docs/application_model/types.md", codegentemplates.DocsTypes),
+	}
 
 	modules := []*codegen.Module{
-		codegen.NewModule("domain", "pkg/domain/types.json", "pkg/domain/events.json", ""),
-		codegen.NewModule("commands", "", "", "pkg/commands/commands.json"),
-		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", ""),
+		codegen.NewModule("domain", "pkg/domain/types.json", "pkg/domain/events.json", "", domainFiles),
+		codegen.NewModule("commands", "", "", "pkg/commands/commands.json", commandsFiles),
+		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", "", apitypesFiles),
 	}
 
 	opts := codegen.Opts{

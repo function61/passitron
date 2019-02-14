@@ -18,8 +18,9 @@ pages:
 
 - 'Domain model':
   - 'Events': 'domain_model/events.md'
-  - 'Constants and enums': 'domain_model/consts-and-enums.md'
+  - 'Types': 'domain_model/types.md'
 
 - 'Application model (REST API)':
-  - 'Queries (for reading data)': 'application_model/rest_endpoints.md'
+  - 'Types': 'application_model/types.md'
   - 'Commands (for writing data)': 'application_model/commands.md'
+  - 'Queries (for reading data)': 'application_model/rest_endpoints.md'
