@@ -9,13 +9,13 @@ module.exports = {
 	entry: './main.tsx',
 	plugins: [
 		new CircularDependencyPlugin({
-	      exclude: /node_modules/,
-	      failOnError: true,
-	    }),
-        new webpack.ProvidePlugin({
-           jQuery: 'jquery', // for stupid Bootstrap
-           u2f: 'u2f-api/dist/lib/generated-google-u2f-api.js',
-       })
+			exclude: /node_modules/,
+			failOnError: true,
+		}),
+		new webpack.ProvidePlugin({
+			jQuery: 'jquery/dist/jquery.slim.js', // for stupid Bootstrap
+			u2f: 'u2f-api/dist/lib/generated-google-u2f-api.js',
+		}),
 	],
 	module: {
 		rules: [

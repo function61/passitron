@@ -1,7 +1,6 @@
 import { Loading } from 'f61ui/component/loading';
 import { jsxChildType } from 'f61ui/types';
 import { focusRetainer, uniqueDomId } from 'f61ui/utils';
-import * as $ from 'jquery';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
@@ -27,12 +26,12 @@ export class ModalDialog extends React.Component<ModalDialogProps, {}> {
 		// modal showing loses the focus if the focus was already inside the modal content,
 		// so we use this hack to retain the focused element
 		focusRetainer(() => {
-			$(this.dialogRef!).modal('show');
+			jQuery(this.dialogRef!).modal('show');
 		});
 
 		// we need to let parent know of dialog close, so parent can destroy us,
 		// because after dialog has been closed, we are pretty much useless
-		$(this.dialogRef!).on('hidden.bs.modal', () => {
+		jQuery(this.dialogRef!).on('hidden.bs.modal', () => {
 			if (this.props.onClose) {
 				this.props.onClose();
 			}
