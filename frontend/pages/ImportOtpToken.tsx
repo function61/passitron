@@ -1,6 +1,6 @@
 import { CommandButton } from 'f61ui/component/CommandButton';
 import { AccountAddOtpToken } from 'generated/commands_commands';
-import * as QrCode from 'jsqrcode';
+import jsQR from 'jsqr';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 
@@ -52,7 +52,7 @@ export default class ImportOtpToken extends React.Component<
 	}
 
 	fileChange(e: React.ChangeEvent<HTMLInputElement>) {
-		if (!e.target.files) {
+		if (!e.target.files || e.target.files.length === 0) {
 			return;
 		}
 
@@ -66,26 +66,46 @@ export default class ImportOtpToken extends React.Component<
 			throw new Error('Unsupported image type - must be image/*');
 		}
 
-		const qrReader = new QrCode();
-		qrReader.callback = (err: Error, result: any) => {
-			if (err) {
-				alert('error reading QR code: ' + err.toString());
+		imageFromFile(file, (img: HTMLImageElement) => {
+			const idata = imageDataFromImage(img);
+
+			const scanResult = jsQR(idata.data, idata.width, idata.height);
+			if (!scanResult) {
+				alert('error reading QR code');
 				return;
 			}
 
 			this.setState({
-				OtpProvisioningUrl: result.result,
+				OtpProvisioningUrl: scanResult.data,
 			});
-		};
-
-		const fileReader = new FileReader();
-		fileReader.addEventListener(
-			'load',
-			() => {
-				qrReader.decode(fileReader.result);
-			},
-			false,
-		);
-		fileReader.readAsDataURL(file);
+		});
 	}
+}
+
+function imageDataFromImage(img: HTMLImageElement): ImageData {
+	const tempCanvas = document.createElement('canvas');
+	// these have to be set explicitly via direct width and height, and not via .style
+	tempCanvas.width = img.width;
+	tempCanvas.height = img.height;
+
+	const canvasCtx = tempCanvas.getContext('2d');
+	if (!canvasCtx) {
+		throw new Error('canvas 2d rendering context not available');
+	}
+
+	// drawing on the canvas seems to work (at least in Chrome) when it's not in the
+	// document, which is convenient b/c we don't have to do cleanup
+	canvasCtx.drawImage(img, 0, 0);
+
+	return canvasCtx.getImageData(0, 0, img.width, img.height);
+}
+
+function imageFromFile(file: File, load: (img: HTMLImageElement) => void) {
+	const img = new Image();
+	img.onload = () => {
+		URL.revokeObjectURL(img.src);
+
+		load(img);
+	};
+	img.src = URL.createObjectURL(file);
 }
