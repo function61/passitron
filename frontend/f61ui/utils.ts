@@ -1,6 +1,6 @@
 import { defaultErrorHandler } from 'backenderrors';
+import { formatDistance } from 'date-fns';
 import { datetimeRFC3339 } from 'f61ui/types';
-import * as moment from 'moment';
 
 export function unrecognizedValue(value: never): never {
 	throw new Error(`Unrecognized value: ${value}`);
@@ -13,7 +13,7 @@ export function uniqueDomId(): number {
 }
 
 export function relativeDateFormat(dateIso: datetimeRFC3339): string {
-	return moment(dateIso).fromNow();
+	return formatDistance(new Date(dateIso), new Date());
 }
 
 // - cannot "await" unless "await" sits in a function that itself is "async"
