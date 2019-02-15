@@ -20,7 +20,11 @@ pages:
   - 'Events': 'domain/events.md'
   - 'Types': 'domain/types.md'
 
-- 'Application model (REST API)':
+- 'Data API (REST)':
   - 'Types': 'apitypes/types.md'
   - 'Commands (for writing data)': 'commands/commands.md'
-  - 'Queries (for reading data)': 'apitypes/rest_endpoints.md'
+  - 'Endpoints (for reading data)': 'apitypes/rest_endpoints.md'
+
+- 'Signing API (REST)':
+  - 'Types': 'signingapi/types.md'
+  - 'Endpoints': 'signingapi/rest_endpoints.md'

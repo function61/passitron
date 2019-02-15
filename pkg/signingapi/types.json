@@ -1,0 +1,34 @@
+{
+	"endpoints": [
+		{ "chain": "bearer", "method": "GET", "path": "/_api/signer/publickeys", "produces": {"_": "PublicKeysOutput"}, "name": "getPublicKeys", "description": "Retrieves public component of user's private keys available for signing" },
+		{ "chain": "bearer", "method": "POST", "path": "/_api/signer/sign", "produces": {"_": "Signature"}, "consumes": {"_": "SignRequestInput"}, "name": "sign", "description": "Signs data with a private key" }
+	],
+	"types": [
+		{
+			"name": "PublicKeysOutput",
+			"type": {"_": "list", "of": {"_": "PublicKey"}}
+		},
+		{
+			"name": "PublicKey",
+			"type": {"_": "object", "fields": {
+				"Format": {"_": "string"},
+				"Blob": {"_": "binary"},
+				"Comment": {"_": "string"}
+			}}
+		},
+		{
+			"name": "SignRequestInput",
+			"type": {"_": "object", "fields": {
+				"PublicKey": {"_": "binary"},
+				"Data": {"_": "binary"}
+			}}
+		},
+		{
+			"name": "Signature",
+			"type": {"_": "object", "fields": {
+				"Format": {"_": "string"},
+				"Blob": {"_": "binary"}
+			}}
+		}
+	]
+}

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/function61/gokit/ezhttp"
 	"github.com/function61/gokit/logex"
-	"github.com/function61/pi-security-module/pkg/signingapi/signingapitypes"
+	"github.com/function61/pi-security-module/pkg/signingapi"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"log"
@@ -51,16 +51,16 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
 	defer cancel()
 
-	output := &signingapitypes.PublicKeysResponse{}
+	output := signingapi.PublicKeysOutput{}
 	if _, err := ezhttp.Get(
 		ctx,
 		a.baseUrl+"/_api/signer/publickeys",
 		ezhttp.AuthBearer(a.bearerToken),
-		ezhttp.RespondsJson(output, false)); err != nil {
+		ezhttp.RespondsJson(&output, false)); err != nil {
 		return knownKeys, err
 	}
 
-	for _, key := range output.PublicKeys {
+	for _, key := range output {
 		knownKey := &agent.Key{
 			Format:  key.Format,
 			Blob:    key.Blob,
@@ -76,11 +76,11 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
 	a.logl.Debug.Printf("Sign()")
 
-	req := signingapitypes.SignRequestInput{
+	req := signingapi.SignRequestInput{
 		PublicKey: key.Marshal(),
 		Data:      data,
 	}
-	res := signingapitypes.SignResponse{}
+	res := signingapi.Signature{}
 
 	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
 	defer cancel()
@@ -94,7 +94,8 @@ func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, erro
 		return nil, err
 	}
 
-	return res.Signature, nil
+	sshSig := ssh.Signature(res) // structs are type-compatible
+	return &sshSig, nil
 }
 
 func (a *AgentServer) Add(key agent.AddedKey) error {

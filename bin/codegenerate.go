@@ -27,6 +27,7 @@ func mainInternal() error {
 		codegen.NewModule("domain", "pkg/domain/types.json", "pkg/domain/events.json", ""),
 		codegen.NewModule("commands", "", "", "pkg/commands/commands.json"),
 		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", ""),
+		codegen.NewModule("signingapi", "pkg/signingapi/types.json", "", ""),
 	}
 
 	opts := codegen.Opts{

@@ -114,7 +114,7 @@ func createHandler(appState *state.AppState, logger *log.Logger) (http.Handler, 
 		return nil, err
 	}
 
-	signingapi.Setup(router, appState)
+	signingapi.Setup(router, middlewareChains, appState)
 
 	// this most generic catch-all route has to be introduced last
 	if err := setupStaticFilesRouting(router, appState); err != nil {
