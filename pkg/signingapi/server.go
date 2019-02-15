@@ -102,8 +102,10 @@ func (h *handlers) Sign(rctx *httpauth.RequestContext, input SignRequestInput, w
 		panic(err)
 	}
 
-	sig := Signature(*signature) // structs are type-compatible
-	return &sig
+	return &Signature{
+		Format: signature.Format,
+		Blob:   signature.Blob,
+	}
 }
 
 func Setup(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.AppState) {

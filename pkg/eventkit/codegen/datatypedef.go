@@ -12,6 +12,26 @@ type DatatypeDef struct {
 	Fields   map[string]*DatatypeDef `json:"fields"` // only used if Name==object
 }
 
+type DatatypeDefField struct {
+	Key  string
+	Type *DatatypeDef
+}
+
+func (d *DatatypeDef) FieldsSorted() []DatatypeDefField {
+	ret := make([]DatatypeDefField, len(d.Fields))
+	i := 0
+	for key, field := range d.Fields {
+		ret[i] = DatatypeDefField{key, field}
+		i++
+	}
+
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].Key < ret[j].Key
+	})
+
+	return ret
+}
+
 func (d *DatatypeDef) Name() string {
 	// no module specified => return as -is
 	if !strings.Contains(d.NameRaw, ".") {

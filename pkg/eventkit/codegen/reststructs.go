@@ -90,8 +90,8 @@ func (s *NamedDatatypeDef) AsTypeScriptCode() string {
 
 	fieldsSerialized := []string{}
 
-	for fieldKey, fieldType := range s.Type.Fields {
-		fieldsSerialized = append(fieldsSerialized, fieldKey+": "+fieldType.AsTypeScriptType()+";")
+	for _, field := range s.Type.FieldsSorted() {
+		fieldsSerialized = append(fieldsSerialized, field.Key+": "+field.Type.AsTypeScriptType()+";")
 	}
 
 	return "export interface " + s.Name + " " + "{\n\t" + strings.Join(fieldsSerialized, "\n\t") + "\n}"
@@ -106,11 +106,11 @@ func (s *NamedDatatypeDef) AsToGoCode() string {
 
 	fields := []GoStructField{}
 
-	for fieldKey, fieldType := range s.Type.Fields {
+	for _, field := range s.Type.FieldsSorted() {
 		fields = append(fields, GoStructField{
-			Name: fieldKey,
-			Type: AsGoTypeWithInlineSupport(fieldType, fieldKey, visitor),
-			Tags: "json:\"" + fieldKey + "\"",
+			Name: field.Key,
+			Type: AsGoTypeWithInlineSupport(field.Type, field.Key, visitor),
+			Tags: "json:\"" + field.Key + "\"",
 		})
 	}
 

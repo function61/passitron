@@ -94,8 +94,10 @@ func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, erro
 		return nil, err
 	}
 
-	sshSig := ssh.Signature(res) // structs are type-compatible
-	return &sshSig, nil
+	return &ssh.Signature{
+		Format: res.Format,
+		Blob:   res.Blob,
+	}, nil
 }
 
 func (a *AgentServer) Add(key agent.AddedKey) error {
