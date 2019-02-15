@@ -17,10 +17,10 @@ pages:
   - 'Internal dependencies': 'internal-dependencies.md'
 
 - 'Domain model':
-  - 'Events': 'domain_model/events.md'
-  - 'Types': 'domain_model/types.md'
+  - 'Events': 'domain/events.md'
+  - 'Types': 'domain/types.md'
 
 - 'Application model (REST API)':
-  - 'Types': 'application_model/types.md'
-  - 'Commands (for writing data)': 'application_model/commands.md'
-  - 'Queries (for reading data)': 'application_model/rest_endpoints.md'
+  - 'Types': 'apitypes/types.md'
+  - 'Commands (for writing data)': 'commands/commands.md'
+  - 'Queries (for reading data)': 'apitypes/rest_endpoints.md'

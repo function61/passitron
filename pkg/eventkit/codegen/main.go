@@ -17,8 +17,6 @@ type Module struct {
 	CommandsSpecFile string
 	TypesFile        string
 
-	filesToGenerate []FileToGenerate
-
 	// computed state
 	EventsSpec *DomainFile
 	Types      *ApplicationTypesDefinition
@@ -30,14 +28,12 @@ func NewModule(
 	typesFile string,
 	eventsSpecFile string,
 	commandSpecFile string,
-	filesToGenerate []FileToGenerate,
 ) *Module {
 	return &Module{
 		Id:               id,
 		EventsSpecFile:   eventsSpecFile,
 		CommandsSpecFile: commandSpecFile,
 		TypesFile:        typesFile,
-		filesToGenerate:  filesToGenerate,
 	}
 }
 
@@ -52,19 +48,23 @@ func processModule(mod *Module, opts Opts) error {
 	mod.Types = &ApplicationTypesDefinition{}
 	mod.Commands = &CommandSpecFile{}
 
-	if mod.EventsSpecFile != "" {
+	hasTypes := mod.TypesFile != ""
+	hasEvents := mod.EventsSpecFile != ""
+	hasCommands := mod.CommandsSpecFile != ""
+
+	if hasEvents {
 		if err := jsonfile.Read(mod.EventsSpecFile, mod.EventsSpec, true); err != nil {
 			return err
 		}
 	}
 
-	if mod.TypesFile != "" {
+	if hasTypes {
 		if err := jsonfile.Read(mod.TypesFile, mod.Types, true); err != nil {
 			return err
 		}
 	}
 
-	if mod.CommandsSpecFile != "" {
+	if hasCommands {
 		if err := jsonfile.Read(mod.CommandsSpecFile, mod.Commands, true); err != nil {
 			return err
 		}
@@ -72,6 +72,8 @@ func processModule(mod *Module, opts Opts) error {
 			return err
 		}
 	}
+
+	hasRestEndpoints := len(mod.Types.Endpoints) > 0
 
 	// preprocessing
 	eventDefs, eventStructsAsGoCode := ProcessEvents(mod.EventsSpec)
@@ -94,6 +96,10 @@ func processModule(mod *Module, opts Opts) error {
 		return "frontend/generated/" + mod.Id + "_" + file
 	}
 
+	docPath := func(file string) string {
+		return "docs/" + mod.Id + "/" + file
+	}
+
 	data := &TplData{
 		ModuleId:                mod.Id,
 		Opts:                    opts,
@@ -112,35 +118,30 @@ func processModule(mod *Module, opts Opts) error {
 			return nil
 		}
 
-		return renderOneTemplate(Inline(path, template), data)
+		return ProcessFile(Inline(path, template), data)
 	}
 
-	hasRestEndpoints := len(mod.Types.Endpoints) > 0
+	docs := opts.AutogenerateModuleDocs
 
-	if err := allOk([]error{
-		maybeRenderOne(mod.CommandsSpecFile != "", backendPath("commanddefinitions.gen.go"), codegentemplates.BackendCommandsDefinitions),
-		maybeRenderOne(mod.EventsSpecFile != "", backendPath("events.gen.go"), codegentemplates.BackendEventDefinitions),
-		maybeRenderOne(hasRestEndpoints, backendPath("restendpoints.gen.go"), codegentemplates.BackendRestEndpoints),
-		maybeRenderOne(mod.TypesFile != "", backendPath("types.gen.go"), codegentemplates.BackendTypes),
-		maybeRenderOne(mod.TypesFile != "", frontendPath("types.ts"), codegentemplates.FrontendDatatypes),
+	return allOk([]error{
+		maybeRenderOne(hasCommands, backendPath("commanddefinitions.gen.go"), codegentemplates.BackendCommandsDefinitions),
+		maybeRenderOne(hasCommands, frontendPath("commands.ts"), codegentemplates.FrontendCommandDefinitions),
+		maybeRenderOne(hasCommands && docs, docPath("commands.md"), codegentemplates.DocsCommands),
+		maybeRenderOne(hasEvents, backendPath("events.gen.go"), codegentemplates.BackendEventDefinitions),
+		maybeRenderOne(hasEvents && docs, docPath("events.md"), codegentemplates.DocsEvents),
 		maybeRenderOne(hasRestEndpoints, frontendPath("endpoints.ts"), codegentemplates.FrontendRestEndpoints),
-		maybeRenderOne(mod.CommandsSpecFile != "", frontendPath("commands.ts"), codegentemplates.FrontendCommandDefinitions),
-	}); err != nil {
-		return err
-	}
-
-	for _, fileToGenerate := range mod.filesToGenerate {
-		if err := ProcessFile(fileToGenerate, data); err != nil {
-			return err
-		}
-	}
-
-	return nil
+		maybeRenderOne(hasRestEndpoints, backendPath("restendpoints.gen.go"), codegentemplates.BackendRestEndpoints),
+		maybeRenderOne(hasRestEndpoints && docs, docPath("rest_endpoints.md"), codegentemplates.DocsRestEndpoints),
+		maybeRenderOne(hasTypes, backendPath("types.gen.go"), codegentemplates.BackendTypes),
+		maybeRenderOne(hasTypes, frontendPath("types.ts"), codegentemplates.FrontendDatatypes),
+		maybeRenderOne(hasTypes && docs, docPath("types.md"), codegentemplates.DocsTypes),
+	})
 }
 
 type Opts struct {
-	BackendModulePrefix  string // "github.com/myorg/myproject/pkg/"
-	FrontendModulePrefix string // "generated/"
+	BackendModulePrefix    string // "github.com/myorg/myproject/pkg/"
+	FrontendModulePrefix   string // "generated/"
+	AutogenerateModuleDocs bool
 }
 
 func ProcessModules(modules []*Module, opts Opts) error {
@@ -151,10 +152,6 @@ func ProcessModules(modules []*Module, opts Opts) error {
 	}
 
 	return nil
-}
-
-func ProcessFile(file FileToGenerate, data interface{}) error {
-	return renderOneTemplate(file, data)
 }
 
 // companion file means that for each of these files their corresponding .template file
@@ -182,7 +179,7 @@ func Inline(targetPath string, inline string) FileToGenerate {
 	}
 }
 
-func renderOneTemplate(target FileToGenerate, data interface{}) error {
+func ProcessFile(target FileToGenerate, data interface{}) error {
 	templateContent, err := target.obtainTemplate()
 	if err != nil {
 		return err
