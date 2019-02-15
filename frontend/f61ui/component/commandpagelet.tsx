@@ -1,6 +1,7 @@
 import { coerceToStructuredErrorResponse, handleKnownGlobalErrors } from 'backenderrors';
 import { reloadCurrentPage } from 'f61ui/browserutils';
 import { CommandDefinition, CommandField, CommandFieldKind } from 'f61ui/commandtypes';
+import { DangerAlert } from 'f61ui/component/alerts';
 import { postJson } from 'f61ui/httputil';
 import { StructuredErrorResponse } from 'f61ui/types';
 import { unrecognizedValue } from 'f61ui/utils';
@@ -140,9 +141,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 
 				<input type="submit" style={{ display: 'none' }} />
 
-				{this.state.submitError ? (
-					<p className="bg-danger">{this.state.submitError}</p>
-				) : null}
+				{this.state.submitError ? <DangerAlert text={this.state.submitError} /> : null}
 			</form>
 		);
 	}
