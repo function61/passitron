@@ -62,6 +62,9 @@ func processModule(mod *Module, opts Opts) error {
 		if err := jsonfile.Read(mod.TypesFile, mod.Types, true); err != nil {
 			return err
 		}
+		if err := mod.Types.Validate(); err != nil {
+			return err
+		}
 	}
 
 	if hasCommands {
@@ -128,7 +131,7 @@ func processModule(mod *Module, opts Opts) error {
 
 	docs := opts.AutogenerateModuleDocs
 
-	return allOk([]error{
+	return allOk(
 		maybeRenderOne(hasCommands, backendPath("commanddefinitions.gen.go"), codegentemplates.BackendCommandsDefinitions),
 		maybeRenderOne(hasCommands, frontendPath("commands.ts"), codegentemplates.FrontendCommandDefinitions),
 		maybeRenderOne(hasCommands && docs, docPath("commands.md"), codegentemplates.DocsCommands),
@@ -140,7 +143,7 @@ func processModule(mod *Module, opts Opts) error {
 		maybeRenderOne(hasTypes, backendPath("types.gen.go"), codegentemplates.BackendTypes),
 		maybeRenderOne(hasTypes, frontendPath("types.ts"), codegentemplates.FrontendDatatypes),
 		maybeRenderOne(hasTypes && docs, docPath("types.md"), codegentemplates.DocsTypes),
-	})
+	)
 }
 
 type Opts struct {

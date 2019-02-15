@@ -43,7 +43,7 @@ func stripQueryFromUrl(input string) string {
 	return u.Path
 }
 
-func allOk(errs []error) error {
+func allOk(errs ...error) error {
 	for _, err := range errs {
 		if err != nil {
 			return err

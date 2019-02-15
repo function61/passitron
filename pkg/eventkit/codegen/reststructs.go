@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -10,6 +11,29 @@ type ApplicationTypesDefinition struct {
 	Enums        []EnumDef            `json:"enums"`
 	Types        []NamedDatatypeDef   `json:"types"`
 	Endpoints    []EndpointDefinition `json:"endpoints"`
+}
+
+func (a *ApplicationTypesDefinition) Validate() error {
+	notEmpty := func(val string, err error) error {
+		if val == "" {
+			return err
+		}
+
+		return nil
+	}
+
+	for _, endpoint := range a.Endpoints {
+		if err := allOk(
+			notEmpty(endpoint.Path, fmt.Errorf("endpoint Path empty for name %s", endpoint.Name)),
+			notEmpty(endpoint.Name, fmt.Errorf("endpoint Name empty for path %s", endpoint.Path)),
+			notEmpty(endpoint.HttpMethod, fmt.Errorf("endpoint HttpMethod empty for path %s", endpoint.Path)),
+			notEmpty(endpoint.MiddlewareChain, fmt.Errorf("endpoint MiddlewareChain empty for path %s", endpoint.Path)),
+		); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type EndpointDefinition struct {
