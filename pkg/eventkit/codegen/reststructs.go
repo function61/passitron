@@ -1,7 +1,6 @@
 package codegen
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -61,17 +60,17 @@ type NamedDatatypeDef struct {
 }
 
 func (s *NamedDatatypeDef) AsTypeScriptCode() string {
+	if s.Type.NameRaw != "object" {
+		return "export type " + s.Name + " = " + s.Type.AsTypeScriptType()
+	}
+
 	fieldsSerialized := []string{}
 
 	for fieldKey, fieldType := range s.Type.Fields {
 		fieldsSerialized = append(fieldsSerialized, fieldKey+": "+fieldType.AsTypeScriptType()+";")
 	}
 
-	return fmt.Sprintf(`export interface %s {
-	%s
-}`,
-		s.Name,
-		strings.Join(fieldsSerialized, "\n\t"))
+	return "export interface " + s.Name + " " + "{\n\t" + strings.Join(fieldsSerialized, "\n\t") + "\n}"
 }
 
 func (s *NamedDatatypeDef) AsToGoCode() string {
