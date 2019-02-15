@@ -131,6 +131,8 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 		return supportStructDef.Name
 	case "integer":
 		return "int"
+	case "binary":
+		return "[]byte"
 	case "string":
 		return "string"
 	case "boolean":

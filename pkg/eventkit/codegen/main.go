@@ -81,10 +81,14 @@ func processModule(mod *Module, opts Opts) error {
 	uniqueTypes := mod.Types.UniqueDatatypesFlattened()
 	typeDependencyModuleIds := uniqueModuleIdsFromDatatypes(uniqueTypes)
 	typesDependOnTime := false
+	typesDependOnBinary := false
 
 	for _, datatype := range uniqueTypes {
-		if datatype.NameRaw == "datetime" {
+		switch datatype.NameRaw {
+		case "datetime":
 			typesDependOnTime = true
+		case "binary":
+			typesDependOnBinary = true
 		}
 	}
 
@@ -104,6 +108,7 @@ func processModule(mod *Module, opts Opts) error {
 		ModuleId:                mod.Id,
 		Opts:                    opts,
 		TypesDependOnTime:       typesDependOnTime,
+		TypesDependOnBinary:     typesDependOnBinary,
 		TypeDependencyModuleIds: typeDependencyModuleIds, // other modules whose types this module's types have dependencies to
 		DomainSpecs:             mod.EventsSpec,          // backwards compat
 		CommandSpecs:            mod.Commands,            // backwards compat

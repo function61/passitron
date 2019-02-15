@@ -7,6 +7,8 @@ const FrontendDatatypes = `// tslint:disable
 import * as {{.}} from '{{$.Opts.FrontendModulePrefix}}{{.}}_types';{{end}}
 {{if .TypesDependOnTime}}import {datetimeRFC3339} from 'f61ui/types';
 {{end}}
+{{if .TypesDependOnBinary}}import {binaryBase64} from 'f61ui/types';
+{{end}}
 
 {{range .StringEnums}}
 export enum {{.Name}} {

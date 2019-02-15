@@ -39,6 +39,7 @@ type TplData struct {
 	ModuleId                string
 	Opts                    Opts
 	TypesDependOnTime       bool
+	TypesDependOnBinary     bool
 	TypeDependencyModuleIds []string
 	DomainSpecs             *DomainFile
 	CommandSpecs            *CommandSpecFile

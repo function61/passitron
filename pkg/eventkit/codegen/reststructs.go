@@ -112,6 +112,8 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 			tsType = "boolean"
 		case "datetime":
 			tsType = "datetimeRFC3339"
+		case "binary":
+			tsType = "binaryBase64"
 		case "list":
 			tsType = d.Of.AsTypeScriptType() + "[]"
 		default:
