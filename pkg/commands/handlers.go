@@ -631,6 +631,7 @@ func (h *Handlers) UserRegisterU2FToken(a *UserRegisterU2FToken, ctx *command.Ct
 	registration, err := u2f.Register(regResp, u2futil.ChallengeFromApiType(input.Challenge), &u2f.Config{
 		// Chrome 66+ doesn't return the device's attestation
 		// certificate by default.
+		// Also, probably should not be used anyway: https://www.imperialviolet.org/2018/03/27/webauthn.html#attestation
 		SkipAttestationVerify: true,
 	})
 	if err != nil {
