@@ -33,8 +33,8 @@ const template = `<!doctype html>
 	<meta charset="UTF-8" />
 	<meta name="google" content="notranslate" />
 	<title></title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.0/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.0/css/bootstrap-theme.min.css" />
 	<link rel="stylesheet" href="[$assets_path]/f61ui/style.css" />
 	<script defer src="[$assets_path]/build.js"></script>
 	<script>
