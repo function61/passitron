@@ -10,6 +10,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/eventkit/event"
+	"github.com/function61/pi-security-module/pkg/httpserver/muxregistrator"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/function61/pi-security-module/pkg/u2futil"
@@ -25,9 +26,7 @@ import (
 func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.AppState) {
 	apitypes.RegisterRoutes(&queryHandlers{
 		st: st,
-	}, mwares, func(method string, path string, fn http.HandlerFunc) {
-		router.HandleFunc(path, fn).Methods(method)
-	})
+	}, mwares, muxregistrator.New(router))
 }
 
 type queryHandlers struct {
