@@ -469,7 +469,7 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	}
 
 	if user == nil {
-		return errors.New("bad username or password") // TODO: deduplicate sleep also here
+		return failAndSleepWithBadUsernameOrPassword()
 	}
 
 	upgradedPassword, err := storedpassword.Verify(
@@ -483,10 +483,7 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 			return err
 		}
 
-		// to lessen efficacy of brute forcing. yes, `Verify()` by design is already slow,
-		// but this is an addititional layer of protection.
-		time.Sleep(2 * time.Second)
-		return errors.New("bad username or password")
+		return failAndSleepWithBadUsernameOrPassword()
 	}
 
 	if upgradedPassword != "" {
@@ -672,4 +669,12 @@ func verifyRepeatPassword(pwd, pwdRepeat string) error {
 	}
 
 	return nil
+}
+
+func failAndSleepWithBadUsernameOrPassword() error {
+	// to lessen efficacy of brute forcing. yes, `storedpassword.Verify()` by design is
+	// already slow, but this is an addititional layer of protection.
+	time.Sleep(2 * time.Second)
+
+	return errors.New("bad username or password")
 }
