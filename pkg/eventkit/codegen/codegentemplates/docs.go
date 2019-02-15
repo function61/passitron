@@ -42,8 +42,8 @@ enum {{.Name}}
 {{end}}
 
 {{range .ApplicationTypes.Types}}
-type {{.Name}}
------
+{{.Name}}
+---------
 
 ` + "```" + `
 {{.AsTypeScriptCode}}
