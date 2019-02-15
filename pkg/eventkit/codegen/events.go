@@ -37,7 +37,7 @@ func (g *GoStruct) Field(name string) *GoStructField {
 func (g *GoStruct) AsGoCode() string {
 	fieldsAsGoCode := []string{}
 
-	template := `type %s struct {
+	template := `struct {
 	%s
 }`
 
@@ -49,7 +49,6 @@ func (g *GoStruct) AsGoCode() string {
 
 	return fmt.Sprintf(
 		template,
-		g.Name,
 		strings.Join(fieldsAsGoCode, "\n\t"))
 }
 
@@ -65,7 +64,7 @@ func (v *Visitor) AsGoCode() string {
 	structs := []string{}
 
 	for _, item := range v.Structs {
-		structs = append(structs, item.AsGoCode())
+		structs = append(structs, "type "+item.Name+" "+item.AsGoCode())
 	}
 
 	return strings.Join(structs, "\n\n")

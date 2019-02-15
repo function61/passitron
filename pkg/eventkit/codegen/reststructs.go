@@ -75,9 +75,13 @@ func (s *NamedDatatypeDef) AsTypeScriptCode() string {
 }
 
 func (s *NamedDatatypeDef) AsToGoCode() string {
-	fields := []GoStructField{}
-
 	visitor := &Visitor{}
+
+	if s.Type.NameRaw != "object" {
+		return "type " + s.Name + " " + asGoTypeInternal(s.Type, "", visitor)
+	}
+
+	fields := []GoStructField{}
 
 	for fieldKey, fieldType := range s.Type.Fields {
 		fields = append(fields, GoStructField{
@@ -92,7 +96,7 @@ func (s *NamedDatatypeDef) AsToGoCode() string {
 		Fields: fields,
 	}
 
-	return structProcessed.AsGoCode()
+	return "type " + s.Name + " " + structProcessed.AsGoCode()
 }
 
 func (d *DatatypeDef) AsTypeScriptType() string {
