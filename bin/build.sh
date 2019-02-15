@@ -44,7 +44,9 @@ EOF
 	rm -f pism
 }
 
-cleanupGeneratedFiles
+if [ ! -n "${FASTBUILD:-}" ]; then
+	cleanupGeneratedFiles
+fi
 
 standardBuildProcess
 
