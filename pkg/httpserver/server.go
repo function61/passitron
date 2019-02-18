@@ -30,12 +30,15 @@ const (
 func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	defer stop.Done()
 
-	downloadUrl := extractpublicfiles.PublicFilesDownloadUrl(dynversion.Version)
+	downloadUrl := extractpublicfiles.BintrayDownloadUrl(
+		"function61",
+		"dl",
+		"pi-security-module/"+dynversion.Version+"/"+extractpublicfiles.PublicFilesArchiveFilename)
 	if dynversion.IsDevVersion() { // cannot be downloaded
 		downloadUrl = ""
 	}
 
-	if err := extractpublicfiles.Run(downloadUrl); err != nil {
+	if err := extractpublicfiles.Run(downloadUrl, extractpublicfiles.PublicFilesArchiveFilename, logex.Prefix("extractpublicfiles", logger)); err != nil {
 		return err
 	}
 
