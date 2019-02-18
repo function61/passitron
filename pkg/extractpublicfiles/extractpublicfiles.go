@@ -1,13 +1,14 @@
 package extractpublicfiles
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/function61/gokit/ezhttp"
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/pi-security-module/pkg/tarextract"
 	"io"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 )
@@ -45,7 +46,10 @@ func downloadPublicFiles(downloadUrl string, destination string, logger *log.Log
 		return err
 	}
 
-	resp, errHttp := http.Get(downloadUrl)
+	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
+	defer cancel()
+
+	resp, errHttp := ezhttp.Get(ctx, downloadUrl)
 	if errHttp != nil {
 		return errHttp
 	}
