@@ -34,20 +34,35 @@ type EventDefForTpl struct {
 	GoStructName    string
 }
 
+type Imports struct {
+	// native types
+	Date     bool
+	DateTime bool
+	Binary   bool
+
+	ModuleIds []string // other modules whose types this module's types have dependencies to
+}
+
+func NewImports() Imports {
+	return Imports{
+		ModuleIds: []string{},
+	}
+}
+
 // this is passed as data to each template that we'll render
 type TplData struct {
-	ModuleId                string
-	Opts                    Opts
-	AnyEndpointHasConsumes  bool
-	TypesDependOnTime       bool
-	TypesDependOnBinary     bool
-	TypeDependencyModuleIds []string
-	DomainSpecs             *DomainFile
-	CommandSpecs            *CommandSpecFile
-	ApplicationTypes        *ApplicationTypesDefinition
-	StringEnums             []ProcessedStringEnum
-	EventStructsAsGoCode    string
-	EventDefs               []EventDefForTpl
+	ModuleId               string
+	Opts                   Opts
+	AnyEndpointHasConsumes bool
+	TypesImports           Imports
+	CommandsImports        Imports
+	EventsImports          Imports
+	DomainSpecs            *DomainFile
+	CommandSpecs           *CommandSpecFile
+	ApplicationTypes       *ApplicationTypesDefinition
+	StringEnums            []ProcessedStringEnum
+	EventStructsAsGoCode   string
+	EventDefs              []EventDefForTpl
 }
 
 type EventSpec struct {

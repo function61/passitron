@@ -18,6 +18,7 @@ export enum CommandFieldKind {
 	Multiline = 'multiline',
 	Checkbox = 'checkbox',
 	Integer = 'integer',
+	Date = 'date',
 }
 
 export interface CommandField {

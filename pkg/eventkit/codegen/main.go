@@ -82,16 +82,35 @@ func processModule(mod *Module, opts Opts) error {
 	eventDefs, eventStructsAsGoCode := ProcessEvents(mod.EventsSpec)
 
 	uniqueTypes := mod.Types.UniqueDatatypesFlattened()
-	typeDependencyModuleIds := uniqueModuleIdsFromDatatypes(uniqueTypes)
-	typesDependOnTime := false
-	typesDependOnBinary := false
+
+	typesImports := NewImports()
+	typesImports.ModuleIds = uniqueModuleIdsFromDatatypes(uniqueTypes)
+
+	commandsImports := NewImports()
+
+	eventsImports := NewImports()
+
+	for _, eventDef := range mod.EventsSpec.Events {
+		for _, field := range eventDef.Fields {
+			for _, datatype := range flattenDatatype(&field.Type) {
+				switch datatype.NameRaw {
+				case "date":
+					eventsImports.Date = true
+				case "datetime":
+					eventsImports.DateTime = true
+				}
+			}
+		}
+	}
 
 	for _, datatype := range uniqueTypes {
 		switch datatype.NameRaw {
+		case "date":
+			typesImports.Date = true
 		case "datetime":
-			typesDependOnTime = true
+			typesImports.DateTime = true
 		case "binary":
-			typesDependOnBinary = true
+			typesImports.Binary = true
 		}
 	}
 
@@ -100,6 +119,14 @@ func processModule(mod *Module, opts Opts) error {
 		if endpoint.Consumes != nil {
 			anyEndpointHasConsumes = true
 			break
+		}
+	}
+
+	for _, command := range *mod.Commands {
+		for _, field := range command.Fields {
+			if field.Type == "date" {
+				commandsImports.Date = true
+			}
 		}
 	}
 
@@ -116,18 +143,18 @@ func processModule(mod *Module, opts Opts) error {
 	}
 
 	data := &TplData{
-		ModuleId:                mod.Id,
-		Opts:                    opts,
-		AnyEndpointHasConsumes:  anyEndpointHasConsumes,
-		TypesDependOnTime:       typesDependOnTime,
-		TypesDependOnBinary:     typesDependOnBinary,
-		TypeDependencyModuleIds: typeDependencyModuleIds, // other modules whose types this module's types have dependencies to
-		DomainSpecs:             mod.EventsSpec,          // backwards compat
-		CommandSpecs:            mod.Commands,            // backwards compat
-		ApplicationTypes:        mod.Types,               // backwards compat
-		StringEnums:             ProcessStringEnums(mod.Types.Enums),
-		EventDefs:               eventDefs,
-		EventStructsAsGoCode:    eventStructsAsGoCode,
+		ModuleId:               mod.Id,
+		Opts:                   opts,
+		AnyEndpointHasConsumes: anyEndpointHasConsumes,
+		TypesImports:           typesImports,
+		CommandsImports:        commandsImports,
+		EventsImports:          eventsImports,
+		DomainSpecs:            mod.EventsSpec, // backwards compat
+		CommandSpecs:           mod.Commands,   // backwards compat
+		ApplicationTypes:       mod.Types,      // backwards compat
+		StringEnums:            ProcessStringEnums(mod.Types.Enums),
+		EventDefs:              eventDefs,
+		EventStructsAsGoCode:   eventStructsAsGoCode,
 	}
 
 	maybeRenderOne := func(expr bool, path string, template string) error {

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"regexp"
 	"github.com/function61/pi-security-module/pkg/eventkit/command"
+{{if .CommandsImports.Date}}	"github.com/function61/pi-security-module/pkg/eventkit/guts"{{end}}
 )
 
 type CommandHandlers interface { {{range .CommandSpecs}}
@@ -62,7 +63,9 @@ func fieldLengthValidationError(fieldName string, maxLength int) error {
 const BackendEventDefinitions = `package {{.ModuleId}}
 
 import (
-	"github.com/function61/pi-security-module/pkg/eventkit/event"
+{{if .EventsImports.DateTime}}	"time"
+{{end}}{{if .EventsImports.Date}}	"github.com/function61/pi-security-module/pkg/eventkit/guts"
+{{end}}	"github.com/function61/pi-security-module/pkg/eventkit/event"
 )
 
 // WARNING: generated file
@@ -117,8 +120,9 @@ func DispatchEvent(event event.Event, listener EventListener) error {
 const BackendTypes = `package {{.ModuleId}}
 
 import (
-{{if .TypesDependOnTime}}	"time"
-{{end}}{{range .TypeDependencyModuleIds}}
+{{if .TypesImports.Date}}	"github.com/function61/pi-security-module/pkg/eventkit/guts"
+{{end}}{{if .TypesImports.DateTime}}	"time"
+{{end}}{{range .TypesImports.ModuleIds}}
 	"{{$.Opts.BackendModulePrefix}}{{.}}"
 {{end}}
 )

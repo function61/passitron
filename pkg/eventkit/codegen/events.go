@@ -137,6 +137,8 @@ func asGoTypeInternal(e *DatatypeDef, parentGoName string, visitor *Visitor) str
 		return "bool"
 	case "datetime":
 		return "time.Time"
+	case "date":
+		return "guts.Date"
 	case "list":
 		return "[]" + AsGoTypeWithInlineSupport(e.Of, parentGoName, visitor)
 	default:

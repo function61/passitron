@@ -59,6 +59,7 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 					break;
 				case CommandFieldKind.Password:
 				case CommandFieldKind.Text:
+				case CommandFieldKind.Date:
 				case CommandFieldKind.Multiline:
 					state.values[field.Key] = field.DefaultValueString;
 					if (field.DefaultValueString) {
@@ -322,6 +323,16 @@ export class CommandPagelet extends React.Component<CommandPageletProps, Command
 						autoFocus={autoFocus}
 						required={field.Required}
 						value={this.state.values[field.Key]}
+						onChange={this.onInputChange.bind(this)}
+					/>
+				);
+			case CommandFieldKind.Date:
+				return (
+					<input
+						type="date"
+						name={field.Key}
+						autoFocus={autoFocus}
+						className="form-control"
 						onChange={this.onInputChange.bind(this)}
 					/>
 				);

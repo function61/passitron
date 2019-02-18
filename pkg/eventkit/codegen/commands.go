@@ -106,7 +106,7 @@ func (c *CommandFieldSpec) AsValidationSnippet() string {
 		}
 
 		return emptySnippet + lengthSnippet + regexSnippet
-	} else if goType == "bool" || goType == "int" {
+	} else if goType == "bool" || goType == "int" || goType == "guts.Date" {
 		// presence check not possible for these types
 		return ""
 	} else {
@@ -115,23 +115,22 @@ func (c *CommandFieldSpec) AsValidationSnippet() string {
 }
 
 func (c *CommandFieldSpec) AsGoType() string {
-	goType := ""
-	if c.Type == "text" {
-		goType = "string"
+	switch c.Type {
+	case "text":
+		return "string"
+	case "multiline":
+		return "string"
+	case "password":
+		return "string"
+	case "checkbox":
+		return "bool"
+	case "integer":
+		return "int"
+	case "date":
+		return "guts.Date"
+	default:
+		return ""
 	}
-	if c.Type == "multiline" {
-		goType = "string"
-	}
-	if c.Type == "password" {
-		goType = "string"
-	}
-	if c.Type == "checkbox" {
-		goType = "bool"
-	}
-	if c.Type == "integer" {
-		goType = "int"
-	}
-	return goType
 }
 
 func (c *CommandFieldSpec) Validate() error {
@@ -218,6 +217,8 @@ func (c *CommandSpec) FieldsForTypeScript() string {
 			fieldSerialized = fieldToTypescript(fieldSpec, "Checkbox")
 		case "integer":
 			fieldSerialized = fieldToTypescript(fieldSpec, "Integer")
+		case "date":
+			fieldSerialized = fieldToTypescript(fieldSpec, "Date")
 		default:
 			panic(fmt.Errorf("Unsupported field type for UI: %s", fieldSpec.Type))
 		}

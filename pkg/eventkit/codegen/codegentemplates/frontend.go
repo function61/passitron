@@ -3,11 +3,13 @@ package codegentemplates
 const FrontendDatatypes = `// tslint:disable
 // WARNING: generated file
 
-{{range .TypeDependencyModuleIds}}
+{{range .TypesImports.ModuleIds}}
 import * as {{.}} from '{{$.Opts.FrontendModulePrefix}}{{.}}_types';{{end}}
-{{if .TypesDependOnTime}}import {datetimeRFC3339} from 'f61ui/types';
+{{if .TypesImports.Date}}import {dateRFC3339} from 'f61ui/types';
 {{end}}
-{{if .TypesDependOnBinary}}import {binaryBase64} from 'f61ui/types';
+{{if .TypesImports.DateTime}}import {datetimeRFC3339} from 'f61ui/types';
+{{end}}
+{{if .TypesImports.Binary}}import {binaryBase64} from 'f61ui/types';
 {{end}}
 
 {{range .StringEnums}}
