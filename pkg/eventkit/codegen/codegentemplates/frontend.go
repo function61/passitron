@@ -32,7 +32,10 @@ const FrontendRestEndpoints = `// tslint:disable
 import { {{range .ApplicationTypes.EndpointsProducesAndConsumesTypescriptTypes}}
 	{{.}},{{end}}
 } from '{{$.Opts.FrontendModulePrefix}}{{.ModuleId}}_types';
-import {getJson, postJson} from 'f61ui/httputil';
+import {
+	getJson,
+{{if .AnyEndpointHasConsumes}}	postJson,{{end}}
+} from 'f61ui/httputil';
 
 {{range .ApplicationTypes.Endpoints}}
 // {{.Path}}

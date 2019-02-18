@@ -95,6 +95,14 @@ func processModule(mod *Module, opts Opts) error {
 		}
 	}
 
+	anyEndpointHasConsumes := false
+	for _, endpoint := range mod.Types.Endpoints {
+		if endpoint.Consumes != nil {
+			anyEndpointHasConsumes = true
+			break
+		}
+	}
+
 	backendPath := func(file string) string {
 		return "pkg/" + mod.Id + "/" + file
 	}
@@ -110,6 +118,7 @@ func processModule(mod *Module, opts Opts) error {
 	data := &TplData{
 		ModuleId:                mod.Id,
 		Opts:                    opts,
+		AnyEndpointHasConsumes:  anyEndpointHasConsumes,
 		TypesDependOnTime:       typesDependOnTime,
 		TypesDependOnBinary:     typesDependOnBinary,
 		TypeDependencyModuleIds: typeDependencyModuleIds, // other modules whose types this module's types have dependencies to

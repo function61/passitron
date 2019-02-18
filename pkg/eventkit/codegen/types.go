@@ -38,6 +38,7 @@ type EventDefForTpl struct {
 type TplData struct {
 	ModuleId                string
 	Opts                    Opts
+	AnyEndpointHasConsumes  bool
 	TypesDependOnTime       bool
 	TypesDependOnBinary     bool
 	TypeDependencyModuleIds []string
