@@ -1,11 +1,11 @@
 package commands
 
 import (
+	"github.com/function61/eventkit/command"
+	"github.com/function61/eventkit/event"
 	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/eventkit/command"
-	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/state"
 	"testing"
 	"time"

@@ -2,13 +2,13 @@ package httpserver
 
 import (
 	"encoding/json"
+	"github.com/function61/eventkit/command"
+	"github.com/function61/eventkit/event"
 	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/commands"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/eventkit/command"
-	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/state"
 	"io/ioutil"
 	"net/http"

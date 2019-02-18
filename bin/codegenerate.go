@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/function61/eventkit/codegen"
+	"github.com/function61/eventkit/codegen/codegentemplates"
 	"github.com/function61/gokit/dynversion/precompilationversion"
-	"github.com/function61/pi-security-module/pkg/eventkit/codegen"
-	"github.com/function61/pi-security-module/pkg/eventkit/codegen/codegentemplates"
 	"os"
 )
 

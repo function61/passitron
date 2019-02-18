@@ -63,6 +63,21 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:4b0ba5535da2f033dd3a9100482809cedfa6b3e946dda226cbfd08a2d2b9ac94"
+  name = "github.com/function61/eventkit"
+  packages = [
+    "codegen",
+    "codegen/codegentemplates",
+    "command",
+    "event",
+    "eventlog",
+    "httpcommand",
+  ]
+  pruneopts = "UT"
+  revision = "4aec5d766e952c5c2d94a4a2caa60c4757fd3bc0"
+
+[[projects]]
+  branch = "master"
   digest = "1:a21652688e49e663638b439a7b90f677b79af5ab7745884db655473072d8861e"
   name = "github.com/function61/gokit"
   packages = [
@@ -208,6 +223,12 @@
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/boombuler/barcode",
     "github.com/boombuler/barcode/qr",
+    "github.com/function61/eventkit/codegen",
+    "github.com/function61/eventkit/codegen/codegentemplates",
+    "github.com/function61/eventkit/command",
+    "github.com/function61/eventkit/event",
+    "github.com/function61/eventkit/eventlog",
+    "github.com/function61/eventkit/httpcommand",
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/cryptorandombytes",
     "github.com/function61/gokit/cryptoutil",

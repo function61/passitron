@@ -2,10 +2,10 @@ package restcommandapi
 
 import (
 	"errors"
+	"github.com/function61/eventkit/eventlog"
+	"github.com/function61/eventkit/httpcommand"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/pi-security-module/pkg/commands"
-	"github.com/function61/pi-security-module/pkg/eventkit/eventlog"
-	"github.com/function61/pi-security-module/pkg/eventkit/httpcommand"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/gorilla/mux"

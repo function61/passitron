@@ -3,9 +3,9 @@ package state
 import (
 	"errors"
 	"fmt"
+	"github.com/function61/eventkit/event"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/eventkit/event"
 )
 
 var (

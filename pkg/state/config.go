@@ -2,13 +2,13 @@ package state
 
 import (
 	"errors"
+	"github.com/function61/eventkit/event"
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/jsonfile"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/storedpassword"
 	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/eventkit/event"
 	"time"
 )
 
