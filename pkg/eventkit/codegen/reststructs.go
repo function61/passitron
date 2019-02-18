@@ -129,6 +129,8 @@ func (d *DatatypeDef) AsTypeScriptType() string {
 		tsType = d.NameRaw
 	} else {
 		switch d.Name() {
+		case "integer":
+			tsType = "number"
 		case "string":
 			tsType = "string"
 		case "boolean":
