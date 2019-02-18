@@ -1,5 +1,5 @@
-import { defaultErrorHandler } from 'backenderrors';
 import { formatDistance } from 'date-fns';
+import { defaultErrorHandler } from 'f61ui/errors';
 import { datetimeRFC3339 } from 'f61ui/types';
 
 export function unrecognizedValue(value: never): never {

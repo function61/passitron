@@ -1,4 +1,3 @@
-import { defaultErrorHandler } from 'backenderrors';
 import { elToClipboard } from 'f61ui/clipboard';
 import { DangerAlert } from 'f61ui/component/alerts';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
@@ -8,6 +7,7 @@ import { Loading } from 'f61ui/component/loading';
 import { MonospaceContent } from 'f61ui/component/monospacecontent';
 import { OptionalContent } from 'f61ui/component/optionalcontent';
 import { SecretReveal } from 'f61ui/component/secretreveal';
+import { defaultErrorHandler } from 'f61ui/errors';
 import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import {
 	getAccount,

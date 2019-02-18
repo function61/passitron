@@ -1,4 +1,3 @@
-import { coerceToStructuredErrorResponse } from 'backenderrors';
 import { isNotSignedInError, isSealedError } from 'errors';
 import { navigateTo } from 'f61ui/browserutils';
 import { WarningAlert } from 'f61ui/component/alerts';
@@ -6,6 +5,7 @@ import { Button, Panel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { CommandInlineForm } from 'f61ui/component/CommandButton';
 import { Loading } from 'f61ui/component/loading';
+import { coerceToStructuredErrorResponse } from 'f61ui/errors';
 import { shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import { getFolder } from 'generated/apitypes_endpoints';
 import { DatabaseUnseal, SessionSignIn } from 'generated/commands_commands';

@@ -1,5 +1,5 @@
-import { defaultErrorHandler } from 'backenderrors';
 import { navigateTo } from 'f61ui/browserutils';
+import { defaultErrorHandler } from 'f61ui/errors';
 import { search } from 'generated/apitypes_endpoints';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
