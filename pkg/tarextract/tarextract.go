@@ -41,10 +41,11 @@ func ExtractTarGz(gzipStream io.Reader) error {
 			if err != nil {
 				return fmt.Errorf("Create() failed: %s", err.Error())
 			}
-			defer outFile.Close()
 			if _, err := io.Copy(outFile, tarReader); err != nil {
+				outFile.Close()
 				return fmt.Errorf("Copy() failed: %s", err.Error())
 			}
+			outFile.Close() // defer would leak in a loop
 		default:
 			return fmt.Errorf("unknown type: %x in %s", header.Typeflag, header.Name)
 		}
