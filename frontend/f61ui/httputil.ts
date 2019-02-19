@@ -1,6 +1,5 @@
-
 export function getJson<T>(url: string): Promise<T> {
-	const headers: {[key: string]: string} = {
+	const headers: { [key: string]: string } = {
 		Accept: 'application/json',
 	};
 
@@ -21,7 +20,7 @@ export function postJson<I, O>(url: string, body: I): Promise<O> {
 export function postJsonReturningVoid<T>(url: string, body: T): Promise<Response> {
 	const bodyToPost = JSON.stringify(body);
 
-	const headers: {[key: string]: string} = {
+	const headers: { [key: string]: string } = {
 		Accept: 'application/json',
 		'Content-Type': 'application/json',
 	};
