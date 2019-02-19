@@ -22,7 +22,6 @@ const (
 type AppState struct {
 	masterPassword string
 	macSigningKey  string // derived from masterPassword
-	csrfToken      string // derived from masterPassword
 	sealed         bool
 	conf           *Config
 	DB             *Statefile
@@ -111,16 +110,6 @@ func (s *AppState) GetMacSigningKey() string {
 	return s.macSigningKey
 }
 
-// FIXME: this is relatively safe (system-wide CSRF tokens) only as long as this is a
-//        single-user system
-func (s *AppState) GetCsrfToken() string {
-	if s.csrfToken == "" {
-		panic("csrfToken not set")
-	}
-
-	return s.csrfToken
-}
-
 func (s *AppState) GetJwtValidationKey() []byte {
 	if s.conf.JwtPublicKey == "" {
 		panic(errors.New("JwtPublicKey not set"))
@@ -146,10 +135,6 @@ func (s *AppState) SetMasterPassword(password string) {
 	s.macSigningKey = hex.EncodeToString(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("macSalt")))
-
-	s.csrfToken = hex.EncodeToString(crypto.Pbkdf2Sha256100kDerive(
-		[]byte(s.masterPassword),
-		[]byte("csrfSalt")))
 }
 
 func (s *AppState) IsUnsealed() bool {

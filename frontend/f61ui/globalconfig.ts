@@ -1,7 +1,6 @@
 import { StructuredErrorResponse } from 'f61ui/types';
 
 export interface GlobalConfig {
-	csrfToken: string;
 	assetsDir: string;
 	knownGlobalErrorsHandler?: (err: StructuredErrorResponse) => boolean;
 }

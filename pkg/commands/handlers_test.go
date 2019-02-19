@@ -128,13 +128,14 @@ func signInAndSignOut(t *testing.T, tstate *testScenarioState) {
 		Password: "nimda2",
 	})
 
-	assert.Assert(t, ctx.SetCookie != nil)
+	assert.Assert(t, len(ctx.Cookies()) == 2)
 
 	ctx = tstate.DefaultCmdCtx()
 
 	tstate.InvokeSucceeds(t, ctx, &SessionSignOut{})
 
-	assert.EqualString(t, ctx.SetCookie.Value, "del")
+	assert.Assert(t, len(ctx.Cookies()) == 1)
+	assert.EqualString(t, ctx.Cookies()[0].Value, "del")
 }
 
 func renameAccount(t *testing.T, tstate *testScenarioState) {
@@ -450,9 +451,7 @@ func (tstate *testScenarioState) userData() *state.UserStorage {
 }
 
 func (tstate *testScenarioState) DefaultCmdCtx() *command.Ctx {
-	return &command.Ctx{
-		Meta: event.Meta(time.Now(), "2"),
-	}
+	return command.NewCtx(event.Meta(time.Now(), "2"), "", "")
 }
 
 func (tstate *testScenarioState) GetUntestedCommands() []string {

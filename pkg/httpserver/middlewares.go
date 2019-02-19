@@ -30,35 +30,20 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 		return false
 	}
 
-	csrfCheck := func(w http.ResponseWriter, r *http.Request) bool {
-		if r.Header.Get("x-csrf-token") == appState.GetCsrfToken() {
-			return true
-		}
-
-		httputil.RespondHttpJson(
-			httputil.GenericError(
-				"invalid_csrf_token",
-				errors.New("CSRF token is invalid or missing. Do you happen to be wearing a hoodie?")),
-			http.StatusForbidden,
-			w)
-
-		return false
-	}
-
 	authCheck := func(w http.ResponseWriter, r *http.Request) *httpauth.UserDetails {
-		authDetails := jwtAuth.Authenticate(r)
-		if authDetails != nil {
-			return authDetails
+		authDetails, err := jwtAuth.AuthenticateWithCsrfProtection(r)
+		if err != nil {
+			httputil.RespondHttpJson(
+				httputil.GenericError(
+					"not_signed_in",
+					err),
+				http.StatusForbidden,
+				w)
+
+			return nil
 		}
 
-		httputil.RespondHttpJson(
-			httputil.GenericError(
-				"not_signed_in",
-				errors.New("You must sign in before accessing this resource")),
-			http.StatusForbidden,
-			w)
-
-		return nil
+		return authDetails
 	}
 
 	resolveUidByAccessToken := func(r *http.Request) (string, bool) {
@@ -84,10 +69,9 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 	}
 
 	/*
-		public: no checks whatsoever
-		authdWrite: sealed check, CSRF check and auth check
-		authdQuery: same as authdWrite but no CSRF check
-		bearer: sealed check and bearer token check
+		       public: no checks whatsoever
+		authenticated: sealed check and auth check (itself contains CSRF check)
+		       bearer: sealed check and bearer token check
 	*/
 	return httpauth.MiddlewareChainMap{
 		"public": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
@@ -116,25 +100,8 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 				},
 			}
 		},
-		"authdQuery": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
+		"authenticated": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
 			if !sealedCheck(w) {
-				return nil
-			}
-
-			authDetails := authCheck(w, r)
-			if authDetails == nil {
-				return nil
-			}
-
-			return &httpauth.RequestContext{
-				User: authDetails,
-			}
-		},
-		"authdWrite": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
-			if !sealedCheck(w) {
-				return nil
-			}
-			if !csrfCheck(w, r) {
 				return nil
 			}
 

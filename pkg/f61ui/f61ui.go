@@ -5,15 +5,9 @@ import (
 	"strings"
 )
 
-func IndexHtmlHandler(assetsPath string, csrfToken string) http.HandlerFunc {
+func IndexHtmlHandler(assetsPath string) http.HandlerFunc {
 	index := strings.Replace(
 		template,
-		"[$csrf_token]",
-		csrfToken,
-		-1)
-
-	index = strings.Replace(
-		index,
 		"[$assets_path]",
 		assetsPath,
 		-1)
@@ -43,7 +37,6 @@ const template = `<!doctype html>
 	window.addEventListener('DOMContentLoaded', function() {
 		main.main(document.getElementById('app'), {
 			assetsDir: '[$assets_path]/f61ui',
-			csrfToken: '[$csrf_token]',
 		});
 	});
 	</script>

@@ -41,10 +41,6 @@ func TestScenario(t *testing.T) {
 	}
 	// srv := httptest.NewServer(handler)
 
-	csrfToken := func(req *http.Request) {
-		req.Header.Set("x-csrf-token", st.GetCsrfToken())
-	}
-
 	auther, err := httpauth.NewEcJwtSigner(st.GetJwtSigningKey())
 	if err != nil {
 		t.Fatalf("NewJwtSigner: %v", err)
@@ -53,10 +49,14 @@ func TestScenario(t *testing.T) {
 	// somewhat expensive operation, so cache this here to do this only once
 	jwtToken := auther.Sign(httpauth.UserDetails{
 		Id: testUserId,
-	})
+	}, time.Now())
 
 	auth := func(req *http.Request) {
-		req.AddCookie(httpauth.ToCookie(jwtToken))
+		cookies := httpauth.ToCookiesWithCsrfProtection(jwtToken)
+		for _, cookie := range cookies {
+			req.AddCookie(cookie)
+		}
+		req.Header.Set("x-csrf-token", cookies[1].Value)
 	}
 
 	jsonHeader := func(req *http.Request) {
@@ -64,27 +64,20 @@ func TestScenario(t *testing.T) {
 	}
 
 	allProperHeaders := func(req *http.Request) {
-		csrfToken(req)
 		auth(req)
 		jsonHeader(req)
 	}
 
 	tests := []testCase{
 		{
-			name:   "Without CSRF token",
+			name:   "Without auth details",
 			req:    post("/command/account.ChangeUrl", ""),
 			status: http.StatusForbidden,
-			body:   `{"status":"error","error_code":"invalid_csrf_token","error_description":"CSRF token is invalid or missing. Do you happen to be wearing a hoodie?"}`,
-		},
-		{
-			name:   "Without auth details",
-			req:    post("/command/account.ChangeUrl", "", csrfToken),
-			status: http.StatusForbidden,
-			body:   `{"status":"error","error_code":"not_signed_in","error_description":"You must sign in before accessing this resource"}`,
+			body:   `{"status":"error","error_code":"not_signed_in","error_description":"auth: cookie login missing"}`,
 		},
 		{
 			name:   "Missing JSON Content-Type header",
-			req:    post("/command/account.ChangeUrl", "", csrfToken, auth),
+			req:    post("/command/account.ChangeUrl", "", auth),
 			status: http.StatusBadRequest,
 			body:   `{"status":"error","error_code":"expecting_content_type_json","error_description":"expecting Content-Type header with application/json"}`,
 		},

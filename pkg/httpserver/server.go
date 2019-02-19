@@ -131,7 +131,7 @@ func setupStaticFilesRouting(router *mux.Router, appState *state.AppState) error
 	assetsPath := "/assets"
 
 	publicFiles := http.FileServer(http.Dir("./public/"))
-	router.HandleFunc("/", f61ui.IndexHtmlHandler(assetsPath, appState.GetCsrfToken()))
+	router.HandleFunc("/", f61ui.IndexHtmlHandler(assetsPath))
 	router.PathPrefix(assetsPath + "/").Handler(http.StripPrefix(assetsPath+"/", publicFiles))
 	router.Handle("/favicon.ico", publicFiles)
 	router.Handle("/robots.txt", publicFiles)

@@ -506,9 +506,11 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 
 	token := jwtSigner.Sign(httpauth.UserDetails{
 		Id: user.User.Id,
-	})
+	}, time.Now())
 
-	ctx.SetCookie = httpauth.ToCookie(token)
+	for _, cookie := range httpauth.ToCookiesWithCsrfProtection(token) {
+		ctx.AddCookie(cookie)
+	}
 
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,
@@ -523,7 +525,7 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 func (h *Handlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) error {
 	h.logl.Info.Printf("User %s signed out", ctx.Meta.UserId)
 
-	ctx.SetCookie = httpauth.DeleteLoginCookie()
+	ctx.AddCookie(httpauth.DeleteLoginCookie())
 
 	// TODO: raise an event
 

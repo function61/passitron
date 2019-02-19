@@ -63,7 +63,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4b0ba5535da2f033dd3a9100482809cedfa6b3e946dda226cbfd08a2d2b9ac94"
+  digest = "1:1e1936c9ad0cc8608811bd5cd7d4fe1ccb194ec04fe30fea32f477a0298ee67a"
   name = "github.com/function61/eventkit"
   packages = [
     "codegen",
@@ -74,16 +74,17 @@
     "httpcommand",
   ]
   pruneopts = "UT"
-  revision = "4aec5d766e952c5c2d94a4a2caa60c4757fd3bc0"
+  revision = "a423d448e64ceeae5e7088d315711cff619cab83"
 
 [[projects]]
   branch = "master"
-  digest = "1:a21652688e49e663638b439a7b90f677b79af5ab7745884db655473072d8861e"
+  digest = "1:eddf0f31b9a8a741a5f69a239bdc5fb564028766401be6af9d99c1d1b209c76f"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "cryptorandombytes",
     "cryptoutil",
+    "csrf",
     "dynversion",
     "dynversion/precompilationversion",
     "ezhttp",
@@ -99,7 +100,7 @@
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "28abd7cf4e23c8f2a4689a7340ec48651bfad29f"
+  revision = "58b3dbbb19e4002a51232bab90328cc07c871e4c"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
