@@ -4,7 +4,7 @@
 	"project_name": "pi-security-module",
 	"subrepos": [
 		{
-			"source": "git@github.com:function61/f61ui.git",
+			"source": "https://github.com/function61/f61ui.git",
 			"kind": "git",
 			"destination": "frontend/f61ui",
 			"revision": "ca4931c"
