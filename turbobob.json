@@ -13,7 +13,7 @@
 	"builders": [
 		{
 			"name": "default",
-			"uses": "docker://fn61/buildkit-golang:20190215_1406_9218bf67",
+			"uses": "docker://fn61/buildkit-golang:20191015_1410_6efcb03c",
 			"mount_destination": "/go/src/github.com/function61/pi-security-module",
 			"workdir": "/go/src/github.com/function61/pi-security-module",
 			"commands": {
@@ -24,7 +24,7 @@
 		},
 		{
 			"name": "frontend",
-			"uses": "docker://fn61/buildkit-js:20190214_1355_a8cc2e91",
+			"uses": "docker://fn61/buildkit-js:20191001_1249_feea1b33",
 			"mount_destination": "/workspace",
 			"commands": {
 				"build": ["bin/build-frontend.sh"],
