@@ -93,10 +93,13 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 					url: folderRoute.buildUrl({ folderId: item.Id }),
 				}));
 
-				const accountMatches: AutocompleteItem[] = resp.Accounts.map((item) => ({
-					label: item.Title,
-					url: accountRoute.buildUrl({ id: item.Id }),
-				}));
+				const accountMatches: AutocompleteItem[] = resp.Accounts.map((item) => {
+					const label = item.Username ? `${item.Title} (${item.Username})` : item.Title;
+					return {
+						label,
+						url: accountRoute.buildUrl({ id: item.Id }),
+					};
+				});
 
 				this.setState({ items: folderMatches.concat(accountMatches) });
 
