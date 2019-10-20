@@ -1,5 +1,6 @@
 import { navigateTo } from 'f61ui/browserutils';
 import { defaultErrorHandler } from 'f61ui/errors';
+import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { search } from 'generated/apitypes_endpoints';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
@@ -24,7 +25,8 @@ interface AutocompleteItem {
 export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 	state: SearchBoxState = { hasInflight: false, items: [] };
 	private hasInflight = false;
-	private queuedQuery: undefined | string;
+	private beginSearchTimeout?: ReturnType<typeof setTimeout>;
+	private queuedQuery = '';
 
 	render() {
 		return (
@@ -68,47 +70,50 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 	}
 
 	private searchtermChanged(term: string) {
-		if (this.hasInflight) {
-			this.queuedQuery = term;
+		this.queuedQuery = term;
+
+		if (this.beginSearchTimeout || this.hasInflight) {
 			return;
 		}
 
+		this.beginSearchTimeout = setTimeout(() => {
+			this.beginSearchTimeout = undefined;
+
+			shouldAlwaysSucceed(this.search(this.queuedQuery));
+		}, 500);
+	}
+
+	private async search(term: string) {
+		this.queuedQuery = '';
+
 		this.hasInflight = true;
 
-		const scheduleNextOk = () => {
-			setTimeout(() => {
-				this.hasInflight = false;
-				const qq = this.queuedQuery;
-				this.queuedQuery = undefined;
-				if (qq !== undefined) {
-					this.searchtermChanged(qq);
-				}
-			}, 1000);
-		};
+		try {
+			const searchResult = await search(term);
 
-		search(term).then(
-			(resp) => {
-				const folderMatches: AutocompleteItem[] = resp.SubFolders.map((item) => ({
-					label: item.Name,
-					url: folderRoute.buildUrl({ folderId: item.Id }),
-				}));
+			const folderMatches: AutocompleteItem[] = searchResult.SubFolders.map((item) => ({
+				label: item.Name,
+				url: folderRoute.buildUrl({ folderId: item.Id }),
+			}));
 
-				const accountMatches: AutocompleteItem[] = resp.Accounts.map((item) => {
-					const label = item.Username ? `${item.Title} (${item.Username})` : item.Title;
-					return {
-						label,
-						url: accountRoute.buildUrl({ id: item.Id }),
-					};
-				});
+			const accountMatches: AutocompleteItem[] = searchResult.Accounts.map((item) => {
+				const label = item.Username ? `${item.Title} (${item.Username})` : item.Title;
+				return {
+					label,
+					url: accountRoute.buildUrl({ id: item.Id }),
+				};
+			});
 
-				this.setState({ items: folderMatches.concat(accountMatches) });
+			this.setState({ items: folderMatches.concat(accountMatches) });
+		} catch (err) {
+			defaultErrorHandler(err);
+		}
 
-				scheduleNextOk();
-			},
-			(err) => {
-				scheduleNextOk();
-				defaultErrorHandler(err);
-			},
-		);
+		this.hasInflight = false;
+
+		// while we were fetching data from server, user wanted another query?
+		if (this.queuedQuery) {
+			shouldAlwaysSucceed(this.search(this.queuedQuery));
+		}
 	}
 }
