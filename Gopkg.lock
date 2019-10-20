@@ -78,10 +78,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:eddf0f31b9a8a741a5f69a239bdc5fb564028766401be6af9d99c1d1b209c76f"
+  digest = "1:d1662e58f769302294c92457cfbae1859f02563906210bd10a84b22146a98d58"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
+    "atomicfilewrite",
     "cryptorandombytes",
     "cryptoutil",
     "csrf",
@@ -100,7 +101,7 @@
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "58b3dbbb19e4002a51232bab90328cc07c871e4c"
+  revision = "3a66cb618f0c3792b7664b31d54c06cf83fd259a"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"

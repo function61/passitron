@@ -33,18 +33,15 @@ func Entrypoint() *cobra.Command {
 			baseurl := args[0]
 			token := args[1]
 
-			hints, err := systemdinstaller.InstallSystemdServiceFile(
+			service := systemdinstaller.SystemdServiceFile(
 				"pi-security-module-ssh-agent",
-				[]string{
-					"ssh-agent-proxy",
-					baseurl,
-					token},
-				"Pi security module SSH-agent")
+				"Pi security module SSH-agent",
+				systemdinstaller.Args("ssh-agent-proxy", baseurl, token))
 
-			if err != nil {
+			if err := systemdinstaller.Install(service); err != nil {
 				log.Fatalf("Installation failed: %s", err)
 			} else {
-				fmt.Println(hints)
+				fmt.Println(systemdinstaller.GetHints(service))
 			}
 		},
 	})

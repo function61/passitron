@@ -59,15 +59,15 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Installs systemd unit file to make pi-security-module start on system boot",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			hints, err := systemdinstaller.InstallSystemdServiceFile(
+			service := systemdinstaller.SystemdServiceFile(
 				"pi-security-module",
-				[]string{"server"},
-				"Pi security module")
+				"Pi security module",
+				systemdinstaller.Args("server"))
 
-			if err != nil {
+			if err := systemdinstaller.Install(service); err != nil {
 				panic(err)
 			} else {
-				fmt.Println(hints)
+				fmt.Println(systemdinstaller.GetHints(service))
 			}
 		},
 	})
