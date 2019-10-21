@@ -78,7 +78,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d1662e58f769302294c92457cfbae1859f02563906210bd10a84b22146a98d58"
+  digest = "1:acfef3dffbb681d040a8f49058c12dac2c56a074e58ccbf3a3a3099b580ac552"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
@@ -101,7 +101,7 @@
     "systemdinstaller",
   ]
   pruneopts = "UT"
-  revision = "3a66cb618f0c3792b7664b31d54c06cf83fd259a"
+  revision = "547ff6e0eb52144c48d2302fde620ea108fd9102"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -149,6 +149,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "3a1e8e5a6548ea21cce597660d0c0dcc8c77a520"
+
+[[projects]]
+  digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
 
 [[projects]]
   branch = "master"
