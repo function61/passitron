@@ -3,7 +3,6 @@ package sshagent
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/function61/gokit/ezhttp"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/signingapi"
@@ -11,11 +10,6 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 	"log"
 	"net"
-	"os"
-)
-
-const (
-	sourceSocket = "/tmp/ssh-agent.sock"
 )
 
 /*	Linux / Mac: use ENV variable
@@ -136,55 +130,20 @@ func (a *AgentServer) Signers() ([]ssh.Signer, error) {
 	return []ssh.Signer{}, errNotImplemented
 }
 
-func removeFileIfExists(path string) error {
-	_, err := os.Stat(path)
-	if err == nil { // socket exists
-		if err := os.Remove(path); err != nil {
-			return fmt.Errorf("Remove: %s", err.Error())
-		}
-	} else if !os.IsNotExist(err) { // some other error than not exists
-		return fmt.Errorf("Stat(): %s", err.Error())
-	}
+// not part of agent API
+func (a *AgentServer) handleOneClient(client net.Conn, logl *logex.Leveled) {
+	logl.Info.Printf("connected")
+	defer logl.Info.Printf("disconnected")
 
-	return nil
-}
-
-func handleOneClient(client net.Conn, server *AgentServer, logl *logex.Leveled) {
-	logl.Info.Printf("Connected")
-	defer logl.Info.Printf("Disconnected")
-
-	agent.ServeAgent(server, client)
+	agent.ServeAgent(a, client)
 }
 
 func Run(baseurl string, token string, logger *log.Logger) error {
-	if err := removeFileIfExists(sourceSocket); err != nil {
-		return fmt.Errorf("removeFileIfExists: %s", err.Error())
-	}
-
-	logl := logex.Levels(logger)
-
-	agentServer := AgentServer{
+	agentServer := &AgentServer{
 		baseUrl:     baseurl,
 		bearerToken: token,
 		logl:        logex.Levels(logex.Prefix("AgentServer", logger)),
 	}
 
-	logl.Info.Printf("Listening at %s", sourceSocket)
-	logl.Info.Printf("Pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
-
-	socketListener, err := net.Listen("unix", sourceSocket)
-	if err != nil {
-		return fmt.Errorf("Listen(): %s", err.Error())
-	}
-
-	clientHandlerLogger := logex.Levels(logex.Prefix("handleOneClient", logger))
-
-	for {
-		client, err := socketListener.Accept()
-		if err != nil {
-			return fmt.Errorf("Accept(): %s", err.Error())
-		}
-
-		go handleOneClient(client, &agentServer, clientHandlerLogger)
-	}
+	return run(agentServer, logger)
 }

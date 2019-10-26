@@ -151,6 +151,14 @@
   revision = "3a1e8e5a6548ea21cce597660d0c0dcc8c77a520"
 
 [[projects]]
+  digest = "1:f9ae348e1f793dcf9ed930ed47136a67343dbd6809c5c91391322267f4476892"
+  name = "github.com/microsoft/go-winio"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1a8911d1ed007260465c3bfbbc785ac6915a0bb8"
+  version = "v0.4.12"
+
+[[projects]]
   digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
   name = "github.com/patrickmn/go-cache"
   packages = ["."]
@@ -222,6 +230,14 @@
   pruneopts = "UT"
   revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
+[[projects]]
+  branch = "master"
+  digest = "1:5dfb17d45415b7b8927382f53955a66f55f9d9d11557aa82f7f481d642ab247a"
+  name = "golang.org/x/sys"
+  packages = ["windows"]
+  pruneopts = "UT"
+  revision = "33540a1f603772f9d4b761f416f5c10dade23e96"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -257,6 +273,7 @@
     "github.com/function61/gokit/systemdinstaller",
     "github.com/gorilla/mux",
     "github.com/mattetti/filebuffer",
+    "github.com/microsoft/go-winio",
     "github.com/pquerna/otp",
     "github.com/pquerna/otp/totp",
     "github.com/spf13/cobra",
