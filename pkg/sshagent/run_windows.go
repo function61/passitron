@@ -16,12 +16,12 @@ const (
 func run(agentServer *AgentServer, logger *log.Logger) error {
 	logl := logex.Levels(logger)
 
-	logl.Info.Printf("listening at %s", pipeName)
-
 	listener, err := winio.ListenPipe(pipeName, nil)
 	if err != nil {
 		return err
 	}
+
+	logl.Info.Printf("listening at %s", pipeName)
 
 	clientHandlerLogger := logex.Levels(logex.Prefix("handleOneClient", logger))
 

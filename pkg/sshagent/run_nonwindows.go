@@ -22,13 +22,13 @@ func run(agentServer *AgentServer, logger *log.Logger) error {
 		return fmt.Errorf("removeFileIfExists: %s", err.Error())
 	}
 
-	logl.Info.Printf("listening at %s", sourceSocket)
-	logl.Info.Printf("pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
-
 	socketListener, err := net.Listen("unix", sourceSocket)
 	if err != nil {
 		return fmt.Errorf("Listen(): %s", err.Error())
 	}
+
+	logl.Info.Printf("listening at %s", sourceSocket)
+	logl.Info.Printf("pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
 
 	clientHandlerLogger := logex.Levels(logex.Prefix("handleOneClient", logger))
 
