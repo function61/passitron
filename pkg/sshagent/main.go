@@ -12,11 +12,6 @@ import (
 	"net"
 )
 
-/*	Linux / Mac: use ENV variable
-
-	Windows: use https://github.com/131/pageantbridge
-*/
-
 // SSH agent RFC:
 // 	https://tools.ietf.org/html/rfc4253#section-6.6
 // alternative via virtual SmartCard crypto:
