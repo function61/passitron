@@ -4,8 +4,7 @@ import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { search } from 'generated/apitypes_endpoints';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
-import { indexRoute, searchRoute } from 'routes';
-import { accountRoute, folderRoute } from 'routes';
+import { indexRoute, searchRoute, accountRoute, folderRoute } from 'routes';
 
 interface SearchBoxProps {
 	searchTerm?: string; // initial
