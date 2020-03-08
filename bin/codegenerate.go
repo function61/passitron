@@ -9,8 +9,6 @@ import (
 
 //go:generate go run codegenerate.go
 
-// name the code generation part to GUTS (Grand Unified Type System, i.e. a whack at GRUB)
-
 func main() {
 	if err := mainInternal(); err != nil {
 		panic(err)
