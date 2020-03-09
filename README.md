@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/function61/pi-security-module.svg?style=for-the-badge)](https://travis-ci.org/function61/pi-security-module)
+![Build status](https://github.com/function61/pi-security-module/workflows/Build/badge.svg)
 [![Download](https://img.shields.io/bintray/v/function61/dl/pi-security-module.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/pi-security-module/_latestVersion#files)
 
 What is this?
