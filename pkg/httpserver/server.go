@@ -1,7 +1,6 @@
 package httpserver
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/function61/gokit/cryptoutil"
@@ -56,7 +55,7 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 		return errReadCertBytes
 	}
 
-	cert, err := cryptoutil.ParsePemX509Certificate(bytes.NewBuffer(certBytes))
+	cert, err := cryptoutil.ParsePemX509Certificate(certBytes)
 	if err != nil {
 		return err
 	}
