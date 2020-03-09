@@ -2,9 +2,10 @@ package sshagent
 
 import (
 	"fmt"
+	"github.com/function61/gokit/logex"
+	"github.com/function61/gokit/ossignal"
 	"github.com/function61/gokit/systemdinstaller"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 )
 
@@ -17,9 +18,13 @@ func Entrypoint() *cobra.Command {
 			baseurl := args[0]
 			token := args[1]
 
-			rootLogger := log.New(os.Stderr, "", log.LstdFlags)
+			rootLogger := logex.StandardLogger()
 
-			exitIfError(Run(baseurl, token, rootLogger))
+			exitIfError(Run(
+				ossignal.InterruptOrTerminateBackgroundCtx(rootLogger),
+				baseurl,
+				token,
+				rootLogger))
 		},
 	}
 

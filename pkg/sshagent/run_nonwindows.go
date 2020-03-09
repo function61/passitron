@@ -3,9 +3,11 @@
 package sshagent
 
 import (
+	"context"
 	"fmt"
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/logex"
+	"github.com/function61/gokit/taskrunner"
 	"log"
 	"net"
 	"os"
@@ -15,7 +17,7 @@ const (
 	sourceSocket = "/tmp/ssh-agent.sock"
 )
 
-func run(agentServer *AgentServer, logger *log.Logger) error {
+func run(ctx context.Context, agentServer *AgentServer, logger *log.Logger) error {
 	logl := logex.Levels(logger)
 
 	if err := removeFileIfExists(sourceSocket); err != nil {
@@ -27,19 +29,36 @@ func run(agentServer *AgentServer, logger *log.Logger) error {
 		return fmt.Errorf("Listen(): %s", err.Error())
 	}
 
-	logl.Info.Printf("listening at %s", sourceSocket)
-	logl.Info.Printf("pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
+	tasks := taskrunner.New(ctx, logger)
 
-	clientHandlerLogger := logex.Levels(logex.Prefix("handleOneClient", logger))
+	tasks.Start("listener "+sourceSocket, func(ctx context.Context, _ string) error {
+		logl.Info.Printf("listening at %s", sourceSocket)
+		logl.Info.Printf("pro tip $ export SSH_AUTH_SOCK=\"%s\"", sourceSocket)
 
-	for {
-		client, err := socketListener.Accept()
-		if err != nil {
-			return fmt.Errorf("Accept(): %s", err.Error())
+		clientHandlerLogger := logex.Levels(logex.Prefix("handleOneClient", logger))
+
+		for {
+			client, err := socketListener.Accept()
+			if err != nil {
+				select {
+				case <-ctx.Done():
+					return nil // expected Accept() error
+				default:
+					return err
+				}
+			}
+
+			go agentServer.handleOneClient(client, clientHandlerLogger)
 		}
+	})
 
-		go agentServer.handleOneClient(client, clientHandlerLogger)
-	}
+	tasks.Start("listenershutdowner", func(ctx context.Context, _ string) error {
+		<-ctx.Done()
+
+		return socketListener.Close()
+	})
+
+	return tasks.Wait()
 }
 
 func removeFileIfExists(path string) error {

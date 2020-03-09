@@ -135,12 +135,17 @@ func (a *AgentServer) handleOneClient(client net.Conn, logl *logex.Leveled) {
 	}
 }
 
-func Run(baseurl string, token string, logger *log.Logger) error {
+func Run(
+	ctx context.Context,
+	baseurl string,
+	token string,
+	logger *log.Logger,
+) error {
 	agentServer := &AgentServer{
 		baseUrl:     baseurl,
 		bearerToken: token,
 		logl:        logex.Levels(logex.Prefix("AgentServer", logger)),
 	}
 
-	return run(agentServer, logger)
+	return run(ctx, agentServer, logger)
 }
