@@ -15,8 +15,7 @@ import (
 )
 
 const (
-	statefilePath = "state.json"
-	logfilePath   = "events.log"
+	logfilePath = "events.log"
 )
 
 type AppState struct {

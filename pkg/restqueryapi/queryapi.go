@@ -298,6 +298,8 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 
 	var secret *state.WrappedSecret = nil
 	for _, secretItem := range account.Secrets {
+		secretItem := secretItem // pin
+
 		if secretItem.Secret.Id == secretId {
 			secret = &secretItem
 			break
@@ -343,7 +345,7 @@ func u2fSignatureOk(
 ) error {
 	nativeChallenge := u2futil.ChallengeFromApiType(response.Challenge)
 
-	if bytes.Compare(nativeChallenge.Challenge, expectedHash[:]) != 0 {
+	if !bytes.Equal(nativeChallenge.Challenge, expectedHash[:]) {
 		return errors.New("invalid challenge hash")
 	}
 

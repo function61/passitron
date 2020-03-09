@@ -41,10 +41,10 @@ func downloadPublicFiles(downloadUrl string, destination string, logger *log.Log
 	tempFilename := destination + ".dltemp"
 
 	tempFile, err := os.Create(tempFilename)
-	defer tempFile.Close()
 	if err != nil {
 		return err
 	}
+	defer tempFile.Close()
 
 	ctx, cancel := context.WithTimeout(context.TODO(), ezhttp.DefaultTimeout10s)
 	defer cancel()
@@ -59,7 +59,9 @@ func downloadPublicFiles(downloadUrl string, destination string, logger *log.Log
 		return err
 	}
 
-	tempFile.Close() // double close is intentional
+	if err := tempFile.Close(); err != nil { // double close is intentional
+		return err
+	}
 
 	if err := os.Rename(tempFilename, destination); err != nil {
 		return err

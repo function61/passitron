@@ -435,7 +435,7 @@ type testScenarioState struct {
 func NewTestScenarioState(st *state.AppState) *testScenarioState {
 	untestedCommands := map[string]bool{}
 
-	for commandKey, _ := range Allocators {
+	for commandKey := range Allocators {
 		untestedCommands[commandKey] = true
 	}
 
@@ -457,7 +457,7 @@ func (tstate *testScenarioState) DefaultCmdCtx() *command.Ctx {
 func (tstate *testScenarioState) GetUntestedCommands() []string {
 	untested := []string{}
 
-	for cmdKey, _ := range tstate.untestedCommands {
+	for cmdKey := range tstate.untestedCommands {
 		untested = append(untested, cmdKey)
 	}
 

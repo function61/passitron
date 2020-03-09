@@ -228,7 +228,9 @@ func keepassExport(masterPassword string, output io.Writer, st *state.AppState, 
 		Content:     content,
 	}
 
-	db.LockProtectedEntries()
+	if err := db.LockProtectedEntries(); err != nil {
+		return err
+	}
 
 	keepassEncoder := gokeepasslib.NewEncoder(output)
 	if err := keepassEncoder.Encode(db); err != nil {

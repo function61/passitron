@@ -22,8 +22,7 @@ func Encrypt(plaintext []byte, password string) ([]byte, error) {
 	// using Seal() nonce as PBKDF2 salt
 	encryptionKey := passwordTo256BitEncryptionKey100k(password, nonce[:])
 
-	nonceAndCiphertextEnvelope := []byte{}
-	nonceAndCiphertextEnvelope = secretbox.Seal(nonce[:], plaintext, &nonce, &encryptionKey)
+	nonceAndCiphertextEnvelope := secretbox.Seal(nonce[:], plaintext, &nonce, &encryptionKey)
 
 	return nonceAndCiphertextEnvelope, nil
 }

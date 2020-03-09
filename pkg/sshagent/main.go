@@ -130,7 +130,9 @@ func (a *AgentServer) handleOneClient(client net.Conn, logl *logex.Leveled) {
 	logl.Info.Printf("connected")
 	defer logl.Info.Printf("disconnected")
 
-	agent.ServeAgent(a, client)
+	if err := agent.ServeAgent(a, client); err != nil {
+		logl.Error.Println(err)
+	}
 }
 
 func Run(baseurl string, token string, logger *log.Logger) error {
