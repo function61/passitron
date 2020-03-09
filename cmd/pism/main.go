@@ -5,14 +5,12 @@ import (
 	"github.com/function61/gokit/dynversion"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/ossignal"
-	"github.com/function61/gokit/stopper"
 	"github.com/function61/gokit/systemdinstaller"
 	"github.com/function61/pi-security-module/pkg/httpserver"
 	"github.com/function61/pi-security-module/pkg/keepassimport"
 	"github.com/function61/pi-security-module/pkg/sshagent"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 )
 
@@ -22,22 +20,11 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Starts the server",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			rootLogger := log.New(os.Stderr, "", log.LstdFlags)
+			rootLogger := logex.StandardLogger()
 
-			logl := logex.Levels(logex.Prefix("serverEntrypoint", rootLogger))
-
-			logl.Info.Printf("%s starting", dynversion.Version)
-			defer logl.Info.Printf("Stopped")
-
-			workers := stopper.NewManager()
-
-			go func() {
-				logl.Info.Printf("Received signal %s; stopping", <-ossignal.InterruptOrTerminate())
-
-				workers.StopAllWorkersAndWait()
-			}()
-
-			exitIfError(httpserver.Run(workers.Stopper(), rootLogger))
+			exitIfError(httpserver.Run(
+				ossignal.InterruptOrTerminateBackgroundCtx(rootLogger),
+				rootLogger))
 		},
 	}
 

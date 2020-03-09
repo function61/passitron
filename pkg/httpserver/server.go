@@ -2,11 +2,11 @@ package httpserver
 
 import (
 	"context"
-	"fmt"
 	"github.com/function61/gokit/cryptoutil"
 	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/httputils"
 	"github.com/function61/gokit/logex"
-	"github.com/function61/gokit/stopper"
+	"github.com/function61/gokit/taskrunner"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/f61ui"
 	"github.com/function61/pi-security-module/pkg/restcommandapi"
@@ -26,9 +26,7 @@ const (
 	keyFile  = "key.pem"
 )
 
-func Run(stop *stopper.Stopper, logger *log.Logger) error {
-	defer stop.Done()
-
+func Run(ctx context.Context, logger *log.Logger) error {
 	downloadUrl := extractpublicfiles.BintrayDownloadUrl(
 		"function61",
 		"dl",
@@ -70,30 +68,26 @@ func Run(stop *stopper.Stopper, logger *log.Logger) error {
 	logl := logex.Levels(logger)
 
 	logl.Info.Printf(
-		"Serving @ %s (cert host %s, expires %s)",
+		"%s starting @ %s (cert host %s, expires %s)",
+		dynversion.Version,
 		srv.Addr,
 		cert.Subject.CommonName,
 		cert.NotAfter.Format(time.RFC3339))
+	defer logl.Info.Printf("stopped")
 
 	if cert.NotAfter.Before(time.Now()) {
-		logl.Error.Println("Certificate expired")
+		logl.Error.Println("TLS certificate expired")
 	}
 
-	defer logl.Info.Println("Stopped")
+	tasks := taskrunner.New(ctx, logger)
 
-	go func() {
-		<-stop.Signal
+	tasks.Start("listener "+srv.Addr, func(_ context.Context, _ string) error {
+		return httputils.RemoveGracefulServerClosedError(srv.ListenAndServeTLS(certFile, keyFile))
+	})
 
-		if err := srv.Shutdown(context.TODO()); err != nil {
-			logl.Error.Printf("Shutdown(): %s", err.Error())
-		}
-	}()
+	tasks.Start("listenershutdowner", httputils.ServerShutdownTask(srv))
 
-	if err := srv.ListenAndServeTLS(certFile, keyFile); err != http.ErrServerClosed {
-		return fmt.Errorf("ListenAndServeTLS(): %s", err.Error())
-	}
-
-	return nil
+	return tasks.Wait()
 }
 
 func createHandler(appState *state.AppState, logger *log.Logger) (http.Handler, error) {
