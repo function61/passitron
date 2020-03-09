@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func ExtractTarGz(gzipStream io.Reader) error {
@@ -31,6 +32,10 @@ func ExtractTarGz(gzipStream io.Reader) error {
 			return fmt.Errorf("Next() failed: %s", err.Error())
 		}
 
+		if err := pathLooksDangerous(header.Name); err != nil {
+			return err
+		}
+
 		switch header.Typeflag {
 		case tar.TypeDir:
 			if err := os.Mkdir(header.Name, 0755); err != nil {
@@ -49,6 +54,14 @@ func ExtractTarGz(gzipStream io.Reader) error {
 		default:
 			return fmt.Errorf("unknown type: %x in %s", header.Typeflag, header.Name)
 		}
+	}
+
+	return nil
+}
+
+func pathLooksDangerous(path string) error {
+	if strings.Contains(path, "..") {
+		return fmt.Errorf("pathLooksDangerous: %s", path)
 	}
 
 	return nil
