@@ -13,9 +13,9 @@
 	"builders": [
 		{
 			"name": "default",
-			"uses": "docker://fn61/buildkit-golang:20191015_1410_6efcb03c",
-			"mount_destination": "/go/src/github.com/function61/pi-security-module",
-			"workdir": "/go/src/github.com/function61/pi-security-module",
+			"uses": "docker://fn61/buildkit-golang:20200212_0907_06f93bc3",
+			"mount_destination": "/workspace",
+			"workdir": "/workspace",
 			"commands": {
 				"build": ["bin/build.sh"],
 				"dev": ["bash"]
