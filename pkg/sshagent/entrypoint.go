@@ -19,9 +19,7 @@ func Entrypoint() *cobra.Command {
 
 			rootLogger := log.New(os.Stderr, "", log.LstdFlags)
 
-			if err := Run(baseurl, token, rootLogger); err != nil {
-				panic(err)
-			}
+			exitIfError(Run(baseurl, token, rootLogger))
 		},
 	}
 
@@ -38,13 +36,18 @@ func Entrypoint() *cobra.Command {
 				"Pi security module SSH-agent",
 				systemdinstaller.Args("ssh-agent-proxy", baseurl, token))
 
-			if err := systemdinstaller.Install(service); err != nil {
-				log.Fatalf("Installation failed: %s", err)
-			} else {
-				fmt.Println(systemdinstaller.GetHints(service))
-			}
+			exitIfError(systemdinstaller.Install(service))
+
+			fmt.Println(systemdinstaller.GetHints(service))
 		},
 	})
 
 	return sshAgent
+}
+
+func exitIfError(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }

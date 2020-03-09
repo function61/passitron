@@ -37,9 +37,7 @@ func serverEntrypoint() *cobra.Command {
 				workers.StopAllWorkersAndWait()
 			}()
 
-			if err := httpserver.Run(workers.Stopper(), rootLogger); err != nil {
-				panic(err)
-			}
+			exitIfError(httpserver.Run(workers.Stopper(), rootLogger))
 		},
 	}
 
@@ -48,9 +46,7 @@ func serverEntrypoint() *cobra.Command {
 		Short: "Initializes configuration file",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := state.InitConfig(args[0], args[1]); err != nil {
-				panic(err)
-			}
+			exitIfError(state.InitConfig(args[0], args[1]))
 		},
 	})
 
@@ -64,11 +60,9 @@ func serverEntrypoint() *cobra.Command {
 				"Pi security module",
 				systemdinstaller.Args("server"))
 
-			if err := systemdinstaller.Install(service); err != nil {
-				panic(err)
-			} else {
-				fmt.Println(systemdinstaller.GetHints(service))
-			}
+			exitIfError(systemdinstaller.Install(service))
+
+			fmt.Println(systemdinstaller.GetHints(service))
 		},
 	})
 
@@ -88,8 +82,12 @@ func main() {
 
 	rootCmd.AddCommand(keepassimport.Entrypoint())
 
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+	exitIfError(rootCmd.Execute())
+}
+
+func exitIfError(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
