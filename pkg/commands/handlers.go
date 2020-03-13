@@ -503,7 +503,7 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 			ehevent.Meta(time.Now(), user.User.Id)))
 	}
 
-	jwtSigner, err := httpauth.NewEcJwtSigner(h.state.GetJwtSigningKey())
+	jwtSigner, err := httpauth.NewEcJwtSigner([]byte(h.state.ValidatedJwtConf().SigningKey))
 	if err != nil {
 		return err
 	}

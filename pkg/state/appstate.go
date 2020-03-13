@@ -3,7 +3,6 @@ package state
 import (
 	"context"
 	"encoding/hex"
-	"errors"
 	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/eventhorizon/pkg/ehreader"
 	"github.com/function61/eventhorizon/pkg/ehreader/ehreadertest"
@@ -14,12 +13,12 @@ import (
 )
 
 type AppState struct {
-	masterPassword string
-	macSigningKey  string // derived from masterPassword
-	sealed         bool
-	conf           *Config                 // only contains JwtPrivateKey, JwtPublicKey
-	users          map[string]*UserStorage // keyed by id
-	EventLog       eventlog.Log
+	masterPassword   string
+	macSigningKey    string // derived from masterPassword
+	sealed           bool
+	validatedJwtConf *JwtConfig
+	users            map[string]*UserStorage // keyed by id
+	EventLog         eventlog.Log
 }
 
 // lists user known user IDs
@@ -31,8 +30,12 @@ func (a *AppState) User(id string) *UserStorage {
 	return a.users[id]
 }
 
+func (a *AppState) ValidatedJwtConf() *JwtConfig {
+	return a.validatedJwtConf
+}
+
 func New(logger *log.Logger) (*AppState, error) {
-	conf, err := readConfig()
+	validatedJwtConf, err := readAndValidateJwtConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +45,11 @@ func New(logger *log.Logger) (*AppState, error) {
 
 	// state from the event log is computed & populated mainly under State field
 	s := &AppState{
-		masterPassword: "initpwd", // was accumulated from event log
-		sealed:         true,
-		conf:           conf,
-		EventLog:       newTempAdapter(users["2"]),
-		users:          users,
+		masterPassword:   "initpwd", // was accumulated from event log
+		sealed:           true,
+		validatedJwtConf: validatedJwtConf,
+		EventLog:         newTempAdapter(users["2"]),
+		users:            users,
 	}
 
 	if err := createAdminUser("admin", "admin", s); err != nil {
@@ -63,22 +66,6 @@ func (s *AppState) GetMasterPassword() string {
 
 func (s *AppState) GetMacSigningKey() string {
 	return s.macSigningKey
-}
-
-func (s *AppState) GetJwtValidationKey() []byte {
-	if s.conf.JwtPublicKey == "" {
-		panic(errors.New("JwtPublicKey not set"))
-	}
-
-	return []byte(s.conf.JwtPublicKey)
-}
-
-func (s *AppState) GetJwtSigningKey() []byte {
-	if s.conf.JwtPrivateKey == "" {
-		panic(errors.New("JwtPrivateKey not set"))
-	}
-
-	return []byte(s.conf.JwtPrivateKey)
 }
 
 func (s *AppState) SetMasterPassword(password string) {

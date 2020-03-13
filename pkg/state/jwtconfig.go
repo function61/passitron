@@ -16,17 +16,30 @@ const (
 	configFilename = "config.json"
 )
 
-type Config struct {
-	JwtPrivateKey string `json:"jwt_private_key"`
-	JwtPublicKey  string `json:"jwt_public_key"`
+type JwtConfig struct {
+	SigningKey       string `json:"jwt_private_key"`
+	AuthenticatorKey string `json:"jwt_public_key"`
 }
 
-func readConfig() (*Config, error) {
-	cfg := &Config{}
-	return cfg, jsonfile.Read(configFilename, cfg, true)
+func readAndValidateJwtConfig() (*JwtConfig, error) {
+	cfg := &JwtConfig{}
+
+	if err := jsonfile.Read(configFilename, cfg, true); err != nil {
+		return nil, err
+	}
+
+	if cfg.AuthenticatorKey == "" {
+		return nil, errors.New("AuthenticatorKey not set")
+	}
+
+	if cfg.SigningKey == "" {
+		return nil, errors.New("SigningKey not set")
+	}
+
+	return cfg, nil
 }
 
-func saveConfig(cfg *Config) error {
+func writeJwtConfig(cfg *JwtConfig) error {
 	return jsonfile.Write(configFilename, cfg)
 }
 
@@ -45,12 +58,12 @@ func InitConfig(adminUsername string, adminPassword string) error {
 		return err
 	}
 
-	cfg := &Config{
-		JwtPrivateKey: string(privKeyPem),
-		JwtPublicKey:  string(pubKeyPem),
+	cfg := &JwtConfig{
+		SigningKey:       string(privKeyPem),
+		AuthenticatorKey: string(pubKeyPem),
 	}
 
-	if err := saveConfig(cfg); err != nil {
+	if err := writeJwtConfig(cfg); err != nil {
 		return err
 	}
 
