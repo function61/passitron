@@ -1,10 +1,11 @@
+import { DangerAlert, InfoAlert } from 'f61ui/component/alerts';
 import { Panel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
-import { CommandButton, CommandLink } from 'f61ui/component/CommandButton';
+import { CommandButton, CommandInlineForm, CommandLink } from 'f61ui/component/CommandButton';
 import { Dropdown } from 'f61ui/component/dropdown';
 import { Loading } from 'f61ui/component/loading';
 import { Timestamp } from 'f61ui/component/timestamp';
-import { defaultErrorHandler } from 'f61ui/errors';
+import { defaultErrorHandler, formatAnyError } from 'f61ui/errors';
 import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/apitypes_endpoints';
 import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes_types';
@@ -21,21 +22,20 @@ import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexRoute } from 'routes';
-import {
-	isU2FError,
-	U2FStdRegisteredKey,
-	U2FStdRegisterRequest,
-	U2FStdRegisterResponse,
-} from 'u2ftypes';
+import { isU2FError, u2fErrorMsg, U2FStdRegisterResponse } from 'u2ftypes';
 
 interface SettingsPageState {
 	u2fregistrationrequest?: string;
+	enrollmentInProgress: boolean;
 	enrolledTokens?: U2FEnrolledToken[];
+	enrollmentError?: string;
 	users?: User[];
 }
 
 export default class SettingsPage extends React.Component<{}, SettingsPageState> {
-	state: SettingsPageState = {};
+	state: SettingsPageState = {
+		enrollmentInProgress: false,
+	};
 	private title = 'Settings';
 
 	componentDidMount() {
@@ -43,20 +43,6 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 	}
 
 	render() {
-		const enrollOrFinish = this.state.u2fregistrationrequest ? (
-			<CommandButton command={UserRegisterU2FToken(this.state.u2fregistrationrequest)} />
-		) : (
-			<p>
-				<a
-					className="btn btn-default"
-					onClick={() => {
-						this.startTokenEnrollment();
-					}}>
-					Enroll token
-				</a>
-			</p>
-		);
-
 		return (
 			<AppDefaultLayout title={this.title} breadcrumbs={this.getBreadcrumbs()}>
 				<div className="row">
@@ -83,11 +69,50 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 
 							{this.renderEnrolledTokens()}
 
-							{enrollOrFinish}
+							{this.u2fEnrollmentUi()}
 						</Panel>
 					</div>
 				</div>
 			</AppDefaultLayout>
+		);
+	}
+
+	// shows:
+	// - enrollment start button
+	// - error
+	// - progress
+	// - finish
+	private u2fEnrollmentUi(): React.ReactNode {
+		if (this.state.enrollmentInProgress) {
+			return (
+				<div>
+					<InfoAlert>Please swipe your U2F token now.</InfoAlert>
+					<Loading />
+				</div>
+			);
+		}
+
+		if (this.state.u2fregistrationrequest) {
+			return (
+				<CommandInlineForm
+					command={UserRegisterU2FToken(this.state.u2fregistrationrequest)}
+				/>
+			);
+		}
+
+		return (
+			<p>
+				{this.state.enrollmentError && (
+					<DangerAlert>{this.state.enrollmentError}</DangerAlert>
+				)}
+				<a
+					className="btn btn-default"
+					onClick={() => {
+						shouldAlwaysSucceed(this.startTokenEnrollment());
+					}}>
+					Enroll token
+				</a>
+			</p>
 		);
 	}
 
@@ -160,48 +185,57 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 		);
 	}
 
-	private startTokenEnrollment() {
-		u2fEnrollmentChallenge().then((res) => {
-			const challenge = res.Challenge;
+	private async startTokenEnrollment() {
+		this.setState({ enrollmentInProgress: true, enrollmentError: '' });
 
-			const u2fRegisterCallback = (regResponse: U2FStdRegisterResponse) => {
-				if (isU2FError(regResponse)) {
-					return;
-				}
+		try {
+			await this.startTokenEnrollmentInternal();
+		} catch (err) {
+			this.setState({ enrollmentError: formatAnyError(err) });
+		}
 
-				const enrollmentRequest: RegisterResponse = {
-					Challenge: challenge,
-					RegisterResponse: {
-						RegistrationData: regResponse.registrationData,
-						Version: regResponse.version,
-						ClientData: regResponse.clientData,
-					},
-				};
+		this.setState({ enrollmentInProgress: false });
+	}
 
-				const enrollmentRequestAsJson = JSON.stringify(enrollmentRequest);
+	private async startTokenEnrollmentInternal() {
+		const res = await u2fEnrollmentChallenge();
 
-				this.setState({ u2fregistrationrequest: enrollmentRequestAsJson });
-			};
-
-			const reqs: U2FStdRegisterRequest[] = res.RegisterRequest.RegisterRequests.map(
-				(item) => {
+		const enrollmentRequest = await new Promise<RegisterResponse>((resolve, reject) => {
+			u2f.register(
+				res.RegisterRequest.AppID,
+				res.RegisterRequest.RegisterRequests.map((item) => {
 					return {
 						version: item.Version,
 						challenge: item.Challenge,
 					};
+				}),
+				res.RegisterRequest.RegisteredKeys.map((item) => {
+					return {
+						version: item.Version,
+						keyHandle: item.KeyHandle,
+						appId: item.AppID,
+					};
+				}),
+				(regResponse: U2FStdRegisterResponse) => {
+					if (isU2FError(regResponse)) {
+						reject(u2fErrorMsg(regResponse));
+						return;
+					}
+
+					resolve({
+						Challenge: res.Challenge,
+						RegisterResponse: {
+							RegistrationData: regResponse.registrationData,
+							Version: regResponse.version,
+							ClientData: regResponse.clientData,
+						},
+					});
 				},
+				10,
 			);
+		});
 
-			const keys: U2FStdRegisteredKey[] = res.RegisterRequest.RegisteredKeys.map((item) => {
-				return {
-					version: item.Version,
-					keyHandle: item.KeyHandle,
-					appId: item.AppID,
-				};
-			});
-
-			u2f.register(res.RegisterRequest.AppID, reqs, keys, u2fRegisterCallback, 30);
-		}, defaultErrorHandler);
+		this.setState({ u2fregistrationrequest: JSON.stringify(enrollmentRequest) });
 	}
 
 	private getBreadcrumbs(): Breadcrumb[] {
