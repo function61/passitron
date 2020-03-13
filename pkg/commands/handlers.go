@@ -40,7 +40,7 @@ type Handlers struct {
 }
 
 func (c *Handlers) userData(ctx *command.Ctx) *state.UserStorage {
-	return c.state.DB.UserScope[ctx.Meta.UserId]
+	return c.state.User(ctx.Meta.UserId)
 }
 
 func New(state *state.AppState, logger *log.Logger) *Handlers {
@@ -461,7 +461,10 @@ func (h *Handlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword,
 
 func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	var user *state.SensitiveUser
-	for _, userStorage := range h.state.DB.UserScope {
+
+	for _, userId := range h.state.UserIds() {
+		userStorage := h.state.User(userId)
+
 		if userStorage.SensitiveUser().User.Username == a.Username {
 			tmp := userStorage.SensitiveUser()
 			user = &tmp

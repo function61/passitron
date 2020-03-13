@@ -24,7 +24,7 @@ import (
 )
 
 func Export(st *state.AppState, userId string) error {
-	conf := st.DB.UserScope[userId].S3ExportDetails()
+	conf := st.User(userId).S3ExportDetails()
 
 	if conf == nil {
 		return errors.New("S3ExportBucket, S3ExportApiKey or S3ExportSecret undefined")
@@ -216,8 +216,11 @@ func keepassExport(masterPassword string, output io.Writer, st *state.AppState, 
 		Meta: meta,
 	}
 
-	userStorage := st.DB.UserScope[userId]
-	rootGroup, entriesExported := exportRecursive(domain.RootFolderId, meta, st, userStorage)
+	rootGroup, entriesExported := exportRecursive(
+		domain.RootFolderId,
+		meta,
+		st,
+		st.User(userId))
 
 	content.Root = &gokeepasslib.RootData{
 		Groups: []gokeepasslib.Group{rootGroup},

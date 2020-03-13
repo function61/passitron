@@ -48,7 +48,7 @@ type handlers struct {
 func (h *handlers) GetPublicKeys(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *PublicKeysOutput {
 	keys := PublicKeysOutput{}
 
-	for _, wacc := range h.st.DB.UserScope[rctx.User.Id].WrappedAccounts() {
+	for _, wacc := range h.st.User(rctx.User.Id).WrappedAccounts() {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
@@ -79,7 +79,7 @@ func (h *handlers) GetPublicKeys(rctx *httpauth.RequestContext, w http.ResponseW
 func (h *handlers) Sign(rctx *httpauth.RequestContext, input SignRequestInput, w http.ResponseWriter, r *http.Request) *Signature {
 	uid := rctx.User.Id
 
-	signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, h.st.DB.UserScope[uid])
+	signer, wacc, secretId, err := lookupSignerByPubKey(input.PublicKey, h.st.User(uid))
 	if err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("privkey_for_pubkey_not_found", err), http.StatusBadRequest, w)
 		return nil

@@ -55,11 +55,13 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 		}
 
 		token := authHeader[len(bearerPrefix):]
-		if token == "" {
+		if token == "" { // important! user could have empty access token (if not set)
 			return "", false
 		}
 
-		for _, userScope := range appState.DB.UserScope {
+		for _, userId := range appState.UserIds() {
+			userScope := appState.User(userId)
+
 			if userScope.SensitiveUser().AccessToken == token {
 				return userScope.SensitiveUser().User.Id, true
 			}

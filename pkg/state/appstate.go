@@ -13,53 +13,22 @@ import (
 	"log"
 )
 
-func NewStatefile() *Statefile {
-	return &Statefile{
-		UserScope: map[string]*UserStorage{},
-	}
-}
-
-type Statefile struct {
-	UserScope map[string]*UserStorage // keyed by id
-}
-
 type AppState struct {
 	masterPassword string
 	macSigningKey  string // derived from masterPassword
 	sealed         bool
-	conf           *Config // only contains JwtPrivateKey, JwtPublicKey
-	DB             *Statefile
+	conf           *Config                 // only contains JwtPrivateKey, JwtPublicKey
+	users          map[string]*UserStorage // keyed by id
 	EventLog       eventlog.Log
 }
 
-// pushes appends directly to in-memory event log only meant for testing
-type tempAdapter struct {
-	reader *ehreader.Reader
-	log    *ehreadertest.EventLog
-	ctx    context.Context
+// lists user known user IDs
+func (a *AppState) UserIds() []string {
+	return []string{"2"}
 }
 
-func newTempAdapter(proc *UserStorage) *tempAdapter {
-	eventLog := ehreadertest.NewEventLog()
-
-	return &tempAdapter{
-		reader: ehreader.New(proc, eventLog, nil),
-		log:    eventLog,
-		ctx:    context.Background(),
-	}
-}
-
-func (m *tempAdapter) Append(events []ehevent.Event) error {
-	serialized := []string{}
-	for _, event := range events {
-		serialized = append(serialized, ehevent.Serialize(event))
-	}
-
-	if _, err := m.log.Append(m.ctx, "/t-1/pism", serialized); err != nil {
-		return err
-	}
-
-	return m.reader.LoadUntilRealtime(m.ctx)
+func (a *AppState) User(id string) *UserStorage {
+	return a.users[id]
 }
 
 func New(logger *log.Logger) (*AppState, error) {
@@ -68,16 +37,16 @@ func New(logger *log.Logger) (*AppState, error) {
 		return nil, err
 	}
 
-	db := NewStatefile()
-	db.UserScope["2"] = newUserStorage(ehreader.TenantId("1"))
+	users := map[string]*UserStorage{}
+	users["2"] = newUserStorage(ehreader.TenantId("1"))
 
 	// state from the event log is computed & populated mainly under State field
 	s := &AppState{
 		masterPassword: "initpwd", // was accumulated from event log
-		DB:             db,
 		sealed:         true,
 		conf:           conf,
-		EventLog:       newTempAdapter(db.UserScope["2"]),
+		EventLog:       newTempAdapter(users["2"]),
+		users:          users,
 	}
 
 	if err := createAdminUser("admin", "admin", s); err != nil {
@@ -133,4 +102,34 @@ func (s *AppState) SetSealed(sealed bool) {
 
 func RandomId() string {
 	return cryptorandombytes.Base64UrlWithoutLeadingDash(4)
+}
+
+// pushes appends directly to in-memory event log only meant for testing
+type tempAdapter struct {
+	reader *ehreader.Reader
+	log    *ehreadertest.EventLog
+	ctx    context.Context
+}
+
+func newTempAdapter(proc *UserStorage) *tempAdapter {
+	eventLog := ehreadertest.NewEventLog()
+
+	return &tempAdapter{
+		reader: ehreader.New(proc, eventLog, nil),
+		log:    eventLog,
+		ctx:    context.Background(),
+	}
+}
+
+func (m *tempAdapter) Append(events []ehevent.Event) error {
+	serialized := []string{}
+	for _, event := range events {
+		serialized = append(serialized, ehevent.Serialize(event))
+	}
+
+	if _, err := m.log.Append(m.ctx, "/t-1/pism", serialized); err != nil {
+		return err
+	}
+
+	return m.reader.LoadUntilRealtime(m.ctx)
 }

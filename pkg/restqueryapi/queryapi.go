@@ -23,16 +23,16 @@ import (
 
 func Register(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.AppState) {
 	apitypes.RegisterRoutes(&queryHandlers{
-		st: st,
+		state: st,
 	}, mwares, muxregistrator.New(router))
 }
 
 type queryHandlers struct {
-	st *state.AppState
+	state *state.AppState
 }
 
 func (q *queryHandlers) userData(rctx *httpauth.RequestContext) *state.UserStorage {
-	return q.st.DB.UserScope[rctx.User.Id]
+	return q.state.User(rctx.User.Id)
 }
 
 func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
@@ -59,10 +59,12 @@ func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.Response
 	}
 }
 
-func (a *queryHandlers) UserList(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.User {
+func (q *queryHandlers) UserList(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.User {
 	users := []apitypes.User{}
 
-	for _, userStorage := range a.st.DB.UserScope {
+	for _, userId := range q.state.UserIds() {
+		userStorage := q.state.User(userId)
+
 		users = append(users, userStorage.SensitiveUser().User)
 	}
 
@@ -85,7 +87,7 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 		return nil
 	}
 
-	if err := u2fSignatureOk(rctx, u2fResponse, u2fChallengeHash, a.st); err != nil {
+	if err := u2fSignatureOk(rctx, u2fResponse, u2fChallengeHash, a.state); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
@@ -99,8 +101,9 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 				keyEntry.Key,
 				ehevent.Meta(time.Now(), rctx.User.Id))
 
-			if err := a.st.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
-				panic(err)
+			if err := a.state.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
+				httputil.RespondHttpJson(httputil.GenericError("audit_event_append_failed", err), http.StatusInternalServerError, w)
+				return nil
 			}
 
 			return &keyEntry
@@ -117,7 +120,7 @@ func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w
 		mux.Vars(r)["secretId"],
 		mux.Vars(r)["key"])
 
-	u2fTokens := u2futil.GrabUsersU2FTokens(a.st, rctx.User.Id)
+	u2fTokens := u2futil.GrabUsersU2FTokens(a.state, rctx.User.Id)
 
 	if len(u2fTokens) == 0 {
 		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
@@ -147,14 +150,15 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 		return nil
 	}
 
-	if err := u2fSignatureOk(rctx, u2fResponse, u2futil.ChallengeHashForAccountSecrets(wacc.Account), a.st); err != nil {
+	if err := u2fSignatureOk(rctx, u2fResponse, u2futil.ChallengeHashForAccountSecrets(wacc.Account), a.state); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
 
-	secrets, err := state.UnwrapSecrets(wacc.Secrets, a.st)
+	secrets, err := state.UnwrapSecrets(wacc.Secrets, a.state)
 	if err != nil {
-		panic("todo")
+		httputil.RespondHttpJson(httputil.GenericError("unwrap_secrets_failed", err), http.StatusForbidden, w)
+		return nil
 	}
 
 	secretIdsForAudit := []string{}
@@ -169,7 +173,7 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 		"",
 		ehevent.Meta(time.Now(), rctx.User.Id))
 
-	if err := a.st.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
+	if err := a.state.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("audit_event_append_failed", err), http.StatusInternalServerError, w)
 		return nil
 	}
@@ -190,7 +194,7 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 		return nil
 	}
 
-	u2fTokens := u2futil.GrabUsersU2FTokens(a.st, rctx.User.Id)
+	u2fTokens := u2futil.GrabUsersU2FTokens(a.state, rctx.User.Id)
 
 	if len(u2fTokens) == 0 {
 		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
@@ -236,7 +240,7 @@ func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w 
 		return nil
 	}
 
-	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.st, rctx.User.Id))
+	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.state, rctx.User.Id))
 
 	registerRequests := []apitypes.U2FRegisterRequest{}
 	for _, r := range req.RegisterRequests {
@@ -295,7 +299,7 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 		return
 	}
 
-	exportMac := mac.New(a.st.GetMacSigningKey(), secret.Secret.Id)
+	exportMac := mac.New(a.state.GetMacSigningKey(), secret.Secret.Id)
 
 	if err := exportMac.Authenticate(r.URL.Query().Get("mac")); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("invalid_mac", err), http.StatusForbidden, w)
