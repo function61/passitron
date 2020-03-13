@@ -80,10 +80,8 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 			);
 		}
 
-		const authErrorNode = this.state.authError ? (
-			<DangerAlert text={this.state.authError} />
-		) : (
-			''
+		const authErrorNode = this.state.authError && (
+			<DangerAlert>{this.state.authError}</DangerAlert>
 		);
 
 		return (
@@ -163,10 +161,8 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 	state: KeylistAccessorState = { keylistKey: '', loading: false };
 
 	render() {
-		const authErrorNode = this.state.authError ? (
-			<DangerAlert text={this.state.authError} />
-		) : (
-			''
+		const authErrorNode = this.state.authError && (
+			<DangerAlert>{this.state.authError}</DangerAlert>
 		);
 
 		const keyMaybe = this.state.foundKeyItem ? (

@@ -3,7 +3,6 @@ import { getCurrentHash } from 'f61ui/browserutils';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { NavLink } from 'f61ui/component/navigation';
 import { DefaultLayout } from 'f61ui/layout/defaultlayout';
-import { jsxChildType } from 'f61ui/types';
 import { version } from 'generated/version';
 import * as React from 'react';
 import { auditlogRoute, indexRoute, settingsRoute, sshkeysRoute } from 'routes';
@@ -11,7 +10,7 @@ import { auditlogRoute, indexRoute, settingsRoute, sshkeysRoute } from 'routes';
 interface AppDefaultLayoutProps {
 	title: string;
 	breadcrumbs: Breadcrumb[];
-	children: jsxChildType;
+	children: React.ReactNode;
 }
 
 // app's default layout uses the default layout with props that are common to the whole app
@@ -42,12 +41,14 @@ export class AppDefaultLayout extends React.Component<AppDefaultLayoutProps, {}>
 			},
 		];
 
+		const appName = 'PiLockBox';
 		return (
 			<DefaultLayout
-				appName="PiLockBox"
+				appName={appName}
 				appHomepage="https://github.com/function61/pi-security-module"
 				navLinks={navLinks}
-				logoUrl={indexRoute.buildUrl({})}
+				logoNode={appName}
+				logoClickUrl={indexRoute.buildUrl({})}
 				breadcrumbs={this.props.breadcrumbs}
 				content={this.props.children}
 				version={version}
