@@ -3,7 +3,7 @@ package keepassimport
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/function61/eventkit/event"
+	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -37,8 +37,10 @@ import (
 */
 
 func Run(csvPath string, userId string) error {
-	st := state.New(logex.Discard)
-	defer st.Close()
+	st, err := state.New(logex.Discard)
+	if err != nil {
+		return err
+	}
 
 	csvFile, err := os.Open(csvPath)
 	if err != nil {
@@ -55,9 +57,9 @@ func Run(csvPath string, userId string) error {
 
 	importStartedTime := time.Now()
 
-	events := []event.Event{}
+	events := []ehevent.Event{}
 
-	pushEvent := func(e event.Event) {
+	pushEvent := func(e ehevent.Event) {
 		events = append(events, e)
 	}
 
@@ -85,18 +87,18 @@ func Run(csvPath string, userId string) error {
 		if _, has := foldersJustCreated[groupPath]; has {
 			folderId = foldersJustCreated[groupPath]
 		} else {
-			folderId = event.RandomId()
+			folderId = state.RandomId()
 
 			pushEvent(domain.NewAccountFolderCreated(
 				folderId,
 				domain.RootFolderId,
 				groupPath,
-				event.Meta(importStartedTime, userId)))
+				ehevent.Meta(importStartedTime, userId)))
 
 			foldersJustCreated[groupPath] = folderId
 		}
 
-		accountId := event.RandomId()
+		accountId := state.RandomId()
 
 		creationTime, err := time.Parse("2006-01-02T15:04:05", res["Creation Time"])
 		if err != nil {
@@ -112,28 +114,28 @@ func Run(csvPath string, userId string) error {
 			accountId,
 			folderId,
 			res["Account"],
-			event.Meta(creationTime, userId)))
+			ehevent.Meta(creationTime, userId)))
 
 		if res["Login Name"] != "" {
 			pushEvent(domain.NewAccountUsernameChanged(
 				accountId,
 				res["Login Name"],
-				event.Meta(modificationTime, userId)))
+				ehevent.Meta(modificationTime, userId)))
 		}
 
 		if res["Password"] != "" {
 			pushEvent(domain.NewAccountPasswordAdded(
 				accountId,
-				event.RandomId(),
+				state.RandomId(),
 				res["Password"],
-				event.Meta(modificationTime, userId)))
+				ehevent.Meta(modificationTime, userId)))
 		}
 
 		if res["Comments"] != "" {
 			pushEvent(domain.NewAccountDescriptionChanged(
 				accountId,
 				res["Comments"],
-				event.Meta(modificationTime, userId)))
+				ehevent.Meta(modificationTime, userId)))
 		}
 	}
 

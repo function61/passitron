@@ -24,7 +24,9 @@ import (
 )
 
 func Export(st *state.AppState, userId string) error {
-	if st.S3ExportBucket == "" || st.S3ExportApiKey == "" || st.S3ExportSecret == "" {
+	conf := st.DB.UserScope[userId].S3ExportDetails()
+
+	if conf == nil {
 		return errors.New("S3ExportBucket, S3ExportApiKey or S3ExportSecret undefined")
 	}
 
@@ -35,8 +37,8 @@ func Export(st *state.AppState, userId string) error {
 	}
 
 	manualCredential := credentials.NewStaticCredentials(
-		st.S3ExportApiKey,
-		st.S3ExportSecret,
+		conf.ApiKeyId,
+		conf.ApiKeySecret,
 		"")
 
 	awsSession, errSession := session.NewSession()
@@ -52,7 +54,7 @@ func Export(st *state.AppState, userId string) error {
 	remotePath := "/databases/" + time.Now().UTC().Format(time.RFC3339) + ".kdbx"
 
 	_, errS3Put := s3Client.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(st.S3ExportBucket),
+		Bucket: &conf.Bucket,
 		Key:    aws.String(remotePath),
 		Body:   filebuffer.New(keepassOutFile.Bytes()),
 	})
@@ -60,7 +62,7 @@ func Export(st *state.AppState, userId string) error {
 		return errS3Put
 	}
 
-	log.Printf("Keepass database uploaded to %s:%s", st.S3ExportBucket, remotePath)
+	log.Printf("Keepass database uploaded to %s:%s", conf.Bucket, remotePath)
 
 	return nil
 }

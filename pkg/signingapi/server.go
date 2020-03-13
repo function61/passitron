@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"errors"
-	"github.com/function61/eventkit/event"
+	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httpserver/muxregistrator"
@@ -17,7 +17,7 @@ import (
 )
 
 func lookupSignerByPubKey(pubKeyMarshaled []byte, userStorage *state.UserStorage) (ssh.Signer, *state.WrappedAccount, string, error) {
-	for _, wacc := range userStorage.WrappedAccounts {
+	for _, wacc := range userStorage.WrappedAccounts() {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
@@ -48,7 +48,7 @@ type handlers struct {
 func (h *handlers) GetPublicKeys(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *PublicKeysOutput {
 	keys := PublicKeysOutput{}
 
-	for _, wacc := range h.st.DB.UserScope[rctx.User.Id].WrappedAccounts {
+	for _, wacc := range h.st.DB.UserScope[rctx.User.Id].WrappedAccounts() {
 		for _, secret := range wacc.Secrets {
 			if secret.SshPrivateKey == "" {
 				continue
@@ -96,10 +96,11 @@ func (h *handlers) Sign(rctx *httpauth.RequestContext, input SignRequestInput, w
 		[]string{secretId},
 		domain.SecretUsedTypeSshSigning,
 		"",
-		event.Meta(time.Now(), uid))
+		ehevent.Meta(time.Now(), uid))
 
-	if err := h.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
-		panic(err)
+	if err := h.st.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("audit_event_saving_failed", err), http.StatusInternalServerError, w)
+		return nil
 	}
 
 	return &Signature{

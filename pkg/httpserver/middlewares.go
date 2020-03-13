@@ -60,8 +60,8 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 		}
 
 		for _, userScope := range appState.DB.UserScope {
-			if userScope.SensitiveUser.AccessToken == token {
-				return userScope.SensitiveUser.User.Id, true
+			if userScope.SensitiveUser().AccessToken == token {
+				return userScope.SensitiveUser().User.Id, true
 			}
 		}
 

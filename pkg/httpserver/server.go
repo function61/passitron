@@ -39,8 +39,10 @@ func Run(ctx context.Context, logger *log.Logger) error {
 		return err
 	}
 
-	appState := state.New(logex.Prefix("state", logger))
-	defer appState.Close()
+	appState, err := state.New(logex.Prefix("state", logger))
+	if err != nil {
+		return err
+	}
 
 	handler, err := createHandler(appState, logger)
 	if err != nil {

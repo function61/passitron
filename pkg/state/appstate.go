@@ -1,103 +1,90 @@
 package state
 
 import (
-	"bytes"
+	"context"
 	"encoding/hex"
 	"errors"
-	"github.com/function61/eventkit/event"
+	"github.com/function61/eventhorizon/pkg/ehevent"
+	"github.com/function61/eventhorizon/pkg/ehreader"
+	"github.com/function61/eventhorizon/pkg/ehreader/ehreadertest"
 	"github.com/function61/eventkit/eventlog"
-	"github.com/function61/gokit/logex"
+	"github.com/function61/gokit/cryptorandombytes"
 	"github.com/function61/pi-security-module/pkg/crypto"
-	"github.com/function61/pi-security-module/pkg/domain"
-	"io/ioutil"
 	"log"
-	"os"
 )
 
-const (
-	logfilePath = "events.log"
-)
+func NewStatefile() *Statefile {
+	return &Statefile{
+		UserScope: map[string]*UserStorage{},
+	}
+}
+
+type Statefile struct {
+	UserScope map[string]*UserStorage // keyed by id
+}
 
 type AppState struct {
 	masterPassword string
 	macSigningKey  string // derived from masterPassword
 	sealed         bool
-	conf           *Config
+	conf           *Config // only contains JwtPrivateKey, JwtPublicKey
 	DB             *Statefile
 	EventLog       eventlog.Log
-	eventLogFile   *os.File
-	S3ExportBucket string
-	S3ExportApiKey string
-	S3ExportSecret string
 }
 
-func NewTesting() *AppState {
-	s := &AppState{
-		masterPassword: "",
-		DB:             NewStatefile(),
-		sealed:         false,
-		conf: &Config{ // don't worry, these aren't used anywhere else
-			JwtPrivateKey: "-----BEGIN PRIVATE KEY-----\nMIHcAgEBBEIB2tjp2EsS8/3zluTu9BD2iO7CgSLW/4SbE3QP+agvZ4gqfX+bfUqv\nOIGJ2QXWnNUdoa959SMk16X3g/8hhV36M/CgBwYFK4EEACOhgYkDgYYABAEdq+Bc\n07oizVlgGglR3W7YaGy9X1aRQKwmz8fkGxjSnvh59rWKrRuEf/Y0YkqsvbZ57WYH\nJ6VG+zWcdGwKrsbXaAAsUs6ublzftJUDLNWhFTF3s4YzT2h3A8ClGjKhsoqRR6YC\n3U4taAsc2GqLUf+ElReqfUiCkQSHVJ2OjxNyKCAMqg==\n-----END PRIVATE KEY-----\n",
-			JwtPublicKey:  "-----BEGIN PUBLIC KEY-----\nMIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBHavgXNO6Is1ZYBoJUd1u2GhsvV9W\nkUCsJs/H5BsY0p74efa1iq0bhH/2NGJKrL22ee1mByelRvs1nHRsCq7G12gALFLO\nrm5c37SVAyzVoRUxd7OGM09odwPApRoyobKKkUemAt1OLWgLHNhqi1H/hJUXqn1I\ngpEEh1Sdjo8TciggDKo=\n-----END PUBLIC KEY-----\n",
-		},
-	}
-
-	emptyLogReader := &bytes.Buffer{}
-
-	log, err := eventlog.NewSimpleLogFile(
-		emptyLogReader, // no existing data in the log
-		ioutil.Discard, // do not write to disk
-		func(event event.Event) error {
-			return domain.DispatchEvent(event, s)
-		},
-		eventDeserializer,
-		logex.Discard)
-	if err != nil {
-		panic(err)
-	}
-
-	s.EventLog = log
-
-	return s
+// pushes appends directly to in-memory event log only meant for testing
+type tempAdapter struct {
+	reader *ehreader.Reader
+	log    *ehreadertest.EventLog
+	ctx    context.Context
 }
 
-func New(logger *log.Logger) *AppState {
+func newTempAdapter(proc *UserStorage) *tempAdapter {
+	eventLog := ehreadertest.NewEventLog()
+
+	return &tempAdapter{
+		reader: ehreader.New(proc, eventLog, nil),
+		log:    eventLog,
+		ctx:    context.Background(),
+	}
+}
+
+func (m *tempAdapter) Append(events []ehevent.Event) error {
+	serialized := []string{}
+	for _, event := range events {
+		serialized = append(serialized, ehevent.Serialize(event))
+	}
+
+	if _, err := m.log.Append(m.ctx, "/t-1/pism", serialized); err != nil {
+		return err
+	}
+
+	return m.reader.LoadUntilRealtime(m.ctx)
+}
+
+func New(logger *log.Logger) (*AppState, error) {
 	conf, err := readConfig()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	eventLogFile, err := os.OpenFile(logfilePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		log.Fatalf("OpenFile: %s", err.Error())
-	}
+	db := NewStatefile()
+	db.UserScope["2"] = newUserStorage(ehreader.TenantId("1"))
 
 	// state from the event log is computed & populated mainly under State field
 	s := &AppState{
-		masterPassword: "",
-		DB:             NewStatefile(),
+		masterPassword: "initpwd", // was accumulated from event log
+		DB:             db,
 		sealed:         true,
 		conf:           conf,
-		eventLogFile:   eventLogFile,
+		EventLog:       newTempAdapter(db.UserScope["2"]),
 	}
 
-	// needs to be instantiated later, because handleEvent requires access to State
-	log, err := eventlog.NewSimpleLogFile(eventLogFile, eventLogFile, func(event event.Event) error {
-		return domain.DispatchEvent(event, s)
-	}, eventDeserializer, logex.Prefix("SimpleLogFile", logger))
-	if err != nil {
-		panic(err) // TODO: return as error
+	if err := createAdminUser("admin", "admin", s); err != nil {
+		return nil, err
 	}
 
-	s.EventLog = log
-
-	return s
-}
-
-func (s *AppState) Close() {
-	if s.eventLogFile != nil {
-		s.eventLogFile.Close()
-	}
+	return s, nil
 }
 
 // for Keepass export
@@ -144,6 +131,6 @@ func (s *AppState) SetSealed(sealed bool) {
 	s.sealed = sealed
 }
 
-func eventDeserializer(serialized string) (event.Event, error) {
-	return event.Deserialize(serialized, domain.Allocators)
+func RandomId() string {
+	return cryptorandombytes.Base64UrlWithoutLeadingDash(4)
 }

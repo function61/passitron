@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
-	"github.com/function61/eventkit/event"
+	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
@@ -17,9 +17,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tstranex/u2f"
 	"image/png"
-	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -65,7 +63,7 @@ func (a *queryHandlers) UserList(rctx *httpauth.RequestContext, w http.ResponseW
 	users := []apitypes.User{}
 
 	for _, userStorage := range a.st.DB.UserScope {
-		users = append(users, userStorage.SensitiveUser.User)
+		users = append(users, userStorage.SensitiveUser().User)
 	}
 
 	return &users
@@ -99,9 +97,9 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 				[]string{wsecret.Secret.Id},
 				domain.SecretUsedTypeKeylistKeyExposed,
 				keyEntry.Key,
-				event.Meta(time.Now(), rctx.User.Id))
+				ehevent.Meta(time.Now(), rctx.User.Id))
 
-			if err := a.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
+			if err := a.st.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
 				panic(err)
 			}
 
@@ -131,8 +129,7 @@ func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w
 		u2futil.GetTrustedFacets(),
 		challengeHash)
 	if err != nil {
-		log.Printf("u2f.NewChallenge error: %v", err)
-		http.Error(w, "error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
 
@@ -155,7 +152,10 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 		return nil
 	}
 
-	secrets := state.UnwrapSecrets(wacc.Secrets, a.st)
+	secrets, err := state.UnwrapSecrets(wacc.Secrets, a.st)
+	if err != nil {
+		panic("todo")
+	}
 
 	secretIdsForAudit := []string{}
 	for _, secret := range secrets {
@@ -167,17 +167,19 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 		secretIdsForAudit,
 		domain.SecretUsedTypePasswordExposed,
 		"",
-		event.Meta(time.Now(), rctx.User.Id))
+		ehevent.Meta(time.Now(), rctx.User.Id))
 
-	if err := a.st.EventLog.Append([]event.Event{secretUsedEvent}); err != nil {
-		panic(err)
+	if err := a.st.EventLog.Append([]ehevent.Event{secretUsedEvent}); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("audit_event_append_failed", err), http.StatusInternalServerError, w)
+		return nil
 	}
 
 	return &secrets
 }
 
 func (a *queryHandlers) AuditLogEntries(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.AuditlogEntry {
-	return &a.st.DB.AuditLog
+	auditLog := a.userData(rctx).AuditLog()
+	return &auditLog
 }
 
 func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
@@ -200,8 +202,7 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 		u2futil.GetTrustedFacets(),
 		u2futil.ChallengeHashForAccountSecrets(wacc.Account))
 	if err != nil {
-		log.Printf("u2f.NewChallenge error: %v", err)
-		http.Error(w, "error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
 
@@ -217,26 +218,10 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 }
 
 func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
-	query := strings.ToLower(r.URL.Query().Get("q"))
+	query := r.URL.Query().Get("q")
 
-	accounts := []apitypes.Account{}
-	folders := []apitypes.Folder{}
-
-	for _, folder := range a.userData(rctx).Folders {
-		if !strings.Contains(strings.ToLower(folder.Name), query) {
-			continue
-		}
-
-		folders = append(folders, folder)
-	}
-
-	for _, wacc := range a.userData(rctx).WrappedAccounts {
-		if !strings.Contains(strings.ToLower(wacc.Account.Title), query) {
-			continue
-		}
-
-		accounts = append(accounts, wacc.Account)
-	}
+	accounts := a.userData(rctx).SearchAccounts(query)
+	folders := a.userData(rctx).SearchFolders(query)
 
 	return &apitypes.FolderResponse{
 		SubFolders: folders,
@@ -247,7 +232,6 @@ func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWri
 func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.U2FEnrollmentChallenge {
 	c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.GetTrustedFacets())
 	if err != nil {
-		log.Printf("u2f.NewChallenge error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
@@ -275,7 +259,7 @@ func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w 
 func (a *queryHandlers) U2fEnrolledTokens(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *[]apitypes.U2FEnrolledToken {
 	tokens := []apitypes.U2FEnrolledToken{}
 
-	for _, token := range a.userData(rctx).U2FTokens {
+	for _, token := range a.userData(rctx).U2FTokens() {
 		tokens = append(tokens, apitypes.U2FEnrolledToken{
 			Name:       token.Name,
 			EnrolledAt: token.EnrolledAt,
@@ -367,7 +351,7 @@ func u2fSignatureOk(
 	u2fTokenUsedEvent := domain.NewUserU2FTokenUsed(
 		response.SignResult.KeyHandle,
 		int(newCounter),
-		event.Meta(time.Now(), rctx.User.Id))
+		ehevent.Meta(time.Now(), rctx.User.Id))
 
-	return st.EventLog.Append([]event.Event{u2fTokenUsedEvent})
+	return st.EventLog.Append([]ehevent.Event{u2fTokenUsedEvent})
 }

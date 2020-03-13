@@ -7,8 +7,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/eventkit/command"
-	"github.com/function61/eventkit/event"
 	"github.com/function61/gokit/cryptorandombytes"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/logex"
@@ -139,7 +139,7 @@ func (h *Handlers) AccountCreateFolder(a *AccountCreateFolder, ctx *command.Ctx)
 	}
 
 	ctx.RaisesEvent(domain.NewAccountFolderCreated(
-		event.RandomId(),
+		state.RandomId(),
 		a.Parent,
 		a.Name,
 		ctx.Meta))
@@ -196,7 +196,7 @@ func (h *Handlers) AccountMoveFolder(a *AccountMoveFolder, ctx *command.Ctx) err
 }
 
 func (h *Handlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) error {
-	accountId := event.RandomId()
+	accountId := state.RandomId()
 
 	title := a.Title
 
@@ -234,7 +234,7 @@ func (h *Handlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) error {
 
 		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 			accountId,
-			event.RandomId(),
+			state.RandomId(),
 			a.Password,
 			ctx.Meta))
 	}
@@ -282,7 +282,7 @@ func (h *Handlers) AccountAddPassword(a *AccountAddPassword, ctx *command.Ctx) e
 
 	ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 		a.Account,
-		event.RandomId(),
+		state.RandomId(),
 		password,
 		ctx.Meta))
 
@@ -296,7 +296,7 @@ func (h *Handlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *command.Ct
 
 	ctx.RaisesEvent(domain.NewAccountSecretNoteAdded(
 		a.Account,
-		event.RandomId(),
+		state.RandomId(),
 		a.Title,
 		a.Note,
 		ctx.Meta))
@@ -311,7 +311,7 @@ func (h *Handlers) AccountAddExternalU2FToken(a *AccountAddExternalU2FToken, ctx
 
 	ctx.RaisesEvent(domain.NewAccountExternalTokenAdded(
 		a.Account,
-		event.RandomId(),
+		state.RandomId(),
 		domain.ExternalTokenKindU2f,
 		a.Title,
 		ctx.Meta))
@@ -326,7 +326,7 @@ func (h *Handlers) AccountAddExternalYubicoOtpToken(a *AccountAddExternalYubicoO
 
 	ctx.RaisesEvent(domain.NewAccountExternalTokenAdded(
 		a.Account,
-		event.RandomId(),
+		state.RandomId(),
 		domain.ExternalTokenKindYubicoOtp,
 		a.Title,
 		ctx.Meta))
@@ -371,7 +371,7 @@ func (h *Handlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) err
 
 	ctx.RaisesEvent(domain.NewAccountKeylistAdded(
 		a.Account,
-		event.RandomId(),
+		state.RandomId(),
 		a.Title,
 		keys,
 		ctx.Meta))
@@ -420,7 +420,7 @@ func (h *Handlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error
 
 	ctx.RaisesEvent(domain.NewAccountSshKeyAdded(
 		a.Id,
-		event.RandomId(),
+		state.RandomId(),
 		privateKeyReformatted,
 		publicKeyAuthorizedFormat,
 		ctx.Meta))
@@ -440,7 +440,7 @@ func (h *Handlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) e
 
 	ctx.RaisesEvent(domain.NewAccountOtpTokenAdded(
 		a.Account,
-		event.RandomId(),
+		state.RandomId(),
 		a.OtpProvisioningUrl,
 		ctx.Meta))
 
@@ -462,8 +462,9 @@ func (h *Handlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword,
 func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	var user *state.SensitiveUser
 	for _, userStorage := range h.state.DB.UserScope {
-		if userStorage.SensitiveUser.User.Username == a.Username {
-			user = &userStorage.SensitiveUser
+		if userStorage.SensitiveUser().User.Username == a.Username {
+			tmp := userStorage.SensitiveUser()
+			user = &tmp
 			break
 		}
 	}
@@ -496,7 +497,7 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 			user.User.Id,
 			string(upgradedPassword),
 			true, // => automatic upgrade of password
-			event.Meta(time.Now(), user.User.Id)))
+			ehevent.Meta(time.Now(), user.User.Id)))
 	}
 
 	jwtSigner, err := httpauth.NewEcJwtSigner(h.state.GetJwtSigningKey())
@@ -515,7 +516,7 @@ func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,
 		ctx.UserAgent,
-		event.Meta(time.Now(), user.User.Id)))
+		ehevent.Meta(time.Now(), user.User.Id)))
 
 	h.logl.Info.Printf("User %s signed in", user.User.Username)
 
@@ -552,13 +553,13 @@ func (h *Handlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
 }
 
 func (h *Handlers) UserAddAccessToken(a *UserAddAccessToken, ctx *command.Ctx) error {
-	if h.userData(ctx).SensitiveUser.AccessToken != "" {
+	if h.userData(ctx).SensitiveUser().AccessToken != "" {
 		return errors.New("multiple access tokens not currently supported")
 	}
 
 	ctx.RaisesEvent(domain.NewUserAccessTokenAdded(
 		a.User,
-		event.RandomId(),
+		state.RandomId(),
 		cryptorandombytes.Base64Url(16),
 		a.Description,
 		ctx.Meta))
@@ -578,11 +579,9 @@ func (h *Handlers) UserCreate(a *UserCreate, ctx *command.Ctx) error {
 		return err
 	}
 
-	// FIXME: this has a race condition until the underlying event storage engine can
-	//        support conditional append
-	uid := h.state.NextFreeUserId()
+	uid := state.RandomId()
 
-	meta := event.Meta(time.Now(), uid)
+	meta := ehevent.Meta(time.Now(), uid)
 
 	ctx.RaisesEvent(domain.NewUserCreated(
 		uid,

@@ -2,7 +2,7 @@ package state
 
 import (
 	"errors"
-	"github.com/function61/eventkit/event"
+	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/jsonfile"
@@ -54,9 +54,15 @@ func InitConfig(adminUsername string, adminPassword string) error {
 		return err
 	}
 
-	state := New(logex.Discard)
-	defer state.Close()
+	state, err := New(logex.Discard)
+	if err != nil {
+		return err
+	}
 
+	return createAdminUser(adminUsername, adminPassword, state)
+}
+
+func createAdminUser(adminUsername string, adminPassword string, state *AppState) error {
 	storedPassword, err := storedpassword.Store(
 		adminPassword,
 		storedpassword.CurrentBestDerivationStrategy)
@@ -64,7 +70,7 @@ func InitConfig(adminUsername string, adminPassword string) error {
 		return err
 	}
 
-	meta := event.Meta(time.Now(), state.NextFreeUserId())
+	meta := ehevent.Meta(time.Now(), "2")
 
 	userCreated := domain.NewUserCreated(
 		meta.UserId,
@@ -77,5 +83,5 @@ func InitConfig(adminUsername string, adminPassword string) error {
 		false,
 		meta)
 
-	return state.EventLog.Append([]event.Event{userCreated, password})
+	return state.EventLog.Append([]ehevent.Event{userCreated, password})
 }

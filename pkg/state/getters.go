@@ -1,43 +1,99 @@
 package state
 
 import (
-	"fmt"
 	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"strings"
 	"time"
 )
 
+func (s *UserStorage) SensitiveUser() SensitiveUser {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return *s.sUser
+}
+
 func (s *UserStorage) SubfoldersByParentId(id string) []apitypes.Folder {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	subFolders := []apitypes.Folder{}
 
-	for _, f := range s.Folders {
+	for _, f := range s.folders {
 		if f.ParentId != id {
 			continue
 		}
 
-		subFolders = append(subFolders, f)
+		subFolders = append(subFolders, *f)
 	}
 
 	return subFolders
 }
 
 func (s *UserStorage) WrappedAccountsByFolder(id string) []WrappedAccount {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	accounts := []WrappedAccount{}
 
-	for _, wacc := range s.WrappedAccounts {
-		if wacc.Account.FolderId != id {
+	for _, acc := range s.accounts {
+		if acc.WrappedAccount.Account.FolderId != id {
 			continue
 		}
 
-		accounts = append(accounts, wacc)
+		accounts = append(accounts, *acc.WrappedAccount)
 	}
 
 	return accounts
 }
 
+func (s *UserStorage) U2FTokens() []*U2FToken {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	tokens := []*U2FToken{}
+
+	for _, token := range s.u2FTokens {
+		tokens = append(tokens, token)
+	}
+
+	return tokens
+}
+
+func (s *UserStorage) WrappedAccounts() []WrappedAccount {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	waccs := []WrappedAccount{}
+
+	for _, acc := range s.accounts {
+		waccs = append(waccs, *acc.WrappedAccount)
+	}
+
+	return waccs
+}
+
+func (s *UserStorage) SearchAccounts(query string) []apitypes.Account {
+	queryLowercased := strings.ToLower(query)
+
+	matches := []apitypes.Account{}
+
+	for _, acc := range s.accounts {
+		if !strings.Contains(strings.ToLower(acc.WrappedAccount.Account.Title), queryLowercased) {
+			continue
+		}
+
+		matches = append(matches, acc.WrappedAccount.Account)
+	}
+
+	return matches
+}
+
 func (s *UserStorage) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
+	// WrappedAccountById() does locking
 	wacc := s.WrappedAccountById(accountId)
 	if wacc == nil {
 		return nil
@@ -53,9 +109,12 @@ func (s *UserStorage) WrappedSecretById(accountId string, secretId string) *Wrap
 }
 
 func (s *UserStorage) WrappedAccountById(id string) *WrappedAccount {
-	for _, wacc := range s.WrappedAccounts {
-		if wacc.Account.Id == id {
-			return &wacc
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, acc := range s.accounts {
+		if acc.WrappedAccount.Account.Id == id {
+			return acc.WrappedAccount
 		}
 	}
 
@@ -63,13 +122,35 @@ func (s *UserStorage) WrappedAccountById(id string) *WrappedAccount {
 }
 
 func (s *UserStorage) FolderById(id string) *apitypes.Folder {
-	for _, folder := range s.Folders {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, folder := range s.folders {
 		if folder.Id == id {
-			return &folder
+			return folder
 		}
 	}
 
 	return nil
+}
+
+func (s *UserStorage) SearchFolders(query string) []apitypes.Folder {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	queryLowercased := strings.ToLower(query)
+
+	matches := []apitypes.Folder{}
+
+	for _, folder := range s.folders {
+		if !strings.Contains(strings.ToLower(folder.Name), queryLowercased) {
+			continue
+		}
+
+		matches = append(matches, *folder)
+	}
+
+	return matches
 }
 
 func UnwrapAccounts(waccs []WrappedAccount) []apitypes.Account {
@@ -82,8 +163,8 @@ func UnwrapAccounts(waccs []WrappedAccount) []apitypes.Account {
 	return ret
 }
 
-func UnwrapSecrets(secrets []WrappedSecret, st *AppState) []apitypes.ExposedSecret {
-	ret := []apitypes.ExposedSecret{}
+func UnwrapSecrets(secrets []WrappedSecret, st *AppState) ([]apitypes.ExposedSecret, error) {
+	exposed := []apitypes.ExposedSecret{}
 
 	otpProofTime := time.Now()
 
@@ -93,29 +174,36 @@ func UnwrapSecrets(secrets []WrappedSecret, st *AppState) []apitypes.ExposedSecr
 		if psecret.OtpProvisioningUrl != "" {
 			key, err := otp.NewKeyFromURL(psecret.OtpProvisioningUrl)
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 
 			otpProof, err = totp.GenerateCode(key.Secret(), otpProofTime)
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 		}
 
-		es := apitypes.ExposedSecret{
+		exposed = append(exposed, apitypes.ExposedSecret{
 			OtpProof:        otpProof,
 			OtpProofTime:    otpProofTime,
 			OtpKeyExportMac: mac.New(st.GetMacSigningKey(), psecret.Secret.Id).Sign(),
 			Secret:          psecret.Secret,
-		}
-
-		ret = append(ret, es)
+		})
 	}
 
-	return ret
+	return exposed, nil
 }
 
-func (s *AppState) NextFreeUserId() string {
-	// 1st user has ID of 2, so that's why we use + 2
-	return fmt.Sprintf("%d", len(s.DB.UserScope)+2)
+func (s *UserStorage) AuditLog() []apitypes.AuditlogEntry {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.auditLog
+}
+
+func (s *UserStorage) S3ExportDetails() *S3ExportDetails {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.s3ExportDetails
 }
