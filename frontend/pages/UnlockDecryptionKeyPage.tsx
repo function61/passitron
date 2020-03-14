@@ -2,7 +2,7 @@ import { WarningAlert } from 'f61ui/component/alerts';
 import { Panel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { CommandInlineForm } from 'f61ui/component/CommandButton';
-import { DatabaseUnseal } from 'generated/commands_commands';
+import { UserUnlockDecryptionKey } from 'generated/commands_commands';
 import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
@@ -28,7 +28,7 @@ export default class UnlockDecrypionKeyPage extends React.Component<
 					</WarningAlert>
 
 					<CommandInlineForm
-						command={DatabaseUnseal({ redirect: () => this.props.redirect })}
+						command={UserUnlockDecryptionKey({ redirect: () => this.props.redirect })}
 					/>
 				</Panel>
 			</AppDefaultLayout>

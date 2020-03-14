@@ -248,16 +248,6 @@
 		"fields": []
 	},
 	{
-		"command": "database.Unseal",
-		"chain": "authenticated",
-		"ctor": [],
-		"crudNature": "update",
-		"title": "Unseal database",
-		"fields": [
-			{ "key": "MasterPassword", "type": "password" }
-		]
-	},
-	{
 		"command": "database.ExportToKeepass",
 		"chain": "authenticated",
 		"ctor": [],
@@ -298,6 +288,16 @@
 		"fields": [
 			{ "key": "User", "hideIfDefaultValue": true },
 			{ "key": "Description" }
+		]
+	},
+	{
+		"command": "user.UnlockDecryptionKey",
+		"chain": "authenticated",
+		"ctor": [],
+		"crudNature": "update",
+		"title": "Unlock decryption key",
+		"fields": [
+			{ "key": "Password", "type": "password" }
 		]
 	},
 	{

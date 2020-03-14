@@ -580,8 +580,8 @@ func (h *Handlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *comm
 	return keepassexport.Export(h.state, ctx.Meta.UserId)
 }
 
-func (h *Handlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
-	if err := h.userData(ctx).Crypto().UnlockDecryptionKey(a.MasterPassword); err != nil {
+func (h *Handlers) UserUnlockDecryptionKey(a *UserUnlockDecryptionKey, ctx *command.Ctx) error {
+	if err := h.userData(ctx).Crypto().UnlockDecryptionKey(a.Password); err != nil {
 		return err
 	}
 
