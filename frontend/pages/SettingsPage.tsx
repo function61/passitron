@@ -230,7 +230,7 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 						},
 					});
 				},
-				10,
+				30,
 			);
 		});
 
