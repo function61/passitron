@@ -1,5 +1,5 @@
 import { DangerAlert, InfoAlert } from 'f61ui/component/alerts';
-import { Panel } from 'f61ui/component/bootstrap';
+import { Button, Panel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { CommandButton, CommandInlineForm, CommandLink } from 'f61ui/component/CommandButton';
 import { Dropdown } from 'f61ui/component/dropdown';
@@ -105,13 +105,12 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 				{this.state.enrollmentError && (
 					<DangerAlert>{this.state.enrollmentError}</DangerAlert>
 				)}
-				<a
-					className="btn btn-default"
-					onClick={() => {
+				<Button
+					label="Enroll token"
+					click={() => {
 						shouldAlwaysSucceed(this.startTokenEnrollment());
-					}}>
-					Enroll token
-				</a>
+					}}
+				/>
 			</p>
 		);
 	}
