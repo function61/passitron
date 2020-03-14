@@ -307,8 +307,8 @@
 		"crudNature": "create",
 		"title": "Register U2F token",
 		"fields": [
-			{ "key": "Request" },
-			{ "key": "Name" }
+			{ "key": "Request", "hideIfDefaultValue": true, "max_length": 4096 },
+			{ "key": "Name", "placeholder": "Bob´s primary YubiKey", "help": "It´s a good idea to name your U2F token so that if you have a second token, or later get one, you know which one this is." }
 		]
 	}
 ]
