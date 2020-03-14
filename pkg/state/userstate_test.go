@@ -219,7 +219,7 @@ func addAccount(t *testing.T, tc *testContext) {
 	tc.appendAndLoad(
 		domain.NewAccountDescriptionChanged(testAccId, "Notes for account\nLine 2", ehevent.Meta(t0, joonasUid)))
 
-	assert.EqualJson(t, tc.user.accounts[testAccId].WrappedAccount.Account, `{
+	assert.EqualJson(t, tc.user.accounts[testAccId].Account, `{
   "Created": "2020-02-20T14:02:00Z",
   "Description": "Notes for account\nLine 2",
   "FolderId": "root",
@@ -238,11 +238,11 @@ func addPassword(t *testing.T, tc *testContext) {
 			tc.encrypt("hunter2"),
 			ehevent.Meta(t0, joonasUid)))
 
-	secret := tc.user.accounts[testAccId].v2secrets[0]
+	secret := tc.user.accounts[testAccId].Secrets[0]
 
-	assert.Assert(t, secret.kind == domain.SecretKindPassword)
+	assert.Assert(t, secret.Kind == domain.SecretKindPassword)
 
-	pwd, err := tc.user.crypto.Decrypt(secret.envelope)
+	pwd, err := tc.user.crypto.Decrypt(secret.Envelope)
 	assert.Ok(t, err)
 
 	assert.EqualString(t, string(pwd), "hunter2")
@@ -257,11 +257,11 @@ func addSecretNote(t *testing.T, tc *testContext) {
 			tc.encrypt("01: abcd\n02: efgh\n03: ijkl\n04: mnop"),
 			ehevent.Meta(t0, joonasUid)))
 
-	secret := tc.user.accounts[testAccId].v2secrets[1]
+	secret := tc.user.accounts[testAccId].Secrets[1]
 
-	assert.Assert(t, secret.kind == domain.SecretKindNote)
+	assert.Assert(t, secret.Kind == domain.SecretKindNote)
 
-	pwd, err := tc.user.crypto.Decrypt(secret.envelope)
+	pwd, err := tc.user.crypto.Decrypt(secret.Envelope)
 	assert.Ok(t, err)
 
 	assert.EqualString(t, string(pwd), `01: abcd
@@ -278,16 +278,16 @@ func addOtpToken(t *testing.T, tc *testContext) {
 			tc.encrypt("otpauth://totp/Google%3Afoo%40example.com?secret=qlt6vmy6svfx4bt4rpmisaiyol6hihca&issuer=Google"),
 			ehevent.Meta(t0, joonasUid)))
 
-	secret := tc.user.accounts[testAccId].v2secrets[2]
+	secret := tc.user.accounts[testAccId].Secrets[2]
 
-	assert.Assert(t, secret.kind == domain.SecretKindOtpToken)
+	assert.Assert(t, secret.Kind == domain.SecretKindOtpToken)
 
-	pwd, err := tc.user.crypto.Decrypt(secret.envelope)
+	otpProvisioningUrl, err := tc.user.DecryptOtpProvisioningUrl(secret)
 	assert.Ok(t, err)
 
 	assert.EqualString(
 		t,
-		string(pwd),
+		otpProvisioningUrl,
 		"otpauth://totp/Google%3Afoo%40example.com?secret=qlt6vmy6svfx4bt4rpmisaiyol6hihca&issuer=Google")
 }
 
@@ -313,10 +313,12 @@ func addKeylist(t *testing.T, tc *testContext) {
 			tc.encrypt(string(itemsJson)),
 			ehevent.Meta(t0, joonasUid)))
 
-	secret := tc.user.accounts[testAccId].v2secrets[3]
-	assert.Assert(t, secret.kind == domain.SecretKindKeylist)
+	secret := tc.user.accounts[testAccId].Secrets[3]
+	assert.Assert(t, secret.Kind == domain.SecretKindKeylist)
+	assert.EqualString(t, secret.Title, "Keylist 567")
+	assert.EqualString(t, secret.keylistKeyExample, "01")
 
-	klJson, err := tc.user.crypto.Decrypt(secret.envelope)
+	klJson, err := tc.user.crypto.Decrypt(secret.Envelope)
 	assert.Ok(t, err)
 
 	kl := []domain.AccountKeylistAddedKeysItem{}
@@ -343,11 +345,12 @@ func addExternalToken(t *testing.T, tc *testContext) {
 			"Joonas's primary U2F token",
 			ehevent.Meta(t0, joonasUid)))
 
-	secret := tc.user.accounts[testAccId].v2secrets[4]
+	secret := tc.user.accounts[testAccId].Secrets[4]
 
-	assert.Assert(t, secret.kind == domain.SecretKindExternalToken)
+	assert.Assert(t, secret.Kind == domain.SecretKindExternalToken)
+	assert.Assert(t, *secret.externalTokenKind == domain.ExternalTokenKindU2f)
 
-	assert.EqualString(t, secret.title, "Joonas's primary U2F token")
+	assert.EqualString(t, secret.Title, "Joonas's primary U2F token")
 }
 
 func addSshKey(t *testing.T, tc *testContext) {
@@ -375,13 +378,13 @@ vD2QakbdLBUy2JF2E2GHmGyTXQ6yp4rWgcCVPeeFRw==
 			"fixme SshPublicKeyAuthorized",
 			ehevent.Meta(t0, joonasUid)))
 
-	secret := tc.user.accounts[testAccId].v2secrets[5]
+	secret := tc.user.accounts[testAccId].Secrets[5]
 
-	assert.Assert(t, secret.kind == domain.SecretKindSshKey)
+	assert.Assert(t, secret.Kind == domain.SecretKindSshKey)
 
-	assert.EqualString(t, secret.title, "fixme SshPublicKeyAuthorized")
+	assert.EqualString(t, secret.SshPublicKeyAuthorized, "fixme SshPublicKeyAuthorized")
 
-	sshKey, err := tc.user.crypto.Decrypt(secret.envelope)
+	sshKey, err := tc.user.crypto.Decrypt(secret.Envelope)
 	assert.Ok(t, err)
 
 	assert.EqualString(t, string(sshKey), dummyButWorkingKey)
@@ -406,7 +409,7 @@ func deleteSecret(t *testing.T, tc *testContext) {
 			"Dummy token",
 			ehevent.Meta(t0, joonasUid)))
 
-	assert.Assert(t, len(tc.user.accounts[testAccId].v2secrets) == 7)
+	assert.Assert(t, len(tc.user.accounts[testAccId].Secrets) == 7)
 
 	tc.appendAndLoad(
 		domain.NewAccountSecretDeleted(
@@ -414,7 +417,7 @@ func deleteSecret(t *testing.T, tc *testContext) {
 			"dummyId",
 			ehevent.Meta(t0, joonasUid)))
 
-	assert.Assert(t, len(tc.user.accounts[testAccId].v2secrets) == 6)
+	assert.Assert(t, len(tc.user.accounts[testAccId].Secrets) == 6)
 }
 
 func renameAccount(t *testing.T, tc *testContext) {
@@ -423,14 +426,14 @@ func renameAccount(t *testing.T, tc *testContext) {
 
 	assert.EqualString(
 		t,
-		tc.user.accounts[testAccId].WrappedAccount.Account.Title,
+		tc.user.accounts[testAccId].Account.Title,
 		"google-is-evil.com")
 }
 
 func moveAccount(t *testing.T, tc *testContext) {
 	assert.EqualString(
 		t,
-		tc.user.accounts[testAccId].WrappedAccount.Account.FolderId,
+		tc.user.accounts[testAccId].Account.FolderId,
 		domain.RootFolderId)
 
 	tc.appendAndLoad(
@@ -438,7 +441,7 @@ func moveAccount(t *testing.T, tc *testContext) {
 
 	assert.EqualString(
 		t,
-		tc.user.accounts[testAccId].WrappedAccount.Account.FolderId,
+		tc.user.accounts[testAccId].Account.FolderId,
 		"fld1")
 }
 

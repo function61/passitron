@@ -81,8 +81,8 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 		secretId,
 		key)
 
-	wsecret := a.userData(rctx).WrappedSecretById(accountId, secretId)
-	if wsecret == nil {
+	isecret := a.userData(rctx).InternalSecretById(accountId, secretId)
+	if isecret == nil {
 		httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
 		return nil
 	}
@@ -92,11 +92,18 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 		return nil
 	}
 
-	for _, keyEntry := range wsecret.KeylistKeys {
+	keys, err := a.userData(rctx).DecryptKeylist(*isecret)
+	if err != nil {
+		// TODO: ErrDecryptionKeyLocked
+		httputil.RespondHttpJson(httputil.GenericError("keylist_decryption_failed", err), http.StatusForbidden, w)
+		return nil
+	}
+
+	for _, keyEntry := range keys {
 		if keyEntry.Key == key {
 			secretUsedEvent := domain.NewAccountSecretUsed(
 				accountId,
-				[]string{wsecret.Secret.Id},
+				[]string{isecret.Id},
 				domain.SecretUsedTypeKeylistKeyExposed,
 				keyEntry.Key,
 				ehevent.Meta(time.Now(), rctx.User.Id))
@@ -106,7 +113,10 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 				return nil
 			}
 
-			return &keyEntry
+			return &apitypes.SecretKeylistKey{
+				Key:   keyEntry.Key,
+				Value: keyEntry.Value,
+			}
 		}
 	}
 
@@ -143,19 +153,21 @@ func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w
 }
 
 func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
-	wacc := a.userData(rctx).WrappedAccountById(mux.Vars(r)["accountId"])
+	userData := a.userData(rctx)
 
-	if wacc == nil {
+	acc := userData.WrappedAccountById(mux.Vars(r)["accountId"])
+
+	if acc == nil {
 		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 		return nil
 	}
 
-	if err := u2fSignatureOk(rctx, u2fResponse, u2futil.ChallengeHashForAccountSecrets(wacc.Account), a.state); err != nil {
+	if err := u2fSignatureOk(rctx, u2fResponse, u2futil.ChallengeHashForAccountSecrets(acc.Account), a.state); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
 
-	secrets, err := state.UnwrapSecrets(wacc.Secrets, a.state)
+	secrets, err := userData.DecryptSecrets(acc.Secrets, a.state)
 	if err != nil {
 		if err == state.ErrDecryptionKeyLocked {
 			httputil.RespondHttpJson(
@@ -177,7 +189,7 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 	}
 
 	secretUsedEvent := domain.NewAccountSecretUsed(
-		wacc.Account.Id,
+		acc.Account.Id,
 		secretIdsForAudit,
 		domain.SecretUsedTypePasswordExposed,
 		"",
@@ -197,9 +209,9 @@ func (a *queryHandlers) AuditLogEntries(rctx *httpauth.RequestContext, w http.Re
 }
 
 func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
-	wacc := a.userData(rctx).WrappedAccountById(mux.Vars(r)["id"])
+	acc := a.userData(rctx).WrappedAccountById(mux.Vars(r)["id"])
 
-	if wacc == nil {
+	if acc == nil {
 		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 		return nil
 	}
@@ -214,7 +226,7 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 	challenge, err := u2futil.NewU2FCustomChallenge(
 		u2futil.GetAppIdHostname(),
 		u2futil.GetTrustedFacets(),
-		u2futil.ChallengeHashForAccountSecrets(wacc.Account))
+		u2futil.ChallengeHashForAccountSecrets(acc.Account))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
@@ -227,7 +239,7 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 			Challenge:   u2futil.ChallengeToApiType(*challenge),
 			SignRequest: u2futil.SignRequestToApiType(*signRequest),
 		},
-		Account: wacc.Account,
+		Account: acc.Account,
 	}
 }
 
@@ -288,35 +300,29 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]
 
-	account := a.userData(rctx).WrappedAccountById(accountId)
-	if account == nil {
-		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
-		return
-	}
+	userData := a.userData(rctx)
 
-	var secret *state.WrappedSecret = nil
-	for _, secretItem := range account.Secrets {
-		secretItem := secretItem // pin
-
-		if secretItem.Secret.Id == secretId {
-			secret = &secretItem
-			break
-		}
-	}
-
+	secret := userData.InternalSecretById(accountId, secretId)
 	if secret == nil {
-		httputil.RespondHttpJson(httputil.GenericError("secret_not_found", nil), http.StatusNotFound, w)
+		httputil.RespondHttpJson(httputil.GenericError("account_or_secret_not_found", nil), http.StatusNotFound, w)
 		return
 	}
 
-	exportMac := mac.New(a.state.GetMacSigningKey(), secret.Secret.Id)
+	exportMac := mac.New(a.state.GetMacSigningKey(), secret.Id)
 
 	if err := exportMac.Authenticate(r.URL.Query().Get("mac")); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("invalid_mac", err), http.StatusForbidden, w)
 		return
 	}
 
-	qrCode, err := qr.Encode(secret.OtpProvisioningUrl, qr.M, qr.Auto)
+	otpProvisioningUrl, err := userData.DecryptOtpProvisioningUrl(*secret)
+	if err != nil {
+		// TODO: ErrDecryptionKeyLocked
+		httputil.RespondHttpJson(httputil.GenericError("decrypt_totp_provisioning_url", err), http.StatusForbidden, w)
+		return
+	}
+
+	qrCode, err := qr.Encode(otpProvisioningUrl, qr.M, qr.Auto)
 	if err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("qr_encode", err), http.StatusInternalServerError, w)
 		return

@@ -90,13 +90,18 @@ func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
 	return ciphertextBlock
 }
 
-func exportKeylistAsText(wsecret state.WrappedSecret) string {
+func exportKeylistAsText(isecret state.InternalSecret, userStorage *state.UserStorage) string {
 	lines := []string{
-		"Keylist " + wsecret.Secret.Title,
+		"Keylist " + isecret.Title,
 		"--------------------------",
 	}
 
-	for _, entry := range wsecret.KeylistKeys {
+	keys, err := userStorage.DecryptKeylist(isecret)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, entry := range keys {
 		line := entry.Key + ": " + entry.Value
 
 		lines = append(lines, line)
@@ -149,17 +154,27 @@ func exportRecursive(
 	for _, wacc := range waccs {
 		for idx, secret := range wacc.Secrets {
 			var entry *gokeepasslib.Entry = nil
-			switch domain.SecretKindExhaustive97ac5d(secret.Secret.Kind) {
+			switch domain.SecretKindExhaustive97ac5d(secret.Kind) {
 			case domain.SecretKindKeylist:
-				entry = entryForAccount(wacc.Account, idx, exportKeylistAsText(secret))
+				entry = entryForAccount(wacc.Account, idx, exportKeylistAsText(secret, userStorage))
 			case domain.SecretKindPassword:
+				password, err := userStorage.Crypto().Decrypt(secret.Envelope)
+				if err != nil {
+					panic(err)
+				}
+
 				entry = entryForAccount(wacc.Account, idx, "")
-				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Secret.Password))
+				entry.Values = append(entry.Values, mkProtectedValue("Password", string(password)))
 			case domain.SecretKindSshKey:
 				entry = entryForAccount(wacc.Account, idx, "")
 				filename := wacc.Account.Id + ".id_rsa"
 
-				plaintextSshBlock, rest := pem.Decode([]byte(secret.SshPrivateKey))
+				sshPrivateKey, err := userStorage.Crypto().Decrypt(secret.Envelope)
+				if err != nil {
+					panic(err)
+				}
+
+				plaintextSshBlock, rest := pem.Decode(sshPrivateKey)
 				if len(rest) > 0 {
 					panic("Extra data included in PEM content")
 				}
@@ -173,15 +188,25 @@ func exportRecursive(
 
 				entry.Binaries = append(entry.Binaries, binaryReference)
 			case domain.SecretKindNote:
-				entry = entryForAccount(wacc.Account, idx, secret.Secret.Note)
+				note, err := userStorage.Crypto().Decrypt(secret.Envelope)
+				if err != nil {
+					panic(err)
+				}
+
+				entry = entryForAccount(wacc.Account, idx, string(note))
 			case domain.SecretKindOtpToken:
+				otpProvisioningUrl, err := userStorage.DecryptOtpProvisioningUrl(secret)
+				if err != nil {
+					panic(err)
+				}
+
 				entry = entryForAccount(wacc.Account, idx, "")
-				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.OtpProvisioningUrl))
+				entry.Values = append(entry.Values, mkProtectedValue("Password", otpProvisioningUrl))
 			case domain.SecretKindExternalToken:
 				entry = entryForAccount(wacc.Account, idx, "")
-				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Secret.Title))
+				entry.Values = append(entry.Values, mkProtectedValue("Password", secret.Title))
 			default:
-				panic("invalid secret kind: " + secret.Secret.Kind)
+				panic("invalid secret kind: " + secret.Kind)
 			}
 
 			group.Entries = append(group.Entries, *entry)

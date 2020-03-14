@@ -1,8 +1,10 @@
 package state
 
 import (
+	"encoding/json"
 	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
+	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"strings"
@@ -37,18 +39,18 @@ func (s *UserStorage) SubfoldersByParentId(id string) []apitypes.Folder {
 	return subFolders
 }
 
-func (s *UserStorage) WrappedAccountsByFolder(id string) []WrappedAccount {
+func (s *UserStorage) WrappedAccountsByFolder(id string) []InternalAccount {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	accounts := []WrappedAccount{}
+	accounts := []InternalAccount{}
 
 	for _, acc := range s.accounts {
-		if acc.WrappedAccount.Account.FolderId != id {
+		if acc.Account.FolderId != id {
 			continue
 		}
 
-		accounts = append(accounts, *acc.WrappedAccount)
+		accounts = append(accounts, *acc)
 	}
 
 	return accounts
@@ -67,17 +69,17 @@ func (s *UserStorage) U2FTokens() []*U2FToken {
 	return tokens
 }
 
-func (s *UserStorage) WrappedAccounts() []WrappedAccount {
+func (s *UserStorage) WrappedAccounts() []InternalAccount {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	waccs := []WrappedAccount{}
+	accounts := []InternalAccount{}
 
 	for _, acc := range s.accounts {
-		waccs = append(waccs, *acc.WrappedAccount)
+		accounts = append(accounts, *acc)
 	}
 
-	return waccs
+	return accounts
 }
 
 func (s *UserStorage) SearchAccounts(query string) []apitypes.Account {
@@ -86,39 +88,39 @@ func (s *UserStorage) SearchAccounts(query string) []apitypes.Account {
 	matches := []apitypes.Account{}
 
 	for _, acc := range s.accounts {
-		if !strings.Contains(strings.ToLower(acc.WrappedAccount.Account.Title), queryLowercased) {
+		if !strings.Contains(strings.ToLower(acc.Account.Title), queryLowercased) {
 			continue
 		}
 
-		matches = append(matches, acc.WrappedAccount.Account)
+		matches = append(matches, acc.Account)
 	}
 
 	return matches
 }
 
-func (s *UserStorage) WrappedSecretById(accountId string, secretId string) *WrappedSecret {
+func (s *UserStorage) InternalSecretById(accountId string, secretId string) *InternalSecret {
 	// WrappedAccountById() does locking
-	wacc := s.WrappedAccountById(accountId)
-	if wacc == nil {
+	acc := s.WrappedAccountById(accountId)
+	if acc == nil {
 		return nil
 	}
 
-	for _, wrappedSecret := range wacc.Secrets {
-		if wrappedSecret.Secret.Id == secretId {
-			return &wrappedSecret
+	for _, secret := range acc.Secrets {
+		if secret.Id == secretId {
+			return &secret
 		}
 	}
 
 	return nil
 }
 
-func (s *UserStorage) WrappedAccountById(id string) *WrappedAccount {
+func (s *UserStorage) WrappedAccountById(id string) *InternalAccount {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	for _, acc := range s.accounts {
-		if acc.WrappedAccount.Account.Id == id {
-			return acc.WrappedAccount
+		if acc.Account.Id == id {
+			return acc
 		}
 	}
 
@@ -157,26 +159,62 @@ func (s *UserStorage) SearchFolders(query string) []apitypes.Folder {
 	return matches
 }
 
-func UnwrapAccounts(waccs []WrappedAccount) []apitypes.Account {
-	ret := []apitypes.Account{}
-
-	for _, wacc := range waccs {
-		ret = append(ret, wacc.Account)
+func (s *UserStorage) DecryptOtpProvisioningUrl(secret InternalSecret) (string, error) {
+	otpProvisioningUrl, err := s.crypto.Decrypt(secret.Envelope)
+	if err != nil {
+		return "", err
 	}
 
-	return ret
+	return string(otpProvisioningUrl), nil
 }
 
-func UnwrapSecrets(secrets []WrappedSecret, st *AppState) ([]apitypes.ExposedSecret, error) {
+func (s *UserStorage) DecryptKeylist(secret InternalSecret) ([]domain.AccountKeylistAddedKeysItem, error) {
+	keylistJson, err := s.crypto.Decrypt(secret.Envelope)
+	if err != nil {
+		return nil, err
+	}
+
+	keys := []domain.AccountKeylistAddedKeysItem{}
+	if err := json.Unmarshal(keylistJson, &keys); err != nil {
+		return nil, err
+	}
+
+	return keys, nil
+}
+
+func (s *UserStorage) DecryptSecrets(
+	secrets []InternalSecret,
+	st *AppState,
+) ([]apitypes.ExposedSecret, error) {
 	exposed := []apitypes.ExposedSecret{}
 
 	otpProofTime := time.Now()
 
-	for _, psecret := range secrets {
+	for _, internalSecret := range secrets {
 		otpProof := ""
+		note := []byte{}
+		password := []byte{}
 
-		if psecret.OtpProvisioningUrl != "" {
-			key, err := otp.NewKeyFromURL(psecret.OtpProvisioningUrl)
+		var err error
+
+		switch domain.SecretKindExhaustive97ac5d(internalSecret.Kind) {
+		case domain.SecretKindNote:
+			note, err = s.crypto.Decrypt(internalSecret.Envelope)
+			if err != nil {
+				return nil, err
+			}
+		case domain.SecretKindPassword:
+			password, err = s.crypto.Decrypt(internalSecret.Envelope)
+			if err != nil {
+				return nil, err
+			}
+		case domain.SecretKindOtpToken:
+			otpProvisioningUrl, err := s.DecryptOtpProvisioningUrl(internalSecret)
+			if err != nil {
+				return nil, err
+			}
+
+			key, err := otp.NewKeyFromURL(otpProvisioningUrl)
 			if err != nil {
 				return nil, err
 			}
@@ -185,17 +223,43 @@ func UnwrapSecrets(secrets []WrappedSecret, st *AppState) ([]apitypes.ExposedSec
 			if err != nil {
 				return nil, err
 			}
+		case domain.SecretKindSshKey:
+			// special handling elsewhere, never exposed to UI
+		case domain.SecretKindKeylist:
+			// special handling elsewhere
+		case domain.SecretKindExternalToken:
+			// informational - there's no secret
 		}
 
 		exposed = append(exposed, apitypes.ExposedSecret{
 			OtpProof:        otpProof,
 			OtpProofTime:    otpProofTime,
-			OtpKeyExportMac: mac.New(st.GetMacSigningKey(), psecret.Secret.Id).Sign(),
-			Secret:          psecret.Secret,
+			OtpKeyExportMac: mac.New(st.GetMacSigningKey(), internalSecret.Id).Sign(),
+			Secret: apitypes.Secret{
+				Id:                     internalSecret.Id,
+				Kind:                   internalSecret.Kind,
+				Created:                internalSecret.created,
+				Title:                  internalSecret.Title,
+				ExternalTokenKind:      internalSecret.externalTokenKind,
+				KeylistKeyExample:      internalSecret.keylistKeyExample,
+				SshPublicKeyAuthorized: "TODO",
+				Note:                   string(note),
+				Password:               string(password),
+			},
 		})
 	}
 
 	return exposed, nil
+}
+
+func UnwrapAccounts(iaccounts []InternalAccount) []apitypes.Account {
+	accounts := []apitypes.Account{}
+
+	for _, acccount := range iaccounts {
+		accounts = append(accounts, acccount.Account)
+	}
+
+	return accounts
 }
 
 func (s *UserStorage) AuditLog() []apitypes.AuditlogEntry {

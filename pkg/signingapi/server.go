@@ -16,25 +16,38 @@ import (
 	"time"
 )
 
-func lookupSignerByPubKey(pubKeyMarshaled []byte, userStorage *state.UserStorage) (ssh.Signer, *state.WrappedAccount, string, error) {
+func lookupSignerByPubKey(
+	pubKeyMarshaled []byte,
+	userStorage *state.UserStorage,
+) (ssh.Signer, *state.InternalAccount, string, error) {
 	for _, wacc := range userStorage.WrappedAccounts() {
 		for _, secret := range wacc.Secrets {
-			if secret.SshPrivateKey == "" {
+			if secret.Kind != domain.SecretKindSshKey {
 				continue
 			}
 
-			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
+			publicKey, err := parseSshPublicKeyFromAuthorizedFormat(secret.SshPublicKeyAuthorized)
 			if err != nil { // shouldn't happen
 				return nil, nil, "", err
 			}
 
-			publicKey := signer.PublicKey()
-
 			// apparently identities can only be compared by Marshal(), this is is done
 			// the same way in SSH package
-			if bytes.Equal(pubKeyMarshaled, publicKey.Marshal()) {
-				return signer, &wacc, secret.Secret.Id, nil
+			if !bytes.Equal(pubKeyMarshaled, publicKey.Marshal()) {
+				continue
 			}
+
+			sshKeyDecrypted, err := userStorage.Crypto().Decrypt(secret.Envelope)
+			if err != nil {
+				return nil, nil, "", err
+			}
+
+			signer, err := ssh.ParsePrivateKey(sshKeyDecrypted)
+			if err != nil { // shouldn't happen
+				return nil, nil, "", err
+			}
+
+			return signer, &wacc, secret.Id, nil
 		}
 	}
 
@@ -50,20 +63,18 @@ func (h *handlers) GetPublicKeys(rctx *httpauth.RequestContext, w http.ResponseW
 
 	for _, wacc := range h.st.User(rctx.User.Id).WrappedAccounts() {
 		for _, secret := range wacc.Secrets {
-			if secret.SshPrivateKey == "" {
+			if secret.Kind != domain.SecretKindSshKey {
 				continue
 			}
 
-			signer, err := ssh.ParsePrivateKey([]byte(secret.SshPrivateKey))
+			publicKey, err := parseSshPublicKeyFromAuthorizedFormat(secret.SshPublicKeyAuthorized)
 			if err != nil {
 				httputil.RespondHttpJson(
-					httputil.GenericError("private_key_parse_failed", err),
+					httputil.GenericError("parse_authorized_key", err),
 					http.StatusInternalServerError,
 					w)
 				return nil
 			}
-
-			publicKey := signer.PublicKey()
 
 			keys = append(keys, PublicKey{
 				Format:  publicKey.Type(),
@@ -111,4 +122,11 @@ func (h *handlers) Sign(rctx *httpauth.RequestContext, input SignRequestInput, w
 
 func Setup(router *mux.Router, mwares httpauth.MiddlewareChainMap, st *state.AppState) {
 	RegisterRoutes(&handlers{st}, mwares, muxregistrator.New(router))
+}
+
+// parses from same format as in "authorized_keys" file
+func parseSshPublicKeyFromAuthorizedFormat(pubKeyAuthorizedKeys string) (ssh.PublicKey, error) {
+	// parses many, but we know this contains only one
+	publicKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(pubKeyAuthorizedKeys))
+	return publicKey, err
 }

@@ -17,17 +17,20 @@ const (
 	maxAuditLogEntries = 30
 )
 
-type WrappedSecret struct {
-	Secret             apitypes.Secret // exposed over REST API, the rest are sensitive
-	SshPrivateKey      string
-	OtpProvisioningUrl string
-	KeylistKeys        []apitypes.SecretKeylistKey
+type InternalAccount struct {
+	Account apitypes.Account // exposed to UI - the rest are not
+	Secrets []InternalSecret
 }
 
-// FIXME: this has the same name as with apitypes.WrappedAccount
-type WrappedAccount struct {
-	Account apitypes.Account
-	Secrets []WrappedSecret
+type InternalSecret struct {
+	Id                     string
+	created                time.Time
+	Title                  string
+	SshPublicKeyAuthorized string
+	externalTokenKind      *domain.ExternalTokenKind
+	keylistKeyExample      string
+	Kind                   domain.SecretKind
+	Envelope               []byte // depending on Kind: password | secret note | OTP provisioning URL | SSH key
 }
 
 type U2FToken struct {
@@ -41,23 +44,9 @@ type U2FToken struct {
 }
 
 type SensitiveUser struct {
-	User         apitypes.User
-	AccessToken  string // stores only the latest. TODO: support multiple
+	User         apitypes.User // exposed to UI - the rest are not
+	AccessToken  string        // stores only the latest. TODO: support multiple
 	PasswordHash string
-}
-
-type v2secret struct {
-	id                string
-	created           time.Time
-	title             string
-	keylistKeyExample string
-	kind              domain.SecretKind
-	envelope          []byte
-}
-
-type v2Account struct {
-	WrappedAccount *WrappedAccount
-	v2secrets      []v2secret
 }
 
 type S3ExportDetails struct {
@@ -71,7 +60,7 @@ type UserStorage struct {
 	cursor          ehclient.Cursor
 	mu              sync.Mutex
 	sUser           *SensitiveUser
-	accounts        map[string]*v2Account
+	accounts        map[string]*InternalAccount
 	folders         []*apitypes.Folder
 	u2FTokens       []*U2FToken
 	crypto          *cryptoThingie
@@ -87,7 +76,7 @@ func newUserStorage(tenant ehreader.Tenant) *UserStorage {
 
 	return &UserStorage{
 		cursor:   ehclient.Beginning(tenant.Stream(stream)),
-		accounts: map[string]*v2Account{},
+		accounts: map[string]*InternalAccount{},
 		folders: []*apitypes.Folder{
 			{
 				Id:       domain.RootFolderId,
@@ -195,87 +184,86 @@ func (l *UserStorage) processEvent(ev ehevent.Event) error {
 	case *domain.AccountSecretDeleted:
 		acc := l.accounts[e.Account]
 
-		for idx, secret := range acc.v2secrets {
-			if secret.id == e.Secret {
-				acc.v2secrets = append(acc.v2secrets[:idx], acc.v2secrets[idx+1:]...)
+		for idx, secret := range acc.Secrets {
+			if secret.Id == e.Secret {
+				acc.Secrets = append(acc.Secrets[:idx], acc.Secrets[idx+1:]...)
 				break
 			}
 		}
 	case *domain.AccountCreated:
-		l.accounts[e.Id] = &v2Account{
-			WrappedAccount: &WrappedAccount{
-				Account: apitypes.Account{
-					Id:       e.Id,
-					Created:  e.Meta().Timestamp,
-					FolderId: e.FolderId,
-					Title:    e.Title,
-				},
-				Secrets: []WrappedSecret{},
+		l.accounts[e.Id] = &InternalAccount{
+			Account: apitypes.Account{
+				Id:       e.Id,
+				Created:  e.Meta().Timestamp,
+				FolderId: e.FolderId,
+				Title:    e.Title,
 			},
-			v2secrets: []v2secret{},
+			Secrets: []InternalSecret{},
 		}
 	case *domain.AccountUsernameChanged:
-		l.accounts[e.Id].WrappedAccount.Account.Username = e.Username
+		l.accounts[e.Id].Account.Username = e.Username
 	case *domain.AccountUrlChanged:
-		l.accounts[e.Id].WrappedAccount.Account.Url = e.Url
+		l.accounts[e.Id].Account.Url = e.Url
 	case *domain.AccountRenamed:
-		l.accounts[e.Id].WrappedAccount.Account.Title = e.Title
+		l.accounts[e.Id].Account.Title = e.Title
 	case *domain.AccountDescriptionChanged:
-		l.accounts[e.Id].WrappedAccount.Account.Description = e.Description
+		l.accounts[e.Id].Account.Description = e.Description
 	case *domain.AccountMoved:
-		l.accounts[e.Id].WrappedAccount.Account.FolderId = e.NewParentFolder
+		l.accounts[e.Id].Account.FolderId = e.NewParentFolder
 	case *domain.AccountDeleted:
 		delete(l.accounts, e.Id)
 	case *domain.AccountSecretNoteAdded:
 		acc := l.accounts[e.Account]
-		acc.v2secrets = append(acc.v2secrets, v2secret{
-			id:       e.Id,
+		acc.Secrets = append(acc.Secrets, InternalSecret{
+			Id:       e.Id,
 			created:  e.Meta().Timestamp,
-			title:    e.Title,
-			kind:     domain.SecretKindNote,
-			envelope: e.Note,
+			Title:    e.Title,
+			Kind:     domain.SecretKindNote,
+			Envelope: e.Note,
 		})
 	case *domain.AccountPasswordAdded:
 		acc := l.accounts[e.Account]
-		acc.v2secrets = append(acc.v2secrets, v2secret{
-			id:       e.Id,
+		acc.Secrets = append(acc.Secrets, InternalSecret{
+			Id:       e.Id,
 			created:  e.Meta().Timestamp,
-			kind:     domain.SecretKindPassword,
-			envelope: e.Password,
+			Kind:     domain.SecretKindPassword,
+			Envelope: e.Password,
 		})
 	case *domain.AccountOtpTokenAdded:
 		acc := l.accounts[e.Account]
-		acc.v2secrets = append(acc.v2secrets, v2secret{
-			id:       e.Id,
+		acc.Secrets = append(acc.Secrets, InternalSecret{
+			Id:       e.Id,
 			created:  e.Meta().Timestamp,
-			kind:     domain.SecretKindOtpToken,
-			envelope: e.OtpProvisioningUrl,
+			Kind:     domain.SecretKindOtpToken,
+			Envelope: e.OtpProvisioningUrl,
 		})
 	case *domain.AccountKeylistAdded:
 		acc := l.accounts[e.Account]
-		acc.v2secrets = append(acc.v2secrets, v2secret{
-			id:                e.Id,
+		acc.Secrets = append(acc.Secrets, InternalSecret{
+			Id:                e.Id,
 			created:           e.Meta().Timestamp,
-			kind:              domain.SecretKindKeylist,
+			Kind:              domain.SecretKindKeylist,
+			Title:             e.Title,
 			keylistKeyExample: e.KeyExample,
-			envelope:          e.Keys,
+			Envelope:          e.Keys,
 		})
 	case *domain.AccountExternalTokenAdded:
 		acc := l.accounts[e.Account]
-		acc.v2secrets = append(acc.v2secrets, v2secret{
-			id:      e.Id,
-			created: e.Meta().Timestamp,
-			title:   e.Description,
-			kind:    domain.SecretKindExternalToken,
+		acc.Secrets = append(acc.Secrets, InternalSecret{
+			Id:                e.Id,
+			created:           e.Meta().Timestamp,
+			Title:             e.Description,
+			Kind:              domain.SecretKindExternalToken,
+			externalTokenKind: &e.Kind,
 		})
 	case *domain.AccountSshKeyAdded:
 		acc := l.accounts[e.Account]
-		acc.v2secrets = append(acc.v2secrets, v2secret{
-			id:       e.Id,
-			created:  e.Meta().Timestamp,
-			title:    e.SshPublicKeyAuthorized,
-			kind:     domain.SecretKindSshKey,
-			envelope: e.SshPrivateKey,
+		acc.Secrets = append(acc.Secrets, InternalSecret{
+			Id:                     e.Id,
+			created:                e.Meta().Timestamp,
+			SshPublicKeyAuthorized: e.SshPublicKeyAuthorized,
+			Kind:                   domain.SecretKindSshKey,
+			Envelope:               e.SshPrivateKey,
 		})
 	case *domain.AccountSecretUsed:
 		l.audit(fmt.Sprintf("Account %s secret %v - %s", e.Account, e.Secrets, e.Type), ev.Meta())
