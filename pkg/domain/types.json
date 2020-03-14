@@ -3,6 +3,15 @@
 		{ "key": "RootFolderId", "value": "root" },
 		{ "key": "RootFolderName", "value": "root" }
 	],
+	"types": [
+		{
+			"name": "AccountKeylistAddedKeysItem",
+			"type": {"_": "object", "fields": {
+				"Key": {"_": "string"},
+				"Value": {"_": "string"}
+			}}
+		}
+	],
 	"enums": [
 		{
 			"name": "SecretKind",

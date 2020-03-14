@@ -86,7 +86,8 @@
 				"key": "Title", "type": {"_": "string"}
 			},
 			{
-				"key": "Note", "type": {"_": "binary"}
+				"key": "Note", "type": {"_": "binary"},
+				"notes": "A string inside an encrypted envelope"
 			}
 		]
 	},
@@ -101,7 +102,8 @@
 				"key": "Account", "type": {"_": "string"}
 			},
 			{
-				"key": "OtpProvisioningUrl", "type": {"_": "binary"}
+				"key": "OtpProvisioningUrl", "type": {"_": "binary"},
+				"notes": "A string inside an encrypted envelope"
 			}
 		]
 	},
@@ -122,7 +124,8 @@
 				"key": "KeyExample", "type": {"_": "string"}
 			},
 			{
-				"key": "Keys", "type": {"_": "binary"}
+				"key": "Keys", "type": {"_": "binary"},
+				"notes": "JSON array of AccountKeylistAddedKeysItem inside an encrypted envelope"
 			}
 		]
 	},
@@ -137,7 +140,8 @@
 				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "Password", "type": {"_": "binary"}
+				"key": "Password", "type": {"_": "binary"},
+				"notes": "A string inside an encrypted envelope"
 			}
 		]
 	},
@@ -205,7 +209,8 @@
 				"key": "Id", "type": {"_": "string"}
 			},
 			{
-				"key": "SshPrivateKey", "type": {"_": "binary"}
+				"key": "SshPrivateKey", "type": {"_": "binary"},
+				"notes": "A string of PEM-encoded RSA private key inside an encrypted envelope"
 			},
 			{
 				"key": "SshPublicKeyAuthorized", "type": {"_": "string"}
