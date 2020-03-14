@@ -22,10 +22,12 @@ func Register(
 ) error {
 	handlers := commands.New(appState, logger)
 
+	invoker := commands.CommandInvoker(handlers)
+
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
-		httpErr := httpcommand.Serve(w, r, mwares, commandName, commands.Allocators, handlers, eventLog)
+		httpErr := httpcommand.Serve(w, r, mwares, commandName, commands.Allocators, invoker, eventLog)
 		if httpErr != nil {
 			if httpErr.StatusCode > 0 {
 				httputil.RespondHttpJson(httputil.GenericError(
