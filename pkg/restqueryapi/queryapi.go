@@ -94,8 +94,7 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 
 	keys, err := a.userData(rctx).DecryptKeylist(*isecret)
 	if err != nil {
-		// TODO: ErrDecryptionKeyLocked
-		httputil.RespondHttpJson(httputil.GenericError("keylist_decryption_failed", err), http.StatusForbidden, w)
+		respondSecretDecryptionFailed(w, err)
 		return nil
 	}
 
@@ -169,18 +168,8 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 
 	secrets, err := userData.DecryptSecrets(acc.Secrets, a.state)
 	if err != nil {
-		if err == state.ErrDecryptionKeyLocked {
-			httputil.RespondHttpJson(
-				httputil.GenericError(
-					"database_is_sealed",
-					nil),
-				http.StatusForbidden,
-				w)
-			return nil
-		} else {
-			httputil.RespondHttpJson(httputil.GenericError("unwrap_secrets_failed", err), http.StatusForbidden, w)
-			return nil
-		}
+		respondSecretDecryptionFailed(w, err)
+		return nil
 	}
 
 	secretIdsForAudit := []string{}
@@ -317,8 +306,7 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 
 	otpProvisioningUrl, err := userData.DecryptOtpProvisioningUrl(*secret)
 	if err != nil {
-		// TODO: ErrDecryptionKeyLocked
-		httputil.RespondHttpJson(httputil.GenericError("decrypt_totp_provisioning_url", err), http.StatusForbidden, w)
+		respondSecretDecryptionFailed(w, err)
 		return
 	}
 
@@ -374,4 +362,17 @@ func u2fSignatureOk(
 		ehevent.Meta(time.Now(), rctx.User.Id))
 
 	return st.EventLog.Append([]ehevent.Event{u2fTokenUsedEvent})
+}
+
+func respondSecretDecryptionFailed(w http.ResponseWriter, err error) {
+	if err == state.ErrDecryptionKeyLocked {
+		httputil.RespondHttpJson(
+			httputil.GenericError(
+				"database_is_sealed",
+				nil),
+			http.StatusForbidden,
+			w)
+	} else {
+		httputil.RespondHttpJson(httputil.GenericError("secret_decryption_failed", err), http.StatusInternalServerError, w)
+	}
 }

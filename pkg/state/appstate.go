@@ -15,10 +15,9 @@ import (
 type AppState struct {
 	masterPassword   string
 	macSigningKey    string // derived from masterPassword
-	sealed           bool
 	validatedJwtConf *JwtConfig
 	users            map[string]*UserStorage // keyed by id
-	EventLog         eventlog.Log
+	EventLog         eventlog.Log            // FIXME: outdated (non-stream-aware) interface
 }
 
 // lists user known user IDs
@@ -46,7 +45,6 @@ func New(logger *log.Logger) (*AppState, error) {
 	// state from the event log is computed & populated mainly under State field
 	s := &AppState{
 		masterPassword:   "initpwd", // was accumulated from event log
-		sealed:           true,
 		validatedJwtConf: validatedJwtConf,
 		EventLog:         newTempAdapter(users["2"]),
 		users:            users,
@@ -77,14 +75,6 @@ func (s *AppState) SetMasterPassword(password string) {
 	s.macSigningKey = hex.EncodeToString(crypto.Pbkdf2Sha256100kDerive(
 		[]byte(s.masterPassword),
 		[]byte("macSalt")))
-}
-
-func (s *AppState) IsUnsealed() bool {
-	return !s.sealed
-}
-
-func (s *AppState) SetSealed(sealed bool) {
-	s.sealed = sealed
 }
 
 func RandomId() string {

@@ -8,31 +8,27 @@ import SearchPage from 'pages/SearchPage';
 import SettingsPage from 'pages/SettingsPage';
 import SignInPage from 'pages/SignInPage';
 import SshKeysPage from 'pages/SshKeysPage';
+import UnlockDecryptionKeyPage from 'pages/UnlockDecryptionKeyPage';
 import * as React from 'react';
-import {
-	accountRoute,
-	auditlogRoute,
-	folderRoute,
-	importotptokenRoute,
-	indexRoute,
-	searchRoute,
-	settingsRoute,
-	signInRoute,
-	sshkeysRoute,
-} from 'routes';
+import * as r from 'routes';
 
-export const router = makeRouter(indexRoute, () => (
+export const router = makeRouter(r.indexRoute, () => (
 	<HomePage key={RootFolderId} folderId={RootFolderId} />
 ))
-	.registerRoute(folderRoute, (opts) => <HomePage key={opts.folderId} folderId={opts.folderId} />)
-	.registerRoute(searchRoute, (opts) => (
+	.registerRoute(r.folderRoute, (opts) => (
+		<HomePage key={opts.folderId} folderId={opts.folderId} />
+	))
+	.registerRoute(r.searchRoute, (opts) => (
 		<SearchPage key={opts.searchTerm} searchTerm={opts.searchTerm} />
 	))
-	.registerRoute(accountRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)
-	.registerRoute(sshkeysRoute, () => <SshKeysPage />)
-	.registerRoute(settingsRoute, () => <SettingsPage />)
-	.registerRoute(signInRoute, (opts) => <SignInPage redirect={opts.redirect} />)
-	.registerRoute(auditlogRoute, () => <AuditLogPage />)
-	.registerRoute(importotptokenRoute, (opts) => (
+	.registerRoute(r.accountRoute, (opts) => <AccountPage key={opts.id} id={opts.id} />)
+	.registerRoute(r.sshkeysRoute, () => <SshKeysPage />)
+	.registerRoute(r.settingsRoute, () => <SettingsPage />)
+	.registerRoute(r.signInRoute, (opts) => <SignInPage redirect={opts.redirect} />)
+	.registerRoute(r.unlockDecryptionKeyRoute, (opts) => (
+		<UnlockDecryptionKeyPage redirect={opts.redirect} />
+	))
+	.registerRoute(r.auditlogRoute, () => <AuditLogPage />)
+	.registerRoute(r.importotptokenRoute, (opts) => (
 		<ImportOtpToken key={opts.account} account={opts.account} />
 	));

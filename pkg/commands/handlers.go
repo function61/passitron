@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"crypto/subtle"
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
@@ -582,14 +581,9 @@ func (h *Handlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *comm
 }
 
 func (h *Handlers) DatabaseUnseal(a *DatabaseUnseal, ctx *command.Ctx) error {
-	if subtle.ConstantTimeCompare([]byte(h.state.GetMasterPassword()), []byte(a.MasterPassword)) != 1 {
-		return errors.New("invalid password")
+	if err := h.userData(ctx).Crypto().UnlockDecryptionKey(a.MasterPassword); err != nil {
+		return err
 	}
-
-	if h.state.IsUnsealed() {
-		return errors.New("state already unsealed")
-	}
-	h.state.SetSealed(false)
 
 	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
 

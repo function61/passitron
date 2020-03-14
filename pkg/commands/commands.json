@@ -249,7 +249,7 @@
 	},
 	{
 		"command": "database.Unseal",
-		"chain": "public",
+		"chain": "authenticated",
 		"ctor": [],
 		"crudNature": "update",
 		"title": "Unseal database",

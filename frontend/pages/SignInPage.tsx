@@ -1,6 +1,5 @@
-import { isNotSignedInError, isSealedError } from 'errors';
+import { isNotSignedInError } from 'errors';
 import { navigateTo } from 'f61ui/browserutils';
-import { WarningAlert } from 'f61ui/component/alerts';
 import { Button, Panel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { CommandInlineForm } from 'f61ui/component/CommandButton';
@@ -8,7 +7,7 @@ import { Loading } from 'f61ui/component/loading';
 import { coerceToStructuredErrorResponse } from 'f61ui/errors';
 import { shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import { getFolder } from 'generated/apitypes_endpoints';
-import { DatabaseUnseal, SessionSignIn } from 'generated/commands_commands';
+import { SessionSignIn } from 'generated/commands_commands';
 import { RootFolderId, RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
@@ -16,9 +15,8 @@ import { indexRoute } from 'routes';
 
 const storedUsernameLocalStorageKey = 'signInLastUsername';
 
-// Sealed => AwaitingUsername => AwaitingPassword
+// AwaitingUsername => AwaitingPassword
 enum UnauthenticatedKind {
-	Sealed, // while database is sealed, signing in is not possible
 	AwaitingUsername,
 	AwaitingPassword,
 }
@@ -55,17 +53,6 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 
 	private widgetByStatus(status: UnauthenticatedKind): JSX.Element {
 		switch (status) {
-			case UnauthenticatedKind.Sealed:
-				return (
-					<Panel heading="Database is sealed">
-						<WarningAlert>
-							Database is sealed. You can only log in after database has been
-							unsealed.
-						</WarningAlert>
-
-						<CommandInlineForm command={DatabaseUnseal()} />
-					</Panel>
-				);
 			case UnauthenticatedKind.AwaitingUsername:
 				return (
 					<Panel heading={this.title}>
@@ -160,9 +147,7 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 		} catch (ex) {
 			const ser = coerceToStructuredErrorResponse(ex);
 
-			if (isSealedError(ser)) {
-				return UnauthenticatedKind.Sealed;
-			} else if (isNotSignedInError(ser)) {
+			if (isNotSignedInError(ser)) {
 				return this.state.username === ''
 					? UnauthenticatedKind.AwaitingUsername
 					: UnauthenticatedKind.AwaitingPassword;

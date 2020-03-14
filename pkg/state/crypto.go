@@ -55,6 +55,10 @@ func (c *cryptoThingie) Encrypt(secret []byte) ([]byte, error) {
 }
 
 func (c *cryptoThingie) UnlockDecryptionKey(pwd string) error {
+	if c.unlocked {
+		return errors.New("UnlockDecryptionKey: already unlocked")
+	}
+
 	if pwd == "opensesame" {
 		c.unlocked = true
 

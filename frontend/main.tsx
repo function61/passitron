@@ -7,13 +7,16 @@ import { StructuredErrorResponse } from 'f61ui/types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { router } from 'router';
-import { signInRoute } from 'routes';
+import { signInRoute, unlockDecryptionKeyRoute } from 'routes';
 
 // entrypoint for the app. this is called when DOM is loaded
 export function main(appElement: HTMLElement, config: GlobalConfig): void {
 	config.knownGlobalErrorsHandler = (err: StructuredErrorResponse) => {
-		if (isSealedError(err) || isNotSignedInError(err)) {
+		if (isNotSignedInError(err)) {
 			navigateTo(signInRoute.buildUrl({ redirect: getCurrentHash() }));
+			return true;
+		} else if (isSealedError(err)) {
+			navigateTo(unlockDecryptionKeyRoute.buildUrl({ redirect: getCurrentHash() }));
 			return true;
 		}
 

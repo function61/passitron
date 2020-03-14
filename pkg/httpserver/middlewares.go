@@ -16,21 +16,6 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 		return nil, err
 	}
 
-	sealedCheck := func(w http.ResponseWriter) bool {
-		if appState.IsUnsealed() {
-			return true
-		}
-
-		httputil.RespondHttpJson(
-			httputil.GenericError(
-				"database_is_sealed",
-				nil),
-			http.StatusForbidden,
-			w)
-
-		return false
-	}
-
 	authCheck := func(w http.ResponseWriter, r *http.Request) *httpauth.UserDetails {
 		authDetails, err := jwtAuth.AuthenticateWithCsrfProtection(r)
 		if err != nil {
@@ -73,18 +58,14 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 
 	/*
 		       public: no checks whatsoever
-		authenticated: sealed check and auth check (itself contains CSRF check)
-		       bearer: sealed check and bearer token check
+		authenticated: auth check (itself contains CSRF check)
+		       bearer: bearer token check
 	*/
 	return httpauth.MiddlewareChainMap{
 		"public": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
 			return &httpauth.RequestContext{}
 		},
 		"bearer": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
-			if !sealedCheck(w) {
-				return nil
-			}
-
 			uid, ok := resolveUidByAccessToken(r)
 			if !ok {
 				httputil.RespondHttpJson(
@@ -104,10 +85,6 @@ func createMiddlewares(appState *state.AppState) (httpauth.MiddlewareChainMap, e
 			}
 		},
 		"authenticated": func(w http.ResponseWriter, r *http.Request) *httpauth.RequestContext {
-			if !sealedCheck(w) {
-				return nil
-			}
-
 			authDetails := authCheck(w, r)
 			if authDetails == nil {
 				return nil
