@@ -107,7 +107,7 @@
 	},
 	{
 		"event": "account.KeylistAdded",
-		"ctor": ["Account", "Id", "Title", "Keys"],
+		"ctor": ["Account", "Id", "Title", "KeyExample", "Keys"],
 		"fields": [
 			{
 				"key": "Account", "type": {"_": "string"}

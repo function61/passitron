@@ -91,7 +91,7 @@ func newUserStorage(tenant ehreader.Tenant) *UserStorage {
 }
 
 func (l *UserStorage) GetEventTypes() ehevent.Allocators {
-	return domain.Types
+	return domain.EventTypes
 }
 
 func (l *UserStorage) ProcessEvents(ctx context.Context, handle ehreader.EventProcessorHandler) error {
