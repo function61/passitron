@@ -37,6 +37,14 @@ func (t *testContext) appendAndLoad(e ehevent.Event) {
 	}
 }
 
+func (t *testContext) encrypt(data string) []byte {
+	env, err := t.user.Crypto().Encrypt([]byte(data))
+	if err != nil {
+		panic(err)
+	}
+	return env
+}
+
 func TestMain(t *testing.T) {
 	tc := &testContext{
 		user:     newUserStorage(ehreader.TenantId("42")),
@@ -224,7 +232,11 @@ func addAccount(t *testing.T, tc *testContext) {
 
 func addPassword(t *testing.T, tc *testContext) {
 	tc.appendAndLoad(
-		domain.NewAccountPasswordAdded(testAccId, "pwdId1", "hunter2", ehevent.Meta(t0, joonasUid)))
+		domain.NewAccountPasswordAdded(
+			testAccId,
+			"pwdId1",
+			tc.encrypt("hunter2"),
+			ehevent.Meta(t0, joonasUid)))
 
 	secret := tc.user.accounts[testAccId].v2secrets[0]
 
@@ -242,7 +254,7 @@ func addSecretNote(t *testing.T, tc *testContext) {
 			testAccId,
 			"snId3",
 			"Account recovery codes",
-			"01: abcd\n02: efgh\n03: ijkl\n04: mnop",
+			tc.encrypt("01: abcd\n02: efgh\n03: ijkl\n04: mnop"),
 			ehevent.Meta(t0, joonasUid)))
 
 	secret := tc.user.accounts[testAccId].v2secrets[1]
@@ -263,7 +275,7 @@ func addOtpToken(t *testing.T, tc *testContext) {
 		domain.NewAccountOtpTokenAdded(
 			testAccId,
 			"otpId4",
-			"otpauth://totp/Google%3Afoo%40example.com?secret=qlt6vmy6svfx4bt4rpmisaiyol6hihca&issuer=Google",
+			tc.encrypt("otpauth://totp/Google%3Afoo%40example.com?secret=qlt6vmy6svfx4bt4rpmisaiyol6hihca&issuer=Google"),
 			ehevent.Meta(t0, joonasUid)))
 
 	secret := tc.user.accounts[testAccId].v2secrets[2]
@@ -280,7 +292,7 @@ func addOtpToken(t *testing.T, tc *testContext) {
 }
 
 func addKeylist(t *testing.T, tc *testContext) {
-	items := []domain.AccountKeylistAddedKeysItem{
+	itemsJson, err := json.Marshal([]domain.AccountKeylistAddedKeysItem{
 		{
 			"01",
 			"9876",
@@ -289,14 +301,16 @@ func addKeylist(t *testing.T, tc *testContext) {
 			"02",
 			"5432",
 		},
-	}
+	})
+	assert.Ok(t, err)
 
 	tc.appendAndLoad(
 		domain.NewAccountKeylistAdded(
 			testAccId,
 			"klId5",
 			"Keylist 567",
-			items,
+			"01",
+			tc.encrypt(string(itemsJson)),
 			ehevent.Meta(t0, joonasUid)))
 
 	secret := tc.user.accounts[testAccId].v2secrets[3]
@@ -357,7 +371,7 @@ vD2QakbdLBUy2JF2E2GHmGyTXQ6yp4rWgcCVPeeFRw==
 		domain.NewAccountSshKeyAdded(
 			testAccId,
 			"sshId5",
-			dummyButWorkingKey,
+			tc.encrypt(dummyButWorkingKey),
 			"fixme SshPublicKeyAuthorized",
 			ehevent.Meta(t0, joonasUid)))
 

@@ -23,6 +23,10 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 -----END RSA PRIVATE KEY-----`
 )
 
+var (
+	ErrDecryptionKeyLocked = errors.New("decryption key locked")
+)
+
 type cryptoThingie struct {
 	unlocked   bool
 	privateKey *rsa.PrivateKey
@@ -63,7 +67,7 @@ func (c *cryptoThingie) UnlockDecryptionKey(pwd string) error {
 // this will be a network hop or done in a browser
 func (c *cryptoThingie) Decrypt(envelopeBytes []byte) ([]byte, error) {
 	if !c.unlocked {
-		return nil, errors.New("decryption key not unlocked")
+		return nil, ErrDecryptionKeyLocked
 	}
 
 	env, err := envelopeenc.Unmarshal(envelopeBytes)

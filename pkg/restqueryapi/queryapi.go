@@ -157,8 +157,18 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 
 	secrets, err := state.UnwrapSecrets(wacc.Secrets, a.state)
 	if err != nil {
-		httputil.RespondHttpJson(httputil.GenericError("unwrap_secrets_failed", err), http.StatusForbidden, w)
-		return nil
+		if err == state.ErrDecryptionKeyLocked {
+			httputil.RespondHttpJson(
+				httputil.GenericError(
+					"database_is_sealed",
+					nil),
+				http.StatusForbidden,
+				w)
+			return nil
+		} else {
+			httputil.RespondHttpJson(httputil.GenericError("unwrap_secrets_failed", err), http.StatusForbidden, w)
+			return nil
+		}
 	}
 
 	secretIdsForAudit := []string{}

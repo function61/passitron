@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+func (s *UserStorage) Crypto() *cryptoThingie {
+	return s.crypto
+}
+
 func (s *UserStorage) SensitiveUser() SensitiveUser {
 	s.mu.Lock()
 	defer s.mu.Unlock()

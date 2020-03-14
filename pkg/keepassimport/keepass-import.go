@@ -42,6 +42,8 @@ func Run(csvPath string, userId string) error {
 		return err
 	}
 
+	userCrypto := st.User(userId).Crypto()
+
 	csvFile, err := os.Open(csvPath)
 	if err != nil {
 		return err
@@ -124,10 +126,15 @@ func Run(csvPath string, userId string) error {
 		}
 
 		if res["Password"] != "" {
+			envelope, err := userCrypto.Encrypt([]byte(res["Password"]))
+			if err != nil {
+				return err
+			}
+
 			pushEvent(domain.NewAccountPasswordAdded(
 				accountId,
 				state.RandomId(),
-				res["Password"],
+				envelope,
 				ehevent.Meta(modificationTime, userId)))
 		}
 

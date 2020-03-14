@@ -2,7 +2,6 @@ package state
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/function61/eventhorizon/pkg/ehclient"
 	"github.com/function61/eventhorizon/pkg/ehevent"
@@ -228,67 +227,38 @@ func (l *UserStorage) processEvent(ev ehevent.Event) error {
 	case *domain.AccountDeleted:
 		delete(l.accounts, e.Id)
 	case *domain.AccountSecretNoteAdded:
-		// FIXME: have this encrypted at command side
-		envBytes, err := l.crypto.Encrypt([]byte(e.Note))
-		if err != nil {
-			return err
-		}
-
 		acc := l.accounts[e.Account]
 		acc.v2secrets = append(acc.v2secrets, v2secret{
 			id:       e.Id,
 			created:  e.Meta().Timestamp,
 			title:    e.Title,
 			kind:     domain.SecretKindNote,
-			envelope: envBytes,
+			envelope: e.Note,
 		})
 	case *domain.AccountPasswordAdded:
-		// FIXME: have this encrypted at command side
-		envBytes, err := l.crypto.Encrypt([]byte(e.Password))
-		if err != nil {
-			return err
-		}
-
 		acc := l.accounts[e.Account]
 		acc.v2secrets = append(acc.v2secrets, v2secret{
 			id:       e.Id,
 			created:  e.Meta().Timestamp,
 			kind:     domain.SecretKindPassword,
-			envelope: envBytes,
+			envelope: e.Password,
 		})
 	case *domain.AccountOtpTokenAdded:
-		// FIXME: have this encrypted at command side
-		envBytes, err := l.crypto.Encrypt([]byte(e.OtpProvisioningUrl))
-		if err != nil {
-			return err
-		}
-
 		acc := l.accounts[e.Account]
 		acc.v2secrets = append(acc.v2secrets, v2secret{
 			id:       e.Id,
 			created:  e.Meta().Timestamp,
 			kind:     domain.SecretKindOtpToken,
-			envelope: envBytes,
+			envelope: e.OtpProvisioningUrl,
 		})
 	case *domain.AccountKeylistAdded:
-		// FIXME: have this encrypted at command side
-		jb, err := json.Marshal(e.Keys)
-		if err != nil {
-			return err
-		}
-
-		envBytes, err := l.crypto.Encrypt(jb)
-		if err != nil {
-			return err
-		}
-
 		acc := l.accounts[e.Account]
 		acc.v2secrets = append(acc.v2secrets, v2secret{
 			id:                e.Id,
 			created:           e.Meta().Timestamp,
 			kind:              domain.SecretKindKeylist,
-			keylistKeyExample: getKeylistKeyExample(e.Keys),
-			envelope:          envBytes,
+			keylistKeyExample: e.KeyExample,
+			envelope:          e.Keys,
 		})
 	case *domain.AccountExternalTokenAdded:
 		acc := l.accounts[e.Account]
@@ -299,19 +269,13 @@ func (l *UserStorage) processEvent(ev ehevent.Event) error {
 			kind:    domain.SecretKindExternalToken,
 		})
 	case *domain.AccountSshKeyAdded:
-		// FIXME: have this encrypted at command side
-		envBytes, err := l.crypto.Encrypt([]byte(e.SshPrivateKey))
-		if err != nil {
-			return err
-		}
-
 		acc := l.accounts[e.Account]
 		acc.v2secrets = append(acc.v2secrets, v2secret{
 			id:       e.Id,
 			created:  e.Meta().Timestamp,
 			title:    e.SshPublicKeyAuthorized,
 			kind:     domain.SecretKindSshKey,
-			envelope: envBytes,
+			envelope: e.SshPrivateKey,
 		})
 	case *domain.AccountSecretUsed:
 		l.audit(fmt.Sprintf("Account %s secret %v - %s", e.Account, e.Secrets, e.Type), ev.Meta())
@@ -336,14 +300,4 @@ func (l *UserStorage) audit(message string, meta *ehevent.EventMeta) {
 	l.auditLog = append(
 		[]apitypes.AuditlogEntry{entry},
 		l.auditLog[0:high]...)
-}
-
-func getKeylistKeyExample(keys []domain.AccountKeylistAddedKeysItem) string {
-	for _, key := range keys {
-		if key.Key != "" {
-			return key.Key
-		}
-	}
-
-	return ""
 }

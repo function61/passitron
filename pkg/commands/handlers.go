@@ -232,10 +232,15 @@ func (h *Handlers) AccountCreate(a *AccountCreate, ctx *command.Ctx) error {
 			return err
 		}
 
+		envelope, err := h.userData(ctx).Crypto().Encrypt([]byte(a.Password))
+		if err != nil {
+			return err
+		}
+
 		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 			accountId,
 			state.RandomId(),
-			a.Password,
+			envelope,
 			ctx.Meta))
 	}
 
@@ -280,10 +285,15 @@ func (h *Handlers) AccountAddPassword(a *AccountAddPassword, ctx *command.Ctx) e
 		password = randompassword.Build(randompassword.DefaultAlphabet, 16)
 	}
 
+	envelope, err := h.userData(ctx).Crypto().Encrypt([]byte(password))
+	if err != nil {
+		return err
+	}
+
 	ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 		a.Account,
 		state.RandomId(),
-		password,
+		envelope,
 		ctx.Meta))
 
 	return nil
@@ -294,11 +304,16 @@ func (h *Handlers) AccountAddSecretNote(a *AccountAddSecretNote, ctx *command.Ct
 		return errAccountNotFound
 	}
 
+	envelope, err := h.userData(ctx).Crypto().Encrypt([]byte(a.Note))
+	if err != nil {
+		return err
+	}
+
 	ctx.RaisesEvent(domain.NewAccountSecretNoteAdded(
 		a.Account,
 		state.RandomId(),
 		a.Title,
-		a.Note,
+		envelope,
 		ctx.Meta))
 
 	return nil
@@ -352,10 +367,16 @@ func (h *Handlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) err
 		return errors.New("ExpectedKeyCount does not match with parsed keylist")
 	}
 
+	keyExample := ""
+
 	for i := 0; i < len(matches); i += 2 {
 		item := domain.AccountKeylistAddedKeysItem{
 			Key:   matches[i],
 			Value: matches[i+1],
+		}
+
+		if keyExample == "" {
+			keyExample = item.Key
 		}
 
 		if a.LengthOfKeys != 0 && len(item.Key) != a.LengthOfKeys {
@@ -369,11 +390,22 @@ func (h *Handlers) AccountAddKeylist(a *AccountAddKeylist, ctx *command.Ctx) err
 		keys = append(keys, item)
 	}
 
+	keysJson, err := json.Marshal(keys)
+	if err != nil {
+		return err
+	}
+
+	envelope, err := h.userData(ctx).Crypto().Encrypt(keysJson)
+	if err != nil {
+		return err
+	}
+
 	ctx.RaisesEvent(domain.NewAccountKeylistAdded(
 		a.Account,
 		state.RandomId(),
 		a.Title,
-		keys,
+		keyExample,
+		envelope,
 		ctx.Meta))
 
 	return nil
@@ -403,7 +435,7 @@ func (h *Handlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error
 		return errors.New("We do not support encypted PEM blocks yet")
 	}
 
-	privateKeyReformatted := string(pem.EncodeToMemory(block))
+	privateKeyReformatted := pem.EncodeToMemory(block)
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
@@ -418,10 +450,15 @@ func (h *Handlers) AccountAddSshKey(a *AccountAddSshKey, ctx *command.Ctx) error
 
 	publicKeyAuthorizedFormat := string(ssh.MarshalAuthorizedKey(publicKeySsh))
 
+	envelope, err := h.userData(ctx).Crypto().Encrypt([]byte(privateKeyReformatted))
+	if err != nil {
+		return err
+	}
+
 	ctx.RaisesEvent(domain.NewAccountSshKeyAdded(
 		a.Id,
 		state.RandomId(),
-		privateKeyReformatted,
+		envelope,
 		publicKeyAuthorizedFormat,
 		ctx.Meta))
 
@@ -433,15 +470,19 @@ func (h *Handlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) e
 		return errAccountNotFound
 	}
 
-	// just validate key
 	if err := validateTotpProvisioningUrl(a.OtpProvisioningUrl); err != nil {
 		return fmt.Errorf("invalid OtpProvisioningUrl: %s", err)
+	}
+
+	envelope, err := h.userData(ctx).Crypto().Encrypt([]byte(a.OtpProvisioningUrl))
+	if err != nil {
+		return err
 	}
 
 	ctx.RaisesEvent(domain.NewAccountOtpTokenAdded(
 		a.Account,
 		state.RandomId(),
-		a.OtpProvisioningUrl,
+		envelope,
 		ctx.Meta))
 
 	return nil
