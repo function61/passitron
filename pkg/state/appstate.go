@@ -17,19 +17,6 @@ type AppState struct {
 	EventLog         eventlog.Log            // FIXME: outdated (non-stream-aware) interface
 }
 
-// lists user known user IDs
-func (a *AppState) UserIds() []string {
-	return []string{"2"}
-}
-
-func (a *AppState) User(id string) *UserStorage {
-	return a.users[id]
-}
-
-func (a *AppState) ValidatedJwtConf() *JwtConfig {
-	return a.validatedJwtConf
-}
-
 func New(logger *log.Logger) (*AppState, error) {
 	validatedJwtConf, err := readAndValidateJwtConfig()
 	if err != nil {
@@ -52,6 +39,19 @@ func New(logger *log.Logger) (*AppState, error) {
 	}
 
 	return s, nil
+}
+
+// lists user known user IDs
+func (a *AppState) UserIds() []string {
+	return []string{"2"}
+}
+
+func (a *AppState) User(id string) *UserStorage {
+	return a.users[id]
+}
+
+func (a *AppState) ValidatedJwtConf() *JwtConfig {
+	return a.validatedJwtConf
 }
 
 func RandomId() string {
