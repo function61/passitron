@@ -77,6 +77,11 @@ func (c *cryptoThingie) Decrypt(envelopeBytes []byte) ([]byte, error) {
 	return env.Decrypt(c.privateKey)
 }
 
+func (c *cryptoThingie) VerifyPassword(pwd string) error {
+	_, err := slowcrypto.WithPassword(pwd).Decrypt(c.privateKeyEncrypted)
+	return err
+}
+
 func (c *cryptoThingie) ChangeDecryptionKeyPassword(
 	newPassword string,
 	meta ehevent.EventMeta,

@@ -253,7 +253,9 @@
 		"ctor": [],
 		"crudNature": "update",
 		"title": "Export to KeePass format",
-		"fields": []
+		"fields": [
+			{ "key": "MasterPassword", "type": "password" }
+		]
 	},
 	{
 		"command": "user.Create",

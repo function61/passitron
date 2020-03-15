@@ -23,16 +23,24 @@ import (
 	"time"
 )
 
-func Export(st *state.AppState, userId string) error {
+func Export(st *state.AppState, userId string, masterPassword string) error {
 	conf := st.User(userId).S3ExportDetails()
 
 	if conf == nil {
 		return errors.New("S3ExportBucket, S3ExportApiKey or S3ExportSecret undefined")
 	}
 
+	userData := st.User(userId)
+
+	// keep sure exported file password is same as master password so user doesn't by
+	// accident export it with the wrong password. TODO: this makes process inherently interactive
+	if err := userData.Crypto().VerifyPassword(masterPassword); err != nil {
+		return err
+	}
+
 	var keepassOutFile bytes.Buffer
 
-	if err := keepassExport(st.GetMasterPassword(), &keepassOutFile, st, userId); err != nil {
+	if err := keepassExport(masterPassword, &keepassOutFile, userData); err != nil {
 		return err
 	}
 
@@ -116,8 +124,8 @@ func entryForAccount(account apitypes.Account, idx int, notesAppend string) *gok
 func exportRecursive(
 	id string,
 	meta *gokeepasslib.MetaData,
-	st *state.AppState,
 	userStorage *state.UserStorage,
+	masterPassword string,
 ) (gokeepasslib.Group, int) {
 	entriesExported := 0
 
@@ -158,7 +166,7 @@ func exportRecursive(
 
 				encryptedSshKey := encryptPemBlock(
 					plaintextSshBlock,
-					[]byte(st.GetMasterPassword()))
+					[]byte(masterPassword))
 
 				binary := meta.Binaries.Add(pem.EncodeToMemory(encryptedSshKey))
 				binaryReference := binary.CreateReference(filename)
@@ -201,7 +209,11 @@ func exportRecursive(
 	subFolders := userStorage.SubfoldersByParentId(folder.Id)
 
 	for _, subFolder := range subFolders {
-		subGroup, subentriesExported := exportRecursive(subFolder.Id, meta, st, userStorage)
+		subGroup, subentriesExported := exportRecursive(
+			subFolder.Id,
+			meta,
+			userStorage,
+			masterPassword)
 
 		group.Groups = append(group.Groups, subGroup)
 
@@ -211,7 +223,7 @@ func exportRecursive(
 	return group, entriesExported
 }
 
-func keepassExport(masterPassword string, output io.Writer, st *state.AppState, userId string) error {
+func keepassExport(masterPassword string, output io.Writer, userStorage *state.UserStorage) error {
 	meta := gokeepasslib.NewMetaData()
 
 	content := &gokeepasslib.DBContent{
@@ -221,8 +233,8 @@ func keepassExport(masterPassword string, output io.Writer, st *state.AppState, 
 	rootGroup, entriesExported := exportRecursive(
 		domain.RootFolderId,
 		meta,
-		st,
-		st.User(userId))
+		userStorage,
+		masterPassword)
 
 	content.Root = &gokeepasslib.RootData{
 		Groups: []gokeepasslib.Group{rootGroup},

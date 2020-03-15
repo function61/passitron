@@ -582,7 +582,7 @@ func (h *Handlers) SessionSignOut(a *SessionSignOut, ctx *command.Ctx) error {
 }
 
 func (h *Handlers) DatabaseExportToKeepass(a *DatabaseExportToKeepass, ctx *command.Ctx) error {
-	return keepassexport.Export(h.state, ctx.Meta.UserId)
+	return keepassexport.Export(h.state, ctx.Meta.UserId, a.MasterPassword)
 }
 
 func (h *Handlers) UserUnlockDecryptionKey(a *UserUnlockDecryptionKey, ctx *command.Ctx) error {

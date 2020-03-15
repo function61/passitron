@@ -54,11 +54,6 @@ func New(logger *log.Logger) (*AppState, error) {
 	return s, nil
 }
 
-// for Keepass export
-func (s *AppState) GetMasterPassword() string {
-	return s.masterPassword
-}
-
 func RandomId() string {
 	return cryptorandombytes.Base64UrlWithoutLeadingDash(4)
 }
