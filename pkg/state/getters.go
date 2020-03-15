@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
@@ -10,6 +11,14 @@ import (
 	"strings"
 	"time"
 )
+
+func (l *UserStorage) MacKey() []byte {
+	if len(l.macKey) == 0 {
+		panic("empty macKey")
+	}
+
+	return l.macKey
+}
 
 func (s *UserStorage) Crypto() *cryptoThingie {
 	return s.crypto
@@ -160,6 +169,11 @@ func (s *UserStorage) SearchFolders(query string) []apitypes.Folder {
 }
 
 func (s *UserStorage) DecryptOtpProvisioningUrl(secret InternalSecret) (string, error) {
+	// could be dangerous to expose other secret material as "otp provisioning URL"
+	if secret.Kind != domain.SecretKindOtpToken {
+		return "", errors.New("DecryptOtpProvisioningUrl with invalid kind")
+	}
+
 	otpProvisioningUrl, err := s.crypto.Decrypt(secret.Envelope)
 	if err != nil {
 		return "", err
@@ -184,7 +198,6 @@ func (s *UserStorage) DecryptKeylist(secret InternalSecret) ([]domain.AccountKey
 
 func (s *UserStorage) DecryptSecrets(
 	secrets []InternalSecret,
-	st *AppState,
 ) ([]apitypes.ExposedSecret, error) {
 	exposed := []apitypes.ExposedSecret{}
 
@@ -192,6 +205,7 @@ func (s *UserStorage) DecryptSecrets(
 
 	for _, internalSecret := range secrets {
 		otpProof := ""
+		otpKeyExportMac := ""
 		note := []byte{}
 		password := []byte{}
 
@@ -223,6 +237,8 @@ func (s *UserStorage) DecryptSecrets(
 			if err != nil {
 				return nil, err
 			}
+
+			otpKeyExportMac = s.OtpKeyExportMac(&internalSecret).Sign()
 		case domain.SecretKindSshKey:
 			// special handling elsewhere, never exposed to UI
 		case domain.SecretKindKeylist:
@@ -234,7 +250,7 @@ func (s *UserStorage) DecryptSecrets(
 		exposed = append(exposed, apitypes.ExposedSecret{
 			OtpProof:        otpProof,
 			OtpProofTime:    otpProofTime,
-			OtpKeyExportMac: mac.New(st.GetMacSigningKey(), internalSecret.Id).Sign(),
+			OtpKeyExportMac: otpKeyExportMac,
 			Secret: apitypes.Secret{
 				Id:                     internalSecret.Id,
 				Kind:                   internalSecret.Kind,
@@ -250,6 +266,10 @@ func (s *UserStorage) DecryptSecrets(
 	}
 
 	return exposed, nil
+}
+
+func (s *UserStorage) OtpKeyExportMac(secret *InternalSecret) *mac.Mac {
+	return mac.New(string(s.MacKey()), secret.Id)
 }
 
 func UnwrapAccounts(iaccounts []InternalAccount) []apitypes.Account {

@@ -7,7 +7,6 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/httpauth"
-	"github.com/function61/gokit/mac"
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/httpserver/muxregistrator"
@@ -166,7 +165,7 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 		return nil
 	}
 
-	secrets, err := userData.DecryptSecrets(acc.Secrets, a.state)
+	secrets, err := userData.DecryptSecrets(acc.Secrets)
 	if err != nil {
 		respondSecretDecryptionFailed(w, err)
 		return nil
@@ -297,13 +296,12 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 		return
 	}
 
-	exportMac := mac.New(a.state.GetMacSigningKey(), secret.Id)
-
-	if err := exportMac.Authenticate(r.URL.Query().Get("mac")); err != nil {
+	if err := userData.OtpKeyExportMac(secret).Authenticate(r.URL.Query().Get("mac")); err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("invalid_mac", err), http.StatusForbidden, w)
 		return
 	}
 
+	// also validates secret kind
 	otpProvisioningUrl, err := userData.DecryptOtpProvisioningUrl(*secret)
 	if err != nil {
 		respondSecretDecryptionFailed(w, err)

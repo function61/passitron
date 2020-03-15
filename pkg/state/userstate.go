@@ -2,6 +2,7 @@ package state
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"github.com/function61/eventhorizon/pkg/ehclient"
 	"github.com/function61/eventhorizon/pkg/ehevent"
@@ -66,6 +67,7 @@ type UserStorage struct {
 	crypto          *cryptoThingie
 	auditLog        []apitypes.AuditlogEntry
 	s3ExportDetails *S3ExportDetails
+	macKey          []byte
 }
 
 func newUserStorage(tenant ehreader.Tenant) *UserStorage {
@@ -115,6 +117,11 @@ func (l *UserStorage) processEvent(ev ehevent.Event) error {
 		if err != nil {
 			return err
 		}
+
+		// add a couple bytes to not hash PrivateKeyEncrypted directly just to be extra safe,
+		// though PrivateKeyEncrypted is pretty safe already
+		macKey := sha256.Sum256(append(e.PrivateKeyEncrypted, []byte{0xFF, 0x01}...))
+		l.macKey = macKey[:]
 
 		l.audit("Changed the decryption key password", ev.Meta())
 	case *domain.UserDecryptionKeyUnlocked:
