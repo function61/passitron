@@ -7,6 +7,7 @@ import (
 	"github.com/function61/eventhorizon/pkg/ehreader"
 	"github.com/function61/eventhorizon/pkg/ehreader/ehreadertest"
 	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/cryptoutil"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"testing"
 	"time"
@@ -56,8 +57,6 @@ func TestMain(t *testing.T) {
 
 	setupUser(t, tc)
 
-	changeMasterPassword(t, tc)
-
 	unlockDecryptionKey(t, tc)
 
 	signIn(t, tc)
@@ -96,6 +95,29 @@ func TestMain(t *testing.T) {
 func setupUser(t *testing.T, tc *testContext) {
 	tc.appendAndLoad(
 		domain.NewUserCreated(joonasUid, "joonas", ehevent.MetaSystemUser(t0)))
+
+	privKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey([]byte(`-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
+wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
+1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh
+3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2
+pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX
+GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il
+AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF
+L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
+X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
+U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
+37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
+-----END RSA PRIVATE KEY-----`))
+	assert.Ok(t, err)
+
+	userDecryptionKeyChanged, err := ExportPrivateKeyWithPassword(
+		privKey,
+		"myMasterPassword",
+		ehevent.Meta(t0, joonasUid))
+	assert.Ok(t, err)
+
+	tc.appendAndLoad(userDecryptionKeyChanged)
 
 	tc.appendAndLoad(
 		domain.NewUserPasswordUpdated(
@@ -144,7 +166,7 @@ func setupUser(t *testing.T, tc *testContext) {
 	assert.Assert(t, tc.user.u2FTokens[0].Counter == 314)
 
 	tc.appendAndLoad(
-		domain.NewDatabaseS3IntegrationConfigured(
+		domain.NewUserS3IntegrationConfigured(
 			"myCoolBucket",
 			"keyId",
 			"secretLol",
@@ -157,13 +179,13 @@ func setupUser(t *testing.T, tc *testContext) {
 }`)
 }
 
-func changeMasterPassword(t *testing.T, tc *testContext) {
-	tc.appendAndLoad(
-		domain.NewDatabaseMasterPasswordChanged("initpwd", ehevent.Meta(t0, joonasUid)))
-}
-
 func unlockDecryptionKey(t *testing.T, tc *testContext) {
-	assert.Ok(t, tc.user.crypto.UnlockDecryptionKey("opensesame"))
+	assert.EqualString(
+		t,
+		tc.user.crypto.UnlockDecryptionKey("wrong password").Error(),
+		"UnlockDecryptionKey: decryption error. wrong password?")
+
+	assert.Ok(t, tc.user.crypto.UnlockDecryptionKey("myMasterPassword"))
 }
 
 func signIn(t *testing.T, tc *testContext) {

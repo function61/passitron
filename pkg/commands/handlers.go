@@ -487,14 +487,19 @@ func (h *Handlers) AccountAddOtpToken(a *AccountAddOtpToken, ctx *command.Ctx) e
 	return nil
 }
 
-func (h *Handlers) DatabaseChangeMasterPassword(a *DatabaseChangeMasterPassword, ctx *command.Ctx) error {
+func (h *Handlers) UserChangeDecryptionKeyPassword(a *UserChangeDecryptionKeyPassword, ctx *command.Ctx) error {
 	if err := verifyRepeatPassword(a.NewMasterPassword, a.NewMasterPasswordRepeat); err != nil {
 		return err
 	}
 
-	ctx.RaisesEvent(domain.NewDatabaseMasterPasswordChanged(
+	userDecryptionKeyChanged, err := h.userData(ctx).Crypto().ChangeDecryptionKeyPassword(
 		a.NewMasterPassword,
-		ctx.Meta))
+		ctx.Meta)
+	if err != nil {
+		return err
+	}
+
+	ctx.RaisesEvent(userDecryptionKeyChanged)
 
 	return nil
 }
@@ -585,7 +590,7 @@ func (h *Handlers) UserUnlockDecryptionKey(a *UserUnlockDecryptionKey, ctx *comm
 		return err
 	}
 
-	ctx.RaisesEvent(domain.NewDatabaseUnsealed(ctx.Meta))
+	ctx.RaisesEvent(domain.NewUserDecryptionKeyUnlocked(ctx.Meta))
 
 	return nil
 }

@@ -1,6 +1,8 @@
 package state
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"errors"
 	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/fileexists"
@@ -96,5 +98,15 @@ func createAdminUser(adminUsername string, adminPassword string, state *AppState
 		false,
 		meta)
 
-	return state.EventLog.Append([]ehevent.Event{userCreated, password})
+	privKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	if err != nil {
+		return err
+	}
+
+	decryptionKeyChanged, err := ExportPrivateKeyWithPassword(privKey, adminPassword, meta)
+	if err != nil {
+		return err
+	}
+
+	return state.EventLog.Append([]ehevent.Event{userCreated, password, decryptionKeyChanged})
 }

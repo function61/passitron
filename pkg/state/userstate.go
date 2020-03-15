@@ -69,11 +69,6 @@ type UserStorage struct {
 }
 
 func newUserStorage(tenant ehreader.Tenant) *UserStorage {
-	crypto, err := newCryptoThingie()
-	if err != nil {
-		panic(err)
-	}
-
 	return &UserStorage{
 		cursor:   ehclient.Beginning(tenant.Stream(stream)),
 		accounts: map[string]*InternalAccount{},
@@ -85,7 +80,6 @@ func newUserStorage(tenant ehreader.Tenant) *UserStorage {
 			},
 		},
 		u2FTokens: []*U2FToken{},
-		crypto:    crypto,
 		auditLog:  []apitypes.AuditlogEntry{},
 	}
 }
@@ -109,15 +103,21 @@ func (l *UserStorage) ProcessEvents(ctx context.Context, handle ehreader.EventPr
 
 func (l *UserStorage) processEvent(ev ehevent.Event) error {
 	switch e := ev.(type) {
-	case *domain.DatabaseS3IntegrationConfigured:
+	case *domain.UserS3IntegrationConfigured:
 		l.s3ExportDetails = &S3ExportDetails{
 			Bucket:       e.Bucket,
 			ApiKeyId:     e.ApiKey,
 			ApiKeySecret: e.Secret,
 		}
-	case *domain.DatabaseMasterPasswordChanged:
-		l.audit("Changed the master key", ev.Meta())
-	case *domain.DatabaseUnsealed:
+	case *domain.UserDecryptionKeyPasswordChanged:
+		var err error
+		l.crypto, err = newCryptoThingie(e.PublicKey, e.PrivateKeyEncrypted)
+		if err != nil {
+			return err
+		}
+
+		l.audit("Changed the decryption key password", ev.Meta())
+	case *domain.UserDecryptionKeyUnlocked:
 		l.audit("Unlocked the decryption key", ev.Meta())
 	case *domain.SessionSignedIn:
 		l.audit(fmt.Sprintf("Signed in with IP %s with %s", e.IpAddress, e.UserAgent), ev.Meta())

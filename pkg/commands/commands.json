@@ -218,11 +218,11 @@
 		]
 	},
 	{
-		"command": "database.ChangeMasterPassword",
+		"command": "user.ChangeDecryptionKeyPassword",
 		"chain": "authenticated",
 		"ctor": [],
 		"crudNature": "update",
-		"title": "Change master password",
+		"title": "Change decryption key password",
 		"fields": [
 			{ "key": "NewMasterPassword", "type": "password" },
 			{ "key": "NewMasterPasswordRepeat", "type": "password" }

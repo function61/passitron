@@ -278,21 +278,26 @@
 		]
 	},
 	{
-		"event": "database.Unsealed",
+		"event": "user.DecryptionKeyUnlocked",
 		"ctor": [],
 		"fields": []
 	},
 	{
-		"event": "database.MasterPasswordChanged",
-		"ctor": ["Password"],
+		"event": "user.DecryptionKeyPasswordChanged",
+		"ctor": ["PublicKey", "PrivateKeyEncrypted"],
 		"fields": [
 			{
-				"key": "Password", "type": {"_": "string"}
+				"key": "PublicKey", "type": {"_": "string"},
+				"notes": "PEM encoded RSA private key in PKCS1"
+			},
+			{
+				"key": "PrivateKeyEncrypted", "type": {"_": "binary"},
+				"notes": "PEM RSA private key in PKCS1 inside slowcrypto protected by user's password"
 			}
 		]
 	},
 	{
-		"event": "database.S3IntegrationConfigured",
+		"event": "user.S3IntegrationConfigured",
 		"ctor": ["Bucket", "ApiKey", "Secret"],
 		"fields": [
 			{

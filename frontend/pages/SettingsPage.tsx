@@ -10,10 +10,10 @@ import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/apitypes_endpoints';
 import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes_types';
 import {
-	DatabaseChangeMasterPassword,
 	DatabaseExportToKeepass,
 	SessionSignOut,
 	UserAddAccessToken,
+	UserChangeDecryptionKeyPassword,
 	UserChangePassword,
 	UserCreate,
 	UserRegisterU2FToken,
@@ -49,7 +49,7 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 					<div className="col-md-4">
 						<Panel heading="Actions">
 							<div>
-								<CommandButton command={DatabaseChangeMasterPassword()} />
+								<CommandButton command={UserChangeDecryptionKeyPassword()} />
 							</div>
 
 							<div className="margin-top">
