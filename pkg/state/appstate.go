@@ -11,7 +11,6 @@ import (
 )
 
 type AppState struct {
-	masterPassword   string
 	validatedJwtConf *JwtConfig
 	users            map[string]*UserStorage // keyed by id
 	EventLog         eventlog.Log            // FIXME: outdated (non-stream-aware) interface
@@ -28,7 +27,6 @@ func New(logger *log.Logger) (*AppState, error) {
 
 	// state from the event log is computed & populated mainly under State field
 	s := &AppState{
-		masterPassword:   "initpwd", // was accumulated from event log
 		validatedJwtConf: validatedJwtConf,
 		EventLog:         newTempAdapter(users["2"]),
 		users:            users,
@@ -44,6 +42,17 @@ func New(logger *log.Logger) (*AppState, error) {
 // lists user known user IDs
 func (a *AppState) UserIds() []string {
 	return []string{"2"}
+}
+
+func (a *AppState) FindUserByUsername(username string) *SensitiveUser {
+	for _, userId := range a.UserIds() {
+		user := a.users[userId].SensitiveUser()
+		if user.User.Username == username {
+			return &user
+		}
+	}
+
+	return nil
 }
 
 func (a *AppState) User(id string) *UserStorage {

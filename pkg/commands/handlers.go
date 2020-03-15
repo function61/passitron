@@ -505,18 +505,7 @@ func (h *Handlers) UserChangeDecryptionKeyPassword(a *UserChangeDecryptionKeyPas
 }
 
 func (h *Handlers) SessionSignIn(a *SessionSignIn, ctx *command.Ctx) error {
-	var user *state.SensitiveUser
-
-	for _, userId := range h.state.UserIds() {
-		userStorage := h.state.User(userId)
-
-		if userStorage.SensitiveUser().User.Username == a.Username {
-			tmp := userStorage.SensitiveUser()
-			user = &tmp
-			break
-		}
-	}
-
+	user := h.state.FindUserByUsername(a.Username)
 	if user == nil {
 		return failAndSleepWithBadUsernameOrPassword()
 	}
