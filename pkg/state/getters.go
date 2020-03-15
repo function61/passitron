@@ -242,7 +242,7 @@ func (s *UserStorage) DecryptSecrets(
 				Title:                  internalSecret.Title,
 				ExternalTokenKind:      internalSecret.externalTokenKind,
 				KeylistKeyExample:      internalSecret.keylistKeyExample,
-				SshPublicKeyAuthorized: "TODO",
+				SshPublicKeyAuthorized: internalSecret.SshPublicKeyAuthorized,
 				Note:                   string(note),
 				Password:               string(password),
 			},
