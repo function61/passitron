@@ -67,29 +67,6 @@ func Export(st *state.AppState, userId string) error {
 	return nil
 }
 
-func mkValue(key string, value string) gokeepasslib.ValueData {
-	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value}}
-}
-
-func mkProtectedValue(key string, value string) gokeepasslib.ValueData {
-	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value, Protected: true}}
-}
-
-func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
-	ciphertextBlock, err := x509.EncryptPEMBlock(
-		rand.Reader,
-		plaintextBlock.Type,
-		plaintextBlock.Bytes,
-		password,
-		x509.PEMCipher3DES)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return ciphertextBlock
-}
-
 func exportKeylistAsText(isecret state.InternalSecret, userStorage *state.UserStorage) string {
 	lines := []string{
 		"Keylist " + isecret.Title,
@@ -270,4 +247,27 @@ func keepassExport(masterPassword string, output io.Writer, st *state.AppState, 
 	log.Printf("keepassExport: %d entries(s) exported", entriesExported)
 
 	return nil
+}
+
+func mkValue(key string, value string) gokeepasslib.ValueData {
+	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value}}
+}
+
+func mkProtectedValue(key string, value string) gokeepasslib.ValueData {
+	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value, Protected: true}}
+}
+
+func encryptPemBlock(plaintextBlock *pem.Block, password []byte) *pem.Block {
+	ciphertextBlock, err := x509.EncryptPEMBlock(
+		rand.Reader,
+		plaintextBlock.Type,
+		plaintextBlock.Bytes,
+		password,
+		x509.PEMCipher3DES)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return ciphertextBlock
 }
