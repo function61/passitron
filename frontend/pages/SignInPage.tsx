@@ -67,6 +67,7 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 										type="text"
 										className="form-control"
 										value={this.state.username}
+										autoFocus={true}
 										onChange={(e) => {
 											this.setState({ username: e.target.value });
 										}}
