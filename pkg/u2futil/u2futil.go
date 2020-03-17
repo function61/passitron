@@ -33,12 +33,12 @@ func InjectCommonNameFromSslCertificate(cert *x509.Certificate) {
 	cnFromSslCertificate = cert.Subject.CommonName
 }
 
-func GetTrustedFacets() []string {
+func MakeTrustedFacets() []string {
 	// TODO: find out what this is, and why we have to include app ID in it again..
 	return []string{GetAppIdHostname()}
 }
 
-func U2ftokenToRegistration(u2ftoken *state.U2FToken) u2f.Registration {
+func U2ftokenToRegistration(u2ftoken *state.U2FToken) *u2f.Registration {
 	reg := &u2f.Registration{}
 
 	dataDecoded, err := decodeBase64(u2ftoken.RegistrationData)
@@ -50,21 +50,21 @@ func U2ftokenToRegistration(u2ftoken *state.U2FToken) u2f.Registration {
 		panic(err)
 	}
 
-	return *reg
+	return reg
 }
 
-func GrabUsersU2FTokens(st *state.AppState, userId string) []u2f.Registration {
+func GrabUsersU2FTokens(userStorage *state.UserStorage) []u2f.Registration {
 	regs := []u2f.Registration{}
 
-	for _, token := range st.User(userId).U2FTokens() {
-		regs = append(regs, U2ftokenToRegistration(token))
+	for _, token := range userStorage.U2FTokens() {
+		regs = append(regs, *U2ftokenToRegistration(token))
 	}
 
 	return regs
 }
 
-func GrabUsersU2FTokenByKeyHandle(st *state.AppState, userId string, keyHandle string) *state.U2FToken {
-	for _, token := range st.User(userId).U2FTokens() {
+func GrabUsersU2FTokenByKeyHandle(userStorage *state.UserStorage, keyHandle string) *state.U2FToken {
+	for _, token := range userStorage.U2FTokens() {
 		if token.KeyHandle == keyHandle {
 			return token
 		}
@@ -75,7 +75,7 @@ func GrabUsersU2FTokenByKeyHandle(st *state.AppState, userId string, keyHandle s
 
 // this ugly hack because the API is so lacking
 func RegisteredKeyFromRegistration(registration u2f.Registration) u2f.RegisteredKey {
-	dummyChallenge, err := u2f.NewChallenge(GetAppIdHostname(), GetTrustedFacets())
+	dummyChallenge, err := u2f.NewChallenge(GetAppIdHostname(), MakeTrustedFacets())
 	if err != nil {
 		panic(err)
 	}
@@ -148,12 +148,12 @@ func SignResponseFromApiType(input apitypes.U2FSignResult) u2f.SignResponse {
 }
 
 // this API should be offered by tstranex/u2f
-func NewU2FCustomChallenge(appID string, trustedFacets []string, challenge [32]byte) (*u2f.Challenge, error) {
+func NewU2FCustomChallenge(challenge [32]byte) (*u2f.Challenge, error) {
 	return &u2f.Challenge{
 		Challenge:     challenge[:],
 		Timestamp:     time.Now(),
-		AppID:         appID,
-		TrustedFacets: trustedFacets,
+		AppID:         GetAppIdHostname(),
+		TrustedFacets: MakeTrustedFacets(),
 	}, nil
 }
 
@@ -206,4 +206,24 @@ func SignatureOk(
 		ehevent.Meta(time.Now(), userStorage.UserId()))
 
 	return u2fTokenUsedEvent, nil
+}
+
+func MakeChallengeBundle(
+	challengeHash [32]byte,
+	userData *state.UserStorage,
+) (*apitypes.U2FChallengeBundle, error) {
+	tokens := GrabUsersU2FTokens(userData)
+	if len(tokens) == 0 {
+		return nil, errors.New("makeChallengeBundle: no U2F tokens found")
+	}
+
+	challenge, err := NewU2FCustomChallenge(challengeHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return &apitypes.U2FChallengeBundle{
+		Challenge:   ChallengeToApiType(*challenge),
+		SignRequest: SignRequestToApiType(*challenge.SignRequest(tokens)),
+	}, nil
 }

@@ -1,8 +1,6 @@
 package restqueryapi
 
 import (
-	"bytes"
-	"errors"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/function61/eventhorizon/pkg/ehevent"
@@ -130,31 +128,16 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 }
 
 func (a *queryHandlers) GetKeylistItemChallenge(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
-	challengeHash := u2futil.ChallengeHashForKeylistKey(
+	challengeBundle, err := u2futil.MakeChallengeBundle(u2futil.ChallengeHashForKeylistKey(
 		mux.Vars(r)["accountId"],
 		mux.Vars(r)["secretId"],
-		mux.Vars(r)["key"])
-
-	u2fTokens := u2futil.GrabUsersU2FTokens(a.state, rctx.User.Id)
-
-	if len(u2fTokens) == 0 {
-		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
-		return nil
-	}
-
-	challenge, err := u2futil.NewU2FCustomChallenge(
-		u2futil.GetAppIdHostname(),
-		u2futil.GetTrustedFacets(),
-		challengeHash)
+		mux.Vars(r)["key"]), a.userData(rctx))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
 
-	return &apitypes.U2FChallengeBundle{
-		Challenge:   u2futil.ChallengeToApiType(*challenge),
-		SignRequest: u2futil.SignRequestToApiType(*challenge.SignRequest(u2fTokens)),
-	}
+	return challengeBundle
 }
 
 func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse apitypes.U2FResponseBundle, w http.ResponseWriter, r *http.Request) *[]apitypes.ExposedSecret {
@@ -209,36 +192,25 @@ func (a *queryHandlers) AuditLogEntries(rctx *httpauth.RequestContext, w http.Re
 }
 
 func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.WrappedAccount {
-	acc := a.userData(rctx).WrappedAccountById(mux.Vars(r)["id"])
+	userData := a.userData(rctx)
+
+	acc := userData.WrappedAccountById(mux.Vars(r)["id"])
 
 	if acc == nil {
 		httputil.RespondHttpJson(httputil.GenericError("account_not_found", nil), http.StatusNotFound, w)
 		return nil
 	}
 
-	u2fTokens := u2futil.GrabUsersU2FTokens(a.state, rctx.User.Id)
-
-	if len(u2fTokens) == 0 {
-		http.Error(w, "no registered U2F tokens", http.StatusBadRequest)
-		return nil
-	}
-
-	challenge, err := u2futil.NewU2FCustomChallenge(
-		u2futil.GetAppIdHostname(),
-		u2futil.GetTrustedFacets(),
-		u2futil.ChallengeHashForAccountSecrets(acc.Account))
+	challengeBundle, err := u2futil.MakeChallengeBundle(
+		u2futil.ChallengeHashForAccountSecrets(acc.Account),
+		userData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
 
-	signRequest := challenge.SignRequest(u2fTokens)
-
 	return &apitypes.WrappedAccount{
-		ChallengeBundle: apitypes.U2FChallengeBundle{
-			Challenge:   u2futil.ChallengeToApiType(*challenge),
-			SignRequest: u2futil.SignRequestToApiType(*signRequest),
-		},
+		ChallengeBundle: *challengeBundle,
 		Account: acc.Account,
 	}
 }
@@ -256,13 +228,13 @@ func (a *queryHandlers) Search(rctx *httpauth.RequestContext, w http.ResponseWri
 }
 
 func (a *queryHandlers) U2fEnrollmentChallenge(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.U2FEnrollmentChallenge {
-	c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.GetTrustedFacets())
+	c, err := u2f.NewChallenge(u2futil.GetAppIdHostname(), u2futil.MakeTrustedFacets())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
 
-	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.state, rctx.User.Id))
+	req := u2f.NewWebRegisterRequest(c, u2futil.GrabUsersU2FTokens(a.userData(rctx)))
 
 	registerRequests := []apitypes.U2FRegisterRequest{}
 	for _, r := range req.RegisterRequests {
