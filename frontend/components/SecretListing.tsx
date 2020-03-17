@@ -1,13 +1,13 @@
 import { SearchBox } from 'components/SearchBox';
 import { CommandLink } from 'f61ui/component/CommandButton';
 import { Dropdown } from 'f61ui/component/dropdown';
-import { FolderResponse } from 'generated/apitypes_types';
 import {
 	AccountDeleteFolder,
 	AccountMove,
 	AccountMoveFolder,
 	AccountRenameFolder,
-} from 'generated/commands_commands';
+} from 'generated/apitypes_commands';
+import { FolderResponse } from 'generated/apitypes_types';
 import * as React from 'react';
 import { accountRoute, folderRoute } from 'routes';
 

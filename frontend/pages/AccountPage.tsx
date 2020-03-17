@@ -10,6 +10,20 @@ import { SecretReveal } from 'f61ui/component/secretreveal';
 import { defaultErrorHandler } from 'f61ui/errors';
 import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import {
+	AccountAddExternalU2FToken,
+	AccountAddExternalYubicoOtpToken,
+	AccountAddKeylist,
+	AccountAddPassword,
+	AccountAddSecretNote,
+	AccountAddSshKey,
+	AccountChangeDescription,
+	AccountChangeUrl,
+	AccountChangeUsername,
+	AccountDelete,
+	AccountDeleteSecret,
+	AccountRename,
+} from 'generated/apitypes_commands';
+import {
 	getAccount,
 	getFolder,
 	getKeylistItem,
@@ -29,20 +43,6 @@ import {
 	U2FSignResult,
 	WrappedAccount,
 } from 'generated/apitypes_types';
-import {
-	AccountAddExternalU2FToken,
-	AccountAddExternalYubicoOtpToken,
-	AccountAddKeylist,
-	AccountAddPassword,
-	AccountAddSecretNote,
-	AccountAddSshKey,
-	AccountChangeDescription,
-	AccountChangeUrl,
-	AccountChangeUsername,
-	AccountDelete,
-	AccountDeleteSecret,
-	AccountRename,
-} from 'generated/commands_commands';
 import { ExternalTokenKind, SecretKind } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';

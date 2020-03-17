@@ -7,8 +7,6 @@ import { Loading } from 'f61ui/component/loading';
 import { Timestamp } from 'f61ui/component/timestamp';
 import { defaultErrorHandler, formatAnyError } from 'f61ui/errors';
 import { shouldAlwaysSucceed } from 'f61ui/utils';
-import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/apitypes_endpoints';
-import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes_types';
 import {
 	DatabaseExportToKeepass,
 	SessionSignOut,
@@ -17,7 +15,9 @@ import {
 	UserChangePassword,
 	UserCreate,
 	UserRegisterU2FToken,
-} from 'generated/commands_commands';
+} from 'generated/apitypes_commands';
+import { u2fEnrolledTokens, u2fEnrollmentChallenge, userList } from 'generated/apitypes_endpoints';
+import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes_types';
 import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';

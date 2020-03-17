@@ -5,6 +5,7 @@ import (
 	"github.com/function61/eventkit/eventlog"
 	"github.com/function61/eventkit/httpcommand"
 	"github.com/function61/gokit/httpauth"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/commands"
 	"github.com/function61/pi-security-module/pkg/httputil"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -22,12 +23,12 @@ func Register(
 ) error {
 	handlers := commands.New(appState, logger)
 
-	invoker := commands.CommandInvoker(handlers)
+	invoker := apitypes.CommandInvoker(handlers)
 
 	router.HandleFunc("/command/{commandName}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		commandName := mux.Vars(r)["commandName"]
 
-		httpErr := httpcommand.Serve(w, r, mwares, commandName, commands.Allocators, invoker, eventLog)
+		httpErr := httpcommand.Serve(w, r, mwares, commandName, apitypes.Allocators, invoker, eventLog)
 		if httpErr != nil {
 			if httpErr.StatusCode > 0 {
 				httputil.RespondHttpJson(httputil.GenericError(
