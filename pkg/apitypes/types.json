@@ -11,6 +11,10 @@
 		{ "chain": "authenticated", "method": "GET", "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
 		{ "chain": "authenticated", "method": "GET", "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
 		{ "chain": "authenticated", "method": "GET", "path": "/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" }
+		{ "chain": "public", "method": "GET", "path": "/u2f/challenge/sign_in/{userId}?mac={mac}", "produces": {"_": "U2FChallengeBundle"}, "name": "getSignInChallenge" },
+	],
+	"stringConsts": [
+		{ "key": "ErrNeedU2fVerification", "value": "need_u2f_verification" }
 	],
 	"types": [
 		{

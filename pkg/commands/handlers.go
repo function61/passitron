@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/eventkit/command"
+	"github.com/function61/eventkit/httpcommand"
 	"github.com/function61/gokit/cryptorandombytes"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/logex"
@@ -23,6 +24,7 @@ import (
 	"github.com/tstranex/u2f"
 	"golang.org/x/crypto/ssh"
 	"log"
+	"net/http"
 	"net/url"
 	"regexp"
 	"time"
@@ -505,17 +507,20 @@ func (h *Handlers) UserChangeDecryptionKeyPassword(a *apitypes.UserChangeDecrypt
 }
 
 func (h *Handlers) SessionSignIn(a *apitypes.SessionSignIn, ctx *command.Ctx) error {
-	user := h.state.FindUserByUsername(a.Username)
-	if user == nil {
+	userData := h.state.FindUserByUsername(a.Username)
+	if userData == nil {
 		return failAndSleepWithBadUsernameOrPassword()
 	}
 
+	sensitiveUser := userData.SensitiveUser()
+	user := sensitiveUser.User
+
 	upgradedPassword, err := storedpassword.Verify(
-		storedpassword.StoredPassword(user.PasswordHash),
+		storedpassword.StoredPassword(sensitiveUser.PasswordHash),
 		a.Password,
 		storedpassword.BuiltinStrategies)
 	if err != nil {
-		h.logl.Error.Printf("User %s failure signing in: %s", user.User.Username, err.Error())
+		h.logl.Error.Printf("User %s failure signing in: %s", user.Username, err.Error())
 
 		if err != storedpassword.ErrIncorrectPassword { // technical error
 			return err
@@ -527,14 +532,36 @@ func (h *Handlers) SessionSignIn(a *apitypes.SessionSignIn, ctx *command.Ctx) er
 	if upgradedPassword != "" {
 		h.logl.Info.Printf(
 			"Upgrading password of %s to %s",
-			user.User.Username,
+			user.Username,
 			storedpassword.CurrentBestDerivationStrategy.Id())
 
 		ctx.RaisesEvent(domain.NewUserPasswordUpdated(
-			user.User.Id,
+			user.Id,
 			string(upgradedPassword),
 			true, // => automatic upgrade of password
-			ehevent.Meta(time.Now(), user.User.Id)))
+			ehevent.Meta(time.Now(), user.Id)))
+	}
+
+	if len(u2futil.GrabUsersU2FTokens(userData)) > 0 {
+		if a.U2fChallengeResponse == nil {
+			// triggers U2F flow in UI. this is a dirty hack to pass user ID + MAC to fetch
+			// the U2F challenge..
+			return httpcommand.NewHttpError(
+				http.StatusUnauthorized,
+				apitypes.ErrNeedU2fVerification,
+				user.Id+":"+userData.SignInGetU2fChallengeMac().Sign())
+		}
+
+		u2fTokenUsedEvent, err := u2futil.SignatureOk(
+			*a.U2fChallengeResponse,
+			u2futil.ChallengeHashForSignIn(user.Id),
+			userData)
+		if err != nil {
+			return err
+		}
+
+		// to audit & increase U2F counter (required mechanism in U2F)
+		ctx.RaisesEvent(u2fTokenUsedEvent)
 	}
 
 	jwtSigner, err := httpauth.NewEcJwtSigner([]byte(h.state.ValidatedJwtConf().SigningKey))
@@ -543,7 +570,7 @@ func (h *Handlers) SessionSignIn(a *apitypes.SessionSignIn, ctx *command.Ctx) er
 	}
 
 	token := jwtSigner.Sign(httpauth.UserDetails{
-		Id: user.User.Id,
+		Id: user.Id,
 	}, time.Now())
 
 	for _, cookie := range httpauth.ToCookiesWithCsrfProtection(token) {
@@ -553,9 +580,9 @@ func (h *Handlers) SessionSignIn(a *apitypes.SessionSignIn, ctx *command.Ctx) er
 	ctx.RaisesEvent(domain.NewSessionSignedIn(
 		ctx.RemoteAddr,
 		ctx.UserAgent,
-		ehevent.Meta(time.Now(), user.User.Id)))
+		ehevent.Meta(time.Now(), user.Id)))
 
-	h.logl.Info.Printf("User %s signed in", user.User.Username)
+	h.logl.Info.Printf("User %s signed in", user.Username)
 
 	return nil
 }

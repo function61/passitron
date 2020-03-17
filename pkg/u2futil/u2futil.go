@@ -161,6 +161,10 @@ func ChallengeHashForAccountSecrets(account apitypes.Account) [32]byte {
 	return stringToU2FChallengeHash("accountsecrets", account.Id)
 }
 
+func ChallengeHashForSignIn(userId string) [32]byte {
+	return stringToU2FChallengeHash("signin", userId)
+}
+
 func ChallengeHashForKeylistKey(accountId, secretId, keylistKey string) [32]byte {
 	return stringToU2FChallengeHash("keylistkey", accountId, secretId, keylistKey)
 }

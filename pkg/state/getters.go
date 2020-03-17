@@ -268,6 +268,10 @@ func (s *UserStorage) OtpKeyExportMac(secret *InternalSecret) *mac.Mac {
 	return s.mac(secret.Id)
 }
 
+func (s *UserStorage) SignInGetU2fChallengeMac() *mac.Mac {
+	return s.mac(s.UserId())
+}
+
 func (l *UserStorage) mac(message string) *mac.Mac {
 	if len(l.macKey) == 0 {
 		panic("empty macKey")

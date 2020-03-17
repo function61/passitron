@@ -39,15 +39,13 @@ import {
 	Secret,
 	SecretKeylistKey,
 	U2FResponseBundle,
-	U2FSignRequest,
-	U2FSignResult,
 	WrappedAccount,
 } from 'generated/apitypes_types';
 import { ExternalTokenKind, SecretKind } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { folderRoute, importotptokenRoute } from 'routes';
-import { isU2FError, u2fErrorMsg, U2FStdRegisteredKey, U2FStdSignResult } from 'u2ftypes';
+import { isU2FError, nativeSignResultToApiType, u2fErrorMsg, u2fSign } from 'u2ftypes';
 
 interface SecretsFetcherProps {
 	wrappedAccount: WrappedAccount;
@@ -120,29 +118,6 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 			defaultErrorHandler(e);
 		}
 	}
-}
-
-// sign() errors are also resolved, but the value is an error value
-async function u2fSign(req: U2FSignRequest): Promise<U2FStdSignResult> {
-	return new Promise<U2FStdSignResult>((resolve) => {
-		const keysTransformed: U2FStdRegisteredKey[] = req.RegisteredKeys.map((key) => {
-			return {
-				version: key.Version,
-				keyHandle: key.KeyHandle,
-				appId: key.AppID,
-			};
-		});
-
-		u2f.sign(
-			req.AppID,
-			req.Challenge, // serialized (not in structural form)
-			keysTransformed,
-			(res: U2FStdSignResult) => {
-				resolve(res);
-			},
-			5,
-		);
-	});
 }
 
 interface KeylistAccessorProps {
@@ -533,14 +508,6 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		return breadcrumbItems;
 	}
-}
-
-function nativeSignResultToApiType(sr: U2FStdSignResult): U2FSignResult {
-	return {
-		KeyHandle: sr.keyHandle,
-		SignatureData: sr.signatureData,
-		ClientData: sr.clientData,
-	};
 }
 
 function externalTokenKindHumanReadable(kind: ExternalTokenKind): string {

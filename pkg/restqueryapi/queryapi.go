@@ -268,6 +268,27 @@ func (a *queryHandlers) U2fEnrolledTokens(rctx *httpauth.RequestContext, w http.
 	return &tokens
 }
 
+func (a *queryHandlers) GetSignInChallenge(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.U2FChallengeBundle {
+	userData := a.state.User(mux.Vars(r)["userId"])
+
+	// list of keyhandles for user is not exactly the most sensitive data, but still better
+	// have a mac proving that user knew username/password combo before exposing this data
+	mac := r.URL.Query().Get("mac")
+
+	if err := userData.SignInGetU2fChallengeMac().Authenticate(mac); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("invalid_mac", err), http.StatusForbidden, w)
+		return nil
+	}
+
+	challengeBundle, err := u2futil.MakeChallengeBundle(u2futil.ChallengeHashForSignIn(userData.UserId()), userData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return nil
+	}
+
+	return challengeBundle
+}
+
 func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) {
 	accountId := mux.Vars(r)["accountId"]
 	secretId := mux.Vars(r)["secretId"]

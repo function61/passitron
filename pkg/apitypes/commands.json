@@ -231,12 +231,13 @@
 	{
 		"command": "session.SignIn",
 		"chain": "public",
-		"ctor": ["Username"],
+		"ctor": ["Username", "Password", "U2fChallengeResponse"],
 		"crudNature": "update",
 		"title": "Sign in",
 		"fields": [
 			{ "key": "Username", "hideIfDefaultValue": true },
-			{ "key": "Password", "type": "password" }
+			{ "key": "Password", "type": "password" },
+			{ "key": "U2fChallengeResponse", "type": "U2FResponseBundle", "optional": true, "help": "Needs to be provided if user has U2F enabled" }
 		]
 	},
 	{

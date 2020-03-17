@@ -1,3 +1,5 @@
+import { U2FSignRequest, U2FSignResult } from 'generated/apitypes_types';
+
 export interface U2FStdSignResult {
 	keyHandle: string;
 	clientData: string;
@@ -47,4 +49,36 @@ export function isU2FError(resp: any): boolean {
 	}
 
 	return true;
+}
+
+// sign() errors are also resolved (that is to say, this should never throw/reject), but
+// the error is encapsulated inside U2FStdSignResult
+export async function u2fSign(req: U2FSignRequest): Promise<U2FStdSignResult> {
+	return new Promise<U2FStdSignResult>((resolve) => {
+		const keysTransformed: U2FStdRegisteredKey[] = req.RegisteredKeys.map((key) => {
+			return {
+				version: key.Version,
+				keyHandle: key.KeyHandle,
+				appId: key.AppID,
+			};
+		});
+
+		u2f.sign(
+			req.AppID,
+			req.Challenge, // serialized (not in structural form)
+			keysTransformed,
+			(res: U2FStdSignResult) => {
+				resolve(res);
+			},
+			5,
+		);
+	});
+}
+
+export function nativeSignResultToApiType(sr: U2FStdSignResult): U2FSignResult {
+	return {
+		KeyHandle: sr.keyHandle,
+		SignatureData: sr.signatureData,
+		ClientData: sr.clientData,
+	};
 }
