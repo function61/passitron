@@ -44,11 +44,11 @@ func (a *AppState) UserIds() []string {
 	return []string{"2"}
 }
 
-func (a *AppState) FindUserByUsername(username string) *SensitiveUser {
+func (a *AppState) FindUserByUsername(username string) *UserStorage {
 	for _, userId := range a.UserIds() {
-		user := a.users[userId].SensitiveUser()
-		if user.User.Username == username {
-			return &user
+		userData := a.users[userId]
+		if userData.SensitiveUser().User.Username == username {
+			return userData
 		}
 	}
 
