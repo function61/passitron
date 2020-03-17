@@ -8,6 +8,7 @@ import (
 	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/tstranex/u2f"
+	"strings"
 	"time"
 )
 
@@ -156,13 +157,20 @@ func NewU2FCustomChallenge(appID string, trustedFacets []string, challenge [32]b
 }
 
 func ChallengeHashForAccountSecrets(account apitypes.Account) [32]byte {
-	return stringToU2FChallengeHash("accountsecrets:" + account.Id)
+	return stringToU2FChallengeHash("accountsecrets", account.Id)
 }
 
 func ChallengeHashForKeylistKey(accountId, secretId, keylistKey string) [32]byte {
-	return stringToU2FChallengeHash(fmt.Sprintf("keylistkey:%s:%s:%s", accountId, secretId, keylistKey))
+	return stringToU2FChallengeHash("keylistkey", accountId, secretId, keylistKey)
 }
 
-func stringToU2FChallengeHash(input string) [32]byte {
-	return sha256.Sum256([]byte(input))
+func stringToU2FChallengeHash(components ...string) [32]byte {
+	// validate because if one of these is empty, it'd be catastropic for security
+	for _, component := range components {
+		if component == "" {
+			panic("stringToU2FChallengeHash: component empty")
+		}
+	}
+
+	return sha256.Sum256([]byte(strings.Join(components, ":")))
 }
