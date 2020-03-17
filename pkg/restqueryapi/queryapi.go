@@ -75,23 +75,30 @@ func (a *queryHandlers) GetKeylistItem(rctx *httpauth.RequestContext, u2fRespons
 	secretId := mux.Vars(r)["secretId"]
 	key := mux.Vars(r)["key"]
 
+	userData := a.userData(rctx)
+
 	u2fChallengeHash := u2futil.ChallengeHashForKeylistKey(
 		accountId,
 		secretId,
 		key)
 
-	isecret := a.userData(rctx).InternalSecretById(accountId, secretId)
+	isecret := userData.InternalSecretById(accountId, secretId)
 	if isecret == nil {
 		httputil.RespondHttpJson(httputil.GenericError("keylist_key_not_found", nil), http.StatusNotFound, w)
 		return nil
 	}
 
-	if err := u2fSignatureOk(rctx, u2fResponse, u2fChallengeHash, a.state); err != nil {
+	u2fTokenUsedEvent, err := u2futil.SignatureOk(u2fResponse, u2fChallengeHash, userData)
+	if err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
 		return nil
 	}
+	if err := a.state.EventLog.Append([]ehevent.Event{u2fTokenUsedEvent}); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("u2f_audit_failed", err), http.StatusInternalServerError, w)
+		return nil
+	}
 
-	keys, err := a.userData(rctx).DecryptKeylist(*isecret)
+	keys, err := userData.DecryptKeylist(*isecret)
 	if err != nil {
 		respondSecretDecryptionFailed(w, err)
 		return nil
@@ -160,8 +167,13 @@ func (a *queryHandlers) GetSecrets(rctx *httpauth.RequestContext, u2fResponse ap
 		return nil
 	}
 
-	if err := u2fSignatureOk(rctx, u2fResponse, u2futil.ChallengeHashForAccountSecrets(acc.Account), a.state); err != nil {
+	u2fTokenUsedEvent, err := u2futil.SignatureOk(u2fResponse, u2futil.ChallengeHashForAccountSecrets(acc.Account), userData)
+	if err != nil {
 		httputil.RespondHttpJson(httputil.GenericError("u2f_challenge_response_failed", err), http.StatusForbidden, w)
+		return nil
+	}
+	if err := a.state.EventLog.Append([]ehevent.Event{u2fTokenUsedEvent}); err != nil {
+		httputil.RespondHttpJson(httputil.GenericError("u2f_audit_failed", err), http.StatusInternalServerError, w)
 		return nil
 	}
 
@@ -325,41 +337,6 @@ func (a *queryHandlers) TotpBarcodeExport(rctx *httpauth.RequestContext, w http.
 		httputil.RespondHttpJson(httputil.GenericError("png_encode", err), http.StatusInternalServerError, w)
 		return
 	}
-}
-
-func u2fSignatureOk(
-	rctx *httpauth.RequestContext,
-	response apitypes.U2FResponseBundle,
-	expectedHash [32]byte,
-	st *state.AppState,
-) error {
-	nativeChallenge := u2futil.ChallengeFromApiType(response.Challenge)
-
-	if !bytes.Equal(nativeChallenge.Challenge, expectedHash[:]) {
-		return errors.New("invalid challenge hash")
-	}
-
-	u2ftoken := u2futil.GrabUsersU2FTokenByKeyHandle(st, rctx.User.Id, response.SignResult.KeyHandle)
-	if u2ftoken == nil {
-		return errors.New("U2F token not found by KeyHandle")
-	}
-
-	reg := u2futil.U2ftokenToRegistration(u2ftoken)
-
-	newCounter, authErr := reg.Authenticate(
-		u2futil.SignResponseFromApiType(response.SignResult),
-		nativeChallenge,
-		u2ftoken.Counter)
-	if authErr != nil {
-		return authErr
-	}
-
-	u2fTokenUsedEvent := domain.NewUserU2FTokenUsed(
-		response.SignResult.KeyHandle,
-		int(newCounter),
-		ehevent.Meta(time.Now(), rctx.User.Id))
-
-	return st.EventLog.Append([]ehevent.Event{u2fTokenUsedEvent})
 }
 
 func respondSecretDecryptionFailed(w http.ResponseWriter, err error) {

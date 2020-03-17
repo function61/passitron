@@ -1,11 +1,15 @@
 package u2futil
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/pi-security-module/pkg/apitypes"
+	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
 	"github.com/tstranex/u2f"
 	"strings"
@@ -173,4 +177,36 @@ func stringToU2FChallengeHash(components ...string) [32]byte {
 	}
 
 	return sha256.Sum256([]byte(strings.Join(components, ":")))
+}
+
+func SignatureOk(
+	response apitypes.U2FResponseBundle,
+	expectedHash [32]byte,
+	userStorage *state.UserStorage,
+) (*domain.UserU2FTokenUsed, error) {
+	nativeChallenge := ChallengeFromApiType(response.Challenge)
+
+	if !bytes.Equal(nativeChallenge.Challenge, expectedHash[:]) {
+		return nil, errors.New("invalid challenge hash")
+	}
+
+	u2ftoken := GrabUsersU2FTokenByKeyHandle(userStorage, response.SignResult.KeyHandle)
+	if u2ftoken == nil {
+		return nil, fmt.Errorf("U2F token not found by KeyHandle: %s", response.SignResult.KeyHandle)
+	}
+
+	newCounter, authErr := U2ftokenToRegistration(u2ftoken).Authenticate(
+		SignResponseFromApiType(response.SignResult),
+		nativeChallenge,
+		u2ftoken.Counter)
+	if authErr != nil {
+		return nil, authErr
+	}
+
+	u2fTokenUsedEvent := domain.NewUserU2FTokenUsed(
+		response.SignResult.KeyHandle,
+		int(newCounter),
+		ehevent.Meta(time.Now(), userStorage.UserId()))
+
+	return u2fTokenUsedEvent, nil
 }
