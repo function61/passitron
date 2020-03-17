@@ -87,10 +87,7 @@ func RegisteredKeyFromRegistration(registration u2f.Registration) u2f.Registered
 
 // copy-pasted from u2f library because the relevant API was not exported
 func decodeBase64(s string) ([]byte, error) {
-	for i := 0; i < len(s)%4; i++ {
-		s += "="
-	}
-	return base64.URLEncoding.DecodeString(s)
+	return base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(s)
 }
 
 // conversions to/from generated apitypes
