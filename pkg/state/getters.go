@@ -12,12 +12,8 @@ import (
 	"time"
 )
 
-func (l *UserStorage) MacKey() []byte {
-	if len(l.macKey) == 0 {
-		panic("empty macKey")
-	}
-
-	return l.macKey
+func (s *UserStorage) UserId() string {
+	return s.sUser.User.Id
 }
 
 func (s *UserStorage) Crypto() *cryptoThingie {
@@ -269,7 +265,15 @@ func (s *UserStorage) DecryptSecrets(
 }
 
 func (s *UserStorage) OtpKeyExportMac(secret *InternalSecret) *mac.Mac {
-	return mac.New(string(s.MacKey()), secret.Id)
+	return s.mac(secret.Id)
+}
+
+func (l *UserStorage) mac(message string) *mac.Mac {
+	if len(l.macKey) == 0 {
+		panic("empty macKey")
+	}
+
+	return mac.New(string(l.macKey), message)
 }
 
 func UnwrapAccounts(iaccounts []InternalAccount) []apitypes.Account {
