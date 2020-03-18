@@ -211,7 +211,7 @@ func (a *queryHandlers) GetAccount(rctx *httpauth.RequestContext, w http.Respons
 
 	return &apitypes.WrappedAccount{
 		ChallengeBundle: *challengeBundle,
-		Account: acc.Account,
+		Account:         acc.Account,
 	}
 }
 

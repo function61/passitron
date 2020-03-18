@@ -441,7 +441,7 @@ func NewTestScenarioState(st *state.AppState) *testScenarioState {
 
 	return &testScenarioState{
 		st:               st,
-		handlers:         New(st, logex.Discard),
+		handlers:         New(st, nil),
 		untestedCommands: untestedCommands,
 	}
 }

@@ -194,7 +194,7 @@ func createHandlerWithWorkdirHack(appState *state.AppState) (http.Handler, error
 	}
 	defer revertWdir()
 
-	return createHandler(appState, logex.Discard)
+	return createHandler(appState, nil)
 }
 
 func chdirTemporarily(to string) (revert func(), err error) {

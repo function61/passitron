@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/function61/eventhorizon/pkg/ehevent"
-	"github.com/function61/gokit/logex"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"github.com/function61/pi-security-module/pkg/state"
 	"io"
@@ -37,7 +36,7 @@ import (
 */
 
 func Run(csvPath string, userId string) error {
-	st, err := state.New(logex.Discard)
+	st, err := state.New(nil)
 	if err != nil {
 		return err
 	}

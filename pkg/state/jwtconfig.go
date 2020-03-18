@@ -8,7 +8,6 @@ import (
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/jsonfile"
-	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/storedpassword"
 	"github.com/function61/pi-security-module/pkg/domain"
 	"time"
@@ -69,7 +68,7 @@ func InitConfig(adminUsername string, adminPassword string) error {
 		return err
 	}
 
-	state, err := New(logex.Discard)
+	state, err := New(nil)
 	if err != nil {
 		return err
 	}
