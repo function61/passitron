@@ -1,7 +1,8 @@
 import { U2fSigner } from 'components/U2F';
-import { elToClipboard } from 'f61ui/clipboard';
 import { DangerAlert } from 'f61ui/component/alerts';
+import { Button, PrimaryLabel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
+import { ClipboardButton } from 'f61ui/component/clipboardbutton';
 import { CommandIcon, CommandLink } from 'f61ui/component/CommandButton';
 import { Dropdown } from 'f61ui/component/dropdown';
 import { Loading } from 'f61ui/component/loading';
@@ -86,13 +87,12 @@ class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcher
 
 		return (
 			<div>
-				<a
-					className="btn btn-default"
-					onClick={() => {
+				<Button
+					label="Authenticate"
+					click={() => {
 						shouldAlwaysSucceed(this.startSigning());
-					}}>
-					Authenticate
-				</a>
+					}}
+				/>
 
 				{authErrorNode}
 			</div>
@@ -169,15 +169,8 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 
 				{this.state.foundKeyItem.draw((foundKeyItem) => (
 					<div>
-						<span className="label label-primary">{foundKeyItem.Value}</span>
-						<span
-							data-to-clipboard={foundKeyItem.Value}
-							onClick={(e) => {
-								elToClipboard(e);
-							}}
-							className="fauxlink margin-left">
-							📋
-						</span>
+						<PrimaryLabel>{foundKeyItem.Value}</PrimaryLabel>
+						<ClipboardButton text={foundKeyItem.Value} />
 					</div>
 				))}
 
@@ -321,13 +314,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 							<td>
 								<OptionalContent>{account.Username}</OptionalContent>
 							</td>
-							<td
-								data-to-clipboard={account.Username}
-								onClick={(e) => {
-									elToClipboard(e);
-								}}
-								className="fauxlink">
-								📋
+							<td>
+								<ClipboardButton text={account.Username} />
 							</td>
 						</tr>
 						{secretRows}
@@ -379,13 +367,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<td>
 							<SecretReveal secret={secret.Password} />
 						</td>
-						<td
-							data-to-clipboard={secret.Password}
-							onClick={(e) => {
-								elToClipboard(e);
-							}}
-							className="fauxlink">
-							📋
+						<td>
+							<ClipboardButton text={secret.Password} />
 						</td>
 					</tr>
 				);
@@ -412,13 +395,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 								<span className="glyphicon glyphicon-barcode" />
 							</a>
 						</td>
-						<td
-							data-to-clipboard={exposedSecret.OtpProof}
-							onClick={(e) => {
-								elToClipboard(e);
-							}}
-							className="fauxlink">
-							📋
+						<td>
+							<ClipboardButton text={exposedSecret.OtpProof} />
 						</td>
 					</tr>
 				);
