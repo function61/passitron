@@ -7,9 +7,9 @@ import (
 	"github.com/function61/gokit/httputils"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/taskrunner"
+	"github.com/function61/pi-security-module/pkg/commands"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/f61ui"
-	"github.com/function61/pi-security-module/pkg/restcommandapi"
 	"github.com/function61/pi-security-module/pkg/restqueryapi"
 	"github.com/function61/pi-security-module/pkg/signingapi"
 	"github.com/function61/pi-security-module/pkg/state"
@@ -102,7 +102,7 @@ func createHandler(appState *state.AppState, logger *log.Logger) (http.Handler, 
 
 	restqueryapi.Register(router, middlewareChains, appState)
 
-	if err := restcommandapi.Register(
+	if err := commands.Register(
 		router,
 		middlewareChains,
 		appState.EventLog,
