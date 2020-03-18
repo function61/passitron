@@ -256,6 +256,8 @@ func (h *Handlers) AccountCreate(a *apitypes.AccountCreate, ctx *command.Ctx) er
 			ctx.Meta))
 	}
 
+	ctx.CreatedRecordId(accountId)
+
 	return nil
 }
 

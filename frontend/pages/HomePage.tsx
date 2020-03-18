@@ -9,6 +9,7 @@ import { getFolder } from 'generated/apitypes_endpoints';
 import { FolderResponse } from 'generated/apitypes_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
+import { accountRoute } from 'routes';
 import { folderRoute } from 'routes';
 
 interface HomePageProps {
@@ -49,7 +50,11 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 				<SecretListing listing={listing} />
 
 				<Dropdown label="New ..">
-					<CommandLink command={AccountCreate(this.props.folderId)} />
+					<CommandLink
+						command={AccountCreate(this.props.folderId, {
+							redirect: (id) => accountRoute.buildUrl({ id }),
+						})}
+					/>
 					<CommandLink command={AccountCreateFolder(this.props.folderId)} />
 				</Dropdown>
 			</AppDefaultLayout>
