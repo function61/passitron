@@ -118,25 +118,31 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 	render() {
 		return (
 			<div>
-				<input
-					className="form-control"
-					style={{ width: '200px', display: 'inline-block' }}
-					type="text"
-					value={this.state.keylistKey}
-					onChange={(e) => {
-						this.onType(e);
-					}}
-					placeholder={this.props.secret.KeylistKeyExample}
-				/>
-
-				<button
-					className="btn btn-default"
-					type="submit"
-					onClick={() => {
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
 						shouldAlwaysSucceed(this.onSubmit());
 					}}>
-					Get
-				</button>
+					<input
+						className="form-control"
+						style={{ width: '200px', display: 'inline-block' }}
+						type="text"
+						value={this.state.keylistKey}
+						onChange={(e) => {
+							this.onType(e);
+						}}
+						placeholder={this.props.secret.KeylistKeyExample}
+					/>
+
+					<button
+						className="btn btn-default"
+						type="submit"
+						onClick={() => {
+							shouldAlwaysSucceed(this.onSubmit());
+						}}>
+						Get
+					</button>
+				</form>
 
 				{this.state.foundKeyItem.draw((foundKeyItem) => (
 					<div>
