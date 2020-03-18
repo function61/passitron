@@ -1,6 +1,5 @@
 import { U2fSigner } from 'components/U2F';
-import { DangerAlert } from 'f61ui/component/alerts';
-import { Button, PrimaryLabel } from 'f61ui/component/bootstrap';
+import { PrimaryLabel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { ClipboardButton } from 'f61ui/component/clipboardbutton';
 import { CommandIcon, CommandLink } from 'f61ui/component/CommandButton';
@@ -10,7 +9,6 @@ import { MonospaceContent } from 'f61ui/component/monospacecontent';
 import { OptionalContent } from 'f61ui/component/optionalcontent';
 import { Result } from 'f61ui/component/result';
 import { SecretReveal } from 'f61ui/component/secretreveal';
-import { defaultErrorHandler } from 'f61ui/errors';
 import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
 import {
 	AccountAddExternalU2FToken,
@@ -48,7 +46,6 @@ import { ExternalTokenKind, SecretKind } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { folderRoute, importotptokenRoute } from 'routes';
-import { isU2FError, nativeSignResultToApiType, u2fErrorMsg, u2fSign } from 'u2ftypes';
 
 interface SecretsFetcherProps {
 	wrappedAccount: WrappedAccount;
@@ -56,69 +53,43 @@ interface SecretsFetcherProps {
 }
 
 interface SecretsFetcherState {
-	authing: boolean;
-	authError?: string;
+	secrets?: Result<ExposedSecret[]>;
 }
 
 class SecretsFetcher extends React.Component<SecretsFetcherProps, SecretsFetcherState> {
-	state: SecretsFetcherState = { authing: false };
-
-	componentDidMount() {
-		// start fetching process automatically. in some rare cases the user might not
-		// want this, but failed auth attempt timeouts are not dangerous and this reduces
-		// extra clicks in the majority case
-		shouldAlwaysSucceed(this.startSigning());
-	}
+	state: SecretsFetcherState = {};
 
 	render() {
-		if (this.state.authing) {
-			return (
-				<div>
-					<p>Please swipe your U2F token now ...</p>
-
-					<Loading />
-				</div>
-			);
+		if (this.state.secrets) {
+			const [, loadingOrError] = this.state.secrets.unwrap();
+			return loadingOrError;
 		}
-
-		const authErrorNode = this.state.authError && (
-			<DangerAlert>{this.state.authError}</DangerAlert>
-		);
 
 		return (
-			<div>
-				<Button
-					label="Authenticate"
-					click={() => {
-						shouldAlwaysSucceed(this.startSigning());
-					}}
-				/>
+			<U2fSigner
+				challenge={this.props.wrappedAccount.ChallengeBundle}
+				signed={(signature) => {
+					const secrets = new Result<ExposedSecret[]>((x) => {
+						this.setState({ secrets: x });
+					});
 
-				{authErrorNode}
-			</div>
+					this.setState({ secrets });
+
+					const secretsProm = getSecrets(this.props.wrappedAccount.Account.Id, signature);
+
+					secrets.load(() => secretsProm);
+
+					secretsProm.then(
+						(secretsRaw) => {
+							this.props.fetched(secretsRaw);
+						},
+						() => {
+							// errors already handled in another handler
+						},
+					);
+				}}
+			/>
 		);
-	}
-
-	private async startSigning() {
-		this.setState({ authing: true, authError: undefined });
-
-		try {
-			const result = await u2fSign(this.props.wrappedAccount.ChallengeBundle.SignRequest);
-
-			if (isU2FError(result)) {
-				this.setState({ authing: false, authError: u2fErrorMsg(result) });
-				return;
-			}
-
-			const secrets = await getSecrets(this.props.wrappedAccount.Account.Id, {
-				Challenge: this.props.wrappedAccount.ChallengeBundle.Challenge,
-				SignResult: nativeSignResultToApiType(result),
-			});
-
-			this.props.fetched(secrets);
-		} catch (e) {
-			defaultErrorHandler(e);
-		}
 	}
 }
 
