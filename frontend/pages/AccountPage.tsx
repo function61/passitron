@@ -1,3 +1,4 @@
+import { U2fSigner } from 'components/U2F';
 import { elToClipboard } from 'f61ui/clipboard';
 import { DangerAlert } from 'f61ui/component/alerts';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
@@ -6,6 +7,7 @@ import { Dropdown } from 'f61ui/component/dropdown';
 import { Loading } from 'f61ui/component/loading';
 import { MonospaceContent } from 'f61ui/component/monospacecontent';
 import { OptionalContent } from 'f61ui/component/optionalcontent';
+import { Result } from 'f61ui/component/result';
 import { SecretReveal } from 'f61ui/component/secretreveal';
 import { defaultErrorHandler } from 'f61ui/errors';
 import { relativeDateFormat, shouldAlwaysSucceed, unrecognizedValue } from 'f61ui/utils';
@@ -38,7 +40,7 @@ import {
 	FolderResponse,
 	Secret,
 	SecretKeylistKey,
-	U2FResponseBundle,
+	U2FChallengeBundle,
 	WrappedAccount,
 } from 'generated/apitypes_types';
 import { ExternalTokenKind, SecretKind } from 'generated/domain_types';
@@ -127,33 +129,22 @@ interface KeylistAccessorProps {
 
 interface KeylistAccessorState {
 	keylistKey: string;
-	loading: boolean;
-	authError?: string;
-	foundKeyItem?: SecretKeylistKey;
+	challenge: Result<U2FChallengeBundle>;
+	foundKeyItem: Result<SecretKeylistKey>;
 }
 
 class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAccessorState> {
-	state: KeylistAccessorState = { keylistKey: '', loading: false };
+	state: KeylistAccessorState = {
+		keylistKey: '',
+		challenge: new Result<U2FChallengeBundle>((x) => {
+			this.setState({ challenge: x });
+		}),
+		foundKeyItem: new Result<SecretKeylistKey>((x) => {
+			this.setState({ foundKeyItem: x });
+		}),
+	};
 
 	render() {
-		const authErrorNode = this.state.authError && (
-			<DangerAlert>{this.state.authError}</DangerAlert>
-		);
-
-		const keyMaybe = this.state.foundKeyItem ? (
-			<div>
-				<span className="label label-primary">{this.state.foundKeyItem.Value}</span>
-				<span
-					data-to-clipboard={this.state.foundKeyItem.Value}
-					onClick={(e) => {
-						elToClipboard(e);
-					}}
-					className="fauxlink margin-left">
-					📋
-				</span>
-			</div>
-		) : null;
-
 		return (
 			<div>
 				<input
@@ -176,56 +167,60 @@ class KeylistAccessor extends React.Component<KeylistAccessorProps, KeylistAcces
 					Get
 				</button>
 
-				{authErrorNode}
+				{this.state.foundKeyItem.draw((foundKeyItem) => (
+					<div>
+						<span className="label label-primary">{foundKeyItem.Value}</span>
+						<span
+							data-to-clipboard={foundKeyItem.Value}
+							onClick={(e) => {
+								elToClipboard(e);
+							}}
+							className="fauxlink margin-left">
+							📋
+						</span>
+					</div>
+				))}
 
-				{this.state.loading ? <Loading /> : null}
+				{this.state.challenge.draw((challenge) => (
+					<U2fSigner
+						challenge={challenge}
+						signed={(signature) => {
+							// signer has done its job
+							this.state.challenge.reset();
 
-				{keyMaybe}
+							this.state.foundKeyItem.load(() =>
+								getKeylistItem(
+									this.props.account,
+									this.props.secret.Id,
+									this.state.keylistKey,
+									signature,
+								),
+							);
+						}}
+					/>
+				))}
 			</div>
 		);
 	}
 
 	private async onSubmit() {
+		// resetting these so if fetching multiple items, the old one does not stay
+		// visible to confuse the user
+		this.state.challenge.reset();
+		this.state.foundKeyItem.reset();
+
 		if (!this.state.keylistKey) {
 			alert('no input');
 			return;
 		}
 
-		// resetting foundKeyItem so if fetching multiple items, the old one does not
-		// stay visible (which would confuse the user if it's the old or the new)
-		this.setState({ loading: true, foundKeyItem: undefined, authError: undefined });
-
-		try {
-			const challengeBundle = await getKeylistItemChallenge(
+		this.state.challenge.load(() =>
+			getKeylistItemChallenge(
 				this.props.account,
 				this.props.secret.Id,
 				this.state.keylistKey,
-			);
-
-			const signResult = await u2fSign(challengeBundle.SignRequest);
-
-			if (isU2FError(signResult)) {
-				this.setState({ loading: false, authError: u2fErrorMsg(signResult) });
-				return;
-			}
-
-			const challengeResponse: U2FResponseBundle = {
-				SignResult: nativeSignResultToApiType(signResult),
-				Challenge: challengeBundle.Challenge,
-			};
-
-			const foundKeyItem = await getKeylistItem(
-				this.props.account,
-				this.props.secret.Id,
-				this.state.keylistKey,
-				challengeResponse,
-			);
-
-			this.setState({ foundKeyItem, loading: false });
-		} catch (ex) {
-			this.setState({ loading: false });
-			defaultErrorHandler(ex);
-		}
+			),
+		);
 	}
 
 	private onType(e: React.ChangeEvent<HTMLInputElement>) {
