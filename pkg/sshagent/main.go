@@ -27,7 +27,7 @@ var errNotImplemented = errors.New("not implemented")
 
 // implements golang.org/x/crypto/ssh/agent.Agent
 type AgentServer struct {
-	baseUrl     string
+	endpoints   *signingapi.RestClientUrlBuilder
 	bearerToken string
 	logl        *logex.Leveled
 }
@@ -43,7 +43,7 @@ func (a *AgentServer) List() ([]*agent.Key, error) {
 	output := signingapi.PublicKeysOutput{}
 	if _, err := ezhttp.Get(
 		ctx,
-		a.baseUrl+"/_api/signer/publickeys",
+		a.endpoints.GetPublicKeys(),
 		ezhttp.AuthBearer(a.bearerToken),
 		ezhttp.RespondsJson(&output, false)); err != nil {
 		return knownKeys, err
@@ -76,7 +76,7 @@ func (a *AgentServer) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, erro
 
 	if _, err := ezhttp.Post(
 		ctx,
-		a.baseUrl+"/_api/signer/sign",
+		a.endpoints.Sign(),
 		ezhttp.AuthBearer(a.bearerToken),
 		ezhttp.SendJson(&req),
 		ezhttp.RespondsJson(&res, false)); err != nil {
@@ -142,7 +142,7 @@ func Run(
 	logger *log.Logger,
 ) error {
 	agentServer := &AgentServer{
-		baseUrl:     baseurl,
+		endpoints:   signingapi.NewRestClientUrlBuilder(baseurl),
 		bearerToken: token,
 		logl:        logex.Levels(logex.Prefix("AgentServer", logger)),
 	}
