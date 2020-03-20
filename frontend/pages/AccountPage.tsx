@@ -243,23 +243,27 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		return (
 			<AppDefaultLayout title={account.Title} breadcrumbs={breadcrumbItems}>
-				<h1>
-					<span title={relativeDateFormat(account.Created)}>{account.Title}</span>
+				<div>
+					<h1 style={{ display: 'inline-block' }}>
+						{account.Title}
+						&nbsp;
+						<Dropdown>
+							<CommandLink command={AccountRename(account.Id, account.Title)} />
+							<CommandLink command={AccountDelete(account.Id)} />
+
+							<CommandLink command={AccountAddSshKey(account.Id)} />
+							<CommandLink command={AccountAddKeylist(account.Id)} />
+							<CommandLink command={AccountAddPassword(account.Id)} />
+							<CommandLink command={AccountAddSecretNote(account.Id)} />
+							<CommandLink command={AccountAddExternalU2FToken(account.Id)} />
+							<CommandLink command={AccountAddExternalYubicoOtpToken(account.Id)} />
+
+							<a href={importOtpTokenUrl({ account: account.Id })}>+ OTP token</a>
+						</Dropdown>
+					</h1>
 					&nbsp;
-					<Dropdown>
-						<CommandLink command={AccountRename(account.Id, account.Title)} />
-						<CommandLink command={AccountDelete(account.Id)} />
-
-						<CommandLink command={AccountAddSshKey(account.Id)} />
-						<CommandLink command={AccountAddKeylist(account.Id)} />
-						<CommandLink command={AccountAddPassword(account.Id)} />
-						<CommandLink command={AccountAddSecretNote(account.Id)} />
-						<CommandLink command={AccountAddExternalU2FToken(account.Id)} />
-						<CommandLink command={AccountAddExternalYubicoOtpToken(account.Id)} />
-
-						<a href={importOtpTokenUrl({ account: account.Id })}>+ OTP token</a>
-					</Dropdown>
-				</h1>
+					<span title={relativeDateFormat(account.Created)}>📅</span>
+				</div>
 
 				<table className="table table-striped th-align-right">
 					<tbody>
@@ -349,7 +353,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 				return (
 					<tr key={secret.Id}>
 						<th>
-							<span title={relativeDateFormat(secret.Created)}>Password</span>
+							Password
 							<span className="margin-left">
 								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 							</span>
@@ -359,6 +363,8 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						</th>
 						<td>
 							<SecretReveal secret={secret.Password} noAutomaticClipboard={true} />
+							&nbsp;
+							<span title={relativeDateFormat(secret.Created)}>📅</span>
 						</td>
 						<td>
 							<ClipboardButton text={secret.Password} />
