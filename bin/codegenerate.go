@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/function61/eventkit/codegen"
 	"github.com/function61/eventkit/codegen/codegentemplates"
 	"github.com/function61/gokit/dynversion/precompilationversion"
@@ -10,17 +11,22 @@ import (
 //go:generate go run codegenerate.go
 
 func main() {
-	if err := mainInternal(); err != nil {
-		panic(err)
+	if err := logic(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }
 
-func mainInternal() error {
+func logic() error {
 	// normalize to root of the project
 	if err := os.Chdir(".."); err != nil {
 		return err
 	}
 
+	return mainInternal()
+}
+
+func mainInternal() error {
 	modules := []*codegen.Module{
 		codegen.NewModule("domain", "pkg/domain/types.json", "pkg/domain/events.json", ""),
 		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", "pkg/apitypes/commands.json"),
