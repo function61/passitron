@@ -266,7 +266,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<tr>
 							<th>
 								URL
-								<CommandIcon command={AccountChangeUrl(account.Id, account.Url)} />
+								<span className="margin-left">
+									<CommandIcon
+										command={AccountChangeUrl(account.Id, account.Url)}
+									/>
+								</span>
 							</th>
 							<td>
 								{account.Url ? (
@@ -282,9 +286,14 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<tr>
 							<th>
 								Username
-								<CommandIcon
-									command={AccountChangeUsername(account.Id, account.Username)}
-								/>
+								<span className="margin-left">
+									<CommandIcon
+										command={AccountChangeUsername(
+											account.Id,
+											account.Username,
+										)}
+									/>
+								</span>
 							</th>
 							<td>
 								<OptionalContent>{account.Username}</OptionalContent>
@@ -297,12 +306,14 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<tr>
 							<th>
 								Description
-								<CommandIcon
-									command={AccountChangeDescription(
-										account.Id,
-										account.Description,
-									)}
-								/>
+								<span className="margin-left">
+									<CommandIcon
+										command={AccountChangeDescription(
+											account.Id,
+											account.Description,
+										)}
+									/>
+								</span>
 							</th>
 							<td>
 								<MonospaceContent>
@@ -326,7 +337,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<tr key={secret.Id}>
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>SSH public key</span>
-							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							<span className="margin-left">
+								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							</span>
 						</th>
 						<td>{secret.SshPublicKeyAuthorized}</td>
 						<td />
@@ -337,7 +350,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<tr key={secret.Id}>
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>Password</span>
-							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							<span className="margin-left">
+								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							</span>
 						</th>
 						<td>
 							<SecretReveal secret={secret.Password} />
@@ -358,7 +373,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<tr key={secret.Id}>
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>OTP code</span>
-							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							<span className="margin-left">
+								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							</span>
 						</th>
 						<td>
 							{exposedSecret.OtpProof}
@@ -380,7 +397,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<tr key={secret.Id}>
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>Keylist</span>
-							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							<span className="margin-left">
+								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							</span>
 						</th>
 						<td colSpan={2}>
 							{secret.Title}
@@ -396,7 +415,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 								{externalTokenKindHumanReadable(secret.ExternalTokenKind!)}{' '}
 								(external token)
 							</span>
-							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							<span className="margin-left">
+								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							</span>
 						</th>
 						<td colSpan={2}>{secret.Title}</td>
 					</tr>
@@ -406,7 +427,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 					<tr key={secret.Id}>
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>Note</span>
-							<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							<span className="margin-left">
+								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+							</span>
 						</th>
 						<td colSpan={2}>
 							{secret.Title}
