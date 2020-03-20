@@ -1,6 +1,6 @@
 import { U2fSigner } from 'components/U2F';
 import { isNotSignedInError } from 'errors';
-import { navigateTo } from 'f61ui/browserutils';
+import { navigateTo, LocalStorageItem } from 'f61ui/browserutils';
 import { Button, Panel } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { CommandInlineForm } from 'f61ui/component/CommandButton';
@@ -21,8 +21,6 @@ import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
 import { indexUrl } from 'generated/apitypes_uiroutes';
 
-const storedUsernameLocalStorageKey = 'signInLastUsername';
-
 enum UnauthenticatedKind {
 	AwaitingUsername,
 	AwaitingPassword,
@@ -40,9 +38,11 @@ interface SignInPageState {
 	signInChallenge: Result<U2FChallengeBundle>;
 }
 
+const signInLastUsername = new LocalStorageItem('signInLastUsername');
+
 export default class SignInPage extends React.Component<SignInPageProps, SignInPageState> {
 	state: SignInPageState = {
-		username: localStorage.getItem(storedUsernameLocalStorageKey) || '',
+		username: signInLastUsername.get() || '',
 		signInChallenge: new Result<U2FChallengeBundle>((x) => {
 			this.setState({ signInChallenge: x });
 		}),
@@ -153,13 +153,13 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 		}
 
 		// store, so next on next login we can pre-fill this
-		localStorage.setItem(storedUsernameLocalStorageKey, this.state.username);
+		signInLastUsername.set(this.state.username);
 
 		this.setState({ status: UnauthenticatedKind.AwaitingPassword });
 	}
 
 	private forgetUsername() {
-		localStorage.removeItem(storedUsernameLocalStorageKey);
+		signInLastUsername.remove();
 
 		this.setState({ status: UnauthenticatedKind.AwaitingUsername });
 	}
