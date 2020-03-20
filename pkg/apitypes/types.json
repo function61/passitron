@@ -1,17 +1,17 @@
 {
 	"endpoints": [
-		{ "chain": "authenticated", "method": "GET", "path": "/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
-		{ "chain": "authenticated", "method": "POST", "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistItem" },
-		{ "chain": "authenticated", "method": "GET", "path": "/accounts/{accountId}/secrets/{secretId}/keylist/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistItemChallenge" },
-		{ "chain": "authenticated", "method": "POST", "path": "/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
-		{ "chain": "authenticated", "method": "GET", "path": "/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport", "description": "Gets QR code of TOTP token for exporting to Google Authenticator" },
-		{ "chain": "authenticated", "method": "GET", "path": "/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
-		{ "chain": "authenticated", "method": "GET", "path": "/users", "produces": {"_": "list", "of": {"_": "User"}}, "name": "userList" },
-		{ "chain": "authenticated", "method": "GET", "path": "/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
-		{ "chain": "authenticated", "method": "GET", "path": "/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
-		{ "chain": "authenticated", "method": "GET", "path": "/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
-		{ "chain": "authenticated", "method": "GET", "path": "/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" },
-		{ "chain": "public", "method": "GET", "path": "/u2f/challenge/sign_in/{userId}?mac={mac}", "produces": {"_": "U2FChallengeBundle"}, "name": "getSignInChallenge" }
+		{ "chain": "authenticated", "method": "GET", "path": "/api/folder/{folderId}", "produces": {"_": "FolderResponse"}, "name": "getFolder" },
+		{ "chain": "authenticated", "method": "POST", "path": "/api/accounts/{accountId}/secrets/{secretId}/keylist/{key}", "produces": {"_": "SecretKeylistKey"}, "consumes": {"_": "U2FResponseBundle"}, "name": "getKeylistItem" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/accounts/{accountId}/secrets/{secretId}/keylist/{key}/challenge", "produces": {"_": "U2FChallengeBundle"}, "name": "getKeylistItemChallenge" },
+		{ "chain": "authenticated", "method": "POST", "path": "/api/accounts/{accountId}/secrets", "produces": {"_": "list", "of": {"_": "ExposedSecret"}}, "consumes": {"_": "U2FResponseBundle"}, "name": "getSecrets" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/accounts/{accountId}/secrets/{secretId}/totp_barcode?mac={mac}", "name": "totpBarcodeExport", "description": "Gets QR code of TOTP token for exporting to Google Authenticator" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/auditlog", "produces": {"_": "list", "of": {"_": "AuditlogEntry"}}, "name": "auditLogEntries" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/users", "produces": {"_": "list", "of": {"_": "User"}}, "name": "userList" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/accounts/{id}", "produces": {"_": "WrappedAccount"}, "name": "getAccount" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/search?q={query}", "produces": {"_": "FolderResponse"}, "name": "search" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/u2f/enrollment/challenge", "produces": {"_": "U2FEnrollmentChallenge"}, "name": "u2fEnrollmentChallenge" },
+		{ "chain": "authenticated", "method": "GET", "path": "/api/u2f/enrolled_tokens", "produces": {"_": "list", "of": {"_": "U2FEnrolledToken"}}, "name": "u2fEnrolledTokens" },
+		{ "chain": "public", "method": "GET", "path": "/api/u2f/challenge/sign_in/{userId}?mac={mac}", "produces": {"_": "U2FChallengeBundle"}, "name": "getSignInChallenge" }
 	],
 	"stringConsts": [
 		{ "key": "ErrNeedU2fVerification", "value": "need_u2f_verification" }
