@@ -355,7 +355,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<th>
 							Password
 							<span className="margin-left">
-								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+								<CommandIcon
+									command={AccountDeleteSecret(account.Id, secret.Id, {
+										disambiguation: secret.Title,
+									})}
+								/>
 							</span>
 							<div>
 								<MutedText>{secret.Title}</MutedText>
@@ -407,7 +411,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>Keylist</span>
 							<span className="margin-left">
-								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+								<CommandIcon
+									command={AccountDeleteSecret(account.Id, secret.Id, {
+										disambiguation: secret.Title,
+									})}
+								/>
 							</span>
 							<div>
 								<MutedText>{secret.Title}</MutedText>
@@ -427,7 +435,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 								(external token)
 							</span>
 							<span className="margin-left">
-								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+								<CommandIcon
+									command={AccountDeleteSecret(account.Id, secret.Id, {
+										disambiguation: secret.Title,
+									})}
+								/>
 							</span>
 						</th>
 						<td colSpan={2}>{secret.Title}</td>
@@ -439,7 +451,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<th>
 							<span title={relativeDateFormat(secret.Created)}>Note</span>
 							<span className="margin-left">
-								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
+								<CommandIcon
+									command={AccountDeleteSecret(account.Id, secret.Id, {
+										disambiguation: secret.Title,
+									})}
+								/>
 							</span>
 							<div>
 								<MutedText>{secret.Title}</MutedText>
