@@ -116,11 +116,11 @@
 		"title": "+ Account",
 		"fields": [
 			{ "key": "FolderId", "hideIfDefaultValue": true },
-			{ "key": "Title", "optional": true, "help": "If you don`t specify this, then URL is required" },
-			{ "key": "Url", "optional": true, "help": "If you don`t specify this, then Title is required" },
-			{ "key": "Username", "optional": true },
+			{ "key": "Title", "placeholder": "Reddit", "optional": true, "help": "If you don`t specify this, then URL is required" },
+			{ "key": "Url", "placeholder": "https://www.reddit.com/", "title": "URL", "optional": true, "help": "If you don`t specify this, then Title is required" },
+			{ "key": "Username", "placeholder": "bob@example.com", "optional": true },
 			{ "key": "Password", "type": "password", "optional": true },
-			{ "key": "PasswordRepeat", "type": "password", "optional": true }
+			{ "key": "PasswordRepeat", "placeholder": "(optional, to prevent typos)", "title": "Repeat password", "type": "password", "optional": true }
 		]
 	},
 	{
