@@ -34,6 +34,10 @@ func (q *queryHandlers) userData(rctx *httpauth.RequestContext) *state.UserStora
 
 func (a *queryHandlers) GetFolder(rctx *httpauth.RequestContext, w http.ResponseWriter, r *http.Request) *apitypes.FolderResponse {
 	folder := a.userData(rctx).FolderById(mux.Vars(r)["folderId"])
+	if folder == nil {
+		http.NotFound(w, r)
+		return nil
+	}
 
 	accounts := state.UnwrapAccounts(a.userData(rctx).WrappedAccountsByFolder(folder.Id))
 	subFolders := a.userData(rctx).SubfoldersByParentId(folder.Id)
