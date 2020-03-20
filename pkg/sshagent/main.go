@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/function61/gokit/ezhttp"
 	"github.com/function61/gokit/logex"
-	"github.com/function61/pi-security-module/pkg/signingapi"
+	"github.com/function61/passitron/pkg/signingapi"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"log"

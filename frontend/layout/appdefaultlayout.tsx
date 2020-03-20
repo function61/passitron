@@ -41,11 +41,11 @@ export class AppDefaultLayout extends React.Component<AppDefaultLayoutProps, {}>
 			},
 		];
 
-		const appName = 'PiLockBox';
+		const appName = 'Passitron';
 		return (
 			<DefaultLayout
 				appName={appName}
-				appHomepage="https://github.com/function61/pi-security-module"
+				appHomepage="https://github.com/function61/passitron"
 				navLinks={navLinks}
 				logoNode={appName}
 				logoClickUrl={indexUrl()}

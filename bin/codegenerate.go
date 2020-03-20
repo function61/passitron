@@ -34,7 +34,7 @@ func mainInternal() error {
 	}
 
 	opts := codegen.Opts{
-		BackendModulePrefix:    "github.com/function61/pi-security-module/pkg/",
+		BackendModulePrefix:    "github.com/function61/passitron/pkg/",
 		FrontendModulePrefix:   "generated/",
 		AutogenerateModuleDocs: true,
 	}

@@ -7,8 +7,8 @@ import (
 	"github.com/function61/eventhorizon/pkg/ehclient"
 	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/eventhorizon/pkg/ehreader"
-	"github.com/function61/pi-security-module/pkg/apitypes"
-	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/passitron/pkg/apitypes"
+	"github.com/function61/passitron/pkg/domain"
 	"sync"
 	"time"
 )

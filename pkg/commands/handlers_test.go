@@ -5,8 +5,8 @@ import (
 	"github.com/function61/eventkit/event"
 	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/logex"
-	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/state"
+	"github.com/function61/passitron/pkg/domain"
+	"github.com/function61/passitron/pkg/state"
 	"testing"
 	"time"
 )

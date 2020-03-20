@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"github.com/function61/eventhorizon/pkg/ehevent"
 	"github.com/function61/gokit/cryptoutil"
-	"github.com/function61/pi-security-module/pkg/domain"
-	"github.com/function61/pi-security-module/pkg/envelopeenc"
-	"github.com/function61/pi-security-module/pkg/slowcrypto"
+	"github.com/function61/passitron/pkg/domain"
+	"github.com/function61/passitron/pkg/envelopeenc"
+	"github.com/function61/passitron/pkg/slowcrypto"
 )
 
 var (

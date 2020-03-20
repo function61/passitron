@@ -3,8 +3,8 @@ package httpserver
 import (
 	"errors"
 	"github.com/function61/gokit/httpauth"
-	"github.com/function61/pi-security-module/pkg/httputil"
-	"github.com/function61/pi-security-module/pkg/state"
+	"github.com/function61/passitron/pkg/httputil"
+	"github.com/function61/passitron/pkg/state"
 	"net/http"
 	"strings"
 )

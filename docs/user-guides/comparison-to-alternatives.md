@@ -1,7 +1,7 @@
 
 | Application        | Free            | No cloud | Hacker safe | U2F support | SSH agent support |
 |--------------------|-----------------|----------|-------------|-------------|-------------------|
-| pi-security-module | ☑              | ☑      | ☑         | ☑         | ☑               |
+| Passitron          | ☑              | ☑      | ☑         | ☑         | ☑               |
 | KeePass            | ☑              | ☑      | ☐          | ?           | ☑ (plugin)      |
 | LastPass           | ☑              | ☐       | ☐          | ?           | ☐                |
 | 1Password          | ☐               | ☐       | ☐          | ?           | ☐               |

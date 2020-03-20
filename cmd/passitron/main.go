@@ -6,10 +6,10 @@ import (
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/ossignal"
 	"github.com/function61/gokit/systemdinstaller"
-	"github.com/function61/pi-security-module/pkg/httpserver"
-	"github.com/function61/pi-security-module/pkg/keepassimport"
-	"github.com/function61/pi-security-module/pkg/sshagent"
-	"github.com/function61/pi-security-module/pkg/state"
+	"github.com/function61/passitron/pkg/httpserver"
+	"github.com/function61/passitron/pkg/keepassimport"
+	"github.com/function61/passitron/pkg/sshagent"
+	"github.com/function61/passitron/pkg/state"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -39,12 +39,12 @@ func serverEntrypoint() *cobra.Command {
 
 	server.AddCommand(&cobra.Command{
 		Use:   "install",
-		Short: "Installs systemd unit file to make pi-security-module start on system boot",
+		Short: "Installs systemd unit file to make Passitron start on system boot",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			service := systemdinstaller.SystemdServiceFile(
-				"pi-security-module",
-				"Pi security module",
+				"passitron",
+				"Passitron",
 				systemdinstaller.Args("server"))
 
 			exitIfError(systemdinstaller.Install(service))
@@ -59,7 +59,7 @@ func serverEntrypoint() *cobra.Command {
 func main() {
 	rootCmd := &cobra.Command{
 		Use:     os.Args[0],
-		Short:   "Software for a hardware security module",
+		Short:   "Keeps your secrets as secure as possible",
 		Version: dynversion.Version,
 	}
 

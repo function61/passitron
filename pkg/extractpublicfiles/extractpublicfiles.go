@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/function61/gokit/ezhttp"
 	"github.com/function61/gokit/fileexists"
-	"github.com/function61/pi-security-module/pkg/tarextract"
+	"github.com/function61/passitron/pkg/tarextract"
 	"io"
 	"log"
 	"net/url"

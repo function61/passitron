@@ -9,7 +9,7 @@ import (
 	"github.com/function61/gokit/httpauth"
 	"github.com/function61/gokit/jsonfile"
 	"github.com/function61/gokit/storedpassword"
-	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/passitron/pkg/domain"
 	"time"
 )
 

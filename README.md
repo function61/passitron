@@ -1,4 +1,4 @@
-![Build status](https://github.com/function61/pi-security-module/workflows/Build/badge.svg)
+![Build status](https://github.com/function61/passitron/workflows/Build/badge.svg)
 [![Download](https://img.shields.io/bintray/v/function61/dl/pi-security-module.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/pi-security-module/_latestVersion#files)
 
 What is this?
@@ -17,9 +17,9 @@ press a button on the device - and only exposes one secret per push acknowledge.
 Links
 -----
 
-- [Architecture summary](https://function61.com/docs/pi-security-module/architecture/)
-- [Comparison to alternatives](https://function61.com/docs/pi-security-module/user-guides/comparison-to-alternatives/)
-- [All documentation](https://function61.com/docs/pi-security-module/) - everything you
+- [Architecture summary](https://function61.com/docs/passitron/architecture/)
+- [Comparison to alternatives](https://function61.com/docs/passitron/user-guides/comparison-to-alternatives/)
+- [All documentation](https://function61.com/docs/passitron/) - everything you
   seek is probably here. The above links were just some of the most important links to
   this documentation site.
 
@@ -70,8 +70,8 @@ Rename the downloaded binary to `pism`.
 Pro-tip: you can download this directly to your Pi from command line:
 
 ```
-$ mkdir pi-security-module/
-$ cd pi-security-module
+$ mkdir passitron/
+$ cd passitron
 $ curl --fail --location -o pism <url to pism_linux-arm from Bintray>
 
 # mark the binary as executable
@@ -83,11 +83,11 @@ Installation & running:
 ```
 $ ./pism server init-config admin yourpassword
 $ ./pism server install
-Wrote unit file to /etc/systemd/system/pi-security-module.service
+Wrote unit file to /etc/systemd/system/passitron.service
 Run to enable on boot & to start now:
-        $ systemctl enable pi-security-module
-        $ systemctl start pi-security-module
-        $ systemctl status pi-security-module
+        $ systemctl enable passitron
+        $ systemctl start passitron
+        $ systemctl status passitron
 ```
 
 Looks good. You should now be able to access the web interface at `http://<ip of your pi>`.

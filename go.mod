@@ -1,4 +1,4 @@
-module github.com/function61/pi-security-module
+module github.com/function61/passitron
 
 go 1.13
 

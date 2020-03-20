@@ -8,7 +8,7 @@ import (
 	"github.com/function61/eventhorizon/pkg/ehreader/ehreadertest"
 	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/cryptoutil"
-	"github.com/function61/pi-security-module/pkg/domain"
+	"github.com/function61/passitron/pkg/domain"
 	"testing"
 	"time"
 )

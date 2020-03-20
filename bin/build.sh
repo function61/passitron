@@ -2,8 +2,8 @@
 
 source /build-common.sh
 
-COMPILE_IN_DIRECTORY="cmd/pism"
-BINARY_NAME="pism"
+COMPILE_IN_DIRECTORY="cmd/passitron"
+BINARY_NAME="passitron"
 GOFMT_TARGETS="cmd/ pkg/"
 
 # clean slate, because generated files rarely pass formatting check
@@ -15,33 +15,33 @@ cleanupGeneratedFiles() {
 
 buildInternalDependenciesDocs() {
 	echo "\`\`\`" > docs/internal-dependencies.md
-	(cd cmd/pism && depth . | grep github.com/function61/pi-security-module/ | grep -v vendor) >> docs/internal-dependencies.md
+	(cd cmd/passitron && depth . | grep github.com/function61/passitron/ | grep -v vendor) >> docs/internal-dependencies.md
 	echo "\`\`\`" >> docs/internal-dependencies.md
 }
 
 generateCommandlineUserguideDocs() {
 	# because help text self reflects its binary name
-	cp rel/pism_linux-amd64 pism
+	cp rel/passitron_linux-amd64 passitron
 
 	cat << EOF > docs/user-guides/command-line.md
 To receive help, just run:
 
 \`\`\`
-./pism --help
-$(./pism --help)
+./passitron --help
+$(./passitron --help)
 \`\`\`
 
 Any subcommand will also give you help:
 
 \`\`\`
-./pism server --help
-$(./pism server --help)
+./passitron server --help
+$(./passitron server --help)
 \`\`\`
 
 EOF
 
 	# cleanup
-	rm -f pism
+	rm -f passitron
 }
 
 if [ ! -n "${FASTBUILD:-}" ]; then

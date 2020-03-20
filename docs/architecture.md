@@ -30,21 +30,21 @@ the events are the only source of data used to derive the read model in the data
 To best understand the big picture, here's a journey of a write request, with source code
 locations:
 
-- [UI invokes](https://github.com/function61/pi-security-module/blob/153991ffb0bb/frontend/pages/AccountPage.tsx#L287)
+- [UI invokes](https://github.com/function61/passitron/blob/153991ffb0bb/frontend/pages/AccountPage.tsx#L287)
   HTTP `POST /command/account.ChangeDescription` with body
   `{"Account": 13, "Description": "This is an example"}`
-- [Generic command HTTP handler](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/restcommandapi/commandapi.go#L18)
+- [Generic command HTTP handler](https://github.com/function61/passitron/blob/153991ffb0bb/pkg/restcommandapi/commandapi.go#L18)
   intercepts this request. This handler knows about this command because the command was
-  defined [here](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/commandhandlers/commands.json#L33).
+  defined [here](https://github.com/function61/passitron/blob/153991ffb0bb/pkg/commandhandlers/commands.json#L33).
 - It deserializes the JSON, performs basic validations (like is this input field required
-  etc.), and invokes the [command handler](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/commandhandlers/handlers.go#L89)
+  etc.), and invokes the [command handler](https://github.com/function61/passitron/blob/153991ffb0bb/pkg/commandhandlers/handlers.go#L89)
 - The command handler raises `account.DescriptionChanged` event
-  (defined [here](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/domain/domain.json#L91))
+  (defined [here](https://github.com/function61/passitron/blob/153991ffb0bb/pkg/domain/domain.json#L91))
 - Control is returned to the generic command HTTP handler, which
-  [appends](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/restcommandapi/commandapi.go#L64)
+  [appends](https://github.com/function61/passitron/blob/153991ffb0bb/pkg/restcommandapi/commandapi.go#L64)
   any raised events to the event log.
 - Event log appending eventually means that an event handler will be invoked in the
-  [state package](https://github.com/function61/pi-security-module/blob/153991ffb0bb/pkg/state/eventhandlers.go#L72)
+  [state package](https://github.com/function61/passitron/blob/153991ffb0bb/pkg/state/eventhandlers.go#L72)
 
 Here's the most important source code locations:
 

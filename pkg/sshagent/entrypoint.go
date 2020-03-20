@@ -12,7 +12,7 @@ import (
 func Entrypoint() *cobra.Command {
 	sshAgent := &cobra.Command{
 		Use:   "ssh-agent-proxy [baseurl] [token]",
-		Short: "Starts the SSH agent proxy, which will forward SSH signing requests to pi-security-module",
+		Short: "Starts the SSH agent proxy, which will forward SSH signing requests to Passitron",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			baseurl := args[0]
@@ -37,8 +37,8 @@ func Entrypoint() *cobra.Command {
 			token := args[1]
 
 			service := systemdinstaller.SystemdServiceFile(
-				"pi-security-module-ssh-agent",
-				"Pi security module SSH-agent",
+				"passitron-ssh-agent",
+				"Passitron SSH-agent",
 				systemdinstaller.Args("ssh-agent-proxy", baseurl, token))
 
 			exitIfError(systemdinstaller.Install(service))
