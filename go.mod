@@ -7,7 +7,7 @@ require (
 	github.com/boombuler/barcode v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/function61/eventhorizon v0.2.1-0.20200227140656-f89fe5d462ca
-	github.com/function61/eventkit v0.0.0-20200320065834-123542aa3558
+	github.com/function61/eventkit v0.0.0-20200320120923-f648d7f38041
 	github.com/function61/gokit v0.0.0-20200307135016-6dd948616ce0
 	github.com/go-ini/ini v1.38.2
 	github.com/gorilla/context v1.1.1
