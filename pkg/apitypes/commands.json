@@ -29,7 +29,7 @@
 		"title": "Change username",
 		"fields": [
 			{ "key": "Account", "hideIfDefaultValue": true },
-			{ "key": "Username" }
+			{ "key": "Username", "optional": true }
 		]
 	},
 	{
