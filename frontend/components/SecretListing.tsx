@@ -9,7 +9,7 @@ import {
 } from 'generated/apitypes_commands';
 import { FolderResponse } from 'generated/apitypes_types';
 import * as React from 'react';
-import { accountRoute, folderRoute } from 'routes';
+import { accountUrl, folderUrl } from 'generated/apitypes_uiroutes';
 
 interface SecretListingProps {
 	searchTerm?: string;
@@ -25,7 +25,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 						<span className="glyphicon glyphicon-folder-open" />
 					</td>
 					<td>
-						<a href={folderRoute.buildUrl({ folderId: folder.Id })}>{folder.Name}</a>
+						<a href={folderUrl({ id: folder.Id })}>{folder.Name}</a>
 					</td>
 					<td />
 					<td>
@@ -44,7 +44,7 @@ export class SecretListing extends React.Component<SecretListingProps, {}> {
 				<tr key={account.Id}>
 					<td />
 					<td>
-						<a href={accountRoute.buildUrl({ id: account.Id })}>{account.Title}</a>
+						<a href={accountUrl({ id: account.Id })}>{account.Title}</a>
 					</td>
 					<td>{account.Username}</td>
 					<td>

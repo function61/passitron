@@ -4,7 +4,7 @@ import { shouldAlwaysSucceed } from 'f61ui/utils';
 import { search } from 'generated/apitypes_endpoints';
 import * as React from 'react';
 import * as Autocomplete from 'react-autocomplete';
-import { accountRoute, folderRoute, indexRoute, searchRoute } from 'routes';
+import { accountUrl, folderUrl, indexUrl, searchUrl } from 'generated/apitypes_uiroutes';
 
 interface SearchBoxProps {
 	searchTerm?: string; // initial
@@ -41,9 +41,9 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 						const searchTerm = e.target.value;
 
 						if (searchTerm !== '') {
-							navigateTo(searchRoute.buildUrl({ searchTerm }));
+							navigateTo(searchUrl({ q: searchTerm }));
 						} else {
-							navigateTo(indexRoute.buildUrl({}));
+							navigateTo(indexUrl());
 						}
 					},
 				}}
@@ -92,14 +92,14 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 
 			const folderMatches: AutocompleteItem[] = searchResult.SubFolders.map((item) => ({
 				label: item.Name,
-				url: folderRoute.buildUrl({ folderId: item.Id }),
+				url: folderUrl({ id: item.Id }),
 			}));
 
 			const accountMatches: AutocompleteItem[] = searchResult.Accounts.map((item) => {
 				const label = item.Username ? `${item.Title} (${item.Username})` : item.Title;
 				return {
 					label,
-					url: accountRoute.buildUrl({ id: item.Id }),
+					url: accountUrl({ id: item.Id }),
 				};
 			});
 

@@ -45,7 +45,7 @@ import {
 import { ExternalTokenKind, SecretKind } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
-import { folderRoute, importotptokenRoute } from 'routes';
+import { folderUrl, importOtpTokenUrl } from 'generated/apitypes_uiroutes';
 
 interface SecretsFetcherProps {
 	wrappedAccount: WrappedAccount;
@@ -257,9 +257,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 						<CommandLink command={AccountAddExternalU2FToken(account.Id)} />
 						<CommandLink command={AccountAddExternalYubicoOtpToken(account.Id)} />
 
-						<a href={importotptokenRoute.buildUrl({ account: account.Id })}>
-							+ OTP token
-						</a>
+						<a href={importOtpTokenUrl({ account: account.Id })}>+ OTP token</a>
 					</Dropdown>
 				</h1>
 
@@ -446,7 +444,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 
 		function unshiftFolderToBreadcrumb(fld: Folder) {
 			breadcrumbItems.unshift({
-				url: folderRoute.buildUrl({ folderId: fld.Id }),
+				url: folderUrl({ id: fld.Id }),
 				title: fld.Name,
 			});
 		}

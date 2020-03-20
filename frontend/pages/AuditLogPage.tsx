@@ -7,7 +7,7 @@ import { AuditlogEntry } from 'generated/apitypes_types';
 import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
-import { indexRoute } from 'routes';
+import { indexUrl } from 'generated/apitypes_uiroutes';
 
 interface AuditLogPageState {
 	entries: AuditlogEntry[];
@@ -55,7 +55,7 @@ export default class AuditLogPage extends React.Component<{}, AuditLogPageState>
 
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{ url: indexRoute.buildUrl({}), title: RootFolderName },
+			{ url: indexUrl(), title: RootFolderName },
 			{ url: '', title: this.title },
 		];
 	}

@@ -1,0 +1,42 @@
+[	
+	{
+		"id": "index",
+		"path": "/index"
+	},
+	{
+		"id": "folder",
+		"path": "/folder/{id}"
+	},
+	{
+		"id": "search",
+		"path": "/search?q={q}"
+	},
+	{
+		"id": "account",
+		"path": "/account/{id}"
+	},
+	{
+		"id": "importOtpToken",
+		"path": "/account/{account}/import_otp_token"
+	},
+	{
+		"id": "sshKeys",
+		"path": "/ssh_keys"
+	},
+	{
+		"id": "settings",
+		"path": "/settings"
+	},
+	{
+		"id": "signIn",
+		"path": "/sign_in?next={next}"
+	},
+	{
+		"id": "unlockDecryptionKey",
+		"path": "/unlock_decryption_key?next={next}"
+	},
+	{
+		"id": "auditLog",
+		"path": "/audit_log"
+	}
+]

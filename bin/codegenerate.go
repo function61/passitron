@@ -28,9 +28,9 @@ func logic() error {
 
 func mainInternal() error {
 	modules := []*codegen.Module{
-		codegen.NewModule("domain", "pkg/domain/types.json", "pkg/domain/events.json", ""),
-		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", "pkg/apitypes/commands.json"),
-		codegen.NewModule("signingapi", "pkg/signingapi/types.json", "", ""),
+		codegen.NewModule("domain", "pkg/domain/types.json", "pkg/domain/events.json", "", ""),
+		codegen.NewModule("apitypes", "pkg/apitypes/types.json", "", "pkg/apitypes/commands.json", "pkg/apitypes/ui-routes.json"),
+		codegen.NewModule("signingapi", "pkg/signingapi/types.json", "", "", ""),
 	}
 
 	opts := codegen.Opts{

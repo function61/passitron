@@ -6,7 +6,7 @@ import { UserUnlockDecryptionKey } from 'generated/apitypes_commands';
 import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
-import { indexRoute } from 'routes';
+import { indexUrl } from 'generated/apitypes_uiroutes';
 
 interface UnlockDecrypionKeyPageProps {
 	redirect: string;
@@ -37,7 +37,7 @@ export default class UnlockDecrypionKeyPage extends React.Component<
 
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{ url: indexRoute.buildUrl({}), title: RootFolderName },
+			{ url: indexUrl(), title: RootFolderName },
 			{ url: '', title: this.title },
 		];
 	}

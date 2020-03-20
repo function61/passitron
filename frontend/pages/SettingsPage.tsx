@@ -21,7 +21,7 @@ import { RegisterResponse, U2FEnrolledToken, User } from 'generated/apitypes_typ
 import { RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
-import { indexRoute } from 'routes';
+import { indexUrl } from 'generated/apitypes_uiroutes';
 import { isU2FError, u2fErrorMsg, U2FStdRegisterResponse } from 'u2ftypes';
 
 interface SettingsPageState {
@@ -239,7 +239,7 @@ export default class SettingsPage extends React.Component<{}, SettingsPageState>
 
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{ url: indexRoute.buildUrl({}), title: RootFolderName },
+			{ url: indexUrl(), title: RootFolderName },
 			{ url: '', title: this.title },
 		];
 	}

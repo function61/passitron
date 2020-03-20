@@ -19,7 +19,7 @@ import {
 import { RootFolderId, RootFolderName } from 'generated/domain_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
-import { indexRoute } from 'routes';
+import { indexUrl } from 'generated/apitypes_uiroutes';
 
 const storedUsernameLocalStorageKey = 'signInLastUsername';
 
@@ -166,7 +166,7 @@ export default class SignInPage extends React.Component<SignInPageProps, SignInP
 
 	private getBreadcrumbs(): Breadcrumb[] {
 		return [
-			{ url: indexRoute.buildUrl({}), title: RootFolderName },
+			{ url: indexUrl(), title: RootFolderName },
 			{ url: '', title: this.title },
 		];
 	}

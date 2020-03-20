@@ -7,6 +7,7 @@ import (
 	"github.com/function61/gokit/httputils"
 	"github.com/function61/gokit/logex"
 	"github.com/function61/gokit/taskrunner"
+	"github.com/function61/pi-security-module/pkg/apitypes"
 	"github.com/function61/pi-security-module/pkg/commands"
 	"github.com/function61/pi-security-module/pkg/extractpublicfiles"
 	"github.com/function61/pi-security-module/pkg/f61ui"
@@ -126,10 +127,14 @@ func setupStaticFilesRouting(router *mux.Router, appState *state.AppState) error
 	assetsPath := "/assets"
 
 	publicFiles := http.FileServer(http.Dir("./public/"))
-	router.HandleFunc("/", f61ui.IndexHtmlHandler(assetsPath))
 	router.PathPrefix(assetsPath + "/").Handler(http.StripPrefix(assetsPath+"/", publicFiles))
 	router.Handle("/favicon.ico", publicFiles)
 	router.Handle("/robots.txt", publicFiles)
+
+	// handle all UI paths
+	uiHandler := f61ui.IndexHtmlHandler(assetsPath)
+	apitypes.RegisterUiRoutes(router, uiHandler)
+	router.HandleFunc("/", uiHandler)
 
 	return nil
 }

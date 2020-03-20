@@ -9,8 +9,7 @@ import { getFolder } from 'generated/apitypes_endpoints';
 import { FolderResponse } from 'generated/apitypes_types';
 import { AppDefaultLayout } from 'layout/appdefaultlayout';
 import * as React from 'react';
-import { accountRoute } from 'routes';
-import { folderRoute } from 'routes';
+import { accountUrl, folderUrl } from 'generated/apitypes_uiroutes';
 
 interface HomePageProps {
 	folderId: string;
@@ -40,7 +39,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 
 		for (const parent of listing.ParentFolders) {
 			breadcrumbs.unshift({
-				url: folderRoute.buildUrl({ folderId: parent.Id }),
+				url: folderUrl({ id: parent.Id }),
 				title: parent.Name,
 			});
 		}
@@ -52,7 +51,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
 				<Dropdown label="New ..">
 					<CommandLink
 						command={AccountCreate(this.props.folderId, {
-							redirect: (id) => accountRoute.buildUrl({ id }),
+							redirect: (id) => accountUrl({ id }),
 						})}
 					/>
 					<CommandLink command={AccountCreateFolder(this.props.folderId)} />

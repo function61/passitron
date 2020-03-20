@@ -1,11 +1,11 @@
 import { SearchBox } from 'components/SearchBox';
-import { getCurrentHash } from 'f61ui/browserutils';
+import { getCurrentLocation } from 'f61ui/browserutils';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { NavLink } from 'f61ui/component/navigation';
 import { DefaultLayout } from 'f61ui/layout/defaultlayout';
 import { version } from 'generated/version';
 import * as React from 'react';
-import { auditlogRoute, indexRoute, settingsRoute, sshkeysRoute } from 'routes';
+import { auditLogUrl, indexUrl, settingsUrl, sshKeysUrl } from 'generated/apitypes_uiroutes';
 
 interface AppDefaultLayoutProps {
 	title: string;
@@ -16,28 +16,28 @@ interface AppDefaultLayoutProps {
 // app's default layout uses the default layout with props that are common to the whole app
 export class AppDefaultLayout extends React.Component<AppDefaultLayoutProps, {}> {
 	render() {
-		const hash = getCurrentHash();
+		const currLoc = getCurrentLocation();
 
 		const navLinks: NavLink[] = [
 			{
 				title: 'Home',
-				url: indexRoute.buildUrl({}),
-				active: indexRoute.matchUrl(hash) !== null,
+				url: indexUrl(),
+				active: currLoc === indexUrl(),
 			},
 			{
 				title: 'SSH keys',
-				url: sshkeysRoute.buildUrl({}),
-				active: sshkeysRoute.matchUrl(hash) !== null,
+				url: sshKeysUrl(),
+				active: currLoc === sshKeysUrl(),
 			},
 			{
 				title: 'Settings',
-				url: settingsRoute.buildUrl({}),
-				active: settingsRoute.matchUrl(hash) !== null,
+				url: settingsUrl(),
+				active: currLoc === settingsUrl(),
 			},
 			{
 				title: 'Audit log',
-				url: auditlogRoute.buildUrl({}),
-				active: auditlogRoute.matchUrl(hash) !== null,
+				url: auditLogUrl(),
+				active: currLoc === auditLogUrl(),
 			},
 		];
 
@@ -48,7 +48,7 @@ export class AppDefaultLayout extends React.Component<AppDefaultLayoutProps, {}>
 				appHomepage="https://github.com/function61/pi-security-module"
 				navLinks={navLinks}
 				logoNode={appName}
-				logoClickUrl={indexRoute.buildUrl({})}
+				logoClickUrl={indexUrl()}
 				breadcrumbs={this.props.breadcrumbs}
 				content={this.props.children}
 				version={version}
