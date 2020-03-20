@@ -355,7 +355,7 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 							</span>
 						</th>
 						<td>
-							<SecretReveal secret={secret.Password} />
+							<SecretReveal secret={secret.Password} noAutomaticClipboard={true} />
 						</td>
 						<td>
 							<ClipboardButton text={secret.Password} />
