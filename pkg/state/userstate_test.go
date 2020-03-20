@@ -236,7 +236,10 @@ func addAccount(t *testing.T, tc *testContext) {
 		domain.NewAccountUrlChanged(testAccId, "https://google.com/", ehevent.Meta(t0, joonasUid)))
 
 	tc.appendAndLoad(
-		domain.NewAccountUsernameChanged(testAccId, "joonas@example.com", ehevent.Meta(t0, joonasUid)))
+		domain.NewAccountUsernameChanged(testAccId, "joonas.fi", ehevent.Meta(t0, joonasUid)))
+
+	tc.appendAndLoad(
+		domain.NewAccountEmailChanged(testAccId, "joonas@example.com", ehevent.Meta(t0, joonasUid)))
 
 	tc.appendAndLoad(
 		domain.NewAccountDescriptionChanged(testAccId, "Notes for account\nLine 2", ehevent.Meta(t0, joonasUid)))
@@ -244,11 +247,12 @@ func addAccount(t *testing.T, tc *testContext) {
 	assert.EqualJson(t, tc.user.accounts[testAccId].Account, `{
   "Created": "2020-02-20T14:02:00Z",
   "Description": "Notes for account\nLine 2",
+  "Email": "joonas@example.com",
   "FolderId": "root",
   "Id": "accId1",
   "Title": "google.com",
   "Url": "https://google.com/",
-  "Username": "joonas@example.com"
+  "Username": "joonas.fi"
 }`)
 }
 

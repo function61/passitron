@@ -20,6 +20,7 @@ import {
 	AccountChangeDescription,
 	AccountChangeUrl,
 	AccountChangeUsername,
+	AccountChangeEmail,
 	AccountDelete,
 	AccountDeleteSecret,
 	AccountRename,
@@ -304,6 +305,22 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 							</td>
 							<td>
 								<ClipboardButton text={account.Username} />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								Email
+								<span className="margin-left">
+									<CommandIcon
+										command={AccountChangeEmail(account.Id, account.Email)}
+									/>
+								</span>
+							</th>
+							<td>
+								<OptionalContent>{account.Email}</OptionalContent>
+							</td>
+							<td>
+								<ClipboardButton text={account.Email} />
 							</td>
 						</tr>
 						{secretRows}

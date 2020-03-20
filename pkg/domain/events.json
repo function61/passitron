@@ -233,6 +233,18 @@
 		]
 	},
 	{
+		"event": "account.EmailChanged",
+		"ctor": ["Id", "Email"],
+		"fields": [
+			{
+				"key": "Id", "type": {"_": "string"}
+			},
+			{
+				"key": "Email", "type": {"_": "string"}
+			}
+		]
+	},
+	{
 		"event": "account.FolderCreated",
 		"ctor": ["Id", "ParentId", "Name"],
 		"fields": [

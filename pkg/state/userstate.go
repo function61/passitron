@@ -209,6 +209,8 @@ func (l *UserStorage) processEvent(ev ehevent.Event) error {
 		}
 	case *domain.AccountUsernameChanged:
 		l.accounts[e.Id].Account.Username = e.Username
+	case *domain.AccountEmailChanged:
+		l.accounts[e.Id].Account.Email = e.Email
 	case *domain.AccountUrlChanged:
 		l.accounts[e.Id].Account.Url = e.Url
 	case *domain.AccountRenamed:

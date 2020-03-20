@@ -42,6 +42,7 @@
 				"Created": {"_": "datetime"},
 				"FolderId": {"_": "string"},
 				"Title": {"_": "string"},
+				"Email": {"_": "string"},
 				"Url": {"_": "string"},
 				"Username": {"_": "string"},
 				"Description": {"_": "string"}

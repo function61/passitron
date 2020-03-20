@@ -33,6 +33,17 @@
 		]
 	},
 	{
+		"command": "account.ChangeEmail",
+		"chain": "authenticated",
+		"ctor": ["Account","Email"],
+		"crudNature": "update",
+		"title": "Change email",
+		"fields": [
+			{ "key": "Account", "hideIfDefaultValue": true },
+			{ "key": "Email", "placeholder": "bob@example.com", "optional": true }
+		]
+	},
+	{
 		"command": "account.ChangeDescription",
 		"chain": "authenticated",
 		"ctor": ["Account","Description"],
@@ -119,6 +130,7 @@
 			{ "key": "Title", "placeholder": "Reddit", "optional": true, "help": "If you don`t specify this, then URL is required" },
 			{ "key": "Url", "placeholder": "https://www.reddit.com/", "title": "URL", "optional": true, "help": "If you don`t specify this, then Title is required" },
 			{ "key": "Username", "placeholder": "bob@example.com", "optional": true },
+			{ "key": "Email", "optional": true, "help": "If your account has username AND email, specify it here. If the account uses email as username, then write email in username." },
 			{ "key": "Password", "type": "password", "optional": true },
 			{ "key": "PasswordRepeat", "placeholder": "(optional, to prevent typos)", "title": "Repeat password", "type": "password", "optional": true }
 		]

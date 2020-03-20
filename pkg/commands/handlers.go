@@ -87,6 +87,19 @@ func (h *Handlers) AccountChangeUsername(a *apitypes.AccountChangeUsername, ctx 
 	return nil
 }
 
+func (h *Handlers) AccountChangeEmail(a *apitypes.AccountChangeEmail, ctx *command.Ctx) error {
+	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
+		return errAccountNotFound
+	}
+
+	ctx.RaisesEvent(domain.NewAccountEmailChanged(
+		a.Account,
+		a.Email,
+		ctx.Meta))
+
+	return nil
+}
+
 func (h *Handlers) AccountChangeUrl(a *apitypes.AccountChangeUrl, ctx *command.Ctx) error {
 	if h.userData(ctx).WrappedAccountById(a.Account) == nil {
 		return errAccountNotFound
@@ -224,6 +237,13 @@ func (h *Handlers) AccountCreate(a *apitypes.AccountCreate, ctx *command.Ctx) er
 		ctx.RaisesEvent(domain.NewAccountUsernameChanged(
 			accountId,
 			a.Username,
+			ctx.Meta))
+	}
+
+	if a.Email != "" {
+		ctx.RaisesEvent(domain.NewAccountEmailChanged(
+			accountId,
+			a.Email,
 			ctx.Meta))
 	}
 
