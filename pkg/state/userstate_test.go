@@ -257,12 +257,14 @@ func addPassword(t *testing.T, tc *testContext) {
 		domain.NewAccountPasswordAdded(
 			testAccId,
 			"pwdId1",
+			"My cool pwd",
 			tc.encrypt("hunter2"),
 			ehevent.Meta(t0, joonasUid)))
 
 	secret := tc.user.accounts[testAccId].Secrets[0]
 
 	assert.Assert(t, secret.Kind == domain.SecretKindPassword)
+	assert.EqualString(t, secret.Title, "My cool pwd")
 
 	pwd, err := tc.user.crypto.Decrypt(secret.Envelope)
 	assert.Ok(t, err)

@@ -133,6 +133,7 @@ func Run(csvPath string, userId string) error {
 			pushEvent(domain.NewAccountPasswordAdded(
 				accountId,
 				state.RandomId(),
+				"",
 				envelope,
 				ehevent.Meta(modificationTime, userId)))
 		}

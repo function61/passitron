@@ -131,13 +131,16 @@
 	},
 	{
 		"event": "account.PasswordAdded",
-		"ctor": ["Account", "Id", "Password"],
+		"ctor": ["Account", "Id", "Title", "Password"],
 		"fields": [
 			{
 				"key": "Account", "type": {"_": "string"}
 			},
 			{
 				"key": "Id", "type": {"_": "string"}
+			},
+			{
+				"key": "Title", "type": {"_": "string"}
 			},
 			{
 				"key": "Password", "type": {"_": "binary"},

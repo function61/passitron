@@ -234,6 +234,7 @@ func (l *UserStorage) processEvent(ev ehevent.Event) error {
 			Id:       e.Id,
 			created:  e.Meta().Timestamp,
 			Kind:     domain.SecretKindPassword,
+			Title:    e.Title,
 			Envelope: e.Password,
 		})
 	case *domain.AccountOtpTokenAdded:

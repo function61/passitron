@@ -241,6 +241,7 @@ func (h *Handlers) AccountCreate(a *apitypes.AccountCreate, ctx *command.Ctx) er
 		ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 			accountId,
 			state.RandomId(),
+			"", // not supported in this "quickly add password" use case
 			envelope,
 			ctx.Meta))
 	}
@@ -296,6 +297,7 @@ func (h *Handlers) AccountAddPassword(a *apitypes.AccountAddPassword, ctx *comma
 	ctx.RaisesEvent(domain.NewAccountPasswordAdded(
 		a.Account,
 		state.RandomId(),
+		a.Title,
 		envelope,
 		ctx.Meta))
 

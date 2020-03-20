@@ -353,6 +353,9 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 							<span className="margin-left">
 								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 							</span>
+							<div>
+								<MutedText>{secret.Title}</MutedText>
+							</div>
 						</th>
 						<td>
 							<SecretReveal secret={secret.Password} noAutomaticClipboard={true} />
