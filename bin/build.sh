@@ -50,6 +50,9 @@ fi
 
 standardBuildProcess
 
-buildInternalDependenciesDocs
+if [ ! -n "${FASTBUILD:-}" ]; then
+	buildInternalDependenciesDocs
 
-generateCommandlineUserguideDocs
+	generateCommandlineUserguideDocs
+fi
+
