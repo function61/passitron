@@ -99,3 +99,7 @@ How to build & develop
 [How to build & develop](https://github.com/function61/turbobob/blob/master/docs/external-how-to-build-and-dev.md)
 (with Turbo Bob, our build tool). It's easy and simple!
 
+### Getting to know the codebase
+
+See commit where I
+[added support to storing an email field](https://github.com/function61/passitron/commit/2182421beb6ce09693e974823dfe8dd5bf2c339a).
