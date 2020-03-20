@@ -1,5 +1,5 @@
 import { U2fSigner } from 'components/U2F';
-import { PrimaryLabel } from 'f61ui/component/bootstrap';
+import { PrimaryLabel, MutedText } from 'f61ui/component/bootstrap';
 import { Breadcrumb } from 'f61ui/component/breadcrumbtrail';
 import { ClipboardButton } from 'f61ui/component/clipboardbutton';
 import { CommandIcon, CommandLink } from 'f61ui/component/CommandButton';
@@ -400,9 +400,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 							<span className="margin-left">
 								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 							</span>
+							<div>
+								<MutedText>{secret.Title}</MutedText>
+							</div>
 						</th>
 						<td colSpan={2}>
-							{secret.Title}
 							<KeylistAccessor account={account.Id} secret={secret} />
 						</td>
 					</tr>
@@ -430,9 +432,11 @@ export default class AccountPage extends React.Component<AccountPageProps, Accou
 							<span className="margin-left">
 								<CommandIcon command={AccountDeleteSecret(account.Id, secret.Id)} />
 							</span>
+							<div>
+								<MutedText>{secret.Title}</MutedText>
+							</div>
 						</th>
 						<td colSpan={2}>
-							{secret.Title}
 							<MonospaceContent>{secret.Note}</MonospaceContent>
 						</td>
 					</tr>
